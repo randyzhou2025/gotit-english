@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+unpackage/
+
+# Generated assets (regenerate via pnpm audio:generate)
+generated/
+
+# Local backups & QA screenshots
+backup/
+
+# IDE / editor
+.hbuilderx/
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# Logs & caches
+*.log
+npm-debug.log*
+pnpm-debug.log*
+coverage/
+.vite/

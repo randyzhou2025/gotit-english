@@ -1,0 +1,41 @@
+:root {
+  --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --page-bg: #ffffff;
+  --surface: #ffffff;
+  --surface-soft: #f7f7f7;
+  --surface-cool: #ddf4ff;
+  --ink: #3c3c3c;
+  --ink-soft: #4b4b4b;
+  --muted: #777777;
+  --muted-light: #afafaf;
+  --line: #e5e5e5;
+  --line-strong: #d9d9d9;
+  --accent: #58cc02;
+  --accent-strong: #46a302;
+  --accent-soft: #d7ffb8;
+  --info: #1cb0f6;
+  --info-soft: #ddf4ff;
+  --warning: #ffc800;
+  --warning-strong: #e5a500;
+  --danger: #ff4b4b;
+  --danger-soft: #ffdfe0;
+  --success: #58cc02;
+  --success-soft: #d7ffb8;
+  --shadow-soft: 0 14px 28px rgba(60, 60, 60, 0.08);
+  --radius: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button::after {
+  border: 0;
+}
+
+view,
+text,
+input,
+button {
+  font-family: var(--font-sans);
+}

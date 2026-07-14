@@ -1,0 +1,40 @@
+{
+  "name": "gotit-english",
+  "version": "0.2.0",
+  "private": true,
+  "description": "会了吗英语：uni-app 版英语词汇体检与自动听写",
+  "scripts": {
+    "wordbank:build": "node scripts/build-wordbank.mjs",
+    "audio:generate": "node scripts/generate-audio-assets.mjs",
+    "dev:h5": "uni -p h5",
+    "dev:weapp": "uni -p mp-weixin",
+    "dev:app": "uni -p app",
+    "build:h5": "uni build -p h5",
+    "build:weapp": "uni build -p mp-weixin",
+    "build:app": "uni build -p app",
+    "typecheck": "vue-tsc --noEmit",
+    "test": "vitest run --config vitest.config.ts",
+    "verify": "pnpm wordbank:build && pnpm typecheck && pnpm test && pnpm build:h5"
+  },
+  "dependencies": {
+    "@dcloudio/uni-app": "3.0.0-alpha-5020120260710001",
+    "@dcloudio/uni-app-plus": "3.0.0-alpha-5020120260710001",
+    "@dcloudio/uni-components": "3.0.0-alpha-5020120260710001",
+    "@dcloudio/uni-h5": "3.0.0-alpha-5020120260710001",
+    "@dcloudio/uni-mp-weixin": "3.0.0-alpha-5020120260710001",
+    "vue": "3.4.21"
+  },
+  "devDependencies": {
+    "@dcloudio/types": "3.4.31",
+    "@dcloudio/vite-plugin-uni": "3.0.0-alpha-5020120260710001",
+    "@types/node": "^24.0.0",
+    "@vue/compiler-sfc": "3.4.21",
+    "@vue/tsconfig": "^0.8.1",
+    "sass": "^1.75.0",
+    "typescript": "^5.4.5",
+    "vite": "5.2.8",
+    "vitest": "^3.2.4",
+    "vue-tsc": "^3.0.8",
+    "xlsx": "^0.18.5"
+  }
+}

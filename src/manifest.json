@@ -1,0 +1,44 @@
+{
+  "name": "会了吗英语",
+  "appid": "__UNI__GOTIT_ENGLISH",
+  "description": "英语词汇体检与自动听写",
+  "versionName": "0.2.0",
+  "versionCode": "20",
+  "transformPx": false,
+  "app-plus": {
+    "usingComponents": true,
+    "nvueStyleCompiler": "uni-app",
+    "compilerVersion": 3,
+    "splashscreen": {
+      "alwaysShowBeforeRender": true,
+      "waiting": true,
+      "autoclose": true,
+      "delay": 0
+    },
+    "modules": {},
+    "distribute": {
+      "android": {
+        "permissions": []
+      },
+      "ios": {}
+    }
+  },
+  "mp-weixin": {
+    "appid": "",
+    "setting": {
+      "urlCheck": true,
+      "es6": true,
+      "postcss": true,
+      "minified": true
+    },
+    "usingComponents": true
+  },
+  "h5": {
+    "router": {
+      "mode": "history"
+    },
+    "devServer": {
+      "https": false
+    }
+  }
+}
