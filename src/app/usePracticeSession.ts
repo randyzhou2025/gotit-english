@@ -10,7 +10,6 @@ import {
   gradeDictationInput
 } from '@/core/dictation'
 import type {
-  Accent,
   CheckupAnswer,
   CheckupQuestion,
   DictationMode,
@@ -37,8 +36,10 @@ export type RecognitionState = 'idle' | 'correct' | 'wrong'
 const DEFAULT_CHECKUP_LIMIT = 10
 const CORRECT_ADVANCE_DELAY_MS = 640
 const DICTATION_CORRECT_ADVANCE_DELAY_MS = 760
+const DEFAULT_DICTATION_ACCENT = 'uk'
 const SAVED_WEAK_WORD_IDS_KEY = 'gotit:savedWeakWordIds'
 const MASTERED_WORD_IDS_KEY = 'gotit:masteredWordIds'
+const SELECTED_UNIT_ID_KEY = 'gotit:selectedUnitId'
 
 function loadSavedWordIds(key: string): string[] {
   try {
@@ -52,6 +53,23 @@ function loadSavedWordIds(key: string): string[] {
 function saveWordIds(key: string, ids: string[]) {
   try {
     uni.setStorageSync(key, ids)
+  } catch {
+    // Storage can be unavailable in restricted preview contexts.
+  }
+}
+
+function loadSavedUnitId(): string {
+  try {
+    const saved = uni.getStorageSync(SELECTED_UNIT_ID_KEY)
+    return typeof saved === 'string' ? saved : ''
+  } catch {
+    return ''
+  }
+}
+
+function saveSelectedUnitId(unitId: string) {
+  try {
+    uni.setStorageSync(SELECTED_UNIT_ID_KEY, unitId)
   } catch {
     // Storage can be unavailable in restricted preview contexts.
   }
@@ -85,13 +103,15 @@ function scrollToTop() {
   }, 0)
 }
 
-export function usePracticeSession() {
+function createPracticeSession() {
   const words = getWordbank()
   const units = groupUnits(words)
   const defaultUnit = getDefaultUnit(units)
+  const savedUnitId = loadSavedUnitId()
+  const initialUnit = findUnit(units, savedUnitId) ?? defaultUnit
 
   const screen = ref<AppScreen>('home')
-  const selectedUnitId = ref(defaultUnit?.unitId ?? '')
+  const selectedUnitId = ref(initialUnit?.unitId ?? '')
 
   const checkupQuestions = ref<CheckupQuestion[]>([])
   const checkupAnswers = ref<CheckupAnswer[]>([])
@@ -105,7 +125,6 @@ export function usePracticeSession() {
   const selectedWeakWordIds = ref<string[]>([])
 
   const dictationMode = ref<DictationMode>('paper')
-  const dictationAccent = ref<Accent>('uk')
   const dictationPrompt = ref<DictationPrompt>('chinese')
   const dictationIntervalSeconds = ref(8)
   const dictationOrder = ref<DictationOrder>('shuffle')
@@ -150,6 +169,10 @@ export function usePracticeSession() {
   const masteredUnitWordCount = computed(() => masteredUnitWords.value.length)
   const unitWordCount = computed(() => unitWords.value.length)
   const unitMasteryLabel = computed(() => `${masteredUnitWordCount.value}/${unitWordCount.value}`)
+  const unitMasteryPercent = computed(() => {
+    if (unitWordCount.value === 0) return 0
+    return Math.round((masteredUnitWordCount.value / unitWordCount.value) * 100)
+  })
   const activeWords = computed(() => unitWords.value.filter(word => !masteredWordIdSet.value.has(word.id)))
   const defaultCheckupLimit = computed(() => getDefaultCheckupLimit(activeWords.value.length))
   const effectiveCheckupLimit = computed(() => normalizeCheckupLimit(checkupLimit.value, activeWords.value.length))
@@ -222,12 +245,14 @@ export function usePracticeSession() {
     const total = dictationPlan.value?.words.length ?? 0
     const correct = dictationRecords.value.filter(record => record.correct).length
     const wrong = dictationRecords.value.length - correct
+    const forgotten = dictationRecords.value.filter(record => record.forgotten).length
 
     return {
       total,
       answered: dictationRecords.value.length,
       correct,
       wrong,
+      forgotten,
       accuracy: dictationRecords.value.length === 0
         ? 0
         : Math.round((correct / dictationRecords.value.length) * 100)
@@ -239,11 +264,18 @@ export function usePracticeSession() {
       .map(record => wordLookup.value.get(record.wordId))
       .filter((word): word is WordEntry => word !== undefined)
   })
+  const dictationForgottenWords = computed(() => {
+    return dictationRecords.value
+      .filter(record => record.forgotten)
+      .map(record => wordLookup.value.get(record.wordId))
+      .filter((word): word is WordEntry => word !== undefined)
+  })
 
   function setSelectedUnitByIndex(index: number) {
     const next = units[index]
     if (!next) return
     selectedUnitId.value = next.unitId
+    saveSelectedUnitId(next.unitId)
     checkupLimit.value = 0
     selectedDictationWordIds.value = next.words
       .filter(word => !masteredWordIdSet.value.has(word.id))
@@ -254,6 +286,7 @@ export function usePracticeSession() {
   function setSelectedUnit(unit: UnitGroup | undefined) {
     if (!unit) return
     selectedUnitId.value = unit.unitId
+    saveSelectedUnitId(unit.unitId)
     checkupLimit.value = 0
     selectedDictationWordIds.value = unit.words
       .filter(word => !masteredWordIdSet.value.has(word.id))
@@ -565,7 +598,7 @@ export function usePracticeSession() {
     const plan = createDictationPlan(
       targetDictationWords.value,
       dictationMode.value,
-      dictationAccent.value,
+      DEFAULT_DICTATION_ACCENT,
       dictationPrompt.value,
       dictationIntervalSeconds.value,
       dictationOrder.value,
@@ -600,6 +633,40 @@ export function usePracticeSession() {
           nextDictation()
         }
       }, DICTATION_CORRECT_ADVANCE_DELAY_MS)
+    }
+  }
+
+  function markCurrentDictationForgotten() {
+    const entry = currentDictationEntry.value
+    if (!entry) return
+
+    recordWeakWord(entry.id)
+
+    const existingRecord = dictationRecords.value.find(record => record.wordId === entry.id)
+    if (existingRecord) {
+      dictationRecords.value = dictationRecords.value.map(record => {
+        if (record.wordId !== entry.id) return record
+
+        return {
+          ...record,
+          correct: false,
+          forgotten: true
+        }
+      })
+    } else {
+      dictationRecords.value = [
+        ...dictationRecords.value,
+        {
+          wordId: entry.id,
+          input: '',
+          correct: false,
+          forgotten: true
+        }
+      ]
+    }
+
+    if (dictationMode.value === 'online') {
+      showDictationAnswer.value = true
     }
   }
 
@@ -642,7 +709,6 @@ export function usePracticeSession() {
     confirmDictationWordSelection,
     currentCheckupQuestion,
     currentDictationEntry,
-    dictationAccent,
     dictationAudioReady,
     dictationAudioUrl,
     dictationIndex,
@@ -657,11 +723,14 @@ export function usePracticeSession() {
     dictationRepeatCount,
     dictationSummary,
     dictationTitle,
+    dictationForgottenWords,
     dictationWrongWords,
     effectiveCheckupLimit,
     isUnitWordMastered,
     markSelectedWeakWordsKnown,
+    markCurrentDictationForgotten,
     markUnitWordKnown,
+    masteredUnitWordCount,
     openDictationSetup,
     openDictationWordPicker,
     openCheckupSetup,
@@ -714,10 +783,23 @@ export function usePracticeSession() {
     unitLabel,
     unitOptions,
     unitMasteryLabel,
+    unitMasteryPercent,
     unitWordCount,
     unitWords,
     units,
     weakWords,
     nextDictation
   }
+}
+
+type PracticeSession = ReturnType<typeof createPracticeSession>
+
+let practiceSession: PracticeSession | null = null
+
+export function usePracticeSession(): PracticeSession {
+  if (!practiceSession) {
+    practiceSession = createPracticeSession()
+  }
+
+  return practiceSession
 }

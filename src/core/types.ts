@@ -95,4 +95,5 @@ export interface DictationRecord {
   wordId: string
   input: string
   correct: boolean
+  forgotten?: boolean
 }

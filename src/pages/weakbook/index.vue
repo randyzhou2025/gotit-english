@@ -1,5 +1,5 @@
 <template>
-  <PracticeShell tab-screen="home" />
+  <PracticeShell tab-screen="weakbook" />
 </template>
 
 <script setup lang="ts">

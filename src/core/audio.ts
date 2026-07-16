@@ -1,11 +1,26 @@
 import type { Accent, DictationPlan, WordEntry } from './types'
 
+const LOCAL_AUDIO_BASE_PATH = '/generated/audio'
+const audioCdnBaseUrl = String(import.meta.env.VITE_AUDIO_CDN_BASE_URL || '').replace(/\/+$/, '')
+
+function resolveAudioUrl(url: string): string {
+  if (!url) return ''
+  if (/^https?:\/\//.test(url)) return url
+  if (!audioCdnBaseUrl) return url
+
+  if (url.startsWith(`${LOCAL_AUDIO_BASE_PATH}/`)) {
+    return `${audioCdnBaseUrl}/${url.slice(LOCAL_AUDIO_BASE_PATH.length + 1)}`
+  }
+
+  return url.startsWith('/') ? `${audioCdnBaseUrl}${url}` : `${audioCdnBaseUrl}/${url}`
+}
+
 export function getAudioUrl(entry: WordEntry, accent: Accent): string {
-  return accent === 'uk' ? entry.audio.ukUrl : entry.audio.usUrl
+  return resolveAudioUrl(accent === 'uk' ? entry.audio.ukUrl : entry.audio.usUrl)
 }
 
 export function getDictationAudioUrl(entry: WordEntry, plan: Pick<DictationPlan, 'accent' | 'prompt'>): string {
-  return plan.prompt === 'chinese' ? entry.audio.zhUrl : getAudioUrl(entry, plan.accent)
+  return plan.prompt === 'chinese' ? resolveAudioUrl(entry.audio.zhUrl) : getAudioUrl(entry, plan.accent)
 }
 
 export function hasPlayableAudio(entry: WordEntry, accent: Accent): boolean {

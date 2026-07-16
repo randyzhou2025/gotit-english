@@ -41,8 +41,27 @@ function localAudioMiddleware(): Plugin {
   }
 }
 
+function h5AudioAssetPlugin(): Plugin {
+  const audioRoot = path.resolve(__dirname, 'generated/audio')
+
+  return {
+    name: 'gotit-h5-audio-assets',
+    apply: 'build' as const,
+    writeBundle(options) {
+      const outputDir = path.resolve(__dirname, options.dir ?? '')
+      const h5OutputDir = path.resolve(__dirname, 'dist/build/h5')
+      if (outputDir !== h5OutputDir || !fs.existsSync(audioRoot)) return
+
+      const targetDir = path.join(h5OutputDir, 'generated/audio')
+      fs.rmSync(targetDir, { recursive: true, force: true })
+      fs.mkdirSync(path.dirname(targetDir), { recursive: true })
+      fs.cpSync(audioRoot, targetDir, { recursive: true })
+    }
+  }
+}
+
 export default defineConfig({
-  plugins: [localAudioMiddleware(), uni()],
+  plugins: [localAudioMiddleware(), h5AudioAssetPlugin(), uni()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src')

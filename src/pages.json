@@ -6,8 +6,48 @@
         "navigationBarTitleText": "会了吗英语",
         "navigationStyle": "custom"
       }
+    },
+    {
+      "path": "pages/weakbook/index",
+      "style": {
+        "navigationBarTitleText": "生词本",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/dictation/index",
+      "style": {
+        "navigationBarTitleText": "自动听写",
+        "navigationStyle": "custom"
+      }
     }
   ],
+  "tabBar": {
+    "color": "#8a9298",
+    "selectedColor": "#1cb0f6",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "iconPath": "static/tabbar/home.png",
+        "selectedIconPath": "static/tabbar/home-active.png",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/weakbook/index",
+        "iconPath": "static/tabbar/weakbook.png",
+        "selectedIconPath": "static/tabbar/weakbook-active.png",
+        "text": "生词本"
+      },
+      {
+        "pagePath": "pages/dictation/index",
+        "iconPath": "static/tabbar/dictation.png",
+        "selectedIconPath": "static/tabbar/dictation-active.png",
+        "text": "听写"
+      }
+    ]
+  },
   "globalStyle": {
     "backgroundColor": "#ffffff",
     "navigationBarTextStyle": "black",
