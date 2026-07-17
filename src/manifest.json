@@ -5,6 +5,9 @@
   "versionName": "0.2.0",
   "versionCode": "20",
   "transformPx": false,
+  "uniStatistics": {
+    "enable": false
+  },
   "app-plus": {
     "usingComponents": true,
     "nvueStyleCompiler": "uni-app",
@@ -24,7 +27,7 @@
     }
   },
   "mp-weixin": {
-    "appid": "",
+    "appid": "wx703d7f44468c7dbf",
     "setting": {
       "urlCheck": true,
       "es6": true,

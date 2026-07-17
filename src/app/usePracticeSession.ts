@@ -30,16 +30,34 @@ import {
   groupUnits
 } from '@/core/wordbank'
 
-export type AppScreen = 'home' | 'weakbook' | 'unitWords' | 'checkupSetup' | 'checkup' | 'spelling' | 'report' | 'dictationSetup' | 'dictationWords' | 'dictation' | 'dictationReport'
+export type AppScreen = 'courseSetup' | 'home' | 'weakbook' | 'unitWords' | 'checkupSetup' | 'checkup' | 'spelling' | 'report' | 'dictationSetup' | 'dictationWords' | 'dictation' | 'dictationReport' | 'dictationReward'
 export type RecognitionState = 'idle' | 'correct' | 'wrong'
+export type SchoolStage = '初中' | '高中'
+
+export interface DictationRewardState {
+  total: number
+  masteredCount: number
+  newlyMasteredCount: number
+  forgottenCount: number
+  beforeMastered: number
+  afterMastered: number
+  beforePercent: number
+  afterPercent: number
+  allCorrect: boolean
+}
 
 const DEFAULT_CHECKUP_LIMIT = 10
 const CORRECT_ADVANCE_DELAY_MS = 640
 const DICTATION_CORRECT_ADVANCE_DELAY_MS = 760
+const FORGOTTEN_ADVANCE_DELAY_MS = 1000
 const DEFAULT_DICTATION_ACCENT = 'uk'
+const DICTATION_QUICK_PICK_COUNTS = [1, 5, 10, 20, 30, 50]
 const SAVED_WEAK_WORD_IDS_KEY = 'gotit:savedWeakWordIds'
 const MASTERED_WORD_IDS_KEY = 'gotit:masteredWordIds'
 const SELECTED_UNIT_ID_KEY = 'gotit:selectedUnitId'
+const COURSE_SETUP_COMPLETED_KEY = 'gotit:courseSetupCompleted'
+const SCHOOL_STAGE_OPTIONS: SchoolStage[] = ['初中', '高中']
+const JUNIOR_GRADE_OPTIONS = ['六年级', '七年级', '八年级', '九年级']
 
 function loadSavedWordIds(key: string): string[] {
   try {
@@ -67,6 +85,24 @@ function loadSavedUnitId(): string {
   }
 }
 
+function loadCourseSetupCompleted(savedUnitId: string): boolean {
+  if (savedUnitId) return true
+
+  try {
+    return uni.getStorageSync(COURSE_SETUP_COMPLETED_KEY) === true
+  } catch {
+    return false
+  }
+}
+
+function saveCourseSetupCompleted() {
+  try {
+    uni.setStorageSync(COURSE_SETUP_COMPLETED_KEY, true)
+  } catch {
+    // Storage can be unavailable in restricted preview contexts.
+  }
+}
+
 function saveSelectedUnitId(unitId: string) {
   try {
     uni.setStorageSync(SELECTED_UNIT_ID_KEY, unitId)
@@ -75,8 +111,41 @@ function saveSelectedUnitId(unitId: string) {
   }
 }
 
-function inferSchoolStage(unit: UnitGroup): string {
+function sampleWords<T>(items: T[], count: number): T[] {
+  if (count >= items.length) return [...items]
+
+  const pool = [...items]
+  for (let index = pool.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1))
+    const current = pool[index]!
+    pool[index] = pool[swapIndex]!
+    pool[swapIndex] = current
+  }
+
+  return pool.slice(0, count)
+}
+
+function inferSchoolStage(unit: UnitGroup): SchoolStage {
   return /初中|七年级|八年级|九年级/.test(unit.bookName) ? '初中' : '高中'
+}
+
+function inferJuniorGrade(unit: UnitGroup): string {
+  return JUNIOR_GRADE_OPTIONS.find(grade => unit.bookName.includes(grade)) ?? ''
+}
+
+function toCourseOptions<T extends UnitGroup>(
+  units: T[],
+  getId: (unit: T) => string,
+  getName: (unit: T) => string
+): Array<{ id: string, name: string }> {
+  const map = new Map<string, string>()
+  for (const unit of units) {
+    if (!map.has(getId(unit))) {
+      map.set(getId(unit), getName(unit))
+    }
+  }
+
+  return Array.from(map.entries()).map(([id, name]) => ({ id, name }))
 }
 
 function uniqueValues(values: string[]): string[] {
@@ -103,15 +172,49 @@ function scrollToTop() {
   }, 0)
 }
 
+function triggerHapticFeedback(strong = false) {
+  try {
+    const feedback = uni as unknown as {
+      vibrateShort?: (options?: {
+        type?: 'light' | 'medium' | 'heavy'
+        fail?: () => void
+      }) => void
+    }
+    const runtime = globalThis as unknown as {
+      wx?: {
+        vibrateShort?: (options?: { type?: 'light' | 'medium' | 'heavy' }) => void
+      }
+    }
+    const type = strong ? 'heavy' : 'medium'
+    const fallback = () => runtime.wx?.vibrateShort?.({ type })
+
+    if (feedback.vibrateShort) {
+      feedback.vibrateShort({ type, fail: fallback })
+      return
+    }
+
+    fallback()
+  } catch {
+    // Haptic feedback is best-effort and unavailable in some preview runtimes.
+  }
+}
+
 function createPracticeSession() {
   const words = getWordbank()
   const units = groupUnits(words)
   const defaultUnit = getDefaultUnit(units)
   const savedUnitId = loadSavedUnitId()
   const initialUnit = findUnit(units, savedUnitId) ?? defaultUnit
+  const initiallyCompletedCourseSetup = loadCourseSetupCompleted(savedUnitId)
 
-  const screen = ref<AppScreen>('home')
+  const screen = ref<AppScreen>(initiallyCompletedCourseSetup ? 'home' : 'courseSetup')
   const selectedUnitId = ref(initialUnit?.unitId ?? '')
+  const courseSetupCompleted = ref(initiallyCompletedCourseSetup)
+  const courseSetupStage = ref<SchoolStage>(initialUnit ? inferSchoolStage(initialUnit) : '高中')
+  const courseSetupGrade = ref(initialUnit && inferSchoolStage(initialUnit) === '初中' ? inferJuniorGrade(initialUnit) : '')
+  const courseSetupPublisherId = ref(initialUnit?.publisherId ?? '')
+  const courseSetupBookId = ref(initialUnit?.bookId ?? '')
+  const courseSetupUnitId = ref(initialUnit?.unitId ?? '')
 
   const checkupQuestions = ref<CheckupQuestion[]>([])
   const checkupAnswers = ref<CheckupAnswer[]>([])
@@ -136,6 +239,10 @@ function createPracticeSession() {
   const showDictationAnswer = ref(false)
   const dictationSourceWords = ref<WordEntry[] | null>(null)
   const selectedDictationWordIds = ref<string[]>([])
+  const selectedDictationQuickCount = ref<number | null>(null)
+  const dictationExcludesMasteredWords = ref(true)
+  const dictationResultConfirmed = ref(false)
+  const dictationReward = ref<DictationRewardState | null>(null)
 
   const selectedUnit = computed<UnitGroup | undefined>(() => findUnit(units, selectedUnitId.value))
   const currentSchoolStage = computed(() => selectedUnit.value ? inferSchoolStage(selectedUnit.value) : '高中')
@@ -143,7 +250,7 @@ function createPracticeSession() {
     const index = units.findIndex(unit => unit.unitId === selectedUnitId.value)
     return index < 0 ? 0 : index
   })
-  const schoolStageOptions = computed(() => uniqueValues(units.map(unit => inferSchoolStage(unit))))
+  const schoolStageOptions = computed(() => SCHOOL_STAGE_OPTIONS)
   const selectedSchoolStageIndex = computed(() => Math.max(0, schoolStageOptions.value.indexOf(currentSchoolStage.value)))
   const publisherOptions = computed(() => uniqueValues(units
     .filter(unit => inferSchoolStage(unit) === currentSchoolStage.value)
@@ -163,6 +270,33 @@ function createPracticeSession() {
     .sort((a, b) => a.unitNumber - b.unitNumber)
     .map(unit => `Unit ${unit.unitNumber}`))
   const selectedUnitQuickIndex = computed(() => Math.max(0, unitQuickOptions.value.indexOf(`Unit ${selectedUnit.value?.unitNumber ?? 1}`)))
+  const courseSetupStageOptions = computed(() => SCHOOL_STAGE_OPTIONS)
+  const courseSetupGradeOptions = computed(() => JUNIOR_GRADE_OPTIONS)
+  const courseSetupStageUnits = computed(() => {
+    if (courseSetupStage.value === '初中') {
+      if (!courseSetupGrade.value) return []
+      return units.filter(unit => inferSchoolStage(unit) === '初中' && unit.bookName.includes(courseSetupGrade.value))
+    }
+
+    return units.filter(unit => inferSchoolStage(unit) === '高中')
+  })
+  const courseSetupPublisherOptions = computed(() => toCourseOptions(
+    courseSetupStageUnits.value,
+    unit => unit.publisherId,
+    unit => unit.publisherName
+  ))
+  const courseSetupBookOptions = computed(() => toCourseOptions(
+    courseSetupStageUnits.value
+      .filter(unit => unit.publisherId === courseSetupPublisherId.value)
+      .sort((a, b) => a.bookOrder - b.bookOrder),
+    unit => unit.bookId,
+    unit => unit.bookName
+  ))
+  const courseSetupUnitOptions = computed(() => courseSetupStageUnits.value
+    .filter(unit => unit.publisherId === courseSetupPublisherId.value && unit.bookId === courseSetupBookId.value)
+    .sort((a, b) => a.unitNumber - b.unitNumber)
+    .map(unit => ({ id: unit.unitId, name: `Unit ${unit.unitNumber}`, count: unit.words.length })))
+  const courseSetupCanConfirm = computed(() => courseSetupUnitOptions.value.some(unit => unit.id === courseSetupUnitId.value))
   const unitWords = computed(() => selectedUnit.value?.words ?? [])
   const masteredWordIdSet = computed(() => new Set(masteredWordIds.value))
   const masteredUnitWords = computed(() => unitWords.value.filter(word => masteredWordIdSet.value.has(word.id)))
@@ -212,13 +346,51 @@ function createPracticeSession() {
   const allWeakWordsSelected = computed(() => {
     return savedWeakWords.value.length > 0 && selectedWeakWordCount.value === savedWeakWords.value.length
   })
+  const dictationPickerBaseWords = computed(() => dictationSourceWords.value ?? unitWords.value)
+  const dictationPickerWords = computed(() => {
+    if (!dictationExcludesMasteredWords.value) return dictationPickerBaseWords.value
+
+    return dictationPickerBaseWords.value.filter(word => !masteredWordIdSet.value.has(word.id))
+  })
   const selectedDictationWords = computed(() => {
     const selectedSet = new Set(selectedDictationWordIds.value)
-    return activeWords.value.filter(word => selectedSet.has(word.id))
+    return dictationPickerWords.value.filter(word => selectedSet.has(word.id))
+  })
+  const dictationPickerDisplayWords = computed(() => {
+    const wordById = new Map(dictationPickerWords.value.map(word => [word.id, word]))
+    const selectedWords = selectedDictationWordIds.value
+      .map(id => wordById.get(id))
+      .filter((word): word is WordEntry => word !== undefined)
+    const selectedSet = new Set(selectedWords.map(word => word.id))
+    const unselectedWords = dictationPickerWords.value.filter(word => !selectedSet.has(word.id))
+
+    return [...selectedWords, ...unselectedWords]
   })
   const selectedDictationWordCount = computed(() => selectedDictationWords.value.length)
   const allDictationWordsSelected = computed(() => {
-    return activeWords.value.length > 0 && selectedDictationWordCount.value === activeWords.value.length
+    return dictationPickerWords.value.length > 0 && selectedDictationWordCount.value === dictationPickerWords.value.length
+  })
+  const dictationQuickPickOptions = computed(() => {
+    const total = dictationPickerWords.value.length
+    const countOptions = DICTATION_QUICK_PICK_COUNTS
+      .filter(count => count <= total)
+      .map(count => ({
+        id: `count:${count}`,
+        count,
+        label: `${count}词`,
+        isAll: false
+      }))
+
+    if (total > 0) {
+      countOptions.push({
+        id: 'all',
+        count: total,
+        label: '全部',
+        isAll: true
+      })
+    }
+
+    return countOptions
   })
   const targetDictationWords = computed(() => {
     return selectedDictationWords.value
@@ -271,15 +443,96 @@ function createPracticeSession() {
       .filter((word): word is WordEntry => word !== undefined)
   })
 
+  function syncCourseSetupDraftFromUnit(unit: UnitGroup | undefined) {
+    if (!unit) return
+
+    courseSetupStage.value = inferSchoolStage(unit)
+    courseSetupGrade.value = courseSetupStage.value === '初中' ? inferJuniorGrade(unit) : ''
+    courseSetupPublisherId.value = unit.publisherId
+    courseSetupBookId.value = unit.bookId
+    courseSetupUnitId.value = unit.unitId
+  }
+
+  function setCourseDraftToFirstUnit(stage: SchoolStage) {
+    const next = courseSetupStageUnits.value.find(unit => inferSchoolStage(unit) === stage)
+    if (!next) {
+      courseSetupPublisherId.value = ''
+      courseSetupBookId.value = ''
+      courseSetupUnitId.value = ''
+      return
+    }
+
+    courseSetupPublisherId.value = next.publisherId
+    courseSetupBookId.value = next.bookId
+    courseSetupUnitId.value = next.unitId
+  }
+
+  function setCourseSetupStage(stage: SchoolStage) {
+    courseSetupStage.value = stage
+    if (stage === '初中') {
+      courseSetupGrade.value = ''
+      courseSetupPublisherId.value = ''
+      courseSetupBookId.value = ''
+      courseSetupUnitId.value = ''
+      return
+    }
+
+    courseSetupGrade.value = ''
+    setCourseDraftToFirstUnit(stage)
+  }
+
+  function setCourseSetupGrade(grade: string) {
+    courseSetupGrade.value = grade
+    setCourseDraftToFirstUnit('初中')
+  }
+
+  function setCourseSetupPublisher(publisherId: string) {
+    courseSetupPublisherId.value = publisherId
+    const next = courseSetupStageUnits.value.find(unit => unit.publisherId === publisherId)
+    courseSetupBookId.value = next?.bookId ?? ''
+    courseSetupUnitId.value = next?.unitId ?? ''
+  }
+
+  function setCourseSetupBook(bookId: string) {
+    courseSetupBookId.value = bookId
+    const next = courseSetupStageUnits.value.find(unit => {
+      return unit.publisherId === courseSetupPublisherId.value && unit.bookId === bookId
+    })
+    courseSetupUnitId.value = next?.unitId ?? ''
+  }
+
+  function setCourseSetupUnit(unitId: string) {
+    courseSetupUnitId.value = unitId
+  }
+
+  function openCourseSetup() {
+    syncCourseSetupDraftFromUnit(selectedUnit.value)
+    screen.value = 'courseSetup'
+    scrollToTop()
+  }
+
+  function confirmCourseSetup() {
+    const next = findUnit(units, courseSetupUnitId.value)
+    if (!next) {
+      uni.showToast({
+        title: '当前词库暂未上线',
+        icon: 'none'
+      })
+      return
+    }
+
+    courseSetupCompleted.value = true
+    saveCourseSetupCompleted()
+    setSelectedUnit(next)
+  }
+
   function setSelectedUnitByIndex(index: number) {
     const next = units[index]
     if (!next) return
     selectedUnitId.value = next.unitId
     saveSelectedUnitId(next.unitId)
     checkupLimit.value = 0
-    selectedDictationWordIds.value = next.words
-      .filter(word => !masteredWordIdSet.value.has(word.id))
-      .map(word => word.id)
+    setDefaultDictationSelection(true)
     resetPractice()
   }
 
@@ -288,9 +541,7 @@ function createPracticeSession() {
     selectedUnitId.value = unit.unitId
     saveSelectedUnitId(unit.unitId)
     checkupLimit.value = 0
-    selectedDictationWordIds.value = unit.words
-      .filter(word => !masteredWordIdSet.value.has(word.id))
-      .map(word => word.id)
+    setDefaultDictationSelection(true)
     resetPractice()
   }
 
@@ -341,7 +592,10 @@ function createPracticeSession() {
     dictationRecords.value = []
     showDictationAnswer.value = false
     dictationSourceWords.value = null
-    selectedDictationWordIds.value = activeWords.value.map(word => word.id)
+    selectedDictationQuickCount.value = null
+    setDefaultDictationSelection(true)
+    dictationResultConfirmed.value = false
+    dictationReward.value = null
     scrollToTop()
   }
 
@@ -350,8 +604,21 @@ function createPracticeSession() {
     recognitionState.value = 'idle'
   }
 
+  function setDefaultDictationSelection(excludeMastered: boolean) {
+    dictationExcludesMasteredWords.value = excludeMastered
+    selectedDictationQuickCount.value = null
+    const sourceWords = dictationSourceWords.value ?? unitWords.value
+    selectedDictationWordIds.value = sourceWords
+      .filter(word => !excludeMastered || !masteredWordIdSet.value.has(word.id))
+      .map(word => word.id)
+  }
+
   function recordWeakWord(wordId: string) {
-    if (masteredWordIds.value.includes(wordId)) return
+    if (masteredWordIds.value.includes(wordId)) {
+      const nextMasteredIds = masteredWordIds.value.filter(id => id !== wordId)
+      masteredWordIds.value = nextMasteredIds
+      saveWordIds(MASTERED_WORD_IDS_KEY, nextMasteredIds)
+    }
     if (savedWeakWordIds.value.includes(wordId)) return
 
     const nextIds = [wordId, ...savedWeakWordIds.value]
@@ -376,7 +643,6 @@ function createPracticeSession() {
     masteredWordIds.value = nextIds
     saveWordIds(MASTERED_WORD_IDS_KEY, nextIds)
     removeWeakWords(wordIds)
-    selectedDictationWordIds.value = selectedDictationWordIds.value.filter(id => !wordIds.includes(id))
   }
 
   function recordCheckupAnswer(answer: CheckupAnswer) {
@@ -432,6 +698,15 @@ function createPracticeSession() {
 
   function startCheckup() {
     beginCheckup(activeWords.value, effectiveCheckupLimit.value)
+  }
+
+  function startReportWeakCheckup() {
+    if (weakWords.value.length > 0) {
+      beginCheckup(weakWords.value, weakWords.value.length)
+      return
+    }
+
+    startCheckup()
   }
 
   function startSelectedWeakCheckup() {
@@ -522,9 +797,7 @@ function createPracticeSession() {
 
   function openDictationSetup() {
     dictationSourceWords.value = null
-    if (selectedDictationWordIds.value.length === 0) {
-      selectedDictationWordIds.value = activeWords.value.map(word => word.id)
-    }
+    setDefaultDictationSelection(true)
     screen.value = 'dictationSetup'
     scrollToTop()
   }
@@ -534,6 +807,8 @@ function createPracticeSession() {
     if (selected.length === 0) return
 
     dictationSourceWords.value = selected
+    selectedDictationQuickCount.value = null
+    dictationExcludesMasteredWords.value = false
     selectedDictationWordIds.value = selected.map(word => word.id)
     screen.value = 'dictationSetup'
     scrollToTop()
@@ -551,7 +826,7 @@ function createPracticeSession() {
 
   function openDictationWordPicker() {
     if (selectedDictationWordIds.value.length === 0) {
-      selectedDictationWordIds.value = activeWords.value.map(word => word.id)
+      selectedDictationWordIds.value = dictationPickerWords.value.map(word => word.id)
     }
     screen.value = 'dictationWords'
     scrollToTop()
@@ -563,21 +838,68 @@ function createPracticeSession() {
   }
 
   function toggleDictationWordSelection(wordId: string) {
+    selectedDictationQuickCount.value = null
     selectedDictationWordIds.value = selectedDictationWordIds.value.includes(wordId)
       ? selectedDictationWordIds.value.filter(id => id !== wordId)
       : [...selectedDictationWordIds.value, wordId]
   }
 
   function selectAllDictationWords() {
-    selectedDictationWordIds.value = activeWords.value.map(word => word.id)
+    if (allDictationWordsSelected.value) {
+      clearDictationWordSelection()
+      return
+    }
+
+    selectedDictationQuickCount.value = null
+    selectedDictationWordIds.value = dictationPickerWords.value.map(word => word.id)
   }
 
   function quickSelectDictationWords(count: number) {
-    selectedDictationWordIds.value = activeWords.value.slice(0, count).map(word => word.id)
+    const normalizedCount = Math.min(Math.max(0, Math.round(count)), dictationPickerWords.value.length)
+
+    if (
+      normalizedCount > 0
+      && selectedDictationQuickCount.value === normalizedCount
+      && selectedDictationWordCount.value === normalizedCount
+    ) {
+      clearDictationWordSelection()
+      return
+    }
+
+    if (normalizedCount <= 0) {
+      clearDictationWordSelection()
+      return
+    }
+
+    selectedDictationQuickCount.value = normalizedCount
+    selectedDictationWordIds.value = sampleWords(dictationPickerWords.value, normalizedCount).map(word => word.id)
   }
 
   function clearDictationWordSelection() {
+    selectedDictationQuickCount.value = null
     selectedDictationWordIds.value = []
+  }
+
+  function setDictationExcludeMasteredWords(excludesMastered: boolean) {
+    if (dictationExcludesMasteredWords.value === excludesMastered) return
+
+    selectedDictationQuickCount.value = null
+    dictationExcludesMasteredWords.value = excludesMastered
+
+    if (dictationExcludesMasteredWords.value) {
+      const allowedIds = new Set(dictationPickerWords.value.map(word => word.id))
+      selectedDictationWordIds.value = selectedDictationWordIds.value.filter(id => allowedIds.has(id))
+      return
+    }
+
+    const masteredIds = dictationPickerBaseWords.value
+      .filter(word => masteredWordIdSet.value.has(word.id))
+      .map(word => word.id)
+    selectedDictationWordIds.value = Array.from(new Set([...selectedDictationWordIds.value, ...masteredIds]))
+  }
+
+  function toggleExcludeMasteredDictationWords() {
+    setDictationExcludeMasteredWords(!dictationExcludesMasteredWords.value)
   }
 
   function confirmDictationWordSelection() {
@@ -609,6 +931,7 @@ function createPracticeSession() {
     dictationInput.value = ''
     dictationRecords.value = []
     showDictationAnswer.value = false
+    dictationResultConfirmed.value = false
     screen.value = 'dictation'
     scrollToTop()
   }
@@ -618,11 +941,15 @@ function createPracticeSession() {
     if (!entry || dictationMode.value !== 'online' || !dictationInput.value.trim() || showDictationAnswer.value) return
 
     const record = gradeDictationInput(entry, dictationInput.value)
-    dictationRecords.value = [...dictationRecords.value, record]
+    const nextRecord: DictationRecord = record.correct
+      ? record
+      : {
+          ...record,
+          forgotten: true
+        }
+    dictationRecords.value = [...dictationRecords.value, nextRecord]
     if (!record.correct) {
       recordWeakWord(entry.id)
-    } else {
-      recordMasteredWords([entry.id])
     }
     showDictationAnswer.value = true
 
@@ -636,38 +963,129 @@ function createPracticeSession() {
     }
   }
 
-  function markCurrentDictationForgotten() {
-    const entry = currentDictationEntry.value
-    if (!entry) return
+  function setDictationWordForgotten(wordId: string, forgotten: boolean) {
+    const word = dictationPlan.value?.words.find(word => word.id === wordId)
+    if (!word) return
 
-    recordWeakWord(entry.id)
+    if (forgotten) {
+      recordWeakWord(word.id)
+    }
 
-    const existingRecord = dictationRecords.value.find(record => record.wordId === entry.id)
+    const existingRecord = dictationRecords.value.find(record => record.wordId === word.id)
     if (existingRecord) {
       dictationRecords.value = dictationRecords.value.map(record => {
-        if (record.wordId !== entry.id) return record
+        if (record.wordId !== word.id) return record
 
         return {
           ...record,
-          correct: false,
-          forgotten: true
+          correct: !forgotten,
+          forgotten
         }
       })
     } else {
       dictationRecords.value = [
         ...dictationRecords.value,
         {
-          wordId: entry.id,
+          wordId: word.id,
           input: '',
-          correct: false,
-          forgotten: true
+          correct: !forgotten,
+          forgotten
         }
       ]
     }
+  }
+
+  function markDictationWordForgotten(wordId: string) {
+    setDictationWordForgotten(wordId, true)
+  }
+
+  function toggleDictationReportWordStatus(wordId: string) {
+    if (dictationResultConfirmed.value) return
+
+    const record = dictationRecords.value.find(record => record.wordId === wordId)
+    setDictationWordForgotten(wordId, record?.forgotten !== true)
+  }
+
+  function startForgottenDictation() {
+    const forgottenIds = new Set(dictationRecords.value
+      .filter(record => record.forgotten)
+      .map(record => record.wordId))
+    const forgottenWords = (dictationPlan.value?.words ?? []).filter(word => forgottenIds.has(word.id))
+
+    if (forgottenWords.length === 0) {
+      uni.showToast({
+        title: '没有需要再听的生词',
+        icon: 'none'
+      })
+      return
+    }
+
+    dictationSourceWords.value = forgottenWords
+    selectedDictationQuickCount.value = null
+    selectedDictationWordIds.value = forgottenWords.map(word => word.id)
+    dictationExcludesMasteredWords.value = false
+    startDictation()
+  }
+
+  function markCurrentDictationForgotten() {
+    const entry = currentDictationEntry.value
+    if (!entry) return
+
+    markDictationWordForgotten(entry.id)
 
     if (dictationMode.value === 'online') {
       showDictationAnswer.value = true
     }
+
+    const wordId = entry.id
+    setTimeout(() => {
+      if (screen.value === 'dictation' && currentDictationEntry.value?.id === wordId) {
+        nextDictation()
+      }
+    }, FORGOTTEN_ADVANCE_DELAY_MS)
+  }
+
+  function confirmDictationResult() {
+    if (!dictationPlan.value || dictationResultConfirmed.value) return
+
+    const beforeMasteredIds = new Set(masteredWordIds.value)
+    const beforeUnitMastered = unitWords.value.filter(word => beforeMasteredIds.has(word.id)).length
+    const forgottenWordIds = new Set(dictationRecords.value
+      .filter(record => record.forgotten)
+      .map(record => record.wordId))
+    const masteredIds = dictationPlan.value.words
+      .filter(word => !forgottenWordIds.has(word.id))
+      .map(word => word.id)
+    const newlyMasteredCount = masteredIds.filter(id => !beforeMasteredIds.has(id)).length
+
+    recordMasteredWords(masteredIds)
+    dictationResultConfirmed.value = true
+
+    const afterMasteredIds = new Set(masteredWordIds.value)
+    const afterUnitMastered = unitWords.value.filter(word => afterMasteredIds.has(word.id)).length
+    const total = unitWordCount.value
+    const allCorrect = forgottenWordIds.size === 0
+
+    dictationReward.value = {
+      total: dictationPlan.value.words.length,
+      masteredCount: masteredIds.length,
+      newlyMasteredCount,
+      forgottenCount: forgottenWordIds.size,
+      beforeMastered: beforeUnitMastered,
+      afterMastered: afterUnitMastered,
+      beforePercent: total === 0 ? 0 : Math.round((beforeUnitMastered / total) * 100),
+      afterPercent: total === 0 ? 0 : Math.round((afterUnitMastered / total) * 100),
+      allCorrect
+    }
+    triggerHapticFeedback(allCorrect)
+    setTimeout(() => triggerHapticFeedback(false), 120)
+    screen.value = 'dictationReward'
+    scrollToTop()
+  }
+
+  function finishDictationReward() {
+    dictationReward.value = null
+    resetPractice()
   }
 
   function revealPaperAnswer() {
@@ -707,6 +1125,20 @@ function createPracticeSession() {
     clearWeakWordSelection,
     clearDictationWordSelection,
     confirmDictationWordSelection,
+    confirmDictationResult,
+    confirmCourseSetup,
+    courseSetupBookId,
+    courseSetupBookOptions,
+    courseSetupCanConfirm,
+    courseSetupCompleted,
+    courseSetupGrade,
+    courseSetupGradeOptions,
+    courseSetupPublisherId,
+    courseSetupPublisherOptions,
+    courseSetupStage,
+    courseSetupStageOptions,
+    courseSetupUnitId,
+    courseSetupUnitOptions,
     currentCheckupQuestion,
     currentDictationEntry,
     dictationAudioReady,
@@ -717,23 +1149,32 @@ function createPracticeSession() {
     dictationMode,
     dictationOrder,
     dictationPlan,
+    dictationQuickPickOptions,
     dictationProgressLabel,
     dictationPrompt,
     dictationRecords,
+    dictationReward,
+    dictationResultConfirmed,
     dictationRepeatCount,
     dictationSummary,
     dictationTitle,
+    dictationExcludesMasteredWords,
     dictationForgottenWords,
     dictationWrongWords,
+    dictationPickerDisplayWords,
+    dictationPickerWords,
     effectiveCheckupLimit,
+    finishDictationReward,
     isUnitWordMastered,
     markSelectedWeakWordsKnown,
     markCurrentDictationForgotten,
+    markDictationWordForgotten,
     markUnitWordKnown,
     masteredUnitWordCount,
     openDictationSetup,
     openDictationWordPicker,
     openCheckupSetup,
+    openCourseSetup,
     openSelectedWeakDictationSetup,
     openUnitWords,
     openWeakbook,
@@ -757,6 +1198,7 @@ function createPracticeSession() {
     selectedWeakWordIds,
     selectedWeakWords,
     selectedDictationWordCount,
+    selectedDictationQuickCount,
     selectedDictationWordIds,
     selectedDictationWords,
     schoolStageOptions,
@@ -765,6 +1207,12 @@ function createPracticeSession() {
     savedWeakWords,
     setSelectedBookByIndex,
     setCheckupLimit,
+    setCourseSetupBook,
+    setCourseSetupGrade,
+    setCourseSetupPublisher,
+    setCourseSetupStage,
+    setCourseSetupUnit,
+    setDictationExcludeMasteredWords,
     setSelectedPublisherByIndex,
     setSelectedSchoolStageByIndex,
     setSelectedUnitByIndex,
@@ -772,11 +1220,15 @@ function createPracticeSession() {
     showDictationAnswer,
     spellingInput,
     startCheckup,
+    startReportWeakCheckup,
     startSelectedWeakCheckup,
     startDictation,
+    startForgottenDictation,
     submitDictationInput,
     submitSpelling,
     targetDictationWords,
+    toggleExcludeMasteredDictationWords,
+    toggleDictationReportWordStatus,
     toggleDictationWordSelection,
     toggleWeakWordSelection,
     unitQuickOptions,

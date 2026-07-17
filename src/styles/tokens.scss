@@ -1,4 +1,4 @@
-:root {
+@mixin design-tokens {
   --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   --page-bg: #ffffff;
   --surface: #ffffff;
@@ -25,7 +25,24 @@
   --radius: 16px;
 }
 
-* {
+page {
+  @include design-tokens;
+}
+
+/* #ifdef H5 */
+:root {
+  @include design-tokens;
+}
+/* #endif */
+
+/* #ifdef H5 */
+view,
+scroll-view,
+text,
+image,
+input,
+textarea,
+button {
   box-sizing: border-box;
 }
 
@@ -39,3 +56,4 @@ input,
 button {
   font-family: var(--font-sans);
 }
+/* #endif */

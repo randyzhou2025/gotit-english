@@ -15,6 +15,7 @@ page {
   font-family: var(--font-sans);
 }
 
+/* #ifdef H5 */
 body,
 uni-page-body,
 #app {
@@ -32,6 +33,7 @@ textarea,
 button {
   box-sizing: border-box;
 }
+/* #endif */
 
 /* #ifdef H5 */
 uni-tabbar {

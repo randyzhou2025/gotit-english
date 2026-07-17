@@ -1,5 +1,5 @@
 <template>
-  <view :class="['screen', showBottomNav && 'hasBottomNav']">
+  <view :class="['screen', showBottomNav && 'hasBottomNav']" :style="screenStyle">
     <view v-if="showAppHeader" class="appHeader">
       <view>
         <text class="brand">会了吗英语</text>
@@ -10,7 +10,105 @@
       </view>
     </view>
 
-    <view v-if="screen === 'home'" class="sectionStack homeScreen">
+    <view v-if="screen === 'courseSetup'" class="courseSetupScreen">
+
+      <view class="courseHero">
+        <view class="courseHeroCopy">
+          <text class="courseHeroTitle">你现在学习的是</text>
+        </view>
+        <view class="courseHeroBadge">
+          <text>GotIt</text>
+        </view>
+      </view>
+
+      <view class="coursePanel">
+        <view class="courseSection">
+          <text class="courseSectionTitle">学段</text>
+          <view class="courseChipGrid two">
+            <view
+              v-for="stage in courseSetupStageOptions"
+              :key="stage"
+              :class="['courseChip', courseSetupStage === stage && 'isActive']"
+              @tap="setCourseSetupStage(stage)"
+            >
+              <text>{{ stage }}</text>
+            </view>
+          </view>
+        </view>
+
+        <view v-if="courseSetupStage === '初中'" class="courseSection">
+          <text class="courseSectionTitle">年级</text>
+          <view class="courseChipGrid">
+            <view
+              v-for="grade in courseSetupGradeOptions"
+              :key="grade"
+              :class="['courseChip', courseSetupGrade === grade && 'isActive']"
+              @tap="setCourseSetupGrade(grade)"
+            >
+              <text>{{ grade }}</text>
+            </view>
+          </view>
+        </view>
+
+        <view v-if="courseSetupStage === '高中' || courseSetupGrade" class="courseSection">
+          <text class="courseSectionTitle">教材版本</text>
+          <view v-if="courseSetupPublisherOptions.length > 0" class="courseChipGrid">
+            <view
+              v-for="publisher in courseSetupPublisherOptions"
+              :key="publisher.id"
+              :class="['courseChip', courseSetupPublisherId === publisher.id && 'isActive']"
+              @tap="setCourseSetupPublisher(publisher.id)"
+            >
+              <text>{{ publisher.name }}</text>
+            </view>
+          </view>
+          <view v-else class="courseUnavailable">
+            <text>当前词库暂未上线</text>
+          </view>
+        </view>
+
+        <view v-if="courseSetupPublisherOptions.length > 0" class="courseSection">
+          <text class="courseSectionTitle">册</text>
+          <view v-if="courseSetupBookOptions.length > 0" class="courseChipGrid">
+            <view
+              v-for="book in courseSetupBookOptions"
+              :key="book.id"
+              :class="['courseChip', courseSetupBookId === book.id && 'isActive']"
+              @tap="setCourseSetupBook(book.id)"
+            >
+              <text>{{ book.name }}</text>
+            </view>
+          </view>
+          <view v-else class="courseUnavailable">
+            <text>先选择已上线的教材版本</text>
+          </view>
+        </view>
+
+        <view v-if="courseSetupBookOptions.length > 0" class="courseSection">
+          <text class="courseSectionTitle">Unit</text>
+          <view v-if="courseSetupUnitOptions.length > 0" class="courseUnitGrid">
+            <view
+              v-for="unit in courseSetupUnitOptions"
+              :key="unit.id"
+              :class="['courseUnitChip', courseSetupUnitId === unit.id && 'isActive']"
+              @tap="setCourseSetupUnit(unit.id)"
+            >
+              <text class="courseUnitName">{{ unit.name }}</text>
+              <text class="courseUnitCount">{{ unit.count }} 词</text>
+            </view>
+          </view>
+          <view v-else class="courseUnavailable">
+            <text>该册暂无 Unit 词库</text>
+          </view>
+        </view>
+      </view>
+
+      <view :class="['courseConfirmButton', !courseSetupCanConfirm && 'isDisabled']" @tap="confirmCourseSetup">
+        <text>{{ courseSetupCanConfirm ? '进入学习' : '暂未上线' }}</text>
+      </view>
+    </view>
+
+    <view v-else-if="screen === 'home'" class="sectionStack homeScreen">
       <view class="homeUnitCard">
         <view class="homeUnitTopline">
           <text class="homeUnitLabel">当前单元</text>
@@ -22,7 +120,7 @@
           <text class="homeUnitBadge">Unit {{ selectedUnit?.unitNumber }}</text>
           <view class="homeMasteryPill">
             <view class="homeMasteryPillFill" :style="{ width: unitMasteryPercent + '%' }" />
-            <text>{{ unitMasteryLabel }} 已掌握</text>
+            <text class="homeMasteryText">{{ unitMasteryLabel }} 已掌握</text>
           </view>
         </view>
 
@@ -44,30 +142,22 @@
         </view>
 
         <view class="unitSwitchGrid">
-          <picker :range="schoolStageOptions" :value="selectedSchoolStageIndex" @change="onSchoolStageChange">
-            <view class="unitSwitchCell">
-              <text class="unitSwitchLabel">学段</text>
-              <text class="unitSwitchValue">{{ schoolStageOptions[selectedSchoolStageIndex] }}</text>
-            </view>
-          </picker>
-          <picker :range="publisherOptions" :value="selectedPublisherIndex" @change="onPublisherChange">
-            <view class="unitSwitchCell">
-              <text class="unitSwitchLabel">版本</text>
-              <text class="unitSwitchValue">{{ publisherOptions[selectedPublisherIndex] }}</text>
-            </view>
-          </picker>
-          <picker :range="bookOptions" :value="selectedBookIndex" @change="onBookChange">
-            <view class="unitSwitchCell">
-              <text class="unitSwitchLabel">册</text>
-              <text class="unitSwitchValue">{{ bookOptions[selectedBookIndex] }}</text>
-            </view>
-          </picker>
-          <picker :range="unitQuickOptions" :value="selectedUnitQuickIndex" @change="onUnitQuickChange">
-            <view class="unitSwitchCell">
-              <text class="unitSwitchLabel">Unit</text>
-              <text class="unitSwitchValue">{{ unitQuickOptions[selectedUnitQuickIndex] }}</text>
-            </view>
-          </picker>
+          <view class="unitSwitchCell" @tap="openCourseSetup">
+            <text class="unitSwitchLabel">学段</text>
+            <text class="unitSwitchValue">{{ schoolStageOptions[selectedSchoolStageIndex] }}</text>
+          </view>
+          <view class="unitSwitchCell" @tap="openCourseSetup">
+            <text class="unitSwitchLabel">版本</text>
+            <text class="unitSwitchValue">{{ publisherOptions[selectedPublisherIndex] }}</text>
+          </view>
+          <view class="unitSwitchCell" @tap="openCourseSetup">
+            <text class="unitSwitchLabel">册</text>
+            <text class="unitSwitchValue">{{ bookOptions[selectedBookIndex] }}</text>
+          </view>
+          <view class="unitSwitchCell" @tap="openCourseSetup">
+            <text class="unitSwitchLabel">Unit</text>
+            <text class="unitSwitchValue">{{ unitQuickOptions[selectedUnitQuickIndex] }}</text>
+          </view>
         </view>
 
         <text class="homeUnitTip">标记认识后，该词不会进入体检和听写。</text>
@@ -459,7 +549,7 @@
         <view class="bottomButton" @tap="openWeakbook">
           <text>查看生词本</text>
         </view>
-        <view class="secondaryButton" @tap="startCheckup">
+        <view class="secondaryButton" @tap="startReportWeakCheckup">
           <text>再测一轮</text>
         </view>
       </view>
@@ -480,10 +570,10 @@
       <view class="settingGroup">
         <text class="settingLabel">报词内容</text>
         <view class="pillRow">
-          <view :class="['pill', dictationPrompt === 'chinese' && 'isActive']" @tap="dictationPrompt = 'chinese'">
+          <view :class="['pill', dictationPrompt === 'chinese' && 'isActive']" @tap="setDictationPrompt('chinese')">
             <text>中文释义</text>
           </view>
-          <view :class="['pill', dictationPrompt === 'english' && 'isActive']" @tap="dictationPrompt = 'english'">
+          <view :class="['pill', dictationPrompt === 'english' && 'isActive']" @tap="setDictationPrompt('english')">
             <text>英文单词</text>
           </view>
         </view>
@@ -492,13 +582,13 @@
       <view class="settingGroup">
         <text class="settingLabel">每词间隔</text>
         <view class="pillRow">
-          <view :class="['pill', dictationIntervalSeconds === 5 && 'isActive']" @tap="dictationIntervalSeconds = 5">
+          <view :class="['pill', dictationIntervalSeconds === 5 && 'isActive']" @tap="setDictationInterval(5)">
             <text>5 秒</text>
           </view>
-          <view :class="['pill', dictationIntervalSeconds === 8 && 'isActive']" @tap="dictationIntervalSeconds = 8">
+          <view :class="['pill', dictationIntervalSeconds === 8 && 'isActive']" @tap="setDictationInterval(8)">
             <text>8 秒</text>
           </view>
-          <view :class="['pill', dictationIntervalSeconds === 12 && 'isActive']" @tap="dictationIntervalSeconds = 12">
+          <view :class="['pill', dictationIntervalSeconds === 12 && 'isActive']" @tap="setDictationInterval(12)">
             <text>12 秒</text>
           </view>
         </view>
@@ -507,10 +597,10 @@
       <view class="settingGroup">
         <text class="settingLabel">播放顺序</text>
         <view class="pillRow">
-          <view :class="['pill', dictationOrder === 'sequence' && 'isActive']" @tap="dictationOrder = 'sequence'">
+          <view :class="['pill', dictationOrder === 'sequence' && 'isActive']" @tap="setDictationOrder('sequence')">
             <text>顺序</text>
           </view>
-          <view :class="['pill', dictationOrder === 'shuffle' && 'isActive']" @tap="dictationOrder = 'shuffle'">
+          <view :class="['pill', dictationOrder === 'shuffle' && 'isActive']" @tap="setDictationOrder('shuffle')">
             <text>乱序</text>
           </view>
         </view>
@@ -519,10 +609,10 @@
       <view class="settingGroup">
         <text class="settingLabel">重复次数</text>
         <view class="pillRow">
-          <view :class="['pill', dictationRepeatCount === 1 && 'isActive']" @tap="dictationRepeatCount = 1">
+          <view :class="['pill', dictationRepeatCount === 1 && 'isActive']" @tap="setDictationRepeatCount(1)">
             <text>1 次</text>
           </view>
-          <view :class="['pill', dictationRepeatCount === 2 && 'isActive']" @tap="dictationRepeatCount = 2">
+          <view :class="['pill', dictationRepeatCount === 2 && 'isActive']" @tap="setDictationRepeatCount(2)">
             <text>2 次</text>
           </view>
         </view>
@@ -531,17 +621,17 @@
       <view class="settingGroup">
         <text class="settingLabel">听写方式</text>
         <view class="pillRow">
-          <view :class="['pill', dictationMode === 'paper' && 'isActive']" @tap="dictationMode = 'paper'">
+          <view :class="['pill', dictationMode === 'paper' && 'isActive']" @tap="setDictationMode('paper')">
             <text>纸笔默写</text>
           </view>
-          <view :class="['pill', dictationMode === 'online' && 'isActive']" @tap="dictationMode = 'online'">
+          <view :class="['pill', dictationMode === 'online' && 'isActive']" @tap="setDictationMode('online')">
             <text>在线输入</text>
           </view>
         </view>
       </view>
 
       <view class="dictationModeTip">
-        <text>{{ dictationMode === 'paper' ? '手机负责报词，孩子继续用纸笔完成。' : '在线输入会记录对错并同步生词本。' }}</text>
+        <text>{{ dictationMode === 'paper' ? '手机负责报词，用纸笔完成默写。' : '在线输入会记录对错并同步生词本。' }}</text>
       </view>
 
       <view class="dictationContentCard" @tap="openDictationWordPicker">
@@ -568,42 +658,59 @@
 
       <view class="wordPickerHeader">
         <text class="wordPickerTitle">{{ selectedUnit?.bookName }} Unit {{ selectedUnit?.unitNumber }}</text>
-        <text class="wordPickerMeta">已选 {{ selectedDictationWordCount }} / {{ activeWords.length }} 个词</text>
+        <text class="wordPickerMeta">已选 {{ selectedDictationWordCount }} / {{ dictationPickerWords.length }} 个词</text>
       </view>
 
       <view class="wordPickerToolbar">
-        <view class="miniPill" @tap="allDictationWordsSelected ? clearDictationWordSelection() : selectAllDictationWords()">
-          <text>{{ allDictationWordsSelected ? '清空' : '全选' }}</text>
+        <view class="wordPickerScopePanel">
+          <text class="wordPickerSectionLabel">听写范围</text>
+          <view class="wordPickerScopeOptions">
+            <view
+              :class="['wordPickerScopeChip', dictationExcludesMasteredWords && 'isActive']"
+              @tap="setDictationExcludeMasteredWords(true)"
+            >
+              <text>排除已掌握</text>
+            </view>
+            <view
+              :class="['wordPickerScopeChip', !dictationExcludesMasteredWords && 'isActive', 'isIncluded']"
+              @tap="setDictationExcludeMasteredWords(false)"
+            >
+              <text>包含已掌握</text>
+            </view>
+          </view>
         </view>
-        <view class="quickPickGroup">
-          <view class="quickPickButton" @tap="quickSelectDictationWords(10)">
-            <text>10词</text>
-          </view>
-          <view class="quickPickButton" @tap="quickSelectDictationWords(20)">
-            <text>20词</text>
-          </view>
-          <view class="quickPickButton" @tap="quickSelectDictationWords(30)">
-            <text>30词</text>
+
+        <view class="quickPickPanel">
+          <text class="quickPickLabel">帮我随机选</text>
+          <view class="quickPickGroup">
+            <view
+              v-for="option in dictationQuickPickOptions"
+              :key="option.id"
+              :class="['quickPickButton', isDictationQuickOptionActive(option) && 'isActive']"
+              @tap="applyDictationQuickOption(option)"
+            >
+              <text>{{ option.label }}</text>
+            </view>
           </view>
         </view>
-        <text class="wordPickerHint">默认全选，可任意组合</text>
       </view>
 
       <view class="wordPickerList">
         <view
-          v-for="word in activeWords"
-          :key="word.id"
-          :class="['wordPickRow', isDictationWordSelected(word.id) && 'isSelected']"
-          @tap="toggleDictationWordSelection(word.id)"
+          v-for="item in dictationPickerRows"
+          :key="item.key"
+          :class="['wordPickRow', item.isSelected && 'isSelected']"
+          @tap="toggleDictationWordSelection(item.word.id)"
         >
           <view class="wordPickCheck">
-            <text v-if="isDictationWordSelected(word.id)">✓</text>
+            <text v-if="item.isSelected">✓</text>
           </view>
           <view class="wordPickCopy">
-            <text class="wordPickWord">{{ word.word }}</text>
-            <text class="wordPickMeaning">{{ word.meaning }}</text>
+            <text class="wordPickWord">{{ item.word.word }}</text>
+            <text class="wordPickMeaning">{{ item.word.meaning }}</text>
           </view>
-          <text class="wordPickLevel">L{{ word.difficulty }}</text>
+          <text v-if="isUnitWordMastered(item.word.id)" class="wordPickKnownBadge">已掌握</text>
+          <text v-else class="wordPickLevel">L{{ item.word.difficulty }}</text>
         </view>
       </view>
 
@@ -651,15 +758,27 @@
 
         <view v-if="dictationMode === 'paper'" class="transportRow">
           <view class="transportButton" @tap="repeatCurrentDictation">
-            <text class="transportIcon">↻</text>
+            <view class="transportIcon repeatIcon">
+              <view class="repeatRing" />
+              <view class="repeatHead" />
+            </view>
             <text class="transportLabel">重复</text>
           </view>
           <view class="transportButton isPrimary" @tap="toggleDictationPause">
-            <text class="transportIcon">{{ isAutoPaused ? '▶' : 'Ⅱ' }}</text>
+            <view class="transportIcon">
+              <view v-if="isAutoPaused" class="transportPlayTriangle" />
+              <view v-else class="pauseBars">
+                <view class="pauseBar" />
+                <view class="pauseBar" />
+              </view>
+            </view>
             <text class="transportLabel">{{ isAutoPaused ? '继续' : '暂停' }}</text>
           </view>
           <view class="transportButton" @tap="skipCurrentDictation">
-            <text class="transportIcon">▶|</text>
+            <view class="transportIcon skipIcon">
+              <view class="transportPlayTriangle" />
+              <view class="skipBar" />
+            </view>
             <text class="transportLabel">跳过</text>
           </view>
         </view>
@@ -676,9 +795,11 @@
         />
         <view v-if="showDictationAnswer" :class="['answerBox', lastDictationCorrect ? 'success' : 'danger']">
           <text class="feedbackTitle">{{ lastDictationCorrect ? '拼对了' : '需要订正' }}</text>
-          <text class="feedbackText">
-            {{ currentDictationMarkedForgotten ? '已标记忘记：' : '' }}{{ currentDictationEntry.word }} / {{ currentDictationEntry.meaning }}
-          </text>
+          <view class="correctionLine">
+            <text class="correctionWord">{{ currentDictationEntry.word }}</text>
+            <text class="correctionMeaning">{{ currentDictationEntry.meaning }}</text>
+          </view>
+          <text v-if="currentDictationMarkedForgotten" class="feedbackText">已标记忘记，并加入生词本。</text>
         </view>
         <view
           v-if="!showDictationAnswer"
@@ -729,43 +850,115 @@
         </view>
       </view>
 
-      <view class="weakList dictationPriorityList">
-        <text class="blockTitle">需重点记忆</text>
-        <view v-if="dictationForgottenWords.length === 0 && dictationWrongWords.length === 0" class="emptyState">
-          <text>没有标记忘记或拼写错误的单词。</text>
-        </view>
-        <view v-else>
-          <view v-for="word in dictationPriorityWords" :key="word.id" class="dictationProblemRow">
-            <text class="weakWord">{{ word.word }}</text>
-            <text class="weakMeaning">{{ word.meaning }}</text>
-          </view>
-        </view>
-      </view>
-
       <view class="weakList dictationReviewList">
         <text class="blockTitle">本次听写清单</text>
         <view>
           <view
             v-for="item in dictationReviewItems"
             :key="item.word.id"
-            :class="['dictationReviewRow', item.isProblem && 'isProblem', item.status && 'hasStatus']"
+            :class="['dictationReviewRow', item.isForgotten ? 'isForgotten' : 'isMastered', 'hasStatus']"
           >
             <text class="reviewIndex">{{ item.index }}</text>
             <view class="reviewCopy">
               <text class="weakWord">{{ item.word.word }}</text>
               <text class="weakMeaning">{{ item.word.meaning }}</text>
             </view>
-            <text v-if="item.status" class="reviewStatus">{{ item.status }}</text>
+            <view
+              :class="['reviewStatusButton', item.isForgotten ? 'isForgotten' : 'isMastered']"
+              @tap="toggleDictationReportWordStatus(item.word.id)"
+            >
+              <text>{{ item.isForgotten ? '忘记' : '掌握' }}</text>
+            </view>
           </view>
         </view>
       </view>
 
       <view class="actionStack reportActions">
-        <view class="bottomButton" @tap="startDictation">
-          <text>再听一轮</text>
+        <text class="confirmResultHint">确认后，未标记忘记的单词会标为已掌握；忘记的保留在生词本。</text>
+        <view :class="['bottomButton confirmResultButton', dictationResultConfirmed && 'isDisabled']" @tap="confirmDictationResult">
+          <text>{{ dictationResultConfirmed ? '已确认听写结果' : '确认听写结果' }}</text>
         </view>
-        <view class="secondaryButton" @tap="openWeakbook">
-          <text>查看生词本</text>
+        <view class="reportSecondaryActions">
+          <view :class="['secondaryButton', dictationSummary.forgotten === 0 && 'isDisabled']" @tap="startForgottenDictation">
+            <text>生词再听一轮</text>
+          </view>
+          <view class="secondaryButton" @tap="openWeakbook">
+            <text>查看生词本</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view v-else-if="screen === 'dictationReward' && dictationReward" class="dictationRewardScreen">
+      <view class="rewardContent">
+        <view class="rewardHero">
+          <view class="rewardMedal" aria-hidden="true">
+            <view class="rewardHalo" />
+            <view class="rewardMedalCore">
+              <text>{{ dictationReward.newlyMasteredCount > 0 ? `+${dictationReward.newlyMasteredCount}` : 'OK' }}</text>
+            </view>
+            <view class="rewardRay one" />
+            <view class="rewardRay two" />
+            <view class="rewardRay three" />
+            <view class="rewardRay four" />
+          </view>
+          <view class="rewardSparkle one" />
+          <view class="rewardSparkle two" />
+          <view class="rewardSparkle three" />
+          <text class="rewardTitle">{{ dictationRewardTitle }}</text>
+          <text class="rewardSubtitle">{{ dictationRewardSubtitle }}</text>
+        </view>
+
+        <view class="rewardProgressCard">
+          <view class="rewardProgressTop">
+            <text>本单元词汇掌握进度</text>
+            <text>{{ dictationReward.afterMastered }}/{{ unitWordCount }}</text>
+          </view>
+          <view class="rewardProgressTrack">
+            <view class="rewardProgressFill" :style="{ width: rewardProgressPercent + '%' }" />
+          </view>
+          <text class="rewardProgressMeta">
+            {{ dictationReward.newlyMasteredCount > 0 ? `本次新增 ${dictationReward.newlyMasteredCount} 个掌握词` : '本次已完成核对' }}
+          </text>
+        </view>
+
+        <view class="rewardStatGrid">
+          <view class="rewardStatCard gold">
+            <view class="rewardStatHeader">
+              <text>本次掌握</text>
+            </view>
+            <view class="rewardStatBody">
+              <text class="rewardStatSymbol">+</text>
+              <text class="rewardStatValue">{{ dictationReward.masteredCount }}</text>
+            </view>
+          </view>
+          <view class="rewardStatCard green">
+            <view class="rewardStatHeader">
+              <text>正确率</text>
+            </view>
+            <view class="rewardStatBody">
+              <text class="rewardStatSymbol">✓</text>
+              <text class="rewardStatValue">{{ rewardAccuracy }}%</text>
+            </view>
+          </view>
+          <view class="rewardStatCard blue">
+            <view class="rewardStatHeader">
+              <text>待巩固</text>
+            </view>
+            <view class="rewardStatBody">
+              <text class="rewardStatSymbol">!</text>
+              <text class="rewardStatValue">{{ dictationReward.forgottenCount }}</text>
+            </view>
+          </view>
+        </view>
+
+        <view :class="['rewardActions', dictationReward.forgottenCount > 0 && 'isDual']">
+          <view v-if="dictationReward.forgottenCount > 0" class="rewardSecondaryButton" @tap="finishDictationRewardAndOpenWeakbook">
+            <text>查看生词本</text>
+          </view>
+          <view class="rewardButton" @tap="finishDictationRewardAndReturnHome">
+            <text>回到首页</text>
+          </view>
         </view>
       </view>
     </view>
@@ -825,6 +1018,20 @@ const {
   clearDictationWordSelection,
   clearWeakWordSelection,
   confirmDictationWordSelection,
+  confirmDictationResult,
+  confirmCourseSetup,
+  courseSetupBookId,
+  courseSetupBookOptions,
+  courseSetupCanConfirm,
+  courseSetupCompleted,
+  courseSetupGrade,
+  courseSetupGradeOptions,
+  courseSetupPublisherId,
+  courseSetupPublisherOptions,
+  courseSetupStage,
+  courseSetupStageOptions,
+  courseSetupUnitId,
+  courseSetupUnitOptions,
   currentCheckupQuestion,
   currentDictationEntry,
   dictationAudioReady,
@@ -835,21 +1042,27 @@ const {
   dictationMode,
   dictationOrder,
   dictationPlan,
+  dictationQuickPickOptions,
   dictationProgressLabel,
   dictationPrompt,
   dictationRecords,
+  dictationReward,
+  dictationResultConfirmed,
   dictationRepeatCount,
   dictationSummary,
   dictationTitle,
-  dictationForgottenWords,
-  dictationWrongWords,
+  dictationExcludesMasteredWords,
+  dictationPickerDisplayWords,
+  dictationPickerWords,
   effectiveCheckupLimit,
+  finishDictationReward: finishDictationRewardInSession,
   isUnitWordMastered,
   markSelectedWeakWordsKnown,
-  markCurrentDictationForgotten,
+  markCurrentDictationForgotten: markCurrentDictationForgottenInSession,
   markUnitWordKnown,
   openDictationWordPicker,
   openCheckupSetup,
+  openCourseSetup: openCourseSetupScreen,
   nextAfterWrong,
   openDictationSetup: openDictationSetupScreen,
   openSelectedWeakDictationSetup,
@@ -865,10 +1078,10 @@ const {
   selectAllWeakWords,
   selectedMeaning,
   selectedBookIndex,
+  selectedDictationQuickCount,
   selectedPublisherIndex,
   selectedSchoolStageIndex,
   selectedUnit,
-  selectedUnitIndex,
   selectedUnitQuickIndex,
   selectedDictationWordCount,
   selectedDictationWordIds,
@@ -877,26 +1090,29 @@ const {
   schoolStageOptions,
   savedWeakWords,
   setCheckupLimit,
-  setSelectedBookByIndex,
-  setSelectedPublisherByIndex,
-  setSelectedSchoolStageByIndex,
-  setSelectedUnitByIndex,
-  setSelectedUnitQuickByIndex,
+  setCourseSetupBook,
+  setCourseSetupGrade,
+  setCourseSetupPublisher,
+  setCourseSetupStage,
+  setCourseSetupUnit,
+  setDictationExcludeMasteredWords,
   showDictationAnswer,
   spellingInput,
   startCheckup,
+  startReportWeakCheckup,
   startSelectedWeakCheckup,
   startDictation,
+  startForgottenDictation,
   submitDictationInput,
   submitSpelling,
   targetDictationWords,
+  toggleDictationReportWordStatus,
   toggleDictationWordSelection,
   toggleWeakWordSelection,
   unitQuickOptions,
   unitLabel,
   unitMasteryLabel,
   unitMasteryPercent,
-  unitOptions,
   unitWordCount,
   unitWords,
   weakWords,
@@ -915,6 +1131,16 @@ const remainingSeconds = ref(0)
 const checkupLimitDraft = ref('')
 const checkupLimitInputFocused = ref(false)
 const shellVisible = ref(false)
+const miniProgramNavTop = ref(16)
+const rewardProgressPercent = ref(0)
+
+const screenStyle = computed(() => {
+  // #ifdef MP-WEIXIN
+  return `padding-top: ${miniProgramNavTop.value}px;`
+  // #endif
+
+  return ''
+})
 
 const TAB_ROOT_SCREENS = new Set<AppScreen>(['home', 'weakbook', 'dictationSetup'])
 
@@ -932,6 +1158,43 @@ const dictationProgressPercent = computed(() => {
 })
 
 const dictationTotalCount = computed(() => dictationPlan.value?.words.length ?? 0)
+
+const dictationPickerRows = computed(() => {
+  const selectedSet = new Set(selectedDictationWordIds.value)
+
+  return dictationPickerDisplayWords.value.map(word => {
+    const isSelected = selectedSet.has(word.id)
+
+    return {
+      key: `${word.id}:${isSelected ? 'selected' : 'idle'}`,
+      word,
+      isSelected
+    }
+  })
+})
+
+const rewardAccuracy = computed(() => {
+  if (!dictationReward.value || dictationReward.value.total <= 0) return 0
+  return Math.round((dictationReward.value.masteredCount / dictationReward.value.total) * 100)
+})
+
+const dictationRewardTitle = computed(() => {
+  if (!dictationReward.value) return ''
+  if (dictationReward.value.allCorrect) return '太厉害了！'
+  if (dictationReward.value.masteredCount > 0) return `掌握了 ${dictationReward.value.masteredCount} 个词`
+  return '已经记录生词'
+})
+
+const dictationRewardSubtitle = computed(() => {
+  if (!dictationReward.value) return ''
+  if (dictationReward.value.allCorrect) {
+    return `本次听写全对，掌握了 ${dictationReward.value.masteredCount} 个单词。`
+  }
+  if (dictationReward.value.forgottenCount > 0) {
+    return `${dictationReward.value.forgottenCount} 个词已放入生词本，下一轮专门巩固。`
+  }
+  return '本次听写结果已同步到学习进度。'
+})
 
 const displayedCheckupLimit = computed(() => {
   const draft = checkupLimitDraft.value.trim()
@@ -992,25 +1255,15 @@ const currentDictationMarkedForgotten = computed(() => {
   return dictationRecordMap.value.get(id)?.forgotten === true
 })
 
-const dictationPriorityWords = computed(() => {
-  const problemIds = new Set(dictationRecords.value
-    .filter(record => !record.correct || record.forgotten)
-    .map(record => record.wordId))
-
-  return (dictationPlan.value?.words ?? []).filter(word => problemIds.has(word.id))
-})
-
 const dictationReviewItems = computed(() => {
   return (dictationPlan.value?.words ?? []).map((word, index) => {
     const record = dictationRecordMap.value.get(word.id)
     const forgotten = record?.forgotten === true
-    const wrong = Boolean(record && !record.correct)
 
     return {
       word,
       index: String(index + 1).padStart(2, '0'),
-      isProblem: forgotten || wrong,
-      status: forgotten || wrong ? '忘记' : ''
+      isForgotten: forgotten
     }
   })
 })
@@ -1020,7 +1273,7 @@ const dictationReportText = computed(() => {
   if (dictationSummary.value.forgotten > 0) {
     return `已标记 ${dictationSummary.value.forgotten} 个忘记，已加入生词本。`
   }
-  return `有 ${dictationSummary.value.wrong} 个需重点记忆，已加入生词本。`
+  return `有 ${dictationSummary.value.wrong} 个需要核对，已加入生词本。`
 })
 
 const dictationPaperReportText = computed(() => {
@@ -1037,7 +1290,7 @@ const dictationSetupMinutes = computed(() => {
 })
 
 const dictationSourceLabel = computed(() => {
-  if (targetDictationWords.value.length === activeWords.value.length) return unitLabel.value
+  if (targetDictationWords.value.length === unitWords.value.length) return unitLabel.value
   return `${selectedUnit.value?.bookName ?? '本单元'} Unit ${selectedUnit.value?.unitNumber ?? ''} 自选词`
 })
 
@@ -1066,26 +1319,6 @@ const showBottomNav = computed(() => {
 const showAppHeader = computed(() => {
   return false
 })
-
-function onUnitChange(event: { detail: { value: number | string } }) {
-  setSelectedUnitByIndex(Number(event.detail.value))
-}
-
-function onSchoolStageChange(event: { detail: { value: number | string } }) {
-  setSelectedSchoolStageByIndex(Number(event.detail.value))
-}
-
-function onPublisherChange(event: { detail: { value: number | string } }) {
-  setSelectedPublisherByIndex(Number(event.detail.value))
-}
-
-function onBookChange(event: { detail: { value: number | string } }) {
-  setSelectedBookByIndex(Number(event.detail.value))
-}
-
-function onUnitQuickChange(event: { detail: { value: number | string } }) {
-  setSelectedUnitQuickByIndex(Number(event.detail.value))
-}
 
 function onCheckupLimitInput(event: Event) {
   const miniProgramValue = (event as unknown as { detail?: { value?: string | number } }).detail?.value
@@ -1129,6 +1362,50 @@ function getCheckupLimitOptionLabel(limit: number): string {
   return limit === activeWords.value.length ? '全部' : `${limit}题`
 }
 
+function updateMiniProgramNavInset() {
+  // #ifdef MP-WEIXIN
+  const fallbackTop = 104
+
+  try {
+    const getMenuButton = (uni as unknown as {
+      getMenuButtonBoundingClientRect?: () => { bottom?: number }
+    }).getMenuButtonBoundingClientRect
+    const getWindowInfo = (uni as unknown as {
+      getWindowInfo?: () => { statusBarHeight?: number }
+    }).getWindowInfo
+    const menuButton = getMenuButton?.()
+    const windowInfo = getWindowInfo?.()
+    const menuBottom = Number(menuButton?.bottom ?? 0)
+    const statusBarHeight = Number(windowInfo?.statusBarHeight ?? 0)
+    const calculatedTop = menuBottom > 0 ? menuBottom + 16 : statusBarHeight + 64
+
+    miniProgramNavTop.value = Math.max(88, calculatedTop)
+  } catch {
+    miniProgramNavTop.value = fallbackTop
+  }
+  // #endif
+}
+
+function setDictationPrompt(value: 'chinese' | 'english') {
+  dictationPrompt.value = value
+}
+
+function setDictationInterval(value: 5 | 8 | 12) {
+  dictationIntervalSeconds.value = value
+}
+
+function setDictationOrder(value: 'sequence' | 'shuffle') {
+  dictationOrder.value = value
+}
+
+function setDictationRepeatCount(value: 1 | 2) {
+  dictationRepeatCount.value = value
+}
+
+function setDictationMode(value: 'paper' | 'online') {
+  dictationMode.value = value
+}
+
 function syncNativeTabBar() {
   try {
     if (TAB_ROOT_SCREENS.has(screen.value)) {
@@ -1149,7 +1426,32 @@ function switchNativeTab(url: string) {
   }
 }
 
+function syncNativeWeakbookBadge() {
+  // #ifdef MP-WEIXIN
+  try {
+    const count = savedWeakWords.value.length
+    if (count > 0) {
+      uni.setTabBarBadge({
+        index: 1,
+        text: String(Math.min(count, 99))
+      })
+      return
+    }
+
+    uni.removeTabBarBadge({ index: 1 })
+  } catch {
+    // Native tabBar can be unavailable in H5 preview or before tab pages mount.
+  }
+  // #endif
+}
+
 function activateTabRoot() {
+  if (!courseSetupCompleted.value) {
+    openCourseSetupScreen()
+    syncNativeTabBar()
+    return
+  }
+
   if (props.tabScreen === 'home') {
     resetPracticeScreen()
   } else if (props.tabScreen === 'weakbook') {
@@ -1176,6 +1478,10 @@ function openDictationSetup() {
   switchNativeTab('/pages/dictation/index')
 }
 
+function openCourseSetup() {
+  openCourseSetupScreen()
+}
+
 function goHome() {
   resetPractice()
 }
@@ -1196,6 +1502,32 @@ function isDictationWordSelected(wordId: string): boolean {
   return selectedDictationWordIds.value.includes(wordId)
 }
 
+function applyDictationQuickOption(option: { count: number, isAll: boolean }) {
+  if (option.isAll) {
+    selectAllDictationWords()
+    return
+  }
+
+  quickSelectDictationWords(option.count)
+}
+
+function isDictationQuickOptionActive(option: { count: number, isAll: boolean }): boolean {
+  if (option.isAll) return allDictationWordsSelected.value && selectedDictationQuickCount.value === null
+
+  return selectedDictationQuickCount.value === option.count
+    && selectedDictationWordCount.value === option.count
+}
+
+function finishDictationRewardAndReturnHome() {
+  finishDictationRewardInSession()
+  switchNativeTab('/pages/index/index')
+}
+
+function finishDictationRewardAndOpenWeakbook() {
+  finishDictationRewardInSession()
+  openWeakbook()
+}
+
 function beginDictation() {
   lastPlaybackKey = ''
   startDictation()
@@ -1203,6 +1535,12 @@ function beginDictation() {
     clearDictationTimers()
     startCurrentDictationPlayback()
   }
+}
+
+function markCurrentDictationForgotten() {
+  clearDictationTimers()
+  stopActiveAudio()
+  markCurrentDictationForgottenInSession()
 }
 
 function isCorrectSelected(choice: string): boolean {
@@ -1240,6 +1578,44 @@ function getCurrentPlaybackKey(): string {
   return `${currentDictationEntry.value.id}|${dictationAudioUrl.value}|${dictationMode.value}`
 }
 
+function isWeixinDevtoolsRuntime(): boolean {
+  // #ifdef MP-WEIXIN
+  try {
+    const getDeviceInfo = (uni as unknown as {
+      getDeviceInfo?: () => { platform?: string }
+    }).getDeviceInfo
+    const platform = getDeviceInfo?.().platform
+    return platform === 'devtools'
+  } catch {
+    return false
+  }
+  // #endif
+  return false
+}
+
+function configureMiniProgramAudioPlayback() {
+  // #ifdef MP-WEIXIN
+  if (isWeixinDevtoolsRuntime()) return
+
+  try {
+    const audioApi = uni as unknown as {
+      setInnerAudioOption?: (options: {
+        obeyMuteSwitch?: boolean
+        success?: () => void
+        fail?: () => void
+      }) => void
+    }
+    audioApi.setInnerAudioOption?.({
+      obeyMuteSwitch: false,
+      success: () => {},
+      fail: () => {}
+    })
+  } catch {
+    // Older runtimes may not expose setInnerAudioOption; the audio instance is configured below.
+  }
+  // #endif
+}
+
 function stopActiveAudio() {
   if (!activeAudio) return
   activeAudio.stop()
@@ -1258,7 +1634,10 @@ function destroyActiveAudio() {
 function ensureAudioContext(showToast: boolean) {
   if (activeAudio) return activeAudio
 
+  configureMiniProgramAudioPlayback()
   activeAudio = uni.createInnerAudioContext()
+  const miniProgramAudio = activeAudio as unknown as { obeyMuteSwitch?: boolean }
+  miniProgramAudio.obeyMuteSwitch = false
   activeAudio.autoplay = false
   activeAudio.onPlay(() => {
     isAudioPlaying.value = true
@@ -1407,6 +1786,29 @@ watch(
 )
 
 watch(
+  () => [screen.value, dictationReward.value?.afterPercent],
+  () => {
+    if (screen.value !== 'dictationReward' || !dictationReward.value) return
+
+    rewardProgressPercent.value = dictationReward.value.beforePercent
+    setTimeout(() => {
+      if (screen.value === 'dictationReward' && dictationReward.value) {
+        rewardProgressPercent.value = dictationReward.value.afterPercent
+      }
+    }, 180)
+  },
+  { immediate: true }
+)
+
+watch(
+  () => savedWeakWords.value.length,
+  () => {
+    syncNativeWeakbookBadge()
+  },
+  { immediate: true }
+)
+
+watch(
   () => [shellVisible.value, screen.value, currentDictationEntry.value?.id, dictationAudioUrl.value, dictationAudioReady.value, dictationMode.value],
   () => {
     if (!shellVisible.value) {
@@ -1441,12 +1843,15 @@ watch(
 )
 
 onShow(() => {
+  updateMiniProgramNavInset()
+  configureMiniProgramAudioPlayback()
   shellVisible.value = true
   if (TAB_ROOT_SCREENS.has(screen.value)) {
     activateTabRoot()
   } else {
     syncNativeTabBar()
   }
+  syncNativeWeakbookBadge()
 })
 
 onHide(() => {
@@ -1460,6 +1865,7 @@ onBeforeUnmount(() => {
   destroyActiveAudio()
   try {
     uni.showTabBar({ animation: false })
+    uni.removeTabBarBadge({ index: 1 })
   } catch {
     // Ignore non-tab preview runtimes.
   }
@@ -1633,7 +2039,7 @@ onBeforeUnmount(() => {
   margin-top: 10px;
 }
 
-.heroMeta text {
+.heroMetaChip {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1805,9 +2211,9 @@ onBeforeUnmount(() => {
 }
 
 .bottomNavItem.isActive {
-  border-color: rgba(20, 116, 103, 0.24);
-  background: var(--accent-soft);
-  color: var(--accent-strong);
+  border-color: transparent;
+  background: transparent;
+  color: #1cb0f6;
 }
 
 .bottomNavLabel {
@@ -1824,7 +2230,7 @@ onBeforeUnmount(() => {
   height: 18px;
   padding: 0 5px;
   border-radius: 999px;
-  background: var(--danger);
+  background: #ff4b4b;
   color: white;
   font-size: 10px;
   line-height: 18px;
@@ -1859,10 +2265,10 @@ onBeforeUnmount(() => {
   justify-content: center;
   min-width: 66px;
   height: 36px;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius);
+  border: 1px solid #d9d9d9;
+  border-radius: 16px;
   background: #fbfdfc;
-  color: var(--accent);
+  color: #1cb0f6;
   font-size: 13px;
   font-weight: 900;
 }
@@ -1891,9 +2297,9 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 48px;
   border: 1px solid #efb2b2;
-  border-radius: var(--radius);
-  background: var(--danger-soft);
-  color: var(--danger);
+  border-radius: 16px;
+  background: #fff5f5;
+  color: #ff4b4b;
   white-space: nowrap;
   font-size: 16px;
   font-weight: 900;
@@ -1912,14 +2318,14 @@ onBeforeUnmount(() => {
   align-items: center;
   min-height: 62px;
   padding: 10px 12px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border: 1px solid #e5e5e5;
+  border-radius: 16px;
   background: #fbfdfc;
 }
 
 .selectWordRow.isSelected {
-  border-color: var(--accent);
-  background: var(--accent-soft);
+  border-color: #84d8ff;
+  background: #ddf4ff;
 }
 
 .selectDot {
@@ -1928,17 +2334,17 @@ onBeforeUnmount(() => {
   justify-content: center;
   width: 28px;
   height: 28px;
-  border: 1px solid var(--line-strong);
+  border: 1px solid #d9d9d9;
   border-radius: 999px;
-  background: var(--surface);
+  background: #fff;
   color: white;
   font-size: 15px;
   font-weight: 900;
 }
 
 .selectWordRow.isSelected .selectDot {
-  border-color: var(--accent);
-  background: var(--accent);
+  border-color: #1cb0f6;
+  background: #1cb0f6;
 }
 
 .selectWordCopy {
@@ -2097,7 +2503,7 @@ onBeforeUnmount(() => {
 }
 
 .wrongActionTitle {
-  color: var(--danger);
+  color: #ff4b4b;
   font-size: 15px;
   line-height: 1.2;
   font-weight: 900;
@@ -2119,8 +2525,8 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   height: 44px;
-  border-radius: var(--radius);
-  background: var(--danger);
+  border-radius: 16px;
+  background: #ff4b4b;
   color: white;
   font-size: 15px;
   font-weight: 900;
@@ -2139,8 +2545,8 @@ onBeforeUnmount(() => {
   align-items: center;
   min-height: 70px;
   padding: 0 14px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border: 1px solid #e5e5e5;
+  border-radius: 16px;
   background: #fbfdfc;
   transition: transform 160ms ease, border-color 160ms ease, background-color 160ms ease;
 }
@@ -2152,8 +2558,8 @@ onBeforeUnmount(() => {
 .choiceItem.isCorrect,
 .choiceItem.isCorrectAnswer {
   opacity: 1;
-  border-color: var(--accent);
-  background: var(--accent-soft);
+  border-color: #58cc02;
+  background: #d7ffb8;
 }
 
 .choiceItem.isCorrect {
@@ -2163,8 +2569,8 @@ onBeforeUnmount(() => {
 
 .choiceItem.isWrong {
   opacity: 1;
-  border-color: var(--danger);
-  background: var(--danger-soft);
+  border-color: #ff4b4b;
+  background: #ffdfe0;
 }
 
 .choiceKey {
@@ -2173,21 +2579,21 @@ onBeforeUnmount(() => {
   justify-content: center;
   width: 38px;
   height: 38px;
-  border-radius: var(--radius);
-  background: var(--surface-soft);
-  color: var(--accent);
+  border-radius: 14px;
+  background: #ddf4ff;
+  color: #1cb0f6;
   font-size: 15px;
   font-weight: 900;
 }
 
 .choiceItem.isWrong .choiceKey {
-  background: var(--danger);
+  background: #ff4b4b;
   color: white;
 }
 
 .choiceItem.isCorrect .choiceKey,
 .choiceItem.isCorrectAnswer .choiceKey {
-  background: var(--accent);
+  background: #58cc02;
   color: white;
 }
 
@@ -2204,15 +2610,15 @@ onBeforeUnmount(() => {
   justify-content: center;
   width: 38px;
   height: 38px;
-  border-radius: var(--radius);
-  background: var(--accent);
+  border-radius: 14px;
+  background: #58cc02;
   color: white;
   font-size: 15px;
   font-weight: 900;
 }
 
 .choiceResult.wrong {
-  background: var(--danger);
+  background: #ff4b4b;
 }
 
 .celebrationLayer {
@@ -2336,7 +2742,7 @@ onBeforeUnmount(() => {
 }
 
 .bottomButton {
-  background: var(--accent);
+  background: #58cc02;
   color: white;
 }
 
@@ -2359,7 +2765,7 @@ onBeforeUnmount(() => {
 }
 
 .reportScreen {
-  padding-bottom: 128px;
+  padding-bottom: 202px;
 }
 
 .reportActions {
@@ -2391,6 +2797,7 @@ onBeforeUnmount(() => {
   font-size: 14px;
 }
 
+.courseSetupScreen,
 .checkupSetupScreen,
 .dictationSetupScreen,
 .dictationWordScreen,
@@ -2404,8 +2811,203 @@ onBeforeUnmount(() => {
 }
 
 .checkupSetupScreen,
-.dictationSetupScreen {
+.dictationSetupScreen,
+.courseSetupScreen {
   padding-bottom: calc(92px + env(safe-area-inset-bottom));
+}
+
+.courseSetupScreen {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.courseHero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 74px;
+  gap: 12px;
+  align-items: center;
+  min-height: 116px;
+  margin-top: 8px;
+  padding: 18px;
+  overflow: hidden;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 95% 4%, rgba(88, 204, 2, 0.2) 0 70px, transparent 71px),
+    linear-gradient(135deg, #eefbe9 0%, #edf9ff 58%, #fff 100%);
+}
+
+.courseHeroKicker,
+.courseHeroTitle,
+.courseHeroText,
+.courseSectionTitle,
+.courseUnavailable,
+.courseUnitName,
+.courseUnitCount,
+.courseConfirmButton {
+  display: block;
+}
+
+.courseHeroKicker {
+  width: fit-content;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #ddf4ff;
+  color: #1cb0f6;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 950;
+}
+
+.courseHeroTitle {
+  margin-top: 10px;
+  color: #0d0f0e;
+  font-size: 27px;
+  line-height: 1.1;
+  font-weight: 950;
+}
+
+.courseHeroText {
+  margin-top: 7px;
+  color: #777;
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 800;
+}
+
+.courseHeroBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 68px;
+  height: 68px;
+  border: 2px solid #84d8ff;
+  border-bottom-width: 5px;
+  border-radius: 22px;
+  background: #fff;
+  color: #1cb0f6;
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.coursePanel {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 2px solid #e5e5e5;
+  border-bottom-width: 6px;
+  border-radius: 24px;
+  background: #fff;
+}
+
+.courseSection {
+  display: grid;
+  gap: 9px;
+}
+
+.courseSectionTitle {
+  color: #3c3c3c;
+  font-size: 18px;
+  line-height: 1.1;
+  font-weight: 950;
+}
+
+.courseChipGrid,
+.courseUnitGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.courseChipGrid.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.courseUnitGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.courseChip,
+.courseUnitChip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 2px solid #e5e5e5;
+  border-bottom-width: 4px;
+  border-radius: 999px;
+  background: #fff;
+  color: #3c3c3c;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.courseChip.isActive,
+.courseUnitChip.isActive {
+  border-color: #84d8ff;
+  background: #ddf4ff;
+  color: #1cb0f6;
+}
+
+.courseUnitChip {
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 58px;
+  border-radius: 17px;
+  text-align: left;
+}
+
+.courseUnitCount {
+  margin-top: 4px;
+  color: #8e9097;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 850;
+}
+
+.courseUnitChip.isActive .courseUnitCount {
+  color: #178ec8;
+}
+
+.courseUnavailable {
+  min-height: 42px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #f6f6f8;
+  color: #9a9ca2;
+  font-size: 13px;
+  line-height: 1.3;
+  font-weight: 850;
+}
+
+.courseConfirmButton {
+  position: fixed;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  left: 50%;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(100% - 48px);
+  max-width: 382px;
+  height: 58px;
+  border-radius: 16px;
+  background: #58cc02;
+  color: #fff;
+  transform: translateX(-50%);
+  box-shadow: inset 0 -6px #46a302;
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.courseConfirmButton.isDisabled {
+  pointer-events: none;
+  background: #d8dee6;
+  color: #8a919a;
+  box-shadow: inset 0 -6px #c6ccd3;
 }
 
 .dictationNav,
@@ -2521,7 +3123,8 @@ onBeforeUnmount(() => {
 }
 
 .pill.isActive {
-  background: #0d0f0e;
+  border-color: #46a302;
+  background: #58cc02;
   color: #fff;
 }
 
@@ -2715,8 +3318,8 @@ onBeforeUnmount(() => {
 }
 
 .checkupLimitOption.isActive {
-  border-color: var(--accent-strong);
-  background: var(--accent);
+  border-color: #46a302;
+  background: #58cc02;
   color: #fff;
 }
 
@@ -2787,24 +3390,81 @@ onBeforeUnmount(() => {
 
 .wordPickerToolbar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 12px;
-  margin-top: 18px;
+  margin-top: 16px;
 }
 
-.miniPill {
+.wordPickerScopePanel,
+.quickPickPanel {
+  display: flex;
+  border: 2px solid #e8f6ff;
+  border-radius: 18px;
+  background: #f7fcff;
+}
+
+.wordPickerScopePanel {
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+}
+
+.wordPickerSectionLabel {
+  flex: 0 0 auto;
+  color: #8e9097;
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 950;
+}
+
+.wordPickerScopeOptions {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+}
+
+.wordPickerScopeChip {
+  flex: 0 1 110px;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 68px;
+  min-width: 0;
   height: 36px;
-  padding: 0 14px;
+  padding: 0 10px;
+  border: 2px solid #e5e5e5;
+  border-bottom-width: 4px;
   border-radius: 999px;
-  background: #0d0f0e;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 900;
+  background: #fff;
+  color: #6f7178;
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 950;
+}
+
+.wordPickerScopeChip.isActive {
+  border-color: #84d8ff;
+  border-bottom-color: #1cb0f6;
+  background: #ddf4ff;
+  color: #1cb0f6;
+}
+
+.wordPickerScopeChip.isIncluded.isActive {
+  border-color: #b8ef91;
+  border-bottom-color: #46a302;
+  background: #f0ffe5;
+  color: #46a302;
+}
+
+.quickPickLabel {
+  display: block;
+  color: #7b7d83;
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 950;
 }
 
 .wordPickerHint {
@@ -2821,8 +3481,7 @@ onBeforeUnmount(() => {
 }
 
 .wordPickRow {
-  display: grid;
-  grid-template-columns: 30px 1fr 34px;
+  display: flex;
   gap: 12px;
   align-items: center;
   min-height: 56px;
@@ -2836,6 +3495,7 @@ onBeforeUnmount(() => {
 }
 
 .wordPickCheck {
+  flex: 0 0 26px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2853,6 +3513,7 @@ onBeforeUnmount(() => {
 }
 
 .wordPickCopy {
+  flex: 1 1 auto;
   min-width: 0;
 }
 
@@ -2877,11 +3538,23 @@ onBeforeUnmount(() => {
 }
 
 .wordPickLevel {
+  flex: 0 0 34px;
   color: #b0b2b8;
   font-size: 12px;
   line-height: 1;
   font-weight: 900;
   text-align: right;
+}
+
+.wordPickKnownBadge {
+  flex: 0 0 auto;
+  padding: 5px 7px;
+  border-radius: 999px;
+  background: #f1f1f1;
+  color: #777;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 950;
 }
 
 .wordPickerConfirm {
@@ -3096,14 +3769,70 @@ onBeforeUnmount(() => {
   height: 54px;
   border-radius: 999px;
   background: #f6f6f8;
-  font-size: 24px;
-  line-height: 1;
-  font-weight: 950;
+  position: relative;
 }
 
 .transportButton.isPrimary .transportIcon {
   background: #0d0f0e;
-  color: #fff;
+}
+
+.transportPlayTriangle {
+  width: 0;
+  height: 0;
+  margin-left: 4px;
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+  border-left: 15px solid #0d0f0e;
+}
+
+.transportButton.isPrimary .transportPlayTriangle {
+  border-left-color: #fff;
+}
+
+.pauseBars {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pauseBar {
+  width: 6px;
+  height: 19px;
+  border-radius: 999px;
+  background: #fff;
+}
+
+.skipIcon {
+  flex-direction: row;
+  gap: 6px;
+}
+
+.skipBar {
+  width: 4px;
+  height: 20px;
+  border-radius: 999px;
+  background: #0d0f0e;
+}
+
+.repeatRing {
+  width: 23px;
+  height: 23px;
+  border: 4px solid #0d0f0e;
+  border-right-color: transparent;
+  border-radius: 999px;
+  transform: rotate(-35deg);
+}
+
+.repeatHead {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 8px solid #0d0f0e;
+  transform: rotate(28deg);
 }
 
 .transportLabel {
@@ -3117,6 +3846,52 @@ onBeforeUnmount(() => {
   display: grid;
   gap: 14px;
   margin-top: 38px;
+}
+
+.correctionLine {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: baseline;
+  margin-top: 10px;
+  padding: 11px 12px;
+  border: 2px solid rgba(16, 25, 23, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.correctionWord,
+.correctionMeaning {
+  display: block;
+}
+
+.correctionWord {
+  color: var(--ink);
+  font-size: 18px;
+  line-height: 1.2;
+  font-weight: 950;
+}
+
+.correctionMeaning {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.35;
+  font-weight: 750;
+}
+
+.answerBox.danger .correctionLine {
+  border-color: #ffb3b3;
+  background: #fff;
+}
+
+.answerBox.danger .correctionWord,
+.answerBox.danger .correctionMeaning {
+  color: #d93636;
+}
+
+.answerBox.success .correctionLine {
+  border-color: #9dd7ba;
+  background: #fff;
 }
 
 .playerFootnote {
@@ -3229,7 +4004,7 @@ onBeforeUnmount(() => {
 }
 
 .railSegment.mastered {
-  background: var(--accent);
+  background: #58cc02;
 }
 
 .railSegment.mid {
@@ -3322,18 +4097,18 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   height: 48px;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius);
-  background: var(--surface);
-  color: var(--ink);
+  border: 1px solid #d9d9d9;
+  border-radius: 16px;
+  background: #fff;
+  color: #0d0f0e;
   font-size: 16px;
   font-weight: 900;
 }
 
 .segment.isActive {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-  color: var(--accent-strong);
+  border-color: #84d8ff;
+  background: #ddf4ff;
+  color: #1cb0f6;
 }
 
 .dictationPanel {
@@ -3355,7 +4130,7 @@ onBeforeUnmount(() => {
   background:
     radial-gradient(circle at 50% 35%, rgba(255, 255, 255, 0.98) 0 28%, rgba(221, 241, 236, 0.88) 29% 100%),
     linear-gradient(145deg, #f9fffc, #e2f2ee);
-  color: var(--accent-strong);
+  color: #147467;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.95),
     0 20px 44px rgba(20, 116, 103, 0.14);
@@ -3551,12 +4326,6 @@ onBeforeUnmount(() => {
   overflow-x: hidden;
 }
 
-.screen *,
-.screen *::before,
-.screen *::after {
-  box-sizing: border-box;
-}
-
 .sectionStack,
 .heroBlock,
 .practiceList,
@@ -3629,7 +4398,7 @@ onBeforeUnmount(() => {
   margin-top: 10px;
 }
 
-.heroMeta text {
+.heroMetaChip {
   min-width: 0;
   min-height: 32px;
   padding: 0 8px;
@@ -3861,15 +4630,15 @@ onBeforeUnmount(() => {
 }
 
 .bottomNavItem.isActive {
-  border: 2px solid #84d8ff;
-  background: #ddf4ff;
+  border: 2px solid transparent;
+  background: transparent;
   color: #1cb0f6;
 }
 
 .bottomNavBadge {
   top: 0;
   right: 10px;
-  background: var(--danger);
+  background: #ff4b4b;
 }
 
 .flowScreen {
@@ -4097,9 +4866,9 @@ onBeforeUnmount(() => {
 .bottomButton,
 .dictationStartButton {
   border-radius: 16px;
-  background: var(--accent);
+  background: #58cc02;
   color: #fff;
-  box-shadow: inset 0 -5px var(--accent-strong);
+  box-shadow: inset 0 -5px #46a302;
 }
 
 .secondaryButton {
@@ -4147,8 +4916,8 @@ onBeforeUnmount(() => {
 }
 
 .pill.isActive {
-  border-color: var(--accent-strong);
-  background: var(--accent);
+  border-color: #46a302;
+  background: #58cc02;
   color: #fff;
 }
 
@@ -4185,7 +4954,7 @@ onBeforeUnmount(() => {
   max-width: none;
   margin-top: 18px;
   transform: none;
-  box-shadow: inset 0 -6px var(--accent-strong);
+  box-shadow: inset 0 -6px #46a302;
 }
 
 .wordPickRow.isSelected,
@@ -4361,8 +5130,8 @@ onBeforeUnmount(() => {
 }
 
 .reportActions .bottomButton {
-  background: var(--accent);
-  box-shadow: inset 0 -5px var(--accent-strong);
+  background: #58cc02;
+  box-shadow: inset 0 -5px #46a302;
 }
 
 .reportActions .secondaryButton {
@@ -4467,7 +5236,7 @@ onBeforeUnmount(() => {
   background: rgba(255, 255, 255, 0.18);
 }
 
-.heroHint text {
+.heroHintText {
   display: block;
   color: #fff;
   font-size: 12px;
@@ -4476,25 +5245,41 @@ onBeforeUnmount(() => {
 }
 
 .quickPickButton {
+  flex: 1 1 30%;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 0;
-  border-radius: 14px;
-  background: #ddf4ff;
-  color: #1cb0f6;
+  min-width: 82px;
+  height: 38px;
+  padding: 0 10px;
+  border: 2px solid #e5e5e5;
+  border-bottom: 4px solid #d9d9d9;
+  border-radius: 999px;
+  background: #fff;
+  color: #6f7178;
+  font-size: 13px;
+  line-height: 1;
   font-weight: 950;
 }
 
-.quickPickGroup {
-  display: grid;
-  grid-template-columns: repeat(3, 42px);
-  gap: 7px;
+.quickPickPanel {
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
 }
 
-.quickPickButton {
-  height: 36px;
-  border-bottom: 4px solid #84d8ff;
+.quickPickGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.quickPickButton.isActive {
+  border-color: #84d8ff;
+  border-bottom-color: #1cb0f6;
+  background: #ddf4ff;
+  color: #1cb0f6;
 }
 
 .homeScreen {
@@ -4525,7 +5310,15 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 
-.homeUnitCard > * {
+.homeUnitTopline,
+.homeUnitRow,
+.homeUnitTitle,
+.homeStatPrimary,
+.homeStatSecondary,
+.homeStatRow,
+.unitSwitchGrid,
+.homeUnitTip,
+.homeActionHeader {
   position: relative;
   z-index: 1;
 }
@@ -4638,7 +5431,7 @@ onBeforeUnmount(() => {
   transition: width 240ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.homeMasteryPill > text {
+.homeMasteryText {
   position: relative;
   z-index: 1;
 }
@@ -4963,9 +5756,9 @@ onBeforeUnmount(() => {
   justify-content: center;
   height: 40px;
   border-radius: 14px;
-  background: var(--accent);
+  background: #58cc02;
   color: #fff;
-  box-shadow: inset 0 -4px var(--accent-strong);
+  box-shadow: inset 0 -4px #46a302;
   font-size: 13px;
   font-weight: 950;
 }
@@ -5040,9 +5833,14 @@ onBeforeUnmount(() => {
   margin-top: 8px;
 }
 
-.dictationReviewRow.isProblem {
+.dictationReviewRow.isForgotten {
   border-color: #ffb3b3;
   background: #fff5f5;
+}
+
+.dictationReviewRow.isMastered {
+  border-color: #b8ef91;
+  background: #f5ffef;
 }
 
 .reviewIndex {
@@ -5066,14 +5864,23 @@ onBeforeUnmount(() => {
   min-width: 0;
 }
 
-.dictationReviewRow.isProblem .reviewIndex {
+.dictationReviewRow.isForgotten .reviewIndex {
   background: #ff4b4b;
   color: #fff;
 }
 
-.dictationReviewRow.isProblem .weakWord,
-.dictationReviewRow.isProblem .weakMeaning {
+.dictationReviewRow.isMastered .reviewIndex {
+  background: #58cc02;
+  color: #fff;
+}
+
+.dictationReviewRow.isForgotten .weakWord,
+.dictationReviewRow.isForgotten .weakMeaning {
   color: #d93636;
+}
+
+.dictationReviewRow.isMastered .weakWord {
+  color: #2f7d00;
 }
 
 .dictationSummaryCard {
@@ -5287,6 +6094,930 @@ onBeforeUnmount(() => {
   line-height: 1;
   font-weight: 950;
 }
+
+.reviewStatusButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: end;
+  min-width: 52px;
+  height: 32px;
+  padding: 0 10px;
+  border: 2px solid transparent;
+  border-bottom-width: 4px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 950;
+}
+
+.reviewStatusButton.isForgotten {
+  border-color: #ffb3b3;
+  background: #ff4b4b;
+  color: #fff;
+  box-shadow: inset 0 -3px #d93636;
+}
+
+.reviewStatusButton.isMastered {
+  border-color: #b8ef91;
+  background: #58cc02;
+  color: #fff;
+  box-shadow: inset 0 -3px #46a302;
+}
+
+.confirmResultHint {
+  display: block;
+  color: #8e9097;
+  font-size: 12px;
+  line-height: 1.35;
+  font-weight: 800;
+  text-align: center;
+}
+
+.reportActions .confirmResultButton {
+  height: 56px;
+  border: 0;
+  border-radius: 16px;
+  background: #58cc02;
+  color: #fff;
+  box-shadow: inset 0 -5px #46a302;
+  font-size: 17px;
+}
+
+.reportSecondaryActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.reportSecondaryActions .secondaryButton {
+  height: 44px;
+  border: 2px solid #84d8ff;
+  border-bottom-width: 4px;
+  border-radius: 14px;
+  background: #fff;
+  color: #1cb0f6;
+  font-size: 14px;
+}
+
+.dictationRewardScreen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: auto;
+  padding: 34px 0 22px;
+}
+
+.rewardContent {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 392px;
+  margin: 0 auto;
+}
+
+.rewardHero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: auto;
+  padding-top: 0;
+  text-align: center;
+}
+
+.rewardMedal {
+  position: relative;
+  width: 136px;
+  height: 136px;
+  animation: rewardPop 520ms cubic-bezier(0.2, 1.5, 0.3, 1) both;
+}
+
+.rewardHalo {
+  position: absolute;
+  inset: 18px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #e9ffe0 0%, #ddf4ff 100%);
+  box-shadow: inset 0 0 0 8px rgba(255, 255, 255, 0.72), 0 18px 34px rgba(28, 176, 246, 0.12);
+}
+
+.rewardMedalCore {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 92px;
+  height: 92px;
+  border-radius: 999px;
+  background: #58cc02;
+  color: #fff;
+  box-shadow: inset 0 -10px #46a302, 0 14px 28px rgba(88, 204, 2, 0.22);
+  transform: translate(-50%, -50%);
+}
+
+.rewardMedalCore text {
+  font-size: 30px;
+  line-height: 1;
+  font-weight: 950;
+}
+
+.rewardRay {
+  position: absolute;
+  width: 28px;
+  height: 8px;
+  border-radius: 999px;
+  background: #ffc800;
+  opacity: 0;
+  animation: rewardRayBurst 820ms ease-out 100ms both;
+}
+
+.rewardRay.one {
+  left: 4px;
+  top: 70px;
+  transform: rotate(0deg);
+}
+
+.rewardRay.two {
+  right: 4px;
+  top: 70px;
+  transform: rotate(0deg);
+}
+
+.rewardRay.three {
+  left: 54px;
+  top: 4px;
+  transform: rotate(90deg);
+}
+
+.rewardRay.four {
+  left: 54px;
+  bottom: 4px;
+  transform: rotate(90deg);
+}
+
+.rewardSparkle {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: #b8ef91;
+  transform: rotate(45deg) scale(0);
+  animation: rewardSparkle 1100ms ease-out both;
+}
+
+.rewardSparkle.one {
+  left: 42px;
+  top: 112px;
+}
+
+.rewardSparkle.two {
+  right: 48px;
+  top: 96px;
+  animation-delay: 120ms;
+}
+
+.rewardSparkle.three {
+  right: 74px;
+  top: 188px;
+  width: 14px;
+  height: 14px;
+  animation-delay: 220ms;
+}
+
+.rewardTitle {
+  display: block;
+  max-width: 330px;
+  margin-top: 20px;
+  color: #ffc800;
+  font-size: 32px;
+  line-height: 1.08;
+  font-weight: 950;
+  text-align: center;
+}
+
+.rewardSubtitle {
+  display: block;
+  max-width: 332px;
+  margin-top: 10px;
+  color: #8e9097;
+  font-size: 17px;
+  line-height: 1.42;
+  font-weight: 850;
+  text-align: center;
+}
+
+.rewardProgressCard,
+.rewardStatCard {
+  box-sizing: border-box;
+  border: 2px solid #e5e5e5;
+  border-bottom-width: 5px;
+  background: #fff;
+}
+
+.rewardProgressCard {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 28px 0 0;
+  padding: 16px;
+  border-radius: 22px;
+}
+
+.rewardProgressTop {
+  display: flex;
+  justify-content: space-between;
+  color: #3c3c3c;
+  font-size: 15px;
+  line-height: 1;
+  font-weight: 950;
+}
+
+.rewardProgressTrack {
+  overflow: hidden;
+  height: 16px;
+  margin-top: 12px;
+  border-radius: 999px;
+  background: #e5e5e5;
+}
+
+.rewardProgressFill {
+  height: 100%;
+  border-radius: inherit;
+  background: #58cc02;
+  transition: width 1100ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rewardProgressMeta {
+  display: block;
+  margin-top: 10px;
+  color: #8e9097;
+  font-size: 12px;
+  line-height: 1.25;
+  font-weight: 850;
+}
+
+.rewardStatGrid {
+  display: flex;
+  box-sizing: border-box;
+  gap: 10px;
+  width: 100%;
+  margin: 16px 0 0;
+}
+
+.rewardStatCard {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  min-height: 98px;
+  padding: 0 8px 10px;
+  border-radius: 18px;
+}
+
+.rewardStatCard.gold {
+  border-color: #ffd76b;
+}
+
+.rewardStatCard.green {
+  border-color: #b8ef91;
+}
+
+.rewardStatCard.blue {
+  border-color: #84d8ff;
+}
+
+.rewardStatHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  height: 30px;
+  margin: 0 -8px 8px;
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 950;
+}
+
+.rewardStatCard.gold .rewardStatHeader {
+  background: #ffc800;
+}
+
+.rewardStatCard.green .rewardStatHeader {
+  background: #58cc02;
+}
+
+.rewardStatCard.blue .rewardStatHeader {
+  background: #1cb0f6;
+}
+
+.rewardStatBody {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.rewardStatSymbol {
+  color: currentColor;
+  font-size: 20px;
+  line-height: 1;
+  font-weight: 950;
+}
+
+.rewardStatValue {
+  color: currentColor;
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 950;
+}
+
+.rewardStatCard.gold .rewardStatBody {
+  color: #ffc800;
+}
+
+.rewardStatCard.green .rewardStatBody {
+  color: #58cc02;
+}
+
+.rewardStatCard.blue .rewardStatBody {
+  color: #1cb0f6;
+}
+
+.rewardButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 58px;
+  border-radius: 18px;
+  background: #1cb0f6;
+  color: #fff;
+  box-shadow: inset 0 -5px #0a84d8;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 950;
+}
+
+.rewardActions {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  gap: 10px;
+  width: 100%;
+  margin: 20px 0 0;
+}
+
+.rewardActions.isDual {
+  flex-direction: row;
+}
+
+.rewardActions.isDual .rewardButton,
+.rewardActions.isDual .rewardSecondaryButton {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.rewardSecondaryButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 58px;
+  border: 2px solid #84d8ff;
+  border-bottom-width: 5px;
+  border-radius: 18px;
+  background: #fff;
+  color: #1cb0f6;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 950;
+}
+
+@keyframes rewardPop {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.76);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes rewardRayBurst {
+  0% {
+    opacity: 0;
+  }
+  42% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes rewardSparkle {
+  0% {
+    opacity: 0;
+    transform: rotate(45deg) scale(0);
+  }
+  38% {
+    opacity: 1;
+    transform: rotate(45deg) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(45deg) scale(0.64);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rewardMedal,
+  .rewardRay,
+  .rewardSparkle,
+  .rewardProgressFill {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* #ifdef MP-WEIXIN */
+.screen {
+  max-width: none;
+  min-height: 100vh;
+  padding-right: 18px;
+  padding-bottom: 26px;
+  padding-left: 18px;
+}
+
+.courseSetupScreen,
+.checkupSetupScreen,
+.dictationSetupScreen,
+.dictationWordScreen,
+.dictationPlayerScreen,
+.unitWordScreen {
+  min-height: auto;
+  margin: 0 -18px -26px;
+  padding: 0 24px 24px;
+}
+
+.checkupSetupScreen,
+.dictationSetupScreen,
+.courseSetupScreen {
+  padding-bottom: 24px;
+}
+
+.courseHero {
+  grid-template-columns: 1fr;
+  min-height: 104px;
+  margin-top: 0;
+  padding: 18px;
+}
+
+.courseHeroTitle {
+  margin-top: 0;
+  font-size: 29px;
+}
+
+.courseHeroBadge {
+  display: none;
+}
+
+.coursePanel {
+  gap: 12px;
+  padding: 16px;
+}
+
+.courseSection {
+  gap: 8px;
+}
+
+.courseChip,
+.courseUnitChip {
+  min-height: 40px;
+  font-size: 14px;
+}
+
+.courseConfirmButton {
+  bottom: 18px;
+}
+
+.dictationNav,
+.playerHeaderTop {
+  min-height: 44px;
+  margin-bottom: 12px;
+  justify-content: flex-start;
+  padding-right: 126px;
+  padding-left: 0;
+  box-sizing: border-box;
+}
+
+.dictationNav .navBack,
+.playerHeaderTop .navBack {
+  position: static;
+  left: auto;
+  top: auto;
+  flex: 0 0 44px;
+  margin-right: 10px;
+  transform: none;
+}
+
+.sectionStack > .flowHeader {
+  justify-content: flex-start;
+  padding-right: 126px;
+  box-sizing: border-box;
+}
+
+.sectionStack > .flowHeader .backButton {
+  flex: 0 0 44px;
+}
+
+.sectionStack > .flowHeader .flowTitle {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: left;
+}
+
+.navTitle,
+.playerTitle {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 18px;
+  font-weight: 950;
+  text-align: left;
+}
+
+.playerProgressText {
+  flex: 0 0 auto;
+  margin-left: 10px;
+}
+
+.flowScreen {
+  min-height: auto;
+  padding-bottom: 24px;
+  gap: 10px;
+}
+
+.flowHeader {
+  min-height: 44px;
+  margin-bottom: 14px;
+}
+
+.progressHeader {
+  align-items: flex-start;
+}
+
+.questionPanel,
+.spellPanel {
+  flex: 0 0 auto;
+  min-height: 0;
+  padding: 0;
+}
+
+.questionPanel {
+  display: block;
+}
+
+.wordTitle {
+  margin-top: 24px;
+  font-size: 48px;
+  line-height: 1.02;
+}
+
+.phonetic {
+  margin-top: 10px;
+  font-size: 16px;
+}
+
+.choiceList {
+  display: grid;
+  margin-top: 42px;
+  padding-top: 0;
+  gap: 12px;
+}
+
+.choiceItem {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 42px;
+  gap: 12px;
+  align-items: center;
+  min-height: 62px;
+  padding: 10px 14px;
+}
+
+.choiceResult {
+  justify-self: end;
+}
+
+.checkupIntro {
+  margin-top: 20px;
+}
+
+.checkupStatGrid {
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.checkupLimitOptions {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.checkupLimitOption.isActive {
+  border-color: #46a302;
+  background: #58cc02;
+  color: #fff;
+  box-shadow: inset 0 -4px #46a302;
+}
+
+.checkupSetupScreen > .dictationStartButton,
+.dictationSetupScreen > .dictationStartButton {
+  position: static;
+  width: 100%;
+  max-width: none;
+  height: 58px;
+  margin-top: 22px;
+  transform: none;
+}
+
+.dictationSetupScreen {
+  display: flex;
+  flex-direction: column;
+}
+
+.dictationSetupScreen .dictationIntro {
+  margin-top: 18px;
+}
+
+.dictationSetupScreen .dictationIntroTitle {
+  font-size: 30px;
+  line-height: 1.08;
+}
+
+.dictationSetupScreen .settingGroup {
+  grid-template-columns: 78px minmax(0, 1fr);
+  gap: 10px 12px;
+  margin-top: 14px;
+}
+
+.dictationSetupScreen .settingLabel {
+  font-size: 14px;
+}
+
+.dictationSetupScreen .pillRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 9px;
+}
+
+.dictationSetupScreen .pill {
+  min-width: 62px;
+  height: 36px;
+  padding: 0 13px;
+  border-color: transparent;
+  background: #f3f3f6;
+  color: #9a9ca2;
+  font-size: 14px;
+}
+
+.dictationSetupScreen .pill.isActive {
+  border-color: #46a302;
+  background: #58cc02;
+  color: #fff;
+  box-shadow: inset 0 -4px #46a302;
+}
+
+.dictationModeTip {
+  margin-top: 10px;
+  margin-left: 90px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+
+.dictationSetupScreen .dictationContentCard {
+  margin-top: 18px;
+  padding: 14px 15px;
+}
+
+.wordPickerToolbar {
+  align-items: stretch;
+}
+
+.quickPickButton.isActive {
+  border-color: #1cb0f6;
+  background: #ddf4ff;
+  color: #1cb0f6;
+  box-shadow: inset 0 -4px #84d8ff;
+}
+
+.bottomButton,
+.dictationStartButton {
+  background: #58cc02;
+  color: #fff;
+  box-shadow: inset 0 -5px #46a302;
+}
+
+.secondaryButton {
+  border-color: #e5e5e5;
+  background: #fff;
+  color: #1cb0f6;
+}
+
+.dangerButton {
+  border-color: #ffb3b3;
+  background: #fff5f5;
+  color: #ff4b4b;
+}
+
+.smallButton,
+.miniPill {
+  background: #0d0f0e;
+  color: #fff;
+}
+
+.excludeKnownPill {
+  min-width: 98px;
+  background: #ddf4ff;
+  color: #1cb0f6;
+  box-shadow: inset 0 -4px #84d8ff;
+}
+
+.excludeKnownPill.isIncluded {
+  background: #ddf4ff;
+  color: #1cb0f6;
+  box-shadow: inset 0 -4px #84d8ff;
+}
+
+.excludeKnownPill.isExcluded {
+  background: #f7f7f7;
+  color: #777;
+  box-shadow: inset 0 -4px #d9d9d9, inset 0 0 0 2px #e5e5e5;
+}
+
+.weakbookActions {
+  position: static;
+  top: auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 0;
+  background: transparent;
+}
+
+.weakbookActions .dangerButton {
+  grid-column: 1 / -1;
+}
+
+.weakbookActions .bottomButton {
+  background: #58cc02;
+  color: #fff;
+  box-shadow: inset 0 -5px #46a302;
+}
+
+.weakbookActions .secondaryButton {
+  border: 2px solid #84d8ff;
+  border-bottom-width: 5px;
+  background: #fff;
+  color: #1cb0f6;
+}
+
+.bottomButton.isDisabled,
+.dictationStartButton.isDisabled,
+.weakbookActions .bottomButton.isDisabled {
+  border-color: #e5e5e5;
+  background: #f1f1f1;
+  color: #afafaf;
+  box-shadow: inset 0 -5px #d9d9d9;
+  pointer-events: none;
+}
+
+.secondaryButton.isDisabled,
+.weakbookActions .secondaryButton.isDisabled {
+  border-color: #e5e5e5;
+  background: #fff;
+  color: #c4c4c4;
+  box-shadow: inset 0 -5px #e5e5e5;
+  pointer-events: none;
+}
+
+.dangerButton.isDisabled,
+.weakbookActions .dangerButton.isDisabled {
+  border-color: #ffd6d6;
+  background: #fffafa;
+  color: #ffb3b3;
+  box-shadow: inset 0 -5px #ffd6d6;
+  pointer-events: none;
+}
+
+.selectWordRow.isSelected,
+.wordPickRow.isSelected {
+  border-color: #84d8ff;
+  background: #ddf4ff;
+}
+
+.selectWordRow.isSelected .selectDot,
+.wordPickRow.isSelected .wordPickCheck {
+  border-color: #1cb0f6;
+  background: #1cb0f6;
+  color: #fff;
+}
+
+.choiceItem.isCorrect,
+.choiceItem.isCorrectAnswer {
+  border-color: #58cc02;
+  background: #d7ffb8;
+}
+
+.choiceItem.isWrong {
+  border-color: #ff4b4b;
+  background: #ffdfe0;
+}
+
+.choiceKey {
+  background: #ddf4ff;
+  color: #1cb0f6;
+}
+
+.choiceItem.isCorrect .choiceKey,
+.choiceItem.isCorrectAnswer .choiceKey {
+  background: #58cc02;
+  color: #fff;
+}
+
+.choiceItem.isWrong .choiceKey,
+.choiceResult.wrong {
+  background: #ff4b4b;
+  color: #fff;
+}
+
+.choiceResult {
+  background: #58cc02;
+  color: #fff;
+}
+
+.courseChip.isActive,
+.courseUnitChip.isActive {
+  border-color: #84d8ff;
+  background: #ddf4ff;
+  color: #1cb0f6;
+}
+
+.unitWordKnownButton {
+  background: #58cc02;
+  color: #fff;
+  box-shadow: inset 0 -4px #46a302;
+}
+
+.reportActions .bottomButton {
+  background: #58cc02;
+  color: #fff;
+  box-shadow: inset 0 -5px #46a302;
+}
+
+.reportScreen {
+  padding-bottom: 24px;
+}
+
+.reportScreen .reportActions {
+  position: static;
+  width: 100%;
+  max-width: none;
+  padding: 0;
+  background: transparent;
+  transform: none;
+}
+
+.dictationPriorityList .emptyState {
+  min-height: auto;
+  margin-top: 0;
+  padding: 12px 14px;
+}
+
+.dictationPriorityList .emptyText {
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.progressFill,
+.playerProgressFill {
+  background: #58cc02;
+}
+
+.scoreNumberBlock {
+  background: #ddf4ff;
+}
+/* #endif */
 
 @media (max-height: 720px) {
   .dictationSetupScreen .dictationIntroTitle {
