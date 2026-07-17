@@ -172,28 +172,40 @@ function scrollToTop() {
   }, 0)
 }
 
-function triggerHapticFeedback(strong = false) {
+type HapticStrength = 'light' | 'medium' | 'heavy'
+
+function triggerHapticFeedback(strength: HapticStrength = 'medium') {
   try {
     const feedback = uni as unknown as {
       vibrateShort?: (options?: {
-        type?: 'light' | 'medium' | 'heavy'
+        type?: HapticStrength
         fail?: () => void
       }) => void
     }
     const runtime = globalThis as unknown as {
       wx?: {
-        vibrateShort?: (options?: { type?: 'light' | 'medium' | 'heavy' }) => void
+        vibrateShort?: (options?: { type?: HapticStrength; fail?: () => void }) => void
       }
     }
-    const type = strong ? 'heavy' : 'medium'
-    const fallback = () => runtime.wx?.vibrateShort?.({ type })
+    // Android ignores `type` (fixed ~15ms); iOS maps it to light/medium/heavy intensity.
+    // Some Android bases reject an unknown `type`, so fall back to a plain call on failure.
+    const plainFallback = () => {
+      if (feedback.vibrateShort) {
+        feedback.vibrateShort({})
+        return
+      }
+      runtime.wx?.vibrateShort?.({})
+    }
 
     if (feedback.vibrateShort) {
-      feedback.vibrateShort({ type, fail: fallback })
+      feedback.vibrateShort({ type: strength, fail: plainFallback })
       return
     }
 
-    fallback()
+    if (runtime.wx?.vibrateShort) {
+      runtime.wx.vibrateShort({ type: strength, fail: plainFallback })
+      return
+    }
   } catch {
     // Haptic feedback is best-effort and unavailable in some preview runtimes.
   }
@@ -743,6 +755,7 @@ function createPracticeSession() {
   }
 
   function markUnitWordKnown(wordId: string) {
+    triggerHapticFeedback('light')
     if (masteredWordIdSet.value.has(wordId)) {
       const nextIds = masteredWordIds.value.filter(id => id !== wordId)
       masteredWordIds.value = nextIds
@@ -768,6 +781,7 @@ function createPracticeSession() {
     selectedMeaning.value = choice
     const correct = choice === question.word.meaning
     recognitionState.value = correct ? 'correct' : 'wrong'
+    triggerHapticFeedback(correct ? 'medium' : 'heavy')
 
     if (correct) {
       setTimeout(() => {
@@ -791,6 +805,7 @@ function createPracticeSession() {
     if (!question || !selectedMeaning.value || !spellingInput.value.trim()) return
 
     const answer = gradeCheckupAnswer(question, selectedMeaning.value, spellingInput.value)
+    triggerHapticFeedback(answer.spellingCorrect ? 'medium' : 'heavy')
     recordCheckupAnswer(answer)
     moveToNextCheckupQuestion()
   }
@@ -941,6 +956,7 @@ function createPracticeSession() {
     if (!entry || dictationMode.value !== 'online' || !dictationInput.value.trim() || showDictationAnswer.value) return
 
     const record = gradeDictationInput(entry, dictationInput.value)
+    triggerHapticFeedback(record.correct ? 'medium' : 'heavy')
     const nextRecord: DictationRecord = record.correct
       ? record
       : {
@@ -1077,8 +1093,10 @@ function createPracticeSession() {
       afterPercent: total === 0 ? 0 : Math.round((afterUnitMastered / total) * 100),
       allCorrect
     }
-    triggerHapticFeedback(allCorrect)
-    setTimeout(() => triggerHapticFeedback(false), 120)
+    triggerHapticFeedback(allCorrect ? 'heavy' : 'medium')
+    if (allCorrect) {
+      setTimeout(() => triggerHapticFeedback('heavy'), 130)
+    }
     screen.value = 'dictationReward'
     scrollToTop()
   }

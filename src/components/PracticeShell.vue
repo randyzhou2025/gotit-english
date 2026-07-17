@@ -1874,6 +1874,7 @@ onBeforeUnmount(() => {
 
 <style lang="scss">
 .screen {
+  box-sizing: border-box;
   width: 100%;
   max-width: 430px;
   min-height: 100vh;
@@ -1881,6 +1882,20 @@ onBeforeUnmount(() => {
   margin: 0 auto;
   padding: calc(16px + env(safe-area-inset-top)) 18px calc(26px + env(safe-area-inset-bottom));
   background: #fff;
+}
+
+.homeUnitCard,
+.practiceItem,
+.courseHero,
+.coursePanel,
+.courseConfirmButton,
+.questionPanel,
+.spellPanel,
+.choiceItem,
+.wrongActionBar,
+.feedbackBox {
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 .screen.hasBottomNav {
@@ -4805,9 +4820,9 @@ onBeforeUnmount(() => {
   bottom: 0;
   left: 0;
   z-index: 40;
-  width: 100%;
-  max-width: 430px;
-  margin: 0 auto;
+  width: auto;
+  max-width: none;
+  margin: 0;
   padding: 20px 24px calc(18px + env(safe-area-inset-bottom));
   border: 0;
   border-radius: 24px 24px 0 0;
@@ -4829,6 +4844,7 @@ onBeforeUnmount(() => {
 }
 
 .inlineNextButton {
+  width: 100%;
   height: 54px;
   border-radius: 16px;
   background: #ff4b4b;
@@ -6556,6 +6572,11 @@ onBeforeUnmount(() => {
   padding-right: 18px;
   padding-bottom: 26px;
   padding-left: 18px;
+  overflow-x: hidden;
+}
+
+.screen.hasBottomNav {
+  padding-bottom: calc(92px + env(safe-area-inset-bottom));
 }
 
 .courseSetupScreen,
@@ -6564,15 +6585,19 @@ onBeforeUnmount(() => {
 .dictationWordScreen,
 .dictationPlayerScreen,
 .unitWordScreen {
+  box-sizing: border-box;
   min-height: auto;
-  margin: 0 -18px -26px;
-  padding: 0 24px 24px;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0 6px 24px;
+  overflow-x: hidden;
 }
 
 .checkupSetupScreen,
 .dictationSetupScreen,
 .courseSetupScreen {
-  padding-bottom: 24px;
+  padding-bottom: calc(96px + env(safe-area-inset-bottom));
 }
 
 .courseHero {
@@ -6607,7 +6632,12 @@ onBeforeUnmount(() => {
 }
 
 .courseConfirmButton {
-  bottom: 18px;
+  right: 18px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  left: 18px;
+  width: auto;
+  max-width: none;
+  transform: none;
 }
 
 .dictationNav,
