@@ -7,6 +7,7 @@
     "wordbank:build": "node scripts/build-wordbank.mjs",
     "audio:generate": "node scripts/generate-audio-assets.mjs",
     "audio:verify-cdn": "node scripts/verify-audio-cdn.mjs",
+    "tabbar:icons": "node scripts/generate-tabbar-icons.mjs",
     "dev:h5": "uni -p h5",
     "dev:weapp": "uni -p mp-weixin",
     "dev:app": "uni -p app",

@@ -115,8 +115,8 @@
     <view v-else-if="activeScreen === 'home'" class="sectionStack homeScreen">
       <view class="homeHero">
         <view class="homeHeroMain">
-          <text class="homeHeroTitle">课本单词通</text>
-          <text class="homeHeroSubtitle">先把该会的，真正学会</text>
+          <view class="homeHeroTitle">课本单词通</view>
+          <view class="homeHeroSubtitle">先把该会的，真正学会</view>
         </view>
         <view class="homeHeroTags">
           <text class="homeHeroTag">教材同步学习</text>
@@ -1008,16 +1008,22 @@
     <view v-if="showBottomNav" class="bottomNav">
       <view class="bottomNavInner">
         <view :class="['bottomNavItem', activeScreen === 'home' && 'isActive']" @tap="goHome">
-          <image class="bottomNavIcon" :src="activeScreen === 'home' ? '/static/tabbar/home-active.png' : '/static/tabbar/home.png'" mode="aspectFit" />
+          <view class="bottomNavIconWrap">
+            <image class="bottomNavIcon" :src="activeScreen === 'home' ? '/static/tabbar/home-active.png' : '/static/tabbar/home.png'" mode="aspectFit" />
+          </view>
           <text class="bottomNavLabel">首页</text>
         </view>
         <view :class="['bottomNavItem', activeScreen === 'weakbook' && 'isActive']" @tap="goWeakbook">
-          <image class="bottomNavIcon" :src="activeScreen === 'weakbook' ? '/static/tabbar/weakbook-active.png' : '/static/tabbar/weakbook.png'" mode="aspectFit" />
+          <view class="bottomNavIconWrap">
+            <image class="bottomNavIcon" :src="activeScreen === 'weakbook' ? '/static/tabbar/weakbook-active.png' : '/static/tabbar/weakbook.png'" mode="aspectFit" />
+          </view>
           <text class="bottomNavLabel">生词本</text>
           <text v-if="savedWeakWords.length > 0" class="bottomNavBadge">{{ savedWeakWords.length }}</text>
         </view>
         <view :class="['bottomNavItem', activeScreen === 'dictationSetup' && 'isActive']" @tap="goDictationSetup">
-          <image class="bottomNavIcon" :src="activeScreen === 'dictationSetup' ? '/static/tabbar/dictation-active.png' : '/static/tabbar/dictation.png'" mode="aspectFit" />
+          <view class="bottomNavIconWrap">
+            <image class="bottomNavIcon" :src="activeScreen === 'dictationSetup' ? '/static/tabbar/dictation-active.png' : '/static/tabbar/dictation.png'" mode="aspectFit" />
+          </view>
           <text class="bottomNavLabel">听写</text>
         </view>
       </view>
@@ -2223,7 +2229,7 @@ onBeforeUnmount(() => {
 }
 
 .screen.hasBottomNav {
-  padding-bottom: calc(88px + env(safe-area-inset-bottom));
+  padding-bottom: calc(82px + env(safe-area-inset-bottom));
 }
 
 .screen.isSplitScreen {
@@ -2566,18 +2572,18 @@ onBeforeUnmount(() => {
   z-index: 20;
   display: flex;
   justify-content: center;
-  padding: 8px 14px calc(8px + env(safe-area-inset-bottom));
-  border-top: 1px solid rgba(195, 215, 209, 0.86);
-  background: rgba(248, 251, 249, 0.92);
-  backdrop-filter: blur(14px);
+  padding: 4px 8px calc(4px + env(safe-area-inset-bottom));
+  border-top: 1px solid #ececec;
+  background: #fff;
+  box-shadow: 0 -6px 18px rgba(15, 23, 42, 0.04);
 }
 
 .bottomNavInner {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 0;
   width: 100%;
-  max-width: 394px;
+  max-width: 420px;
 }
 
 .bottomNavItem {
@@ -2586,45 +2592,58 @@ onBeforeUnmount(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  min-height: 58px;
-  border: 1px solid transparent;
-  border-radius: 16px;
-  color: var(--muted);
+  gap: 3px;
+  min-height: 54px;
+  padding: 6px 0 4px;
+  border: 0;
+  border-radius: 12px;
+  color: #8e8e93;
   background: transparent;
-  transition: transform 160ms ease, background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+  transition: color 160ms ease, transform 120ms ease;
 }
 
 .bottomNavItem.isActive {
-  border-color: transparent;
-  background: transparent;
   color: #1cb0f6;
 }
 
+.bottomNavIconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+}
+
 .bottomNavIcon {
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
 }
 
 .bottomNavLabel {
-  font-size: 14px;
-  line-height: 1;
-  font-weight: 900;
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.bottomNavItem.isActive .bottomNavLabel {
+  font-weight: 700;
 }
 
 .bottomNavBadge {
   position: absolute;
-  top: 4px;
-  right: 13px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
+  top: 2px;
+  right: calc(50% - 24px);
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border: 2px solid #fff;
   border-radius: 999px;
   background: #ff4b4b;
-  color: white;
-  font-size: 10px;
-  line-height: 18px;
-  font-weight: 900;
+  color: #fff;
+  font-size: 9px;
+  line-height: 12px;
+  font-weight: 800;
   text-align: center;
 }
 
@@ -5170,30 +5189,44 @@ onBeforeUnmount(() => {
 }
 
 .bottomNav {
-  border-top: 2px solid #e5e5e5;
-  background: rgba(255, 255, 255, 0.96);
+  padding: 4px 0 calc(4px + env(safe-area-inset-bottom));
+  border-top: 1px solid #ececec;
+  background: #fff;
+  box-shadow: 0 -6px 18px rgba(15, 23, 42, 0.04);
 }
 
 .bottomNavInner {
-  gap: 10px;
+  gap: 0;
+  max-width: 100%;
 }
 
 .bottomNavItem {
-  min-height: 60px;
-  border-radius: 18px;
-  color: #777;
+  min-height: 56px;
+  border-radius: 0;
+  color: #8e8e93;
 }
 
 .bottomNavItem.isActive {
-  border: 2px solid transparent;
-  background: transparent;
   color: #1cb0f6;
 }
 
+.bottomNavLabel {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.bottomNavItem.isActive .bottomNavLabel {
+  font-weight: 700;
+}
+
 .bottomNavBadge {
-  top: 2px;
-  right: 22px;
-  background: #ff4b4b;
+  top: 1px;
+  right: calc(50% - 24px);
+  min-width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+  font-size: 9px;
+  line-height: 12px;
 }
 
 .flowScreen {
@@ -5857,30 +5890,46 @@ onBeforeUnmount(() => {
   z-index: 1;
 }
 
+.homeHeroMain {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  width: 100%;
+}
+
+/* #ifdef MP-WEIXIN */
+.homeHeroMain {
+  padding-right: 96px;
+}
+/* #endif */
+
 .homeHeroTitle {
   display: block;
+  width: 100%;
   color: #fff;
-  font-size: 27px;
-  line-height: 1.1;
+  font-size: 32px;
+  line-height: 1.15;
   font-weight: 950;
-  letter-spacing: 0.5px;
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
 .homeHeroSubtitle {
   display: block;
-  margin-top: 7px;
-  color: rgba(255, 255, 255, 0.94);
-  font-size: 13px;
-  line-height: 1.3;
-  font-weight: 800;
+  width: 100%;
+  margin-top: 12px;
+  padding-left: 3px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 500;
 }
 
 .homeHeroTags {
   display: flex;
   flex-wrap: wrap;
   gap: 7px;
-  margin-top: 14px;
+  margin-top: 18px;
 }
 
 .homeHeroTag {
@@ -7254,7 +7303,7 @@ onBeforeUnmount(() => {
 }
 
 .screen.hasBottomNav {
-  padding-bottom: calc(92px + env(safe-area-inset-bottom));
+  padding-bottom: calc(84px + env(safe-area-inset-bottom));
 }
 
 .courseSetupScreen,
