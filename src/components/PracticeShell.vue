@@ -116,7 +116,7 @@
       <view class="homeHero">
         <view class="homeHeroMain">
           <view class="homeHeroTitle">课本单词通</view>
-          <view class="homeHeroSubtitle">先把该会的，真正学会</view>
+          <view class="homeHeroSubtitle">先把课本拿下，再向更高处出发</view>
         </view>
         <view class="homeHeroTags">
           <text class="homeHeroTag">教材同步学习</text>
@@ -296,60 +296,61 @@
         </view>
       </view>
 
-      <scroll-view scroll-y class="pageBodyScroll" :show-scrollbar="false">
-        <view class="weakbookHero">
-          <text class="labelText">当前选择</text>
-          <text class="setupTitle">{{ selectedWeakWordCount }} 个词</text>
-          <text class="setupText">选择要处理的生词。体检或在线听写正确后，会自动移出生词本。</text>
+      <scroll-view scroll-y class="pageBodyScroll weakbookScroll" :show-scrollbar="false">
+        <view v-if="savedWeakWords.length === 0" class="weakbookEmpty">
+          <view class="weakbookEmptyIcon">生</view>
+          <text class="weakbookEmptyTitle">暂无生词</text>
+          <text class="weakbookEmptyText">体检或在线听写出错的单词，会自动进入生词本。</text>
         </view>
 
-        <view v-if="savedWeakWords.length === 0" class="weakList">
-          <text class="blockTitle">暂无生词</text>
-          <view class="emptyState">
-            <text>体检或在线听写出错的单词，会自动进入生词本。</text>
-          </view>
-        </view>
-
-        <view v-else class="weakbookPanel">
-          <view class="weakbookToolbar">
-            <view class="smallButton" @tap="allWeakWordsSelected ? clearWeakWordSelection() : selectAllWeakWords()">
-              <text>{{ allWeakWordsSelected ? '清空' : '全选' }}</text>
+        <view v-else class="weakbookContent">
+          <view class="weakbookSummary">
+            <view class="weakbookSummaryTop">
+              <view class="weakbookSummaryMain">
+                <text class="weakbookSummaryLabel">待复习</text>
+                <text class="weakbookSummaryCount">
+                  {{ savedWeakWords.length }}<text class="weakbookSummaryUnit"> 个词</text>
+                </text>
+              </view>
+              <view class="weakbookSelectToggle" @tap="allWeakWordsSelected ? clearWeakWordSelection() : selectAllWeakWords()">
+                <text>{{ allWeakWordsSelected ? '取消全选' : '全选' }}</text>
+              </view>
             </view>
-            <text class="toolbarText">已选 {{ selectedWeakWordCount }} / {{ savedWeakWords.length }}</text>
+            <text class="weakbookSummaryHint">已选 {{ selectedWeakWordCount }} 个 · 体检或听写正确后自动移出</text>
           </view>
 
-          <view class="weakbookActions">
+          <view class="weakbookQuickActions">
             <view
-              :class="['bottomButton', selectedWeakWordCount === 0 && 'isDisabled']"
+              :class="['weakbookQuickAction', 'isPrimary', selectedWeakWordCount === 0 && 'isDisabled']"
               @tap="startSelectedWeakCheckupPage"
             >
-              <text>体检选中</text>
+              <text>体检</text>
             </view>
             <view
-              :class="['secondaryButton', selectedWeakWordCount === 0 && 'isDisabled']"
+              :class="['weakbookQuickAction', 'isSecondary', selectedWeakWordCount === 0 && 'isDisabled']"
               @tap="openSelectedWeakDictationSetupPage"
             >
-              <text>听写选中</text>
+              <text>听写</text>
             </view>
             <view
-              :class="['dangerButton', selectedWeakWordCount === 0 && 'isDisabled']"
+              :class="['weakbookQuickAction', 'isMuted', selectedWeakWordCount === 0 && 'isDisabled']"
               @tap="markSelectedWeakWordsKnown"
             >
               <text>标记认识</text>
             </view>
           </view>
 
-          <view class="selectWordList">
+          <view class="weakbookWordList">
             <view
               v-for="word in savedWeakWords"
               :key="word.id"
-              :class="['selectWordRow', isWeakWordSelected(word.id) && 'isSelected']"
+              :class="['weakbookWordRow', isWeakWordSelected(word.id) && 'isSelected']"
               @tap="toggleWeakWordSelection(word.id)"
             >
-              <view class="selectDot">
+              <view :class="['weakbookCheckDot', isWeakWordSelected(word.id) && 'isChecked']">
                 <text v-if="isWeakWordSelected(word.id)">✓</text>
               </view>
-              <view class="selectWordCopy">
+              <view class="weakbookWordCopy">
                 <view class="unitWordTitleRow">
                   <text class="weakWord">{{ word.word }}</text>
                   <text v-if="word.phonetic" class="unitWordPhonetic">{{ word.phonetic }}</text>
@@ -2323,11 +2324,14 @@ onBeforeUnmount(() => {
 .scoreBadgeLabel,
 .legendName,
 .legendValue,
-.toolbarText,
-.smallButton,
 .dangerButton,
 .bottomNavLabel,
 .bottomNavBadge,
+.weakbookEmptyTitle,
+.weakbookEmptyText,
+.weakbookSummaryLabel,
+.weakbookSummaryCount,
+.weakbookSummaryHint,
 .setupTitle,
 .setupText,
 .controlLabel,
@@ -2382,9 +2386,7 @@ onBeforeUnmount(() => {
 .reportHero,
 .setupHero,
 .dictationPanel,
-.weakList,
-.weakbookHero,
-.weakbookPanel {
+.weakList {
   border: 0;
   border-radius: 12px;
   background: #fff;
@@ -2489,9 +2491,10 @@ onBeforeUnmount(() => {
 .secondaryButton:active,
 .dangerButton:active,
 .bottomNavItem:active,
-.smallButton:active,
-.selectWordRow:active,
 .segment:active,
+.weakbookWordRow:active,
+.weakbookQuickAction:active,
+.weakbookSelectToggle:active,
 .choiceItem:active,
 .audioButton:active,
 .inlineNextButton:active {
@@ -2651,52 +2654,223 @@ onBeforeUnmount(() => {
   padding: 16px;
 }
 
-.weakbookHero,
-.weakbookPanel {
-  padding: 18px;
+.weakbookScroll {
+  padding: 0 16px 16px;
 }
 
-.weakbookPanel {
+.weakbookContent {
   display: grid;
-  gap: 14px;
+  gap: 12px;
 }
 
-.weakbookToolbar {
+.weakbookSummary {
+  padding: 16px;
+  border: 2px solid #e5e5e5;
+  border-bottom-width: 4px;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.weakbookSummaryTop {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
 }
 
-.smallButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 66px;
-  height: 36px;
-  border: 1px solid #d9d9d9;
-  border-radius: 16px;
-  background: #fbfdfc;
-  color: #1cb0f6;
-  font-size: 13px;
-  font-weight: 900;
+.weakbookSummaryMain {
+  min-width: 0;
 }
 
-.toolbarText {
-  color: var(--muted);
-  font-size: 13px;
+.weakbookSummaryLabel {
+  display: block;
+  color: #8e8e93;
+  font-size: 12px;
   line-height: 1.2;
+  font-weight: 700;
+}
+
+.weakbookSummaryCount {
+  display: block;
+  margin-top: 4px;
+  color: #0d0f0e;
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 950;
+}
+
+.weakbookSummaryUnit {
+  font-size: 14px;
+  font-weight: 700;
+  color: #8e8e93;
+}
+
+.weakbookSelectToggle {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #1cb0f6;
+  font-size: 12px;
   font-weight: 800;
 }
 
-.weakbookActions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+.weakbookSummaryHint {
+  display: block;
+  margin-top: 10px;
+  color: #8e8e93;
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 600;
 }
 
-.weakbookActions .dangerButton {
-  grid-column: 1 / -1;
+.weakbookQuickActions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.weakbookQuickAction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border: 2px solid;
+  border-bottom-width: 4px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 800;
+  transition: transform 120ms ease, opacity 120ms ease;
+}
+
+.weakbookQuickAction.isPrimary {
+  border-color: #46a302;
+  background: #58cc02;
+  color: #fff;
+}
+
+.weakbookQuickAction.isSecondary {
+  border-color: #178ec8;
+  background: #1cb0f6;
+  color: #fff;
+}
+
+.weakbookQuickAction.isMuted {
+  border-color: #d9d9d9;
+  border-bottom-color: #c4c4c4;
+  background: #fff;
+  color: #555;
+}
+
+.weakbookQuickAction.isDisabled {
+  border-color: #e5e5e5;
+  border-bottom-color: #d9d9d9;
+  background: #f1f1f1;
+  color: #afafaf;
+  opacity: 1;
+  pointer-events: none;
+}
+
+.weakbookWordList {
+  display: grid;
+  gap: 8px;
+}
+
+.weakbookWordRow {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  min-height: 64px;
+  padding: 12px 14px;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: none;
+}
+
+.weakbookWordRow.isSelected {
+  border-color: #5bc4f7;
+  background: #d4efff;
+}
+
+.weakbookCheckDot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #d9d9d9;
+  border-radius: 999px;
+  background: #fff;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.weakbookCheckDot.isChecked {
+  border-color: #1cb0f6;
+  background: #1cb0f6;
+}
+
+.weakbookWordCopy {
+  min-width: 0;
+}
+
+.weakbookWordRow .weakWord {
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.weakbookWordRow .weakMeaning {
+  margin-top: 2px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.weakbookEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.weakbookEmptyIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  background: #eef8ff;
+  color: #1cb0f6;
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.weakbookEmptyTitle {
+  display: block;
+  margin-top: 16px;
+  color: #0d0f0e;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.weakbookEmptyText {
+  display: block;
+  margin-top: 8px;
+  color: #8e8e93;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 600;
 }
 
 .dangerButton {
@@ -2713,52 +2887,6 @@ onBeforeUnmount(() => {
   font-size: 16px;
   font-weight: 900;
   transition: transform 160ms ease, opacity 160ms ease;
-}
-
-.selectWordList {
-  display: grid;
-  gap: 10px;
-}
-
-.selectWordRow {
-  display: grid;
-  grid-template-columns: 34px 1fr;
-  gap: 12px;
-  align-items: center;
-  min-height: 62px;
-  padding: 12px 14px;
-  border: 0;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: none;
-}
-
-.selectWordRow.isSelected {
-  background: #e8f6ff;
-  box-shadow: 0 0 0 1.5px #84d8ff;
-}
-
-.selectDot {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: 1px solid #d9d9d9;
-  border-radius: 999px;
-  background: #fff;
-  color: white;
-  font-size: 15px;
-  font-weight: 900;
-}
-
-.selectWordRow.isSelected .selectDot {
-  border-color: #1cb0f6;
-  background: #1cb0f6;
-}
-
-.selectWordCopy {
-  min-width: 0;
 }
 
 .weakRow {
@@ -3202,6 +3330,7 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   width: 100%;
   height: 52px;
   border-radius: var(--radius);
@@ -5515,9 +5644,8 @@ onBeforeUnmount(() => {
 .dictationContentCard,
 .checkupStat,
 .wordPickRow,
-.selectWordRow,
-.weakbookHero,
-.weakbookPanel,
+.weakbookSummary,
+.weakbookWordRow,
 .weakList,
 .reportHero {
   border: 0;
@@ -5566,28 +5694,28 @@ onBeforeUnmount(() => {
   box-shadow: none;
 }
 
-.selectWordRow.isSelected {
-  background: #e8f6ff;
-  box-shadow: 0 0 0 1.5px #84d8ff;
+.weakbookWordRow.isSelected {
+  border-color: #5bc4f7;
+  background: #d4efff;
+  box-shadow: none;
 }
 
 .wordPickRow.isSelected .wordPickCheck,
-.selectWordRow.isSelected .selectDot {
+.weakbookWordRow.isSelected .weakbookCheckDot {
   border-color: #1cb0f6;
   background: #1cb0f6;
 }
 
-.weakbookHero,
-.weakbookPanel {
-  padding: 14px;
+.weakbookScroll {
+  padding: 0 16px 16px;
 }
 
-.weakbookActions {
+.weakbookQuickActions {
   position: sticky;
-  top: calc(8px + env(safe-area-inset-top));
-  z-index: 5;
-  padding: 8px 0;
-  background: #fff;
+  top: 0;
+  z-index: 4;
+  padding: 2px 0 4px;
+  background: #e8f5ee;
 }
 
 .playerHeader {
@@ -6621,6 +6749,18 @@ onBeforeUnmount(() => {
   margin-top: 4px;
 }
 
+.reportScreen.isSplitLayout .pageBodyScroll {
+  padding: 0 16px 16px;
+  box-sizing: border-box;
+}
+
+.reportScreen.isSplitLayout .reportActions {
+  width: 100%;
+  max-width: 100%;
+  padding: 0 2px 8px;
+  box-sizing: border-box;
+}
+
 .dictationSummaryCard {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -6873,6 +7013,7 @@ onBeforeUnmount(() => {
 }
 
 .reportActions .confirmResultButton {
+  box-sizing: border-box;
   height: 56px;
   border: 0;
   border-radius: 16px;
@@ -6884,15 +7025,21 @@ onBeforeUnmount(() => {
 
 .reportSecondaryActions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .reportSecondaryActions .secondaryButton {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
   height: 48px;
+  padding: 0 8px;
   border: 2px solid #84d8ff;
   border-bottom-width: 4px;
   border-radius: 14px;
@@ -7675,7 +7822,6 @@ onBeforeUnmount(() => {
   color: #ff4b4b;
 }
 
-.smallButton,
 .miniPill {
   background: #0d0f0e;
   color: #fff;
@@ -7700,59 +7846,15 @@ onBeforeUnmount(() => {
   box-shadow: inset 0 -4px #d9d9d9, inset 0 0 0 2px #e5e5e5;
 }
 
-.weakbookActions {
+.weakbookQuickActions {
   position: static;
   top: auto;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
   padding: 0;
   background: transparent;
 }
 
-.weakbookActions .dangerButton {
-  grid-column: 1 / -1;
-}
-
-.weakbookActions .bottomButton {
-  background: #58cc02;
-  color: #fff;
-  box-shadow: inset 0 -5px #46a302;
-}
-
-.weakbookActions .secondaryButton {
-  border: 2px solid #84d8ff;
+.weakbookQuickAction {
   border-bottom-width: 5px;
-  background: #fff;
-  color: #1cb0f6;
-}
-
-.bottomButton.isDisabled,
-.dictationStartButton.isDisabled,
-.weakbookActions .bottomButton.isDisabled {
-  border-color: #e5e5e5;
-  background: #f1f1f1;
-  color: #afafaf;
-  box-shadow: inset 0 -5px #d9d9d9;
-  pointer-events: none;
-}
-
-.secondaryButton.isDisabled,
-.weakbookActions .secondaryButton.isDisabled {
-  border-color: #e5e5e5;
-  background: #fff;
-  color: #c4c4c4;
-  box-shadow: inset 0 -5px #e5e5e5;
-  pointer-events: none;
-}
-
-.dangerButton.isDisabled,
-.weakbookActions .dangerButton.isDisabled {
-  border-color: #ffd6d6;
-  background: #fffafa;
-  color: #ffb3b3;
-  box-shadow: inset 0 -5px #ffd6d6;
-  pointer-events: none;
 }
 
 .wordPickRow.isSelected {
@@ -7761,12 +7863,13 @@ onBeforeUnmount(() => {
   box-shadow: none;
 }
 
-.selectWordRow.isSelected {
-  background: #e8f6ff;
-  box-shadow: 0 0 0 1.5px #84d8ff;
+.weakbookWordRow.isSelected {
+  border-color: #5bc4f7;
+  background: #d4efff;
+  box-shadow: none;
 }
 
-.selectWordRow.isSelected .selectDot,
+.weakbookWordRow.isSelected .weakbookCheckDot,
 .wordPickRow.isSelected .wordPickCheck {
   border-color: #1cb0f6;
   background: #1cb0f6;
@@ -7831,7 +7934,11 @@ onBeforeUnmount(() => {
 }
 
 .reportScreen .reportSecondaryActions .secondaryButton {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
   height: 48px;
+  padding: 0 8px;
   border: 2px solid #84d8ff;
   border-bottom-width: 4px;
   border-radius: 14px;
@@ -7854,9 +7961,10 @@ onBeforeUnmount(() => {
 .reportScreen .reportActions {
   position: static;
   width: 100%;
-  max-width: none;
-  padding: 0;
+  max-width: 100%;
+  padding: 0 2px 8px;
   background: transparent;
+  box-sizing: border-box;
   transform: none;
 }
 
