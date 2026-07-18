@@ -2,8 +2,8 @@
   "name": "会了吗英语",
   "appid": "wx703d7f44468c7dbf",
   "description": "英语词汇体检与自动听写",
-  "versionName": "0.2.0",
-  "versionCode": "20",
+  "versionName": "0.2.1",
+  "versionCode": "21",
   "transformPx": false,
   "uniStatistics": {
     "enable": false
@@ -28,6 +28,7 @@
   },
   "mp-weixin": {
     "appid": "wx703d7f44468c7dbf",
+    "lazyCodeLoading": "requiredComponents",
     "setting": {
       "urlCheck": true,
       "es6": true,
