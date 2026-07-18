@@ -1,13 +1,12 @@
 <template>
-  <view :class="['screen', showBottomNav && 'hasBottomNav', isSplitScreen && 'isSplitScreen']" :style="screenStyle">
-    <view
-      v-if="canSwipeBack"
-      class="edgeSwipeCatcher"
-      @touchstart.stop="onEdgeTouchStart"
-      @touchmove.stop.prevent="onEdgeTouchMove"
-      @touchend.stop="onEdgeTouchEnd"
-      @touchcancel.stop="onEdgeTouchEnd"
-    />
+  <view
+    :class="[
+      'screen',
+      showBottomNav && 'hasBottomNav',
+      isSplitScreen && 'isSplitScreen'
+    ]"
+    :style="screenStyle"
+  >
     <view v-if="showAppHeader" class="appHeader">
       <view>
         <text class="brand">会了吗英语</text>
@@ -18,9 +17,9 @@
       </view>
     </view>
 
-    <view v-if="screen === 'courseSetup'" class="courseSetupScreen">
+    <view v-if="activeScreen === 'courseSetup'" class="courseSetupScreen">
       <view class="dictationNav">
-        <view v-if="courseSetupCompleted" class="navBack" @tap="resetPractice">
+        <view v-if="courseSetupCompleted" class="navBack" @tap="goBack">
           <view class="chevronLeft" />
         </view>
         <text class="navTitle">教材选择</text>
@@ -108,16 +107,16 @@
         </view>
       </view>
 
-      <view :class="['courseConfirmButton', !courseSetupCanConfirm && 'isDisabled']" @tap="confirmCourseSetup">
+      <view :class="['courseConfirmButton', !courseSetupCanConfirm && 'isDisabled']" @tap="confirmCourseSetupPage">
         <text>{{ courseSetupCanConfirm ? '进入学习' : '暂未上线' }}</text>
       </view>
     </view>
 
-    <view v-else-if="screen === 'home'" class="sectionStack homeScreen">
+    <view v-else-if="activeScreen === 'home'" class="sectionStack homeScreen">
       <view class="homeHero">
         <view class="homeHeroMain">
           <text class="homeHeroTitle">课本单词通</text>
-          <text class="homeHeroSubtitle">先拿下课本，再征服词海</text>
+          <text class="homeHeroSubtitle">先把该会的，真正学会</text>
         </view>
         <view class="homeHeroTags">
           <text class="homeHeroTag">教材同步学习</text>
@@ -144,14 +143,14 @@
         </view>
 
         <view class="homeStatRow">
-          <view class="homeStatPrimary" @tap="openUnitWords">
+          <view class="homeStatPrimary" @tap="openUnitWordsPage">
             <text class="homeStatNumber">{{ unitWordCount }}</text>
             <view>
               <text class="homeStatTitle">总单词</text>
               <text class="homeStatHint">查看完整词表</text>
             </view>
           </view>
-          <view class="homeStatSecondary" @tap="openUnitWords">
+          <view class="homeStatSecondary" @tap="openUnitWordsPage">
             <text class="homeStatNumber">{{ activeWords.length }}</text>
             <view>
               <text class="homeStatTitle">待练</text>
@@ -160,7 +159,7 @@
           </view>
         </view>
 
-        <view class="homeSwitchRow" @tap="openCourseSetup">
+        <view class="homeSwitchRow" @tap="openCourseSetupPage">
           <view class="homeSwitchInfo">
             <text class="homeSwitchLabel">切换教材</text>
             <text class="homeSwitchValue">{{ schoolStageOptions[selectedSchoolStageIndex] }} · {{ publisherOptions[selectedPublisherIndex] }} · {{ bookOptions[selectedBookIndex] }} · {{ unitQuickOptions[selectedUnitQuickIndex] }}</text>
@@ -175,7 +174,7 @@
       </view>
 
       <view class="practiceList">
-        <view class="practiceItem isPrimary" @tap="openCheckupSetup">
+        <view class="practiceItem isPrimary" @tap="openCheckupSetupPage">
           <view class="practiceRank">
             <text>1</text>
           </view>
@@ -189,7 +188,7 @@
           </view>
         </view>
 
-        <view class="practiceItem isSecondary" @tap="openDictationSetup">
+        <view class="practiceItem isSecondary" @tap="openDictationSetupPage">
           <view class="practiceRank">
             <text>2</text>
           </view>
@@ -206,9 +205,9 @@
 
     </view>
 
-    <view v-else-if="screen === 'checkupSetup'" class="checkupSetupScreen">
+    <view v-else-if="activeScreen === 'checkupSetup'" class="checkupSetupScreen">
       <view class="dictationNav">
-        <view class="navBack" @tap="resetPractice">
+        <view class="navBack" @tap="goBack">
           <view class="chevronLeft" />
         </view>
         <text class="navTitle">词汇体检</text>
@@ -287,10 +286,10 @@
       </view>
     </view>
 
-    <view v-else-if="screen === 'weakbook'" class="sectionStack weakbookScreen isSplitLayout">
+    <view v-else-if="activeScreen === 'weakbook'" class="sectionStack weakbookScreen isSplitLayout">
       <view class="pageChrome">
         <view class="dictationNav">
-          <view class="navBack" @tap="resetPractice">
+          <view v-if="isRoutePage" class="navBack" @tap="goBack">
             <view class="chevronLeft" />
           </view>
           <text class="navTitle">生词本</text>
@@ -322,13 +321,13 @@
           <view class="weakbookActions">
             <view
               :class="['bottomButton', selectedWeakWordCount === 0 && 'isDisabled']"
-              @tap="startSelectedWeakCheckup"
+              @tap="startSelectedWeakCheckupPage"
             >
               <text>体检选中</text>
             </view>
             <view
               :class="['secondaryButton', selectedWeakWordCount === 0 && 'isDisabled']"
-              @tap="openSelectedWeakDictationSetup"
+              @tap="openSelectedWeakDictationSetupPage"
             >
               <text>听写选中</text>
             </view>
@@ -363,10 +362,10 @@
       </scroll-view>
     </view>
 
-    <view v-else-if="screen === 'unitWords'" class="unitWordScreen isSplitLayout">
+    <view v-else-if="activeScreen === 'unitWords'" class="unitWordScreen isSplitLayout">
       <view class="pageChrome">
         <view class="dictationNav">
-          <view class="navBack" @tap="resetPractice">
+          <view class="navBack" @tap="goBack">
             <view class="chevronLeft" />
           </view>
           <text class="navTitle">全部单词</text>
@@ -383,8 +382,8 @@
         <view class="unitWordList">
           <view
             v-for="item in sortedUnitWords"
-            :key="item.word.id"
-            :class="['unitWordRow', item.mastered && 'isMastered']"
+            :key="`${item.word.id}:${isUnitWordMastered(item.word.id) ? 'mastered' : 'learning'}`"
+            :class="['unitWordRow', isUnitWordMastered(item.word.id) && 'isMastered']"
           >
             <view class="unitWordCopy">
               <view class="unitWordTitleRow">
@@ -394,21 +393,21 @@
               <text class="unitWordMeaning">{{ item.word.meaning }}</text>
             </view>
             <view
-              :class="['unitWordKnownButton', item.mastered && 'isDone']"
+              :class="['unitWordKnownButton', isUnitWordMastered(item.word.id) && 'isDone']"
               @tap.stop="markUnitWordKnown(item.word.id)"
             >
-              <text class="unitWordKnownLabel">{{ item.mastered ? '已掌握' : '认识' }}</text>
+              <text class="unitWordKnownLabel">{{ isUnitWordMastered(item.word.id) ? '已掌握' : '认识' }}</text>
             </view>
           </view>
         </view>
       </scroll-view>
     </view>
 
-    <view v-else-if="screen === 'checkup' && currentCheckupQuestion" class="flowScreen isSplitLayout">
+    <view v-else-if="activeScreen === 'checkup' && currentCheckupQuestion" class="flowScreen isSplitLayout">
       <view class="pageChrome">
         <view class="playerHeader">
           <view class="playerHeaderTop">
-            <view class="navBack" @tap="resetPractice">
+            <view class="navBack" @tap="goBack">
               <view class="chevronLeft" />
             </view>
             <text class="playerTitle">词汇体检</text>
@@ -466,11 +465,11 @@
       </view>
     </view>
 
-    <view v-else-if="screen === 'spelling' && currentCheckupQuestion" class="flowScreen isSplitLayout">
+    <view v-else-if="activeScreen === 'spelling' && currentCheckupQuestion" class="flowScreen isSplitLayout">
       <view class="pageChrome">
         <view class="playerHeader">
           <view class="playerHeaderTop">
-            <view class="navBack" @tap="resetPractice">
+            <view class="navBack" @tap="goBack">
               <view class="chevronLeft" />
             </view>
             <text class="playerTitle">拼出单词</text>
@@ -508,9 +507,9 @@
       </view>
     </view>
 
-    <view v-else-if="screen === 'report'" class="sectionStack reportScreen">
+    <view v-else-if="activeScreen === 'report'" class="sectionStack reportScreen">
       <view class="dictationNav">
-        <view class="navBack" @tap="resetPractice">
+        <view class="navBack" @tap="goBack">
           <view class="chevronLeft" />
         </view>
         <text class="navTitle">体检报告</text>
@@ -573,15 +572,15 @@
         <view class="bottomButton" @tap="openWeakbook">
           <text>查看生词本</text>
         </view>
-        <view class="secondaryButton" @tap="startReportWeakCheckup">
+        <view class="secondaryButton" @tap="startReportWeakCheckupPage">
           <text>再测一轮</text>
         </view>
       </view>
     </view>
 
-    <view v-else-if="screen === 'dictationSetup'" class="dictationSetupScreen">
+    <view v-else-if="activeScreen === 'dictationSetup'" class="dictationSetupScreen">
       <view class="dictationNav">
-        <view class="navBack" @tap="backFromDictationSetup">
+        <view v-if="isRoutePage" class="navBack" @tap="goBack">
           <view class="chevronLeft" />
         </view>
         <text class="navTitle">自动听写</text>
@@ -658,7 +657,7 @@
         <text>{{ dictationMode === 'paper' ? '手机负责报词，用纸笔完成默写。' : '在线输入会记录对错并同步生词本。' }}</text>
       </view>
 
-      <view class="dictationContentCard" @tap="openDictationWordPicker">
+      <view class="dictationContentCard" @tap="openDictationWordPickerPage">
         <view>
           <text class="contentLabel">本次内容</text>
           <text class="contentTitle">{{ dictationSourceLabel }}</text>
@@ -672,10 +671,10 @@
       </view>
     </view>
 
-    <view v-else-if="screen === 'dictationWords'" class="dictationWordScreen isSplitLayout">
+    <view v-else-if="activeScreen === 'dictationWords'" class="dictationWordScreen isSplitLayout">
       <view class="pageChrome">
         <view class="dictationNav">
-          <view class="navBack" @tap="backFromDictationWordPicker">
+          <view class="navBack" @tap="backFromDictationWordPickerPage">
             <view class="chevronLeft" />
           </view>
           <text class="navTitle">选择单词</text>
@@ -744,17 +743,17 @@
           </view>
         </view>
 
-        <view :class="['dictationStartButton wordPickerConfirm', selectedDictationWordCount === 0 && 'isDisabled']" @tap="confirmDictationWordSelection">
+        <view :class="['dictationStartButton wordPickerConfirm', selectedDictationWordCount === 0 && 'isDisabled']" @tap="confirmDictationWordSelectionPage">
           <text>确定 {{ selectedDictationWordCount }} 个词</text>
         </view>
       </scroll-view>
     </view>
 
-    <view v-else-if="screen === 'dictation' && currentDictationEntry" class="dictationPlayerScreen isSplitLayout">
+    <view v-else-if="activeScreen === 'dictation' && currentDictationEntry" class="dictationPlayerScreen isSplitLayout">
       <view class="pageChrome">
         <view class="playerHeader">
           <view class="playerHeaderTop">
-            <view class="navBack" @tap="openDictationSetup">
+            <view class="navBack" @tap="goBack">
               <view class="chevronLeft" />
             </view>
             <text class="playerTitle">自动听写</text>
@@ -854,10 +853,10 @@
       </view>
     </view>
 
-    <view v-else-if="screen === 'dictationReport'" class="sectionStack reportScreen isSplitLayout">
+    <view v-else-if="activeScreen === 'dictationReport'" class="sectionStack reportScreen isSplitLayout">
       <view class="pageChrome">
         <view class="dictationNav">
-          <view class="navBack" @tap="resetPractice">
+          <view class="navBack" @tap="goBack">
             <view class="chevronLeft" />
           </view>
           <text class="navTitle">听写报告</text>
@@ -917,11 +916,11 @@
 
         <view class="actionStack reportActions">
           <text class="confirmResultHint">确认后，未标记忘记的单词会标为已掌握；忘记的保留在生词本。</text>
-          <view :class="['bottomButton confirmResultButton', dictationResultConfirmed && 'isDisabled']" @tap="confirmDictationResult">
+          <view :class="['bottomButton confirmResultButton', dictationResultConfirmed && 'isDisabled']" @tap="confirmDictationResultPage">
             <text>{{ dictationResultConfirmed ? '已确认听写结果' : '确认听写结果' }}</text>
           </view>
           <view class="reportSecondaryActions">
-            <view :class="['secondaryButton', dictationSummary.forgotten === 0 && 'isDisabled']" @tap="startForgottenDictation">
+            <view :class="['secondaryButton', dictationSummary.forgotten === 0 && 'isDisabled']" @tap="startForgottenDictationPage">
               <text>生词再听一轮</text>
             </view>
             <view class="secondaryButton" @tap="openWeakbook">
@@ -932,7 +931,7 @@
       </scroll-view>
     </view>
 
-    <view v-else-if="screen === 'dictationReward' && dictationReward" class="dictationRewardScreen">
+    <view v-else-if="activeScreen === 'dictationReward' && dictationReward" class="dictationRewardScreen">
       <view class="rewardContent">
         <view class="rewardHero">
           <view class="rewardMedal" aria-hidden="true">
@@ -1008,17 +1007,17 @@
 
     <view v-if="showBottomNav" class="bottomNav">
       <view class="bottomNavInner">
-        <view :class="['bottomNavItem', screen === 'home' && 'isActive']" @tap="goHome">
-          <image class="bottomNavIcon" :src="screen === 'home' ? '/static/tabbar/home-active.png' : '/static/tabbar/home.png'" mode="aspectFit" />
+        <view :class="['bottomNavItem', activeScreen === 'home' && 'isActive']" @tap="goHome">
+          <image class="bottomNavIcon" :src="activeScreen === 'home' ? '/static/tabbar/home-active.png' : '/static/tabbar/home.png'" mode="aspectFit" />
           <text class="bottomNavLabel">首页</text>
         </view>
-        <view :class="['bottomNavItem', screen === 'weakbook' && 'isActive']" @tap="goWeakbook">
-          <image class="bottomNavIcon" :src="screen === 'weakbook' ? '/static/tabbar/weakbook-active.png' : '/static/tabbar/weakbook.png'" mode="aspectFit" />
+        <view :class="['bottomNavItem', activeScreen === 'weakbook' && 'isActive']" @tap="goWeakbook">
+          <image class="bottomNavIcon" :src="activeScreen === 'weakbook' ? '/static/tabbar/weakbook-active.png' : '/static/tabbar/weakbook.png'" mode="aspectFit" />
           <text class="bottomNavLabel">生词本</text>
           <text v-if="savedWeakWords.length > 0" class="bottomNavBadge">{{ savedWeakWords.length }}</text>
         </view>
-        <view :class="['bottomNavItem', screen === 'dictationSetup' && 'isActive']" @tap="goDictationSetup">
-          <image class="bottomNavIcon" :src="screen === 'dictationSetup' ? '/static/tabbar/dictation-active.png' : '/static/tabbar/dictation.png'" mode="aspectFit" />
+        <view :class="['bottomNavItem', activeScreen === 'dictationSetup' && 'isActive']" @tap="goDictationSetup">
+          <image class="bottomNavIcon" :src="activeScreen === 'dictationSetup' ? '/static/tabbar/dictation-active.png' : '/static/tabbar/dictation.png'" mode="aspectFit" />
           <text class="bottomNavLabel">听写</text>
         </view>
       </view>
@@ -1033,6 +1032,7 @@ import { usePracticeSession, type AppScreen } from '@/app/usePracticeSession'
 
 const props = defineProps<{
   tabScreen?: 'home' | 'weakbook' | 'dictationSetup'
+  routeScreen?: AppScreen
 }>()
 
 const choiceKeys = ['A', 'B', 'C', 'D']
@@ -1053,7 +1053,6 @@ const {
   activeWords,
   allDictationWordsSelected,
   allWeakWordsSelected,
-  backFromDictationSetup,
   backFromDictationWordPicker,
   bookOptions,
   checkupIndex,
@@ -1142,6 +1141,7 @@ const {
   setCourseSetupStage,
   setCourseSetupUnit,
   setDictationExcludeMasteredWords,
+  showScreen,
   showDictationAnswer,
   spellingInput,
   startCheckup,
@@ -1194,6 +1194,29 @@ const screenStyle = computed(() => {
 })
 
 const TAB_ROOT_SCREENS = new Set<AppScreen>(['home', 'weakbook', 'dictationSetup'])
+
+const ROUTE_BY_SCREEN: Partial<Record<AppScreen, string>> = {
+  courseSetup: '/pages/course/index',
+  unitWords: '/pages/unit-words/index',
+  checkupSetup: '/pages/checkup/setup',
+  checkup: '/pages/checkup/play',
+  spelling: '/pages/checkup/spelling',
+  report: '/pages/checkup/report',
+  dictationSetup: '/pages/dictation/setup',
+  dictationWords: '/pages/dictation/words',
+  dictation: '/pages/dictation/player',
+  dictationReport: '/pages/dictation/report',
+  dictationReward: '/pages/dictation/reward'
+}
+
+const tabRootScreen = computed<AppScreen>(() => {
+  if (!courseSetupCompleted.value) return 'courseSetup'
+  if (props.tabScreen === 'weakbook') return 'weakbook'
+  if (props.tabScreen === 'dictationSetup') return 'dictationSetup'
+  return 'home'
+})
+
+const activeScreen = computed<AppScreen>(() => props.routeScreen ?? tabRootScreen.value)
 
 function getProgressPercent(current: number, total: number): number {
   if (total <= 0) return 0
@@ -1365,19 +1388,21 @@ const dictationCountdownPercent = computed(() => {
 
 const showBottomNav = computed(() => {
   // #ifdef MP-WEIXIN
-  return TAB_ROOT_SCREENS.has(screen.value)
+  return !props.routeScreen && TAB_ROOT_SCREENS.has(activeScreen.value)
   // #endif
   return false
 })
 
+const isRoutePage = computed(() => Boolean(props.routeScreen))
+
 const isSplitScreen = computed(() => (
-  screen.value === 'unitWords'
-  || screen.value === 'dictationWords'
-  || screen.value === 'weakbook'
-  || screen.value === 'checkup'
-  || screen.value === 'spelling'
-  || screen.value === 'dictation'
-  || screen.value === 'dictationReport'
+  activeScreen.value === 'unitWords'
+  || activeScreen.value === 'dictationWords'
+  || activeScreen.value === 'weakbook'
+  || activeScreen.value === 'checkup'
+  || activeScreen.value === 'spelling'
+  || activeScreen.value === 'dictation'
+  || activeScreen.value === 'dictationReport'
 ))
 
 const sortedUnitWords = computed(() => {
@@ -1422,6 +1447,9 @@ function commitCheckupLimitDraft() {
 function startCheckupFromSetup() {
   commitCheckupLimitDraft()
   startCheckup()
+  if (screen.value === 'checkup') {
+    redirectToRoute('checkup')
+  }
 }
 
 function applyCheckupLimitOption(limit: number) {
@@ -1502,7 +1530,7 @@ function syncNativeTabBar() {
   // #endif
 
   try {
-    if (TAB_ROOT_SCREENS.has(screen.value)) {
+    if (TAB_ROOT_SCREENS.has(activeScreen.value)) {
       uni.showTabBar({ animation: false })
     } else {
       uni.hideTabBar({ animation: false })
@@ -1557,6 +1585,91 @@ function activateTabRoot() {
   syncNativeTabBar()
 }
 
+function activateRouteScreen(routeScreen: AppScreen) {
+  showScreen(routeScreen)
+  syncNativeTabBar()
+}
+
+function getCurrentRoutePath(): string {
+  try {
+    const pages = getCurrentPages()
+    const route = pages[pages.length - 1]?.route
+    return route ? `/${route}` : ''
+  } catch {
+    return ''
+  }
+}
+
+function getPageStackLength(): number {
+  try {
+    return getCurrentPages().length
+  } catch {
+    return 0
+  }
+}
+
+function navigateToRoute(nextScreen: AppScreen) {
+  const url = ROUTE_BY_SCREEN[nextScreen]
+  if (!url) {
+    showScreen(nextScreen)
+    return
+  }
+
+  if (getCurrentRoutePath() === url) {
+    showScreen(nextScreen)
+    return
+  }
+
+  uni.navigateTo({
+    url,
+    fail: () => showScreen(nextScreen)
+  })
+}
+
+function redirectToRoute(nextScreen: AppScreen) {
+  const url = ROUTE_BY_SCREEN[nextScreen]
+  if (!url) {
+    showScreen(nextScreen)
+    return
+  }
+
+  if (getCurrentRoutePath() === url) {
+    showScreen(nextScreen)
+    return
+  }
+
+  uni.redirectTo({
+    url,
+    fail: () => showScreen(nextScreen)
+  })
+}
+
+function navigateBackToPrevious(fallbackScreen: AppScreen = 'home') {
+  if (getPageStackLength() > 1) {
+    uni.navigateBack({
+      delta: 1,
+      fail: () => goToFallbackScreen(fallbackScreen)
+    })
+    return
+  }
+
+  goToFallbackScreen(fallbackScreen)
+}
+
+function goToFallbackScreen(fallbackScreen: AppScreen) {
+  if (fallbackScreen === 'weakbook') {
+    openWeakbook()
+    return
+  }
+
+  if (fallbackScreen === 'dictationSetup') {
+    openDictationSetup()
+    return
+  }
+
+  resetPractice()
+}
+
 function resetPractice() {
   resetPracticeScreen()
   switchNativeTab('/pages/index/index')
@@ -1572,8 +1685,79 @@ function openDictationSetup() {
   switchNativeTab('/pages/dictation/index')
 }
 
-function openCourseSetup() {
+function openCourseSetupPage() {
   openCourseSetupScreen()
+  navigateToRoute('courseSetup')
+}
+
+function openUnitWordsPage() {
+  openUnitWords()
+  navigateToRoute('unitWords')
+}
+
+function openCheckupSetupPage() {
+  openCheckupSetup()
+  navigateToRoute('checkupSetup')
+}
+
+function openDictationSetupPage() {
+  openDictationSetupScreen()
+  navigateToRoute('dictationSetup')
+}
+
+function confirmCourseSetupPage() {
+  confirmCourseSetup()
+  resetPractice()
+}
+
+function startSelectedWeakCheckupPage() {
+  startSelectedWeakCheckup()
+  if (screen.value === 'checkup') {
+    navigateToRoute('checkup')
+  }
+}
+
+function startReportWeakCheckupPage() {
+  startReportWeakCheckup()
+  if (screen.value === 'checkup') {
+    redirectToRoute('checkup')
+  }
+}
+
+function openSelectedWeakDictationSetupPage() {
+  openSelectedWeakDictationSetup()
+  if (screen.value === 'dictationSetup') {
+    navigateToRoute('dictationSetup')
+  }
+}
+
+function openDictationWordPickerPage() {
+  openDictationWordPicker()
+  navigateToRoute('dictationWords')
+}
+
+function backFromDictationWordPickerPage() {
+  backFromDictationWordPicker()
+  navigateBackToPrevious('dictationSetup')
+}
+
+function confirmDictationWordSelectionPage() {
+  confirmDictationWordSelection()
+  navigateBackToPrevious('dictationSetup')
+}
+
+function confirmDictationResultPage() {
+  confirmDictationResult()
+  if (screen.value === 'dictationReward') {
+    redirectToRoute('dictationReward')
+  }
+}
+
+function startForgottenDictationPage() {
+  startForgottenDictation()
+  if (screen.value === 'dictation') {
+    redirectToRoute('dictation')
+  }
 }
 
 function goHome() {
@@ -1589,71 +1773,39 @@ function goDictationSetup() {
 }
 
 function goBack(): boolean {
-  switch (screen.value) {
+  switch (activeScreen.value) {
     case 'checkupSetup':
     case 'unitWords':
     case 'checkup':
     case 'spelling':
     case 'report':
+      navigateBackToPrevious('home')
+      return true
+    case 'dictation':
     case 'dictationReport':
+    case 'dictationReward':
+      navigateBackToPrevious('dictationSetup')
+      return true
     case 'weakbook':
       resetPractice()
       return true
-    case 'dictation':
-      openDictationSetup()
-      return true
     case 'dictationWords':
-      backFromDictationWordPicker()
+      backFromDictationWordPickerPage()
       return true
     case 'dictationSetup':
-      backFromDictationSetup()
-      return true
+      if (props.routeScreen) {
+        navigateBackToPrevious('home')
+        return true
+      }
+      return false
     case 'courseSetup':
       if (courseSetupCompleted.value) {
-        resetPractice()
+        navigateBackToPrevious('home')
         return true
       }
       return false
     default:
       return false
-  }
-}
-
-const canSwipeBack = computed(() => {
-  if (screen.value === 'home' || screen.value === 'dictationReward') return false
-  if (screen.value === 'courseSetup' && !courseSetupCompleted.value) return false
-  return true
-})
-
-let swipeStartX = 0
-let swipeStartY = 0
-let swipeStartTime = 0
-let swipeTracking = false
-
-function onEdgeTouchStart(event: TouchEvent) {
-  const point = event.touches?.[0]
-  if (!point) return
-  swipeTracking = true
-  swipeStartX = point.clientX
-  swipeStartY = point.clientY
-  swipeStartTime = Date.now()
-}
-
-function onEdgeTouchMove(_event: TouchEvent) {
-  // catchtouchmove / stop.prevent blocks the native mini-program exit swipe.
-}
-
-function onEdgeTouchEnd(event: TouchEvent) {
-  if (!swipeTracking) return
-  swipeTracking = false
-  const point = event.changedTouches?.[0]
-  if (!point) return
-  const deltaX = point.clientX - swipeStartX
-  const deltaY = point.clientY - swipeStartY
-  const elapsed = Date.now() - swipeStartTime
-
-  if (deltaX > 56 && Math.abs(deltaY) < 80 && elapsed < 800) {
-    goBack()
   }
 }
 
@@ -1696,7 +1848,11 @@ function beginDictation() {
   startDictation()
   if (screen.value === 'dictation') {
     clearDictationTimers()
-    startCurrentDictationPlayback()
+    if (props.routeScreen) {
+      redirectToRoute('dictation')
+    } else {
+      navigateToRoute('dictation')
+    }
   }
 }
 
@@ -1737,7 +1893,7 @@ function clearDictationTimers() {
 }
 
 function getCurrentPlaybackKey(): string {
-  if (screen.value !== 'dictation' || !currentDictationEntry.value || !dictationAudioUrl.value) return ''
+  if (activeScreen.value !== 'dictation' || screen.value !== 'dictation' || !currentDictationEntry.value || !dictationAudioUrl.value) return ''
   return `${currentDictationEntry.value.id}|${dictationAudioUrl.value}|${dictationMode.value}`
 }
 
@@ -1864,7 +2020,7 @@ function playCurrentAudio(showToast = true, repeatTimes = 1) {
 
 function startPaperCountdown() {
   clearDictationTimers()
-  if (dictationMode.value !== 'paper' || screen.value !== 'dictation') return
+  if (dictationMode.value !== 'paper' || activeScreen.value !== 'dictation') return
 
   remainingSeconds.value = dictationPlan.value?.intervalSeconds ?? dictationIntervalSeconds.value
   countdownTimer = setInterval(() => {
@@ -1875,7 +2031,7 @@ function startPaperCountdown() {
 
     clearDictationTimers()
     nextDictation()
-    if (screen.value === 'dictation') {
+    if (activeScreen.value === 'dictation') {
       startCurrentDictationPlayback()
     }
   }, 1000)
@@ -1919,7 +2075,7 @@ function skipCurrentDictation() {
   clearDictationTimers()
   stopActiveAudio()
   nextDictation()
-  if (screen.value === 'dictation') {
+  if (activeScreen.value === 'dictation') {
     startCurrentDictationPlayback()
   }
 }
@@ -1931,9 +2087,9 @@ function exitDictation() {
 }
 
 watch(
-  () => [screen.value, effectiveCheckupLimit.value],
+  () => [activeScreen.value, effectiveCheckupLimit.value],
   () => {
-    if (screen.value !== 'checkupSetup' || checkupLimitInputFocused.value) return
+    if (activeScreen.value !== 'checkupSetup' || checkupLimitInputFocused.value) return
 
     checkupLimitDraft.value = String(effectiveCheckupLimit.value)
   },
@@ -1942,20 +2098,25 @@ watch(
 
 watch(
   () => screen.value,
-  () => {
+  nextScreen => {
     syncNativeTabBar()
+
+    if (!props.routeScreen) return
+    if (nextScreen === props.routeScreen || TAB_ROOT_SCREENS.has(nextScreen)) return
+
+    redirectToRoute(nextScreen)
   },
   { immediate: true }
 )
 
 watch(
-  () => [screen.value, dictationReward.value?.afterPercent],
+  () => [activeScreen.value, dictationReward.value?.afterPercent],
   () => {
-    if (screen.value !== 'dictationReward' || !dictationReward.value) return
+    if (activeScreen.value !== 'dictationReward' || !dictationReward.value) return
 
     rewardProgressPercent.value = dictationReward.value.beforePercent
     setTimeout(() => {
-      if (screen.value === 'dictationReward' && dictationReward.value) {
+      if (activeScreen.value === 'dictationReward' && dictationReward.value) {
         rewardProgressPercent.value = dictationReward.value.afterPercent
       }
     }, 180)
@@ -1972,7 +2133,7 @@ watch(
 )
 
 watch(
-  () => [shellVisible.value, screen.value, currentDictationEntry.value?.id, dictationAudioUrl.value, dictationAudioReady.value, dictationMode.value],
+  () => [shellVisible.value, activeScreen.value, screen.value, currentDictationEntry.value?.id, dictationAudioUrl.value, dictationAudioReady.value, dictationMode.value],
   () => {
     if (!shellVisible.value) {
       clearDictationTimers()
@@ -1980,7 +2141,7 @@ watch(
       return
     }
 
-    if (screen.value !== 'dictation') {
+    if (activeScreen.value !== 'dictation' || screen.value !== 'dictation') {
       clearDictationTimers()
       destroyActiveAudio()
       lastPlaybackKey = ''
@@ -1998,7 +2159,7 @@ watch(
     clearDictationTimers()
 
     queuedPlaybackTimer = setTimeout(() => {
-      if (screen.value === 'dictation' && currentDictationEntry.value && dictationAudioReady.value) {
+      if (activeScreen.value === 'dictation' && screen.value === 'dictation' && currentDictationEntry.value && dictationAudioReady.value) {
         startCurrentDictationPlayback()
       }
     }, 240)
@@ -2009,10 +2170,10 @@ onShow(() => {
   updateMiniProgramNavInset()
   configureMiniProgramAudioPlayback()
   shellVisible.value = true
-  if (TAB_ROOT_SCREENS.has(screen.value)) {
-    activateTabRoot()
+  if (props.routeScreen) {
+    activateRouteScreen(props.routeScreen)
   } else {
-    syncNativeTabBar()
+    activateTabRoot()
   }
   syncNativeWeakbookBadge()
 })
@@ -2075,15 +2236,6 @@ onBeforeUnmount(() => {
   min-height: 100dvh;
   background: #e8f5ee;
   background-color: #e8f5ee;
-}
-
-.edgeSwipeCatcher {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 200;
-  width: 28px;
 }
 
 .isSplitLayout {
@@ -3794,23 +3946,32 @@ onBeforeUnmount(() => {
 .wordPickerList {
   display: grid;
   gap: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
   margin-top: 14px;
   padding-bottom: 86px;
+  overflow: hidden;
 }
 
 .wordPickRow {
   display: flex;
   gap: 12px;
   align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
   min-height: 56px;
-  padding: 10px 14px;
-  border: 0;
+  padding: 10px 12px;
+  border: 2px solid transparent;
   border-radius: 12px;
   background: #fff;
   box-shadow: none;
+  overflow: hidden;
 }
 
 .wordPickRow.isSelected {
+  border-color: #84d8ff;
   background: #eef8ff;
 }
 
@@ -3835,10 +3996,13 @@ onBeforeUnmount(() => {
 .wordPickCopy {
   flex: 1 1 auto;
   min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .wordPickWord {
   flex: 0 1 auto;
+  min-width: 0;
   max-width: 55%;
   color: #0d0f0e;
   font-size: 16px;
@@ -3847,7 +4011,10 @@ onBeforeUnmount(() => {
 }
 
 .wordPickCopy .unitWordTitleRow {
+  min-width: 0;
+  max-width: 100%;
   margin-bottom: 2px;
+  overflow: hidden;
 }
 
 .wordPickMeaning {
@@ -3863,7 +4030,8 @@ onBeforeUnmount(() => {
 }
 
 .wordPickLevel {
-  flex: 0 0 34px;
+  flex: 0 0 30px;
+  min-width: 0;
   color: #b0b2b8;
   font-size: 12px;
   line-height: 1;
@@ -3872,7 +4040,9 @@ onBeforeUnmount(() => {
 }
 
 .wordPickKnownBadge {
-  flex: 0 0 auto;
+  flex: 0 0 54px;
+  box-sizing: border-box;
+  max-width: 54px;
   padding: 5px 7px;
   border-radius: 999px;
   background: #f1f1f1;
@@ -3880,6 +4050,9 @@ onBeforeUnmount(() => {
   font-size: 10px;
   line-height: 1;
   font-weight: 950;
+  overflow: hidden;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .wordPickerConfirm {
@@ -5320,6 +5493,18 @@ onBeforeUnmount(() => {
   box-shadow: none;
 }
 
+.wordPickerList,
+.wordPickRow {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.wordPickRow {
+  border: 2px solid transparent;
+}
+
 .dictationTip {
   background: #ddf4ff;
   color: #1cb0f6;
@@ -5342,7 +5527,12 @@ onBeforeUnmount(() => {
   box-shadow: inset 0 -6px #46a302;
 }
 
-.wordPickRow.isSelected,
+.wordPickRow.isSelected {
+  border-color: #84d8ff;
+  background: #e8f6ff;
+  box-shadow: none;
+}
+
 .selectWordRow.isSelected {
   background: #e8f6ff;
   box-shadow: 0 0 0 1.5px #84d8ff;
@@ -7135,10 +7325,6 @@ onBeforeUnmount(() => {
   background: #e8f5ee;
 }
 
-.edgeSwipeCatcher {
-  width: 32px;
-}
-
 .playerHeaderTop {
   position: relative;
   min-height: var(--capsule-h, 32px);
@@ -7389,6 +7575,31 @@ onBeforeUnmount(() => {
   align-items: stretch;
 }
 
+.wordPickerList,
+.wordPickRow {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.wordPickRow {
+  border: 2px solid transparent;
+  padding-right: 12px;
+  padding-left: 12px;
+}
+
+.wordPickCopy {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.wordPickKnownBadge {
+  flex: 0 0 54px;
+  max-width: 54px;
+}
+
 .quickPickButton.isActive {
   border-color: #1cb0f6;
   background: #ddf4ff;
@@ -7495,8 +7706,13 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 
-.selectWordRow.isSelected,
 .wordPickRow.isSelected {
+  border-color: #84d8ff;
+  background: #e8f6ff;
+  box-shadow: none;
+}
+
+.selectWordRow.isSelected {
   background: #e8f6ff;
   box-shadow: 0 0 0 1.5px #84d8ff;
 }

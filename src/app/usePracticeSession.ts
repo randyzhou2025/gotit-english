@@ -611,6 +611,11 @@ function createPracticeSession() {
     scrollToTop()
   }
 
+  function showScreen(nextScreen: AppScreen) {
+    screen.value = nextScreen
+    scrollToTop()
+  }
+
   function resetRecognition() {
     selectedMeaning.value = ''
     recognitionState.value = 'idle'
@@ -1235,6 +1240,7 @@ function createPracticeSession() {
     setSelectedSchoolStageByIndex,
     setSelectedUnitByIndex,
     setSelectedUnitQuickByIndex,
+    showScreen,
     showDictationAnswer,
     spellingInput,
     startCheckup,

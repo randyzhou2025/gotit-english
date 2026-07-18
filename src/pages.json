@@ -4,24 +4,98 @@
       "path": "pages/index/index",
       "style": {
         "navigationBarTitleText": "会了吗英语",
-        "navigationStyle": "custom",
-        "disableSwipeBack": true
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/weakbook/index",
       "style": {
         "navigationBarTitleText": "生词本",
-        "navigationStyle": "custom",
-        "disableSwipeBack": true
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/dictation/index",
       "style": {
         "navigationBarTitleText": "自动听写",
-        "navigationStyle": "custom",
-        "disableSwipeBack": true
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/course/index",
+      "style": {
+        "navigationBarTitleText": "教材选择",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/unit-words/index",
+      "style": {
+        "navigationBarTitleText": "全部单词",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/checkup/setup",
+      "style": {
+        "navigationBarTitleText": "词汇体检",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/checkup/play",
+      "style": {
+        "navigationBarTitleText": "词汇体检",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/checkup/spelling",
+      "style": {
+        "navigationBarTitleText": "词汇体检",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/checkup/report",
+      "style": {
+        "navigationBarTitleText": "体检报告",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/dictation/words",
+      "style": {
+        "navigationBarTitleText": "选择单词",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/dictation/setup",
+      "style": {
+        "navigationBarTitleText": "自动听写",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/dictation/player",
+      "style": {
+        "navigationBarTitleText": "自动听写",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/dictation/report",
+      "style": {
+        "navigationBarTitleText": "听写报告",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/dictation/reward",
+      "style": {
+        "navigationBarTitleText": "听写完成",
+        "navigationStyle": "custom"
       }
     }
   ],
