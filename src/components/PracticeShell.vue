@@ -1018,7 +1018,7 @@
           <view class="rewardMedal" aria-hidden="true">
             <view class="rewardHalo" />
             <view class="rewardMedalCore">
-              <text>{{ dictationReward.newlyMasteredCount > 0 ? `+${dictationReward.newlyMasteredCount}` : 'OK' }}</text>
+              <text class="rewardMedalCoreText">{{ dictationReward.newlyMasteredCount > 0 ? `+${dictationReward.newlyMasteredCount}` : 'OK' }}</text>
             </view>
             <view class="rewardRay one" />
             <view class="rewardRay two" />
@@ -7303,7 +7303,7 @@ onBeforeUnmount(() => {
   transform: translate(-50%, -50%);
 }
 
-.rewardMedalCore text {
+.rewardMedalCoreText {
   font-size: 30px;
   line-height: 1;
   font-weight: 950;
