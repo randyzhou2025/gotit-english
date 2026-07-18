@@ -4,21 +4,24 @@
       "path": "pages/index/index",
       "style": {
         "navigationBarTitleText": "会了吗英语",
-        "navigationStyle": "custom"
+        "navigationStyle": "custom",
+        "disableSwipeBack": true
       }
     },
     {
       "path": "pages/weakbook/index",
       "style": {
         "navigationBarTitleText": "生词本",
-        "navigationStyle": "custom"
+        "navigationStyle": "custom",
+        "disableSwipeBack": true
       }
     },
     {
       "path": "pages/dictation/index",
       "style": {
         "navigationBarTitleText": "自动听写",
-        "navigationStyle": "custom"
+        "navigationStyle": "custom",
+        "disableSwipeBack": true
       }
     }
   ],
@@ -49,9 +52,9 @@
     ]
   },
   "globalStyle": {
-    "backgroundColor": "#ffffff",
+    "backgroundColor": "#f3f4f6",
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "会了吗英语",
-    "navigationBarBackgroundColor": "#ffffff"
+    "navigationBarBackgroundColor": "#f3f4f6"
   }
 }

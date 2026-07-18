@@ -1,5 +1,13 @@
 <template>
-  <view :class="['screen', showBottomNav && 'hasBottomNav']" :style="screenStyle">
+  <view :class="['screen', showBottomNav && 'hasBottomNav', isSplitScreen && 'isSplitScreen']" :style="screenStyle">
+    <view
+      v-if="canSwipeBack"
+      class="edgeSwipeCatcher"
+      @touchstart.stop="onEdgeTouchStart"
+      @touchmove.stop.prevent="onEdgeTouchMove"
+      @touchend.stop="onEdgeTouchEnd"
+      @touchcancel.stop="onEdgeTouchEnd"
+    />
     <view v-if="showAppHeader" class="appHeader">
       <view>
         <text class="brand">会了吗英语</text>
@@ -11,14 +19,11 @@
     </view>
 
     <view v-if="screen === 'courseSetup'" class="courseSetupScreen">
-
-      <view class="courseHero">
-        <view class="courseHeroCopy">
-          <text class="courseHeroTitle">你现在学习的是</text>
+      <view class="dictationNav">
+        <view v-if="courseSetupCompleted" class="navBack" @tap="resetPractice">
+          <view class="chevronLeft" />
         </view>
-        <view class="courseHeroBadge">
-          <text>GotIt</text>
-        </view>
+        <text class="navTitle">教材选择</text>
       </view>
 
       <view class="coursePanel">
@@ -69,7 +74,7 @@
 
         <view v-if="courseSetupPublisherOptions.length > 0" class="courseSection">
           <text class="courseSectionTitle">册</text>
-          <view v-if="courseSetupBookOptions.length > 0" class="courseChipGrid">
+          <view v-if="courseSetupBookOptions.length > 0" class="courseChipGrid two">
             <view
               v-for="book in courseSetupBookOptions"
               :key="book.id"
@@ -109,15 +114,29 @@
     </view>
 
     <view v-else-if="screen === 'home'" class="sectionStack homeScreen">
+      <view class="homeHero">
+        <view class="homeHeroMain">
+          <text class="homeHeroTitle">课本单词通</text>
+          <text class="homeHeroSubtitle">先拿下课本，再征服词海</text>
+        </view>
+        <view class="homeHeroTags">
+          <text class="homeHeroTag">教材同步学习</text>
+          <text class="homeHeroTag">掌握检测</text>
+          <text class="homeHeroTag">自动听写</text>
+          <text class="homeHeroTag">生词复习</text>
+        </view>
+      </view>
+
       <view class="homeUnitCard">
         <view class="homeUnitTopline">
-          <text class="homeUnitLabel">当前单元</text>
+          <text class="homeUnitLabel">当前学习</text>
           <text class="homeUnitMeta">{{ unitMasteryPercent }}% 掌握</text>
         </view>
 
-        <text class="homeUnitTitle">{{ selectedUnit?.publisherName }} {{ selectedUnit?.bookName }}</text>
+        <text class="homeUnitTitle">{{ selectedUnit?.bookName }} · Unit {{ selectedUnit?.unitNumber }}</text>
+        <text class="homeUnitSubtitle">{{ selectedUnit?.publisherName }}</text>
+
         <view class="homeUnitRow">
-          <text class="homeUnitBadge">Unit {{ selectedUnit?.unitNumber }}</text>
           <view class="homeMasteryPill">
             <view class="homeMasteryPillFill" :style="{ width: unitMasteryPercent + '%' }" />
             <text class="homeMasteryText">{{ unitMasteryLabel }} 已掌握</text>
@@ -141,30 +160,17 @@
           </view>
         </view>
 
-        <view class="unitSwitchGrid">
-          <view class="unitSwitchCell" @tap="openCourseSetup">
-            <text class="unitSwitchLabel">学段</text>
-            <text class="unitSwitchValue">{{ schoolStageOptions[selectedSchoolStageIndex] }}</text>
+        <view class="homeSwitchRow" @tap="openCourseSetup">
+          <view class="homeSwitchInfo">
+            <text class="homeSwitchLabel">切换教材</text>
+            <text class="homeSwitchValue">{{ schoolStageOptions[selectedSchoolStageIndex] }} · {{ publisherOptions[selectedPublisherIndex] }} · {{ bookOptions[selectedBookIndex] }} · {{ unitQuickOptions[selectedUnitQuickIndex] }}</text>
           </view>
-          <view class="unitSwitchCell" @tap="openCourseSetup">
-            <text class="unitSwitchLabel">版本</text>
-            <text class="unitSwitchValue">{{ publisherOptions[selectedPublisherIndex] }}</text>
-          </view>
-          <view class="unitSwitchCell" @tap="openCourseSetup">
-            <text class="unitSwitchLabel">册</text>
-            <text class="unitSwitchValue">{{ bookOptions[selectedBookIndex] }}</text>
-          </view>
-          <view class="unitSwitchCell" @tap="openCourseSetup">
-            <text class="unitSwitchLabel">Unit</text>
-            <text class="unitSwitchValue">{{ unitQuickOptions[selectedUnitQuickIndex] }}</text>
-          </view>
+          <text class="homeSwitchArrow">›</text>
         </view>
-
-        <text class="homeUnitTip">标记认识后，该词不会进入体检和听写。</text>
       </view>
 
       <view class="homeActionHeader">
-        <text class="homeActionTitle">开始练习</text>
+        <text class="homeActionTitle">开始学习</text>
         <text class="homeActionMeta">先测薄弱词</text>
       </view>
 
@@ -184,7 +190,7 @@
         </view>
 
         <view class="practiceItem isSecondary" @tap="openDictationSetup">
-          <view class="practiceRank blue">
+          <view class="practiceRank">
             <text>2</text>
           </view>
           <view class="practiceCopy">
@@ -193,7 +199,7 @@
             <text class="practiceMini">可选在线输入或纸笔默写</text>
           </view>
           <view class="practiceAction">
-            <text>设置</text>
+            <text>开始</text>
           </view>
         </view>
       </view>
@@ -281,161 +287,178 @@
       </view>
     </view>
 
-    <view v-else-if="screen === 'weakbook'" class="sectionStack">
-      <view class="flowHeader">
-        <view class="backButton" @tap="resetPractice">返回</view>
-        <view class="flowTitle">
-          <text class="flowTitleText">生词本</text>
-          <text class="flowMeta">{{ savedWeakWords.length }} 个</text>
+    <view v-else-if="screen === 'weakbook'" class="sectionStack weakbookScreen isSplitLayout">
+      <view class="pageChrome">
+        <view class="dictationNav">
+          <view class="navBack" @tap="resetPractice">
+            <view class="chevronLeft" />
+          </view>
+          <text class="navTitle">生词本</text>
         </view>
       </view>
 
-      <view class="weakbookHero">
-        <text class="labelText">当前选择</text>
-        <text class="setupTitle">{{ selectedWeakWordCount }} 个词</text>
-        <text class="setupText">选择要处理的生词。体检或在线听写正确后，会自动移出生词本。</text>
-      </view>
-
-      <view v-if="savedWeakWords.length === 0" class="weakList">
-        <text class="blockTitle">暂无生词</text>
-        <view class="emptyState">
-          <text>体检或在线听写出错的单词，会自动进入生词本。</text>
-        </view>
-      </view>
-
-      <view v-else class="weakbookPanel">
-        <view class="weakbookToolbar">
-          <view class="smallButton" @tap="allWeakWordsSelected ? clearWeakWordSelection() : selectAllWeakWords()">
-            <text>{{ allWeakWordsSelected ? '清空' : '全选' }}</text>
-          </view>
-          <text class="toolbarText">已选 {{ selectedWeakWordCount }} / {{ savedWeakWords.length }}</text>
+      <scroll-view scroll-y class="pageBodyScroll" :show-scrollbar="false">
+        <view class="weakbookHero">
+          <text class="labelText">当前选择</text>
+          <text class="setupTitle">{{ selectedWeakWordCount }} 个词</text>
+          <text class="setupText">选择要处理的生词。体检或在线听写正确后，会自动移出生词本。</text>
         </view>
 
-        <view class="weakbookActions">
-          <view
-            :class="['bottomButton', selectedWeakWordCount === 0 && 'isDisabled']"
-            @tap="startSelectedWeakCheckup"
-          >
-            <text>体检选中</text>
-          </view>
-          <view
-            :class="['secondaryButton', selectedWeakWordCount === 0 && 'isDisabled']"
-            @tap="openSelectedWeakDictationSetup"
-          >
-            <text>听写选中</text>
-          </view>
-          <view
-            :class="['dangerButton', selectedWeakWordCount === 0 && 'isDisabled']"
-            @tap="markSelectedWeakWordsKnown"
-          >
-            <text>标记认识</text>
+        <view v-if="savedWeakWords.length === 0" class="weakList">
+          <text class="blockTitle">暂无生词</text>
+          <view class="emptyState">
+            <text>体检或在线听写出错的单词，会自动进入生词本。</text>
           </view>
         </view>
 
-        <view class="selectWordList">
-          <view
-            v-for="word in savedWeakWords"
-            :key="word.id"
-            :class="['selectWordRow', isWeakWordSelected(word.id) && 'isSelected']"
-            @tap="toggleWeakWordSelection(word.id)"
-          >
-            <view class="selectDot">
-              <text v-if="isWeakWordSelected(word.id)">✓</text>
+        <view v-else class="weakbookPanel">
+          <view class="weakbookToolbar">
+            <view class="smallButton" @tap="allWeakWordsSelected ? clearWeakWordSelection() : selectAllWeakWords()">
+              <text>{{ allWeakWordsSelected ? '清空' : '全选' }}</text>
             </view>
-            <view class="selectWordCopy">
-              <text class="weakWord">{{ word.word }}</text>
-              <text class="weakMeaning">{{ word.meaning }}</text>
+            <text class="toolbarText">已选 {{ selectedWeakWordCount }} / {{ savedWeakWords.length }}</text>
+          </view>
+
+          <view class="weakbookActions">
+            <view
+              :class="['bottomButton', selectedWeakWordCount === 0 && 'isDisabled']"
+              @tap="startSelectedWeakCheckup"
+            >
+              <text>体检选中</text>
+            </view>
+            <view
+              :class="['secondaryButton', selectedWeakWordCount === 0 && 'isDisabled']"
+              @tap="openSelectedWeakDictationSetup"
+            >
+              <text>听写选中</text>
+            </view>
+            <view
+              :class="['dangerButton', selectedWeakWordCount === 0 && 'isDisabled']"
+              @tap="markSelectedWeakWordsKnown"
+            >
+              <text>标记认识</text>
             </view>
           </view>
+
+          <view class="selectWordList">
+            <view
+              v-for="word in savedWeakWords"
+              :key="word.id"
+              :class="['selectWordRow', isWeakWordSelected(word.id) && 'isSelected']"
+              @tap="toggleWeakWordSelection(word.id)"
+            >
+              <view class="selectDot">
+                <text v-if="isWeakWordSelected(word.id)">✓</text>
+              </view>
+              <view class="selectWordCopy">
+                <view class="unitWordTitleRow">
+                  <text class="weakWord">{{ word.word }}</text>
+                  <text v-if="word.phonetic" class="unitWordPhonetic">{{ word.phonetic }}</text>
+                </view>
+                <text class="weakMeaning">{{ word.meaning }}</text>
+              </view>
+            </view>
+          </view>
         </view>
-      </view>
+      </scroll-view>
     </view>
 
-    <view v-else-if="screen === 'unitWords'" class="unitWordScreen">
-      <view class="dictationNav">
-        <view class="navBack" @tap="resetPractice">
-          <view class="chevronLeft" />
+    <view v-else-if="screen === 'unitWords'" class="unitWordScreen isSplitLayout">
+      <view class="pageChrome">
+        <view class="dictationNav">
+          <view class="navBack" @tap="resetPractice">
+            <view class="chevronLeft" />
+          </view>
+          <text class="navTitle">全部单词</text>
         </view>
-        <text class="navTitle">全部单词</text>
       </view>
 
-      <view class="unitWordHeader">
-        <text class="unitWordTitle">{{ selectedUnit?.bookName }} Unit {{ selectedUnit?.unitNumber }}</text>
-        <text class="unitWordMeta">已掌握 {{ unitMasteryLabel }}</text>
-        <text class="unitWordTip">标记认识后，该词不会进入体检和听写。</text>
+      <scroll-view scroll-y class="pageBodyScroll" :show-scrollbar="false">
+        <view class="unitWordHeader">
+          <text class="unitWordTitle">{{ selectedUnit?.bookName }} Unit {{ selectedUnit?.unitNumber }}</text>
+          <text class="unitWordMeta">已掌握 {{ unitMasteryLabel }}</text>
+          <text class="unitWordTip">标记认识后，该词不会进入体检和听写。</text>
+        </view>
+
+        <view class="unitWordList">
+          <view
+            v-for="item in sortedUnitWords"
+            :key="item.word.id"
+            :class="['unitWordRow', item.mastered && 'isMastered']"
+          >
+            <view class="unitWordCopy">
+              <view class="unitWordTitleRow">
+                <text class="unitWordEnglish">{{ item.word.word }}</text>
+                <text v-if="item.word.phonetic" class="unitWordPhonetic">{{ item.word.phonetic }}</text>
+              </view>
+              <text class="unitWordMeaning">{{ item.word.meaning }}</text>
+            </view>
+            <view
+              :class="['unitWordKnownButton', item.mastered && 'isDone']"
+              @tap.stop="markUnitWordKnown(item.word.id)"
+            >
+              <text class="unitWordKnownLabel">{{ item.mastered ? '已掌握' : '认识' }}</text>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view v-else-if="screen === 'checkup' && currentCheckupQuestion" class="flowScreen isSplitLayout">
+      <view class="pageChrome">
+        <view class="playerHeader">
+          <view class="playerHeaderTop">
+            <view class="navBack" @tap="resetPractice">
+              <view class="chevronLeft" />
+            </view>
+            <text class="playerTitle">词汇体检</text>
+            <text class="playerProgressText">{{ checkupProgressLabel }}</text>
+          </view>
+          <view class="playerProgressTrack">
+            <view class="playerProgressFill" :style="{ width: checkupProgressPercent + '%' }" />
+          </view>
+        </view>
       </view>
 
-      <view class="unitWordList">
+      <view v-if="recognitionState === 'correct'" class="celebrationLayer">
         <view
-          v-for="word in unitWords"
-          :key="word.id"
-          :class="['unitWordRow', isUnitWordMastered(word.id) && 'isMastered']"
-        >
-          <view class="unitWordCopy">
-            <text class="unitWordEnglish">{{ word.word }}</text>
-            <text class="unitWordMeaning">{{ word.meaning }}</text>
-          </view>
-          <view
-            :class="['unitWordKnownButton', isUnitWordMastered(word.id) && 'isDone']"
-            @tap.stop="markUnitWordKnown(word.id)"
-          >
-            <text>{{ isUnitWordMastered(word.id) ? '已掌握' : '认识' }}</text>
-          </view>
-        </view>
-      </view>
-    </view>
-
-    <view v-else-if="screen === 'checkup' && currentCheckupQuestion" class="flowScreen">
-      <view class="flowHeader progressHeader">
-        <view class="backButton" @tap="resetPractice">返回</view>
-        <view class="flowProgress">
-          <view class="progressTopline">
-            <text class="flowTitleText">词汇体检</text>
-            <text class="flowMeta">{{ checkupProgressLabel }}</text>
-          </view>
-          <view class="progressTrack">
-            <view class="progressFill" :style="{ width: checkupProgressPercent + '%' }" />
-          </view>
-        </view>
+          v-for="piece in rewardParticles"
+          :key="piece.id"
+          :class="piece.className"
+        />
       </view>
 
-      <view class="questionPanel">
-        <view v-if="recognitionState === 'correct'" class="celebrationLayer">
-          <view
-            v-for="piece in rewardParticles"
-            :key="piece.id"
-            class="rewardParticle"
-            :style="piece.style"
-          />
-        </view>
-        <text class="labelText">选出释义</text>
-        <text class="wordTitle">{{ currentCheckupQuestion.word.word }}</text>
-        <text class="phonetic">{{ currentCheckupQuestion.word.phonetic }} {{ currentCheckupQuestion.word.partOfSpeech }}</text>
+      <scroll-view scroll-y class="pageBodyScroll" :show-scrollbar="false">
+        <view class="questionPanel">
+          <text class="labelText">选出释义</text>
+          <text class="wordTitle">{{ currentCheckupQuestion.word.word }}</text>
+          <text class="phonetic">{{ currentCheckupQuestion.word.phonetic }} {{ currentCheckupQuestion.word.partOfSpeech }}</text>
 
-        <view v-if="recognitionState === 'wrong'" class="wrongActionBar">
-          <view class="wrongActionCopy">
-            <text class="wrongActionTitle">已加入生词本</text>
-            <text class="wrongActionText">正确：{{ currentCheckupQuestion.word.meaning }}</text>
+          <view v-if="recognitionState === 'wrong'" class="wrongActionBar">
+            <view class="wrongActionCopy">
+              <text class="wrongActionTitle">已加入生词本</text>
+              <text class="wrongActionText">正确：{{ currentCheckupQuestion.word.meaning }}</text>
+            </view>
+            <view class="inlineNextButton" @tap.stop="nextAfterWrong">
+              <text>{{ wrongNextLabel }}</text>
+            </view>
           </view>
-          <view class="inlineNextButton" @tap.stop="nextAfterWrong">
-            <text>{{ wrongNextLabel }}</text>
-          </view>
-        </view>
 
-        <view class="choiceList">
-          <view
-            v-for="(choice, index) in currentCheckupQuestion.meaningChoices"
-            :key="choice"
-            :class="getChoiceClass(choice)"
-            @tap="selectMeaning(choice)"
-          >
-            <text class="choiceKey">{{ choiceKeys[index] }}</text>
-            <text class="choiceText">{{ choice }}</text>
-            <text v-if="isCorrectSelected(choice)" class="choiceResult">对</text>
-            <text v-else-if="isWrongSelected(choice)" class="choiceResult wrong">错</text>
+          <view class="choiceList">
+            <view
+              v-for="(choice, index) in currentCheckupQuestion.meaningChoices"
+              :key="choice"
+              :class="getChoiceClass(choice)"
+              @tap="selectMeaning(choice)"
+            >
+              <text class="choiceKey">{{ choiceKeys[index] }}</text>
+              <text class="choiceText">{{ choice }}</text>
+              <text v-if="isCorrectSelected(choice)" class="choiceResult">对</text>
+              <text v-else-if="isWrongSelected(choice)" class="choiceResult wrong">错</text>
+            </view>
           </view>
         </view>
-      </view>
+      </scroll-view>
 
       <view v-if="recognitionState === 'correct'" class="feedbackBox success">
         <text class="feedbackTitle">选对了</text>
@@ -443,16 +466,18 @@
       </view>
     </view>
 
-    <view v-else-if="screen === 'spelling' && currentCheckupQuestion" class="flowScreen">
-      <view class="flowHeader progressHeader">
-        <view class="backButton" @tap="resetPractice">返回</view>
-        <view class="flowProgress">
-          <view class="progressTopline">
-            <text class="flowTitleText">拼出单词</text>
-            <text class="flowMeta">{{ checkupProgressLabel }}</text>
+    <view v-else-if="screen === 'spelling' && currentCheckupQuestion" class="flowScreen isSplitLayout">
+      <view class="pageChrome">
+        <view class="playerHeader">
+          <view class="playerHeaderTop">
+            <view class="navBack" @tap="resetPractice">
+              <view class="chevronLeft" />
+            </view>
+            <text class="playerTitle">拼出单词</text>
+            <text class="playerProgressText">{{ checkupProgressLabel }}</text>
           </view>
-          <view class="progressTrack">
-            <view class="progressFill" :style="{ width: checkupProgressPercent + '%' }" />
+          <view class="playerProgressTrack">
+            <view class="playerProgressFill" :style="{ width: checkupProgressPercent + '%' }" />
           </view>
         </view>
       </view>
@@ -484,12 +509,11 @@
     </view>
 
     <view v-else-if="screen === 'report'" class="sectionStack reportScreen">
-      <view class="flowHeader">
-        <view class="backButton" @tap="resetPractice">返回</view>
-        <view class="flowTitle">
-          <text class="flowTitleText">体检报告</text>
-          <text class="flowMeta">{{ checkupSummary.accuracy }}%</text>
+      <view class="dictationNav">
+        <view class="navBack" @tap="resetPractice">
+          <view class="chevronLeft" />
         </view>
+        <text class="navTitle">体检报告</text>
       </view>
 
       <view class="reportHero">
@@ -648,88 +672,97 @@
       </view>
     </view>
 
-    <view v-else-if="screen === 'dictationWords'" class="dictationWordScreen">
-      <view class="dictationNav">
-        <view class="navBack" @tap="backFromDictationWordPicker">
-          <view class="chevronLeft" />
-        </view>
-        <text class="navTitle">选择单词</text>
-      </view>
-
-      <view class="wordPickerHeader">
-        <text class="wordPickerTitle">{{ selectedUnit?.bookName }} Unit {{ selectedUnit?.unitNumber }}</text>
-        <text class="wordPickerMeta">已选 {{ selectedDictationWordCount }} / {{ dictationPickerWords.length }} 个词</text>
-      </view>
-
-      <view class="wordPickerToolbar">
-        <view class="wordPickerScopePanel">
-          <text class="wordPickerSectionLabel">听写范围</text>
-          <view class="wordPickerScopeOptions">
-            <view
-              :class="['wordPickerScopeChip', dictationExcludesMasteredWords && 'isActive']"
-              @tap="setDictationExcludeMasteredWords(true)"
-            >
-              <text>排除已掌握</text>
-            </view>
-            <view
-              :class="['wordPickerScopeChip', !dictationExcludesMasteredWords && 'isActive', 'isIncluded']"
-              @tap="setDictationExcludeMasteredWords(false)"
-            >
-              <text>包含已掌握</text>
-            </view>
-          </view>
-        </view>
-
-        <view class="quickPickPanel">
-          <text class="quickPickLabel">帮我随机选</text>
-          <view class="quickPickGroup">
-            <view
-              v-for="option in dictationQuickPickOptions"
-              :key="option.id"
-              :class="['quickPickButton', isDictationQuickOptionActive(option) && 'isActive']"
-              @tap="applyDictationQuickOption(option)"
-            >
-              <text>{{ option.label }}</text>
-            </view>
-          </view>
-        </view>
-      </view>
-
-      <view class="wordPickerList">
-        <view
-          v-for="item in dictationPickerRows"
-          :key="item.key"
-          :class="['wordPickRow', item.isSelected && 'isSelected']"
-          @tap="toggleDictationWordSelection(item.word.id)"
-        >
-          <view class="wordPickCheck">
-            <text v-if="item.isSelected">✓</text>
-          </view>
-          <view class="wordPickCopy">
-            <text class="wordPickWord">{{ item.word.word }}</text>
-            <text class="wordPickMeaning">{{ item.word.meaning }}</text>
-          </view>
-          <text v-if="isUnitWordMastered(item.word.id)" class="wordPickKnownBadge">已掌握</text>
-          <text v-else class="wordPickLevel">L{{ item.word.difficulty }}</text>
-        </view>
-      </view>
-
-      <view :class="['dictationStartButton wordPickerConfirm', selectedDictationWordCount === 0 && 'isDisabled']" @tap="confirmDictationWordSelection">
-        <text>确定 {{ selectedDictationWordCount }} 个词</text>
-      </view>
-    </view>
-
-    <view v-else-if="screen === 'dictation' && currentDictationEntry" class="dictationPlayerScreen">
-      <view class="playerHeader">
-        <view class="playerHeaderTop">
-          <view class="navBack" @tap="openDictationSetup">
+    <view v-else-if="screen === 'dictationWords'" class="dictationWordScreen isSplitLayout">
+      <view class="pageChrome">
+        <view class="dictationNav">
+          <view class="navBack" @tap="backFromDictationWordPicker">
             <view class="chevronLeft" />
           </view>
-          <text class="playerTitle">自动听写</text>
-          <text class="playerProgressText">{{ dictationProgressLabel }}</text>
+          <text class="navTitle">选择单词</text>
         </view>
-        <view class="playerProgressTrack">
-          <view class="playerProgressFill" :style="{ width: dictationProgressPercent + '%' }" />
+      </view>
+
+      <scroll-view scroll-y class="pageBodyScroll" :show-scrollbar="false">
+        <view class="wordPickerHeader">
+          <text class="wordPickerTitle">{{ selectedUnit?.bookName }} Unit {{ selectedUnit?.unitNumber }}</text>
+          <text class="wordPickerMeta">已选 {{ selectedDictationWordCount }} / {{ dictationPickerWords.length }} 个词</text>
+        </view>
+
+        <view class="wordPickerToolbar">
+          <view class="wordPickerScopePanel">
+            <text class="wordPickerSectionLabel">听写范围</text>
+            <view class="wordPickerScopeOptions">
+              <view
+                :class="['wordPickerScopeChip', dictationExcludesMasteredWords && 'isActive']"
+                @tap="setDictationExcludeMasteredWords(true)"
+              >
+                <text>排除已掌握</text>
+              </view>
+              <view
+                :class="['wordPickerScopeChip', !dictationExcludesMasteredWords && 'isActive', 'isIncluded']"
+                @tap="setDictationExcludeMasteredWords(false)"
+              >
+                <text>包含已掌握</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="quickPickPanel">
+            <text class="quickPickLabel">帮我随机选</text>
+            <view class="quickPickGroup">
+              <view
+                v-for="option in dictationQuickPickOptions"
+                :key="option.id"
+                :class="['quickPickButton', isDictationQuickOptionActive(option) && 'isActive']"
+                @tap="applyDictationQuickOption(option)"
+              >
+                <text>{{ option.label }}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="wordPickerList">
+          <view
+            v-for="item in dictationPickerRows"
+            :key="item.key"
+            :class="['wordPickRow', item.isSelected && 'isSelected']"
+            @tap="toggleDictationWordSelection(item.word.id)"
+          >
+            <view class="wordPickCheck">
+              <text v-if="item.isSelected">✓</text>
+            </view>
+            <view class="wordPickCopy">
+              <view class="unitWordTitleRow">
+                <text class="wordPickWord">{{ item.word.word }}</text>
+                <text v-if="item.word.phonetic" class="unitWordPhonetic">{{ item.word.phonetic }}</text>
+              </view>
+              <text class="wordPickMeaning">{{ item.word.meaning }}</text>
+            </view>
+            <text v-if="isUnitWordMastered(item.word.id)" class="wordPickKnownBadge">已掌握</text>
+            <text v-else class="wordPickLevel">L{{ item.word.difficulty }}</text>
+          </view>
+        </view>
+
+        <view :class="['dictationStartButton wordPickerConfirm', selectedDictationWordCount === 0 && 'isDisabled']" @tap="confirmDictationWordSelection">
+          <text>确定 {{ selectedDictationWordCount }} 个词</text>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view v-else-if="screen === 'dictation' && currentDictationEntry" class="dictationPlayerScreen isSplitLayout">
+      <view class="pageChrome">
+        <view class="playerHeader">
+          <view class="playerHeaderTop">
+            <view class="navBack" @tap="openDictationSetup">
+              <view class="chevronLeft" />
+            </view>
+            <text class="playerTitle">自动听写</text>
+            <text class="playerProgressText">{{ dictationProgressLabel }}</text>
+          </view>
+          <view class="playerProgressTrack">
+            <view class="playerProgressFill" :style="{ width: dictationProgressPercent + '%' }" />
+          </view>
         </view>
       </view>
 
@@ -821,72 +854,82 @@
       </view>
     </view>
 
-    <view v-else-if="screen === 'dictationReport'" class="sectionStack reportScreen">
-      <view class="flowHeader dictationReportHeader">
-        <view class="backButton" @tap="resetPractice">返回</view>
-        <text class="dictationReportPageTitle">听写报告</text>
-        <view class="reportHeaderSpacer" />
-      </view>
-
-      <view class="dictationSummaryCard">
-        <view class="dictationSummaryCopy">
-          <view class="summaryTitleRow">
-            <text class="labelText">本次听写</text>
-            <text class="summaryInlineMeta">{{ dictationSummary.total }} 词</text>
+    <view v-else-if="screen === 'dictationReport'" class="sectionStack reportScreen isSplitLayout">
+      <view class="pageChrome">
+        <view class="dictationNav">
+          <view class="navBack" @tap="resetPractice">
+            <view class="chevronLeft" />
           </view>
-          <text class="reportText">
-            {{ dictationMode === 'paper' ? dictationPaperReportText : dictationReportText }}
-          </text>
-        </view>
-        <view class="dictationSummaryStats">
-          <view class="summaryStat">
-            <text class="summaryStatValue">{{ dictationSummary.total }}</text>
-            <text class="summaryStatLabel">完成</text>
-          </view>
-          <view class="summaryStat isProblem">
-            <text class="summaryStatValue">{{ dictationSummary.forgotten }}</text>
-            <text class="summaryStatLabel">忘记</text>
-          </view>
+          <text class="navTitle">听写报告</text>
         </view>
       </view>
 
-      <view class="weakList dictationReviewList">
-        <text class="blockTitle">本次听写清单</text>
-        <view>
-          <view
-            v-for="item in dictationReviewItems"
-            :key="item.word.id"
-            :class="['dictationReviewRow', item.isForgotten ? 'isForgotten' : 'isMastered', 'hasStatus']"
-          >
-            <text class="reviewIndex">{{ item.index }}</text>
-            <view class="reviewCopy">
-              <text class="weakWord">{{ item.word.word }}</text>
-              <text class="weakMeaning">{{ item.word.meaning }}</text>
+      <scroll-view scroll-y class="pageBodyScroll" :show-scrollbar="false">
+        <view class="dictationReportPanel">
+          <view class="dictationSummaryCard">
+            <view class="dictationSummaryCopy">
+              <view class="summaryTitleRow">
+                <text class="labelText">本次听写</text>
+                <text class="summaryInlineMeta">{{ dictationSummary.total }} 词</text>
+              </view>
+              <text class="reportText">
+                {{ dictationMode === 'paper' ? dictationPaperReportText : dictationReportText }}
+              </text>
             </view>
-            <view
-              :class="['reviewStatusButton', item.isForgotten ? 'isForgotten' : 'isMastered']"
-              @tap="toggleDictationReportWordStatus(item.word.id)"
-            >
-              <text>{{ item.isForgotten ? '忘记' : '掌握' }}</text>
+            <view class="dictationSummaryStats">
+              <view class="summaryStat">
+                <text class="summaryStatValue">{{ dictationSummary.total }}</text>
+                <text class="summaryStatLabel">完成</text>
+              </view>
+              <view class="summaryStat isProblem">
+                <text class="summaryStatValue">{{ dictationSummary.forgotten }}</text>
+                <text class="summaryStatLabel">忘记</text>
+              </view>
             </view>
           </view>
-        </view>
-      </view>
 
-      <view class="actionStack reportActions">
-        <text class="confirmResultHint">确认后，未标记忘记的单词会标为已掌握；忘记的保留在生词本。</text>
-        <view :class="['bottomButton confirmResultButton', dictationResultConfirmed && 'isDisabled']" @tap="confirmDictationResult">
-          <text>{{ dictationResultConfirmed ? '已确认听写结果' : '确认听写结果' }}</text>
-        </view>
-        <view class="reportSecondaryActions">
-          <view :class="['secondaryButton', dictationSummary.forgotten === 0 && 'isDisabled']" @tap="startForgottenDictation">
-            <text>生词再听一轮</text>
+          <view class="dictationReviewList">
+            <text class="blockTitle">本次听写清单</text>
+            <view>
+              <view
+                v-for="item in dictationReviewItems"
+                :key="item.word.id"
+                :class="['dictationReviewRow', item.isForgotten ? 'isForgotten' : 'isMastered', 'hasStatus']"
+              >
+                <text class="reviewIndex">{{ item.index }}</text>
+                <view class="reviewCopy">
+                  <view class="unitWordTitleRow">
+                    <text class="weakWord">{{ item.word.word }}</text>
+                    <text v-if="item.word.phonetic" class="unitWordPhonetic">{{ item.word.phonetic }}</text>
+                  </view>
+                  <text class="weakMeaning">{{ item.word.meaning }}</text>
+                </view>
+                <view
+                  :class="['reviewStatusButton', item.isForgotten ? 'isForgotten' : 'isMastered']"
+                  @tap="toggleDictationReportWordStatus(item.word.id)"
+                >
+                  <text>{{ item.isForgotten ? '忘记' : '掌握' }}</text>
+                </view>
+              </view>
+            </view>
           </view>
-          <view class="secondaryButton" @tap="openWeakbook">
-            <text>查看生词本</text>
+        </view>
+
+        <view class="actionStack reportActions">
+          <text class="confirmResultHint">确认后，未标记忘记的单词会标为已掌握；忘记的保留在生词本。</text>
+          <view :class="['bottomButton confirmResultButton', dictationResultConfirmed && 'isDisabled']" @tap="confirmDictationResult">
+            <text>{{ dictationResultConfirmed ? '已确认听写结果' : '确认听写结果' }}</text>
+          </view>
+          <view class="reportSecondaryActions">
+            <view :class="['secondaryButton', dictationSummary.forgotten === 0 && 'isDisabled']" @tap="startForgottenDictation">
+              <text>生词再听一轮</text>
+            </view>
+            <view class="secondaryButton" @tap="openWeakbook">
+              <text>查看生词本</text>
+            </view>
           </view>
         </view>
-      </view>
+      </scroll-view>
     </view>
 
     <view v-else-if="screen === 'dictationReward' && dictationReward" class="dictationRewardScreen">
@@ -966,13 +1009,16 @@
     <view v-if="showBottomNav" class="bottomNav">
       <view class="bottomNavInner">
         <view :class="['bottomNavItem', screen === 'home' && 'isActive']" @tap="goHome">
+          <image class="bottomNavIcon" :src="screen === 'home' ? '/static/tabbar/home-active.png' : '/static/tabbar/home.png'" mode="aspectFit" />
           <text class="bottomNavLabel">首页</text>
         </view>
         <view :class="['bottomNavItem', screen === 'weakbook' && 'isActive']" @tap="goWeakbook">
+          <image class="bottomNavIcon" :src="screen === 'weakbook' ? '/static/tabbar/weakbook-active.png' : '/static/tabbar/weakbook.png'" mode="aspectFit" />
           <text class="bottomNavLabel">生词本</text>
           <text v-if="savedWeakWords.length > 0" class="bottomNavBadge">{{ savedWeakWords.length }}</text>
         </view>
         <view :class="['bottomNavItem', screen === 'dictationSetup' && 'isActive']" @tap="goDictationSetup">
+          <image class="bottomNavIcon" :src="screen === 'dictationSetup' ? '/static/tabbar/dictation-active.png' : '/static/tabbar/dictation.png'" mode="aspectFit" />
           <text class="bottomNavLabel">听写</text>
         </view>
       </view>
@@ -991,16 +1037,16 @@ const props = defineProps<{
 
 const choiceKeys = ['A', 'B', 'C', 'D']
 const rewardParticles = [
-  { id: 'p1', style: 'left: 49%; top: 52%; background: #f4c861; --tx: -118px; --ty: -126px; --fall: 18px; --scale: 1.15; --rot: -170deg; --delay: 0ms; --w: 8px; --h: 18px; --r: 6px;' },
-  { id: 'p2', style: 'left: 51%; top: 52%; background: #147467; --tx: -78px; --ty: -154px; --fall: 24px; --scale: 0.9; --rot: 124deg; --delay: 26ms; --w: 10px; --h: 10px; --r: 999px;' },
-  { id: 'p3', style: 'left: 50%; top: 52%; background: #2d6ed6; --tx: -30px; --ty: -166px; --fall: 20px; --scale: 1; --rot: -112deg; --delay: 48ms; --w: 7px; --h: 18px; --r: 6px;' },
-  { id: 'p4', style: 'left: 50%; top: 52%; background: #f4c861; --tx: 18px; --ty: -174px; --fall: 22px; --scale: 0.88; --rot: 160deg; --delay: 18ms; --w: 12px; --h: 12px; --r: 999px;' },
-  { id: 'p5', style: 'left: 50%; top: 52%; background: #147467; --tx: 70px; --ty: -150px; --fall: 24px; --scale: 1.05; --rot: 132deg; --delay: 38ms; --w: 8px; --h: 20px; --r: 6px;' },
-  { id: 'p6', style: 'left: 50%; top: 52%; background: #d95b59; --tx: 118px; --ty: -112px; --fall: 28px; --scale: 0.95; --rot: 210deg; --delay: 58ms; --w: 11px; --h: 11px; --r: 999px;' },
-  { id: 'p7', style: 'left: 50%; top: 52%; background: #2d6ed6; --tx: -122px; --ty: -64px; --fall: 32px; --scale: 1.05; --rot: -82deg; --delay: 72ms; --w: 8px; --h: 18px; --r: 6px;' },
-  { id: 'p8', style: 'left: 50%; top: 52%; background: #f4c861; --tx: 124px; --ty: -56px; --fall: 34px; --scale: 1.1; --rot: 98deg; --delay: 84ms; --w: 9px; --h: 18px; --r: 6px;' },
-  { id: 'p9', style: 'left: 50%; top: 52%; background: #147467; --tx: -48px; --ty: -92px; --fall: 26px; --scale: 0.78; --rot: -220deg; --delay: 96ms; --w: 9px; --h: 9px; --r: 999px;' },
-  { id: 'p10', style: 'left: 50%; top: 52%; background: #2d6ed6; --tx: 44px; --ty: -96px; --fall: 26px; --scale: 0.82; --rot: 220deg; --delay: 108ms; --w: 9px; --h: 9px; --r: 999px;' }
+  { id: 'p1', className: 'rewardParticle toneGold bar leftFar' },
+  { id: 'p2', className: 'rewardParticle toneTeal dot leftMid' },
+  { id: 'p3', className: 'rewardParticle toneBlue bar leftNear' },
+  { id: 'p4', className: 'rewardParticle toneGold dot rightNear' },
+  { id: 'p5', className: 'rewardParticle toneTeal bar rightMid' },
+  { id: 'p6', className: 'rewardParticle toneRed dot rightFar' },
+  { id: 'p7', className: 'rewardParticle toneBlue bar leftWide' },
+  { id: 'p8', className: 'rewardParticle toneGold bar rightWide' },
+  { id: 'p9', className: 'rewardParticle toneTeal dot leftSoft' },
+  { id: 'p10', className: 'rewardParticle toneBlue dot rightSoft' }
 ]
 
 const {
@@ -1132,11 +1178,16 @@ const checkupLimitDraft = ref('')
 const checkupLimitInputFocused = ref(false)
 const shellVisible = ref(false)
 const miniProgramNavTop = ref(16)
+const miniProgramCapsuleTop = ref(28)
+const miniProgramCapsuleHeight = ref(32)
 const rewardProgressPercent = ref(0)
 
 const screenStyle = computed(() => {
   // #ifdef MP-WEIXIN
-  return `padding-top: ${miniProgramNavTop.value}px;`
+  return `padding-top: ${miniProgramCapsuleTop.value}px;`
+    + ` --capsule-top: ${miniProgramCapsuleTop.value}px;`
+    + ` --capsule-h: ${miniProgramCapsuleHeight.value}px;`
+    + ` --nav-top: ${miniProgramNavTop.value}px;`
   // #endif
 
   return ''
@@ -1313,7 +1364,31 @@ const dictationCountdownPercent = computed(() => {
 })
 
 const showBottomNav = computed(() => {
+  // #ifdef MP-WEIXIN
+  return TAB_ROOT_SCREENS.has(screen.value)
+  // #endif
   return false
+})
+
+const isSplitScreen = computed(() => (
+  screen.value === 'unitWords'
+  || screen.value === 'dictationWords'
+  || screen.value === 'weakbook'
+  || screen.value === 'checkup'
+  || screen.value === 'spelling'
+  || screen.value === 'dictation'
+  || screen.value === 'dictationReport'
+))
+
+const sortedUnitWords = computed(() => {
+  const items = unitWords.value.map(word => ({
+    word,
+    mastered: isUnitWordMastered(word.id)
+  }))
+  return [
+    ...items.filter(item => !item.mastered),
+    ...items.filter(item => item.mastered)
+  ]
 })
 
 const showAppHeader = computed(() => {
@@ -1368,20 +1443,28 @@ function updateMiniProgramNavInset() {
 
   try {
     const getMenuButton = (uni as unknown as {
-      getMenuButtonBoundingClientRect?: () => { bottom?: number }
+      getMenuButtonBoundingClientRect?: () => { top?: number; bottom?: number; height?: number }
     }).getMenuButtonBoundingClientRect
     const getWindowInfo = (uni as unknown as {
       getWindowInfo?: () => { statusBarHeight?: number }
     }).getWindowInfo
     const menuButton = getMenuButton?.()
     const windowInfo = getWindowInfo?.()
+    const menuTop = Number(menuButton?.top ?? 0)
     const menuBottom = Number(menuButton?.bottom ?? 0)
+    const menuHeight = Number(menuButton?.height ?? 0)
     const statusBarHeight = Number(windowInfo?.statusBarHeight ?? 0)
     const calculatedTop = menuBottom > 0 ? menuBottom + 16 : statusBarHeight + 64
 
     miniProgramNavTop.value = Math.max(88, calculatedTop)
+    miniProgramCapsuleTop.value = menuTop > 0
+      ? menuTop
+      : (statusBarHeight > 0 ? statusBarHeight + 4 : 28)
+    miniProgramCapsuleHeight.value = menuHeight > 0 ? menuHeight : 32
   } catch {
     miniProgramNavTop.value = fallbackTop
+    miniProgramCapsuleTop.value = 44
+    miniProgramCapsuleHeight.value = 32
   }
   // #endif
 }
@@ -1407,6 +1490,17 @@ function setDictationMode(value: 'paper' | 'online') {
 }
 
 function syncNativeTabBar() {
+  // #ifdef MP-WEIXIN
+  // The native tabBar is replaced by an in-page custom nav (larger icons/labels),
+  // so keep the native one hidden on every screen.
+  try {
+    uni.hideTabBar({ animation: false })
+  } catch {
+    // Native tabBar can be unavailable before tab pages mount.
+  }
+  return
+  // #endif
+
   try {
     if (TAB_ROOT_SCREENS.has(screen.value)) {
       uni.showTabBar({ animation: false })
@@ -1492,6 +1586,75 @@ function goWeakbook() {
 
 function goDictationSetup() {
   openDictationSetup()
+}
+
+function goBack(): boolean {
+  switch (screen.value) {
+    case 'checkupSetup':
+    case 'unitWords':
+    case 'checkup':
+    case 'spelling':
+    case 'report':
+    case 'dictationReport':
+    case 'weakbook':
+      resetPractice()
+      return true
+    case 'dictation':
+      openDictationSetup()
+      return true
+    case 'dictationWords':
+      backFromDictationWordPicker()
+      return true
+    case 'dictationSetup':
+      backFromDictationSetup()
+      return true
+    case 'courseSetup':
+      if (courseSetupCompleted.value) {
+        resetPractice()
+        return true
+      }
+      return false
+    default:
+      return false
+  }
+}
+
+const canSwipeBack = computed(() => {
+  if (screen.value === 'home' || screen.value === 'dictationReward') return false
+  if (screen.value === 'courseSetup' && !courseSetupCompleted.value) return false
+  return true
+})
+
+let swipeStartX = 0
+let swipeStartY = 0
+let swipeStartTime = 0
+let swipeTracking = false
+
+function onEdgeTouchStart(event: TouchEvent) {
+  const point = event.touches?.[0]
+  if (!point) return
+  swipeTracking = true
+  swipeStartX = point.clientX
+  swipeStartY = point.clientY
+  swipeStartTime = Date.now()
+}
+
+function onEdgeTouchMove(_event: TouchEvent) {
+  // catchtouchmove / stop.prevent blocks the native mini-program exit swipe.
+}
+
+function onEdgeTouchEnd(event: TouchEvent) {
+  if (!swipeTracking) return
+  swipeTracking = false
+  const point = event.changedTouches?.[0]
+  if (!point) return
+  const deltaX = point.clientX - swipeStartX
+  const deltaY = point.clientY - swipeStartY
+  const elapsed = Date.now() - swipeStartTime
+
+  if (deltaX > 56 && Math.abs(deltaY) < 80 && elapsed < 800) {
+    goBack()
+  }
 }
 
 function isWeakWordSelected(wordId: string): boolean {
@@ -1864,7 +2027,6 @@ onBeforeUnmount(() => {
   clearDictationTimers()
   destroyActiveAudio()
   try {
-    uni.showTabBar({ animation: false })
     uni.removeTabBarBadge({ index: 1 })
   } catch {
     // Ignore non-tab preview runtimes.
@@ -1881,7 +2043,8 @@ onBeforeUnmount(() => {
   min-height: 100dvh;
   margin: 0 auto;
   padding: calc(16px + env(safe-area-inset-top)) 18px calc(26px + env(safe-area-inset-bottom));
-  background: #fff;
+  background: linear-gradient(180deg, #d4efe2 0%, #e8f5ee 22%, #f3f4f6 48%, #f3f4f6 100%) no-repeat;
+  background-color: #f3f4f6;
 }
 
 .homeUnitCard,
@@ -1900,6 +2063,52 @@ onBeforeUnmount(() => {
 
 .screen.hasBottomNav {
   padding-bottom: calc(88px + env(safe-area-inset-bottom));
+}
+
+.screen.isSplitScreen {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: #e8f5ee;
+  background-color: #e8f5ee;
+}
+
+.edgeSwipeCatcher {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 200;
+  width: 28px;
+}
+
+.isSplitLayout {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.pageChrome {
+  flex: 0 0 auto;
+  z-index: 30;
+  padding-bottom: 8px;
+  background: #e8f5ee;
+}
+
+.pageBodyScroll {
+  flex: 1 1 auto;
+  height: 0;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+  background: #e8f5ee;
 }
 
 .appHeader,
@@ -2019,9 +2228,16 @@ onBeforeUnmount(() => {
 .weakbookHero,
 .weakbookPanel {
   border: 0;
-  border-radius: 18px;
-  background: #f6f6f8;
+  border-radius: 12px;
+  background: #fff;
   box-shadow: none;
+}
+
+.questionPanel,
+.spellPanel {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
 }
 
 .heroBlock {
@@ -2215,11 +2431,13 @@ onBeforeUnmount(() => {
 .bottomNavItem {
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
+  gap: 5px;
+  min-height: 58px;
   border: 1px solid transparent;
-  border-radius: 14px;
+  border-radius: 16px;
   color: var(--muted);
   background: transparent;
   transition: transform 160ms ease, background-color 160ms ease, border-color 160ms ease, color 160ms ease;
@@ -2231,8 +2449,13 @@ onBeforeUnmount(() => {
   color: #1cb0f6;
 }
 
+.bottomNavIcon {
+  width: 30px;
+  height: 30px;
+}
+
 .bottomNavLabel {
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1;
   font-weight: 900;
 }
@@ -2332,15 +2555,16 @@ onBeforeUnmount(() => {
   gap: 12px;
   align-items: center;
   min-height: 62px;
-  padding: 10px 12px;
-  border: 1px solid #e5e5e5;
-  border-radius: 16px;
-  background: #fbfdfc;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: none;
 }
 
 .selectWordRow.isSelected {
-  border-color: #84d8ff;
-  background: #ddf4ff;
+  background: #e8f6ff;
+  box-shadow: 0 0 0 1.5px #84d8ff;
 }
 
 .selectDot {
@@ -2416,10 +2640,10 @@ onBeforeUnmount(() => {
 
 .backButton::before {
   content: "";
-  width: 15px;
-  height: 15px;
-  border-left: 4px solid #0a84ff;
-  border-bottom: 4px solid #0a84ff;
+  width: 11px;
+  height: 11px;
+  border-left: 2px solid #333;
+  border-bottom: 2px solid #333;
   transform: rotate(45deg);
 }
 
@@ -2429,8 +2653,36 @@ onBeforeUnmount(() => {
   text-align: right;
 }
 
+.sectionStack > .flowHeader {
+  position: relative;
+  justify-content: center;
+}
+
+.sectionStack > .flowHeader .backButton {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  z-index: 1;
+  transform: translateY(-50%);
+}
+
+.sectionStack > .flowHeader .flowTitle {
+  flex: 0 1 auto;
+  text-align: center;
+}
+
 .progressHeader {
+  display: flex;
   align-items: center;
+  gap: 8px;
+}
+
+.progressHeader .navBack {
+  position: static;
+  left: auto;
+  top: auto;
+  flex: 0 0 40px;
+  transform: none;
 }
 
 .flowProgress {
@@ -2466,7 +2718,7 @@ onBeforeUnmount(() => {
   height: 9px;
   overflow: hidden;
   border-radius: 999px;
-  background: #e8e8ed;
+  background: rgba(20, 80, 50, 0.12);
 }
 
 .progressFill {
@@ -2481,7 +2733,7 @@ onBeforeUnmount(() => {
 .dictationPanel {
   position: relative;
   padding: 18px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .wordTitle {
@@ -2637,9 +2889,13 @@ onBeforeUnmount(() => {
 }
 
 .celebrationLayer {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 28%;
+  bottom: 24%;
+  z-index: 60;
+  overflow: visible;
   pointer-events: none;
 }
 
@@ -2647,27 +2903,55 @@ onBeforeUnmount(() => {
   content: "";
   position: absolute;
   left: 50%;
-  top: 52%;
-  width: 152px;
-  height: 152px;
-  border: 1px solid rgba(20, 116, 103, 0.24);
+  top: 42%;
+  width: 120px;
+  height: 120px;
+  border: 2px solid rgba(88, 204, 2, 0.32);
   border-radius: 999px;
   transform: translate(-50%, -50%) scale(0.5);
-  box-shadow: inset 0 0 0 16px rgba(20, 116, 103, 0.05);
+  box-shadow: inset 0 0 0 12px rgba(88, 204, 2, 0.08);
   animation: successRing 720ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .rewardParticle {
   position: absolute;
-  width: var(--w);
-  height: var(--h);
-  border-radius: var(--r);
+  left: 50%;
+  top: 42%;
+  margin-left: -5px;
+  margin-top: -5px;
   opacity: 0;
-  box-shadow: 0 4px 10px rgba(16, 25, 23, 0.16);
-  transform: translate(-50%, -50%);
-  animation: rewardPop 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  animation-delay: var(--delay, 0ms);
+  box-shadow: 0 3px 8px rgba(16, 25, 23, 0.14);
+  transform: translate(0, 0) scale(0.35);
+  animation: confettiPop 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+.rewardParticle.bar {
+  width: 8px;
+  height: 18px;
+  border-radius: 6px;
+}
+
+.rewardParticle.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+}
+
+.rewardParticle.toneGold { background: #f4c861; }
+.rewardParticle.toneTeal { background: #58cc02; }
+.rewardParticle.toneBlue { background: #1cb0f6; }
+.rewardParticle.toneRed { background: #ff4b4b; }
+
+.rewardParticle.leftFar { animation-name: confettiLeftFar; animation-delay: 0ms; }
+.rewardParticle.leftMid { animation-name: confettiLeftMid; animation-delay: 24ms; }
+.rewardParticle.leftNear { animation-name: confettiLeftNear; animation-delay: 42ms; }
+.rewardParticle.rightNear { animation-name: confettiRightNear; animation-delay: 18ms; }
+.rewardParticle.rightMid { animation-name: confettiRightMid; animation-delay: 36ms; }
+.rewardParticle.rightFar { animation-name: confettiRightFar; animation-delay: 54ms; }
+.rewardParticle.leftWide { animation-name: confettiLeftWide; animation-delay: 66ms; }
+.rewardParticle.rightWide { animation-name: confettiRightWide; animation-delay: 78ms; }
+.rewardParticle.leftSoft { animation-name: confettiLeftSoft; animation-delay: 90ms; }
+.rewardParticle.rightSoft { animation-name: confettiRightSoft; animation-delay: 102ms; }
 
 .feedbackBox,
 .answerBox,
@@ -2805,11 +3089,14 @@ onBeforeUnmount(() => {
 }
 
 .reportActions .secondaryButton {
-  height: 30px;
-  border: 0;
-  background: transparent;
-  color: #0a84ff;
+  height: 48px;
+  border: 2px solid #84d8ff;
+  border-bottom-width: 4px;
+  border-radius: 14px;
+  background: #fff;
+  color: #1cb0f6;
   font-size: 14px;
+  font-weight: 900;
 }
 
 .courseSetupScreen,
@@ -2821,7 +3108,7 @@ onBeforeUnmount(() => {
   min-height: 100dvh;
   margin: calc(-16px - env(safe-area-inset-top)) -18px calc(-26px - env(safe-area-inset-bottom));
   padding: calc(14px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));
-  background: #fff;
+  background: transparent;
   color: #0d0f0e;
 }
 
@@ -2838,19 +3125,11 @@ onBeforeUnmount(() => {
 }
 
 .courseHero {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 74px;
-  gap: 12px;
-  align-items: center;
-  min-height: 116px;
-  margin-top: 8px;
-  padding: 18px;
-  overflow: hidden;
-  border-radius: 24px;
-  background:
-    radial-gradient(circle at 95% 4%, rgba(88, 204, 2, 0.2) 0 70px, transparent 71px),
-    linear-gradient(135deg, #eefbe9 0%, #edf9ff 58%, #fff 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 2px;
+  padding: 4px 4px 0;
 }
 
 .courseHeroKicker,
@@ -2865,67 +3144,51 @@ onBeforeUnmount(() => {
 }
 
 .courseHeroKicker {
-  width: fit-content;
-  padding: 5px 9px;
-  border-radius: 999px;
-  background: #ddf4ff;
   color: #1cb0f6;
   font-size: 12px;
   line-height: 1;
-  font-weight: 950;
+  font-weight: 900;
+  letter-spacing: 1px;
 }
 
 .courseHeroTitle {
-  margin-top: 10px;
-  color: #0d0f0e;
-  font-size: 27px;
-  line-height: 1.1;
+  margin-top: 3px;
+  color: #3c3c3c;
+  font-size: 22px;
+  line-height: 1.15;
   font-weight: 950;
+  letter-spacing: -0.3px;
 }
 
 .courseHeroText {
-  margin-top: 7px;
-  color: #777;
-  font-size: 13px;
-  line-height: 1.35;
-  font-weight: 800;
-}
-
-.courseHeroBadge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 68px;
-  height: 68px;
-  border: 2px solid #84d8ff;
-  border-bottom-width: 5px;
-  border-radius: 22px;
-  background: #fff;
-  color: #1cb0f6;
-  font-size: 15px;
-  font-weight: 950;
+  color: #afafaf;
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 700;
 }
 
 .coursePanel {
   display: grid;
   gap: 14px;
-  padding: 16px;
-  border: 2px solid #e5e5e5;
-  border-bottom-width: 6px;
-  border-radius: 24px;
-  background: #fff;
+  margin-top: 2px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .courseSection {
   display: grid;
-  gap: 9px;
+  gap: 8px;
 }
 
 .courseSectionTitle {
-  color: #3c3c3c;
-  font-size: 18px;
-  line-height: 1.1;
-  font-weight: 950;
+  color: #afafaf;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: 0.5px;
 }
 
 .courseChipGrid,
@@ -2948,59 +3211,73 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 40px;
-  padding: 0 10px;
+  min-height: 44px;
+  padding: 6px 10px;
   border: 2px solid #e5e5e5;
   border-bottom-width: 4px;
-  border-radius: 999px;
+  border-radius: 14px;
   background: #fff;
-  color: #3c3c3c;
+  color: #4b4b4b;
+  box-shadow: none;
   text-align: center;
   font-size: 14px;
-  font-weight: 950;
+  line-height: 1.2;
+  font-weight: 800;
+  transition: all 0.15s ease;
 }
 
 .courseChip.isActive,
 .courseUnitChip.isActive {
   border-color: #84d8ff;
-  background: #ddf4ff;
+  border-bottom-color: #1cb0f6;
+  background: #e8f6ff;
   color: #1cb0f6;
+  font-weight: 900;
+  box-shadow: none;
 }
 
 .courseUnitChip {
   flex-direction: column;
-  align-items: flex-start;
-  min-height: 58px;
-  border-radius: 17px;
-  text-align: left;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 52px;
+  padding: 7px 10px;
+  border-radius: 14px;
+  text-align: center;
+}
+
+.courseUnitName {
+  font-size: 15px;
+  line-height: 1.1;
+  font-weight: 900;
 }
 
 .courseUnitCount {
-  margin-top: 4px;
-  color: #8e9097;
+  color: #afafaf;
   font-size: 11px;
   line-height: 1;
-  font-weight: 850;
+  font-weight: 700;
 }
 
 .courseUnitChip.isActive .courseUnitCount {
-  color: #178ec8;
+  color: #1cb0f6;
 }
 
 .courseUnavailable {
   min-height: 42px;
-  padding: 12px 14px;
-  border-radius: 16px;
-  background: #f6f6f8;
-  color: #9a9ca2;
+  padding: 13px 15px;
+  border-radius: 14px;
+  background: #f7f7f9;
+  color: #a8abb2;
   font-size: 13px;
   line-height: 1.3;
-  font-weight: 850;
+  font-weight: 500;
 }
 
 .courseConfirmButton {
   position: fixed;
-  bottom: calc(12px + env(safe-area-inset-bottom));
+  bottom: calc(16px + env(safe-area-inset-bottom));
   left: 50%;
   z-index: 30;
   display: flex;
@@ -3008,21 +3285,22 @@ onBeforeUnmount(() => {
   justify-content: center;
   width: calc(100% - 48px);
   max-width: 382px;
-  height: 58px;
+  height: 54px;
   border-radius: 16px;
   background: #58cc02;
   color: #fff;
   transform: translateX(-50%);
-  box-shadow: inset 0 -6px #46a302;
-  font-size: 18px;
-  font-weight: 950;
+  box-shadow: inset 0 -5px #46a302;
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
 }
 
 .courseConfirmButton.isDisabled {
   pointer-events: none;
-  background: #d8dee6;
-  color: #8a919a;
-  box-shadow: inset 0 -6px #c6ccd3;
+  background: #e5e5e5;
+  color: #afafaf;
+  box-shadow: inset 0 -5px #d9d9d9;
 }
 
 .dictationNav,
@@ -3032,6 +3310,28 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   min-height: 46px;
+}
+
+.playerHeaderTop .navBack {
+  position: absolute;
+  left: -4px;
+  top: 50%;
+  z-index: 1;
+  transform: translateY(-50%);
+}
+
+.playerHeaderTop .playerTitle {
+  flex: 0 1 auto;
+  text-align: center;
+}
+
+.playerHeaderTop .playerProgressText {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  z-index: 1;
+  margin-left: 0;
+  transform: translateY(-50%);
 }
 
 .navBack {
@@ -3047,23 +3347,24 @@ onBeforeUnmount(() => {
 }
 
 .chevronLeft {
-  width: 16px;
-  height: 16px;
-  border-left: 4px solid #0a84ff;
-  border-bottom: 4px solid #0a84ff;
+  width: 11px;
+  height: 11px;
+  border-left: 2px solid #333;
+  border-bottom: 2px solid #333;
+  border-radius: 0.5px;
   transform: rotate(45deg);
 }
 
 .navTitle,
 .playerTitle {
-  color: #0d0f0e;
+  color: #1a1a1a;
   font-size: 17px;
   line-height: 1.2;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .dictationIntro {
-  margin-top: 10px;
+  margin-top: 6px;
 }
 
 .dictationIntroTitle {
@@ -3149,9 +3450,11 @@ onBeforeUnmount(() => {
   justify-content: space-between;
   gap: 16px;
   margin-top: 14px;
-  padding: 13px 15px;
-  border-radius: 18px;
-  background: #f6f6f8;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: none;
 }
 
 .dictationContentCard:active {
@@ -3182,10 +3485,10 @@ onBeforeUnmount(() => {
 }
 
 .contentArrow {
-  color: #a5a7ad;
-  font-size: 34px;
+  color: #c0c2c8;
+  font-size: 22px;
   line-height: 1;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .dictationTip {
@@ -3238,7 +3541,7 @@ onBeforeUnmount(() => {
 }
 
 .checkupIntro {
-  margin-top: 26px;
+  margin-top: 10px;
 }
 
 .checkupStatGrid {
@@ -3251,8 +3554,10 @@ onBeforeUnmount(() => {
 .checkupStat {
   min-height: 76px;
   padding: 14px 8px;
-  border-radius: 16px;
-  background: #f6f6f8;
+  border: 0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: none;
   text-align: center;
 }
 
@@ -3323,19 +3628,19 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   min-height: 38px;
-  border: 2px solid #e5e5e5;
-  border-bottom-width: 5px;
+  border: 0;
   border-radius: 999px;
   background: #fff;
   color: #777;
   font-size: 13px;
   font-weight: 950;
+  box-shadow: none;
 }
 
 .checkupLimitOption.isActive {
-  border-color: #46a302;
   background: #58cc02;
   color: #fff;
+  box-shadow: inset 0 -3px #46a302;
 }
 
 .checkupSteps {
@@ -3413,9 +3718,10 @@ onBeforeUnmount(() => {
 .wordPickerScopePanel,
 .quickPickPanel {
   display: flex;
-  border: 2px solid #e8f6ff;
-  border-radius: 18px;
-  background: #f7fcff;
+  border: 0;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(60, 60, 60, 0.04);
 }
 
 .wordPickerScopePanel {
@@ -3450,10 +3756,9 @@ onBeforeUnmount(() => {
   min-width: 0;
   height: 36px;
   padding: 0 10px;
-  border: 2px solid #e5e5e5;
-  border-bottom-width: 4px;
+  border: 0;
   border-radius: 999px;
-  background: #fff;
+  background: #f3f4f6;
   color: #6f7178;
   font-size: 13px;
   line-height: 1;
@@ -3461,17 +3766,15 @@ onBeforeUnmount(() => {
 }
 
 .wordPickerScopeChip.isActive {
-  border-color: #84d8ff;
-  border-bottom-color: #1cb0f6;
-  background: #ddf4ff;
+  background: #e8f6ff;
   color: #1cb0f6;
+  box-shadow: 0 0 0 1.5px #84d8ff;
 }
 
 .wordPickerScopeChip.isIncluded.isActive {
-  border-color: #b8ef91;
-  border-bottom-color: #46a302;
   background: #f0ffe5;
   color: #46a302;
+  box-shadow: 0 0 0 1.5px #b8ef91;
 }
 
 .quickPickLabel {
@@ -3500,9 +3803,11 @@ onBeforeUnmount(() => {
   gap: 12px;
   align-items: center;
   min-height: 56px;
-  padding: 9px 12px;
-  border-radius: 16px;
-  background: #f6f6f8;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: none;
 }
 
 .wordPickRow.isSelected {
@@ -3533,11 +3838,16 @@ onBeforeUnmount(() => {
 }
 
 .wordPickWord {
-  display: block;
+  flex: 0 1 auto;
+  max-width: 55%;
   color: #0d0f0e;
   font-size: 16px;
   line-height: 1.15;
   font-weight: 950;
+}
+
+.wordPickCopy .unitWordTitleRow {
+  margin-bottom: 2px;
 }
 
 .wordPickMeaning {
@@ -3603,11 +3913,11 @@ onBeforeUnmount(() => {
 
 .playerProgressTrack {
   width: 100%;
-  height: 6px;
-  margin-top: 16px;
+  height: 10px;
+  margin-top: 14px;
   overflow: hidden;
   border-radius: 999px;
-  background: #e8e8ed;
+  background: rgba(20, 80, 50, 0.12);
 }
 
 .playerProgressFill {
@@ -4259,25 +4569,81 @@ onBeforeUnmount(() => {
   }
 }
 
-@keyframes rewardPop {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.35) rotate(0deg);
-  }
+@keyframes confettiPop {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.35) rotate(0deg); }
+  14% { opacity: 1; }
+  58% { opacity: 1; transform: translate(0, -120px) scale(1) rotate(120deg); }
+  100% { opacity: 0; transform: translate(0, -90px) scale(0.86) rotate(200deg); }
+}
 
-  14% {
-    opacity: 1;
-  }
+@keyframes confettiLeftFar {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.35) rotate(0deg); }
+  14% { opacity: 1; }
+  58% { opacity: 1; transform: translate(-110px, -118px) scale(1.1) rotate(-160deg); }
+  100% { opacity: 0; transform: translate(-110px, -96px) scale(0.86) rotate(-80deg); }
+}
 
-  58% {
-    opacity: 1;
-    transform: translate(var(--tx), var(--ty)) scale(var(--scale)) rotate(var(--rot));
-  }
+@keyframes confettiLeftMid {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.35) rotate(0deg); }
+  14% { opacity: 1; }
+  58% { opacity: 1; transform: translate(-72px, -142px) scale(0.95) rotate(124deg); }
+  100% { opacity: 0; transform: translate(-72px, -118px) scale(0.82) rotate(200deg); }
+}
 
-  100% {
-    opacity: 0;
-    transform: translate(var(--tx), calc(var(--ty) + var(--fall))) scale(0.86) rotate(calc(var(--rot) + 80deg));
-  }
+@keyframes confettiLeftNear {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.35) rotate(0deg); }
+  14% { opacity: 1; }
+  58% { opacity: 1; transform: translate(-28px, -154px) scale(1) rotate(-112deg); }
+  100% { opacity: 0; transform: translate(-28px, -132px) scale(0.84) rotate(-40deg); }
+}
+
+@keyframes confettiRightNear {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.35) rotate(0deg); }
+  14% { opacity: 1; }
+  58% { opacity: 1; transform: translate(22px, -160px) scale(0.9) rotate(150deg); }
+  100% { opacity: 0; transform: translate(22px, -136px) scale(0.8) rotate(220deg); }
+}
+
+@keyframes confettiRightMid {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.35) rotate(0deg); }
+  14% { opacity: 1; }
+  58% { opacity: 1; transform: translate(68px, -138px) scale(1.05) rotate(132deg); }
+  100% { opacity: 0; transform: translate(68px, -112px) scale(0.86) rotate(210deg); }
+}
+
+@keyframes confettiRightFar {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.35) rotate(0deg); }
+  14% { opacity: 1; }
+  58% { opacity: 1; transform: translate(112px, -104px) scale(0.95) rotate(200deg); }
+  100% { opacity: 0; transform: translate(112px, -78px) scale(0.84) rotate(280deg); }
+}
+
+@keyframes confettiLeftWide {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.35) rotate(0deg); }
+  14% { opacity: 1; }
+  58% { opacity: 1; transform: translate(-118px, -58px) scale(1.05) rotate(-82deg); }
+  100% { opacity: 0; transform: translate(-118px, -28px) scale(0.86) rotate(-10deg); }
+}
+
+@keyframes confettiRightWide {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.35) rotate(0deg); }
+  14% { opacity: 1; }
+  58% { opacity: 1; transform: translate(120px, -52px) scale(1.1) rotate(98deg); }
+  100% { opacity: 0; transform: translate(120px, -20px) scale(0.86) rotate(170deg); }
+}
+
+@keyframes confettiLeftSoft {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.35) rotate(0deg); }
+  14% { opacity: 1; }
+  58% { opacity: 1; transform: translate(-44px, -86px) scale(0.8) rotate(-200deg); }
+  100% { opacity: 0; transform: translate(-44px, -60px) scale(0.7) rotate(-120deg); }
+}
+
+@keyframes confettiRightSoft {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.35) rotate(0deg); }
+  14% { opacity: 1; }
+  58% { opacity: 1; transform: translate(42px, -90px) scale(0.82) rotate(210deg); }
+  100% { opacity: 0; transform: translate(42px, -64px) scale(0.72) rotate(280deg); }
 }
 
 @keyframes answerPop {
@@ -4336,7 +4702,8 @@ onBeforeUnmount(() => {
 .screen {
   box-sizing: border-box;
   color: var(--ink);
-  background: #fff;
+  background: linear-gradient(180deg, #d4efe2 0%, #e8f5ee 22%, #f3f4f6 48%, #f3f4f6 100%) no-repeat;
+  background-color: #f3f4f6;
   max-width: 100vw;
   overflow-x: hidden;
 }
@@ -4639,8 +5006,8 @@ onBeforeUnmount(() => {
 }
 
 .bottomNavItem {
-  min-height: 48px;
-  border-radius: 16px;
+  min-height: 60px;
+  border-radius: 18px;
   color: #777;
 }
 
@@ -4651,8 +5018,8 @@ onBeforeUnmount(() => {
 }
 
 .bottomNavBadge {
-  top: 0;
-  right: 10px;
+  top: 2px;
+  right: 22px;
   background: #ff4b4b;
 }
 
@@ -4668,22 +5035,19 @@ onBeforeUnmount(() => {
 }
 
 .flowHeader .backButton::before {
-  width: 29px;
-  height: 5px;
+  width: 13px;
+  height: 13px;
   border: 0;
-  border-radius: 999px;
-  background: #afafaf;
+  border-left: 2.5px solid #b6b6be;
+  border-bottom: 2.5px solid #b6b6be;
+  border-radius: 1px;
+  background: transparent;
   transform: rotate(45deg);
 }
 
 .flowHeader .backButton::after {
-  content: "";
-  position: absolute;
-  width: 29px;
-  height: 5px;
-  border-radius: 999px;
-  background: #afafaf;
-  transform: rotate(-45deg);
+  content: none;
+  display: none;
 }
 
 .flowProgress {
@@ -4704,21 +5068,21 @@ onBeforeUnmount(() => {
 
 .progressTrack,
 .playerProgressTrack {
-  height: 13px;
+  height: 10px;
   border-radius: 999px;
-  background: #e5e5e5;
+  background: rgba(20, 80, 50, 0.12);
 }
 
 .progressFill,
 .playerProgressFill {
   background: var(--accent);
-  box-shadow: inset 0 -3px rgba(0, 0, 0, 0.14);
+  box-shadow: inset 0 -2px rgba(0, 0, 0, 0.12);
 }
 
 .questionPanel,
 .spellPanel {
   flex: 1;
-  padding: 0 2px;
+  padding: 0 2px 12px;
   overflow: visible;
   border-radius: 0;
   background: transparent;
@@ -4754,16 +5118,17 @@ onBeforeUnmount(() => {
 
 .choiceList {
   margin-top: auto;
-  padding-top: 22px;
-  gap: 10px;
+  padding: 22px 3px 8px;
+  gap: 12px;
+  overflow: visible;
 }
 
 .choiceItem {
   min-height: 58px;
-  border: 2px solid #e5e5e5;
-  border-bottom-width: 5px;
-  border-radius: 16px;
+  border: 2px solid #e8ebe9;
+  border-radius: 12px;
   background: #fff;
+  box-shadow: none;
 }
 
 .choiceItem.isLocked {
@@ -4792,6 +5157,7 @@ onBeforeUnmount(() => {
 .choiceItem.isCorrectAnswer {
   border-color: #58cc02;
   background: #d7ffb8;
+  box-shadow: none;
 }
 
 .choiceItem.isCorrect .choiceKey,
@@ -4802,6 +5168,7 @@ onBeforeUnmount(() => {
 .choiceItem.isWrong {
   border-color: #ff4b4b;
   background: #ffdfe0;
+  box-shadow: none;
 }
 
 .choiceResult {
@@ -4863,10 +5230,10 @@ onBeforeUnmount(() => {
 
 .textInput {
   height: 58px;
-  border: 2px solid #e5e5e5;
-  border-bottom-width: 5px;
-  border-radius: 16px;
+  border: 0;
+  border-radius: 12px;
   background: #fff;
+  box-shadow: none;
 }
 
 .flowScreen > .bottomButton {
@@ -4903,16 +5270,18 @@ onBeforeUnmount(() => {
 .checkupSetupScreen,
 .dictationSetupScreen,
 .dictationWordScreen,
-.dictationPlayerScreen {
-  padding-right: 24px;
-  padding-left: 24px;
+.dictationPlayerScreen,
+.courseSetupScreen,
+.unitWordScreen {
+  padding-right: 20px;
+  padding-left: 20px;
 }
 
 .navBack .chevronLeft {
-  width: 16px;
-  height: 16px;
-  border-left-color: #afafaf;
-  border-bottom-color: #afafaf;
+  width: 11px;
+  height: 11px;
+  border-left: 2px solid #333;
+  border-bottom: 2px solid #333;
 }
 
 .dictationIntroTitle,
@@ -4927,14 +5296,14 @@ onBeforeUnmount(() => {
 }
 
 .pill {
-  border: 2px solid transparent;
-  border-bottom-width: 4px;
+  border: 0;
+  box-shadow: none;
 }
 
 .pill.isActive {
-  border-color: #46a302;
   background: #58cc02;
   color: #fff;
+  box-shadow: inset 0 -3px #46a302;
 }
 
 .dictationContentCard,
@@ -4945,10 +5314,10 @@ onBeforeUnmount(() => {
 .weakbookPanel,
 .weakList,
 .reportHero {
-  border: 2px solid #e5e5e5;
-  border-bottom-width: 5px;
-  border-radius: 20px;
+  border: 0;
+  border-radius: 12px;
   background: #fff;
+  box-shadow: none;
 }
 
 .dictationTip {
@@ -4975,8 +5344,8 @@ onBeforeUnmount(() => {
 
 .wordPickRow.isSelected,
 .selectWordRow.isSelected {
-  border-color: #84d8ff;
-  background: #ddf4ff;
+  background: #e8f6ff;
+  box-shadow: 0 0 0 1.5px #84d8ff;
 }
 
 .wordPickRow.isSelected .wordPickCheck,
@@ -5003,9 +5372,15 @@ onBeforeUnmount(() => {
 }
 
 .playerStage {
-  flex: 1;
+  flex: 1 1 auto;
   justify-content: center;
-  margin-top: 18px;
+  min-height: 0;
+  margin-top: 12px;
+  overflow: auto;
+}
+
+.dictationPlayerScreen.isSplitLayout > .playerStage {
+  flex: 1 1 auto;
 }
 
 .playerInstruction {
@@ -5206,44 +5581,6 @@ onBeforeUnmount(() => {
   opacity: 0.82;
 }
 
-.unitSwitchGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.unitSwitchCell {
-  min-width: 0;
-  min-height: 44px;
-  padding: 8px 10px;
-  border-radius: 15px;
-  background: #fff;
-  box-shadow: inset 0 -4px #d9d9d9;
-}
-
-.unitSwitchLabel,
-.unitSwitchValue {
-  display: block;
-}
-
-.unitSwitchLabel {
-  color: #afafaf;
-  font-size: 10px;
-  line-height: 1;
-  font-weight: 900;
-}
-
-.unitSwitchValue {
-  margin-top: 5px;
-  overflow: hidden;
-  color: #3c3c3c;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 14px;
-  line-height: 1.05;
-  font-weight: 950;
-}
 
 .heroHint {
   margin-top: 10px;
@@ -5299,40 +5636,93 @@ onBeforeUnmount(() => {
 }
 
 .homeScreen {
-  gap: 12px;
+  gap: 14px;
+}
+
+.homeHero {
+  position: relative;
+  z-index: 0;
+  margin: -16px -18px 0;
+  padding: 22px 22px 46px;
+  background: linear-gradient(150deg, #58cc02 0%, #34c2f2 100%);
+}
+
+/* #ifdef H5 */
+.homeHero {
+  margin-top: calc(-16px - env(safe-area-inset-top));
+  padding-top: calc(24px + env(safe-area-inset-top));
+}
+/* #endif */
+
+/* #ifdef MP-WEIXIN */
+.homeHero {
+  margin-top: calc(-1 * var(--capsule-top, 44px));
+  padding-top: calc(var(--capsule-top, 44px) + 6px);
+}
+/* #endif */
+
+.homeHeroMain,
+.homeHeroTags {
+  position: relative;
+  z-index: 1;
+}
+
+.homeHeroTitle {
+  display: block;
+  color: #fff;
+  font-size: 27px;
+  line-height: 1.1;
+  font-weight: 950;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.homeHeroSubtitle {
+  display: block;
+  margin-top: 7px;
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 13px;
+  line-height: 1.3;
+  font-weight: 800;
+}
+
+.homeHeroTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 14px;
+}
+
+.homeHeroTag {
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.24);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 900;
 }
 
 .homeUnitCard {
   position: relative;
+  z-index: 1;
   overflow: hidden;
+  margin-top: -30px;
   padding: 16px;
   border: 2px solid #e5e5e5;
-  border-bottom-width: 6px;
-  border-radius: 24px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.94)),
-    linear-gradient(135deg, #d7ffb8 0%, #ddf4ff 62%, #ffffff 100%);
-}
-
-.homeUnitCard::before {
-  content: "";
-  position: absolute;
-  top: -54px;
-  right: -48px;
-  width: 150px;
-  height: 150px;
-  border-radius: 999px;
-  background: rgba(88, 204, 2, 0.18);
-  pointer-events: none;
+  border-bottom-width: 5px;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(20, 40, 60, 0.08);
 }
 
 .homeUnitTopline,
 .homeUnitRow,
 .homeUnitTitle,
+.homeUnitSubtitle,
 .homeStatPrimary,
 .homeStatSecondary,
 .homeStatRow,
-.unitSwitchGrid,
 .homeUnitTip,
 .homeActionHeader {
   position: relative;
@@ -5391,15 +5781,27 @@ onBeforeUnmount(() => {
   color: #3c3c3c;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 24px;
+  font-size: 23px;
   line-height: 1.12;
   font-weight: 950;
+}
+
+.homeUnitSubtitle {
+  display: block;
+  margin-top: 3px;
+  overflow: hidden;
+  color: #afafaf;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: 900;
 }
 
 .homeUnitRow {
   justify-content: space-between;
   gap: 10px;
-  margin-top: 10px;
+  margin-top: 12px;
 }
 
 .homeUnitBadge,
@@ -5521,28 +5923,58 @@ onBeforeUnmount(() => {
   color: #58a700;
 }
 
-.homeUnitCard .unitSwitchGrid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+.homeSwitchRow {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   margin-top: 12px;
-}
-
-.homeUnitCard .unitSwitchCell {
-  min-height: 46px;
-  padding: 8px 10px;
-  border-radius: 15px;
+  min-height: 54px;
+  padding: 10px 14px;
+  border-radius: 16px;
   background: #f7f7f7;
   box-shadow: inset 0 -3px #e5e5e5;
 }
 
-.homeUnitCard .unitSwitchLabel {
-  color: #afafaf;
-  font-size: 10px;
+.homeSwitchRow:active {
+  transform: translateY(2px);
+  filter: saturate(0.96);
 }
 
-.homeUnitCard .unitSwitchValue {
-  margin-top: 6px;
+.homeSwitchInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.homeSwitchLabel {
+  display: block;
+  color: #afafaf;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.homeSwitchValue {
+  display: block;
+  overflow: hidden;
+  color: #3c3c3c;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 14px;
+  line-height: 1.1;
+  font-weight: 950;
+}
+
+.homeSwitchArrow {
+  flex: 0 0 auto;
+  color: #1cb0f6;
+  font-size: 26px;
+  line-height: 1;
+  font-weight: 950;
 }
 
 .homeUnitTip {
@@ -5591,8 +6023,8 @@ onBeforeUnmount(() => {
 }
 
 .homeScreen .practiceItem.isSecondary {
-  border-color: #84d8ff;
-  background: #fff;
+  border-color: #1899d6;
+  background: #1cb0f6;
 }
 
 .practiceRank {
@@ -5606,11 +6038,6 @@ onBeforeUnmount(() => {
   color: #fff;
   font-size: 16px;
   font-weight: 950;
-}
-
-.practiceRank.blue {
-  background: #ddf4ff;
-  color: #1cb0f6;
 }
 
 .homeScreen .practiceCopy {
@@ -5641,18 +6068,6 @@ onBeforeUnmount(() => {
   font-weight: 800;
 }
 
-.homeScreen .practiceItem.isSecondary .practiceTitle {
-  color: #3c3c3c;
-}
-
-.homeScreen .practiceItem.isSecondary .practiceDesc {
-  color: #777;
-}
-
-.homeScreen .practiceItem.isSecondary .practiceMini {
-  color: #1cb0f6;
-}
-
 .homeScreen .practiceAction {
   align-self: center;
   justify-self: end;
@@ -5666,9 +6081,7 @@ onBeforeUnmount(() => {
 }
 
 .homeScreen .practiceItem.isSecondary .practiceAction {
-  background: #1cb0f6;
-  color: #fff;
-  box-shadow: inset 0 -3px #178ec8;
+  color: #1096e4;
 }
 
 .unitWordScreen {
@@ -5676,16 +6089,16 @@ onBeforeUnmount(() => {
   min-height: 100dvh;
   margin: calc(-16px - env(safe-area-inset-top)) -18px calc(-26px - env(safe-area-inset-bottom));
   padding: calc(14px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));
-  background: #fff;
+  background: transparent;
 }
 
 .unitWordHeader {
-  margin-top: 18px;
-  padding: 16px;
-  border: 2px solid #e5e5e5;
-  border-bottom-width: 5px;
-  border-radius: 20px;
-  background: #fff;
+  margin-top: 12px;
+  padding: 4px 2px 12px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .unitWordTitle,
@@ -5727,39 +6140,77 @@ onBeforeUnmount(() => {
   grid-template-columns: minmax(0, 1fr) 78px;
   gap: 10px;
   align-items: center;
-  min-height: 70px;
-  padding: 10px 12px;
-  border: 2px solid #e5e5e5;
-  border-bottom-width: 5px;
-  border-radius: 18px;
+  min-height: 66px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 12px;
   background: #fff;
+  box-shadow: none;
 }
 
 .unitWordRow.isMastered {
-  border-color: #b8ef91;
-  background: #f3ffe9;
+  background: #eef3f0;
+  box-shadow: none;
+}
+
+.unitWordRow.isMastered .unitWordEnglish {
+  color: #6f7370;
+}
+
+.unitWordRow.isMastered .unitWordPhonetic,
+.unitWordRow.isMastered .unitWordMeaning {
+  color: #9aa09c;
 }
 
 .unitWordCopy {
   min-width: 0;
 }
 
+.unitWordTitleRow {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.unitWordTitleRow .unitWordEnglish,
+.unitWordTitleRow .wordPickWord,
+.unitWordTitleRow .weakWord,
+.unitWordTitleRow .unitWordPhonetic {
+  display: inline;
+}
+
 .unitWordEnglish,
-.unitWordMeaning {
-  display: block;
+.unitWordPhonetic,
+.unitWordMeaning,
+.wordPickWord {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .unitWordEnglish {
+  flex: 0 1 auto;
+  max-width: 55%;
   color: #111;
   font-size: 18px;
   line-height: 1.15;
   font-weight: 950;
 }
 
+.unitWordPhonetic {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-top: 0;
+  color: #8d8f96;
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: 750;
+}
+
 .unitWordMeaning {
+  display: block;
   margin-top: 5px;
   color: #8d8f96;
   font-size: 13px;
@@ -5780,16 +6231,23 @@ onBeforeUnmount(() => {
 }
 
 .unitWordKnownButton.isDone {
-  background: #e5e5e5;
-  color: #777;
-  box-shadow: inset 0 -4px #d9d9d9;
+  background: #d9ddd9;
+  color: #8a8f8a;
+  box-shadow: inset 0 -4px #c8ccc8;
+}
+
+.unitWordKnownLabel {
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: 1;
 }
 
 .checkupStatEditable {
   position: relative;
-  border: 2px solid #84d8ff;
-  border-bottom: 5px solid #84d8ff;
-  background: #ddf4ff;
+  border: 0;
+  background: #e8f6ff;
+  box-shadow: 0 0 0 1.5px #84d8ff;
 }
 
 .checkupStatEditable .checkupLimitInput {
@@ -5811,11 +6269,11 @@ onBeforeUnmount(() => {
   gap: 12px;
   align-items: center;
   min-height: 54px;
-  padding: 0 10px;
-  border: 2px solid #ffb3b3;
-  border-bottom-width: 5px;
-  border-radius: 16px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 14px;
   background: #fff5f5;
+  box-shadow: 0 1px 3px rgba(217, 54, 54, 0.06);
 }
 
 .dictationProblemRow + .dictationProblemRow {
@@ -5830,6 +6288,15 @@ onBeforeUnmount(() => {
 .dictationReviewList {
   display: grid;
   gap: 10px;
+  padding-top: 4px;
+  border-top: 1px solid #eef1ef;
+}
+
+.dictationReviewList .blockTitle {
+  margin-top: 2px;
+  color: #3c3c3c;
+  font-size: 15px;
+  font-weight: 900;
 }
 
 .dictationReviewRow {
@@ -5899,16 +6366,32 @@ onBeforeUnmount(() => {
   color: #2f7d00;
 }
 
+.dictationReportPanel {
+  display: grid;
+  gap: 14px;
+  margin-top: 4px;
+  margin-bottom: 14px;
+  padding: 14px 15px 16px;
+  border: 0;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: none;
+}
+
+.reportScreen .reportActions {
+  margin-top: 4px;
+}
+
 .dictationSummaryCard {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px;
   align-items: center;
-  padding: 14px 15px;
-  border: 2px solid #e5e5e5;
-  border-bottom-width: 5px;
-  border-radius: 20px;
-  background: #fff;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .dictationSummaryCopy {
@@ -6054,7 +6537,7 @@ onBeforeUnmount(() => {
 .reportScreen .dictationReportHeader .backButton {
   width: 42px;
   height: 42px;
-  background: #f7f7f7;
+  background: transparent;
 }
 
 .dictationReportPageTitle {
@@ -6167,13 +6650,18 @@ onBeforeUnmount(() => {
 }
 
 .reportSecondaryActions .secondaryButton {
-  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
   border: 2px solid #84d8ff;
   border-bottom-width: 4px;
   border-radius: 14px;
   background: #fff;
   color: #1cb0f6;
+  box-shadow: none;
   font-size: 14px;
+  font-weight: 900;
 }
 
 .dictationRewardScreen {
@@ -6590,45 +7078,15 @@ onBeforeUnmount(() => {
   width: 100%;
   max-width: 100%;
   margin: 0;
-  padding: 0 6px 24px;
+  padding: 0 0 24px;
   overflow-x: hidden;
+  background: transparent;
 }
 
 .checkupSetupScreen,
 .dictationSetupScreen,
 .courseSetupScreen {
   padding-bottom: calc(96px + env(safe-area-inset-bottom));
-}
-
-.courseHero {
-  grid-template-columns: 1fr;
-  min-height: 104px;
-  margin-top: 0;
-  padding: 18px;
-}
-
-.courseHeroTitle {
-  margin-top: 0;
-  font-size: 29px;
-}
-
-.courseHeroBadge {
-  display: none;
-}
-
-.coursePanel {
-  gap: 12px;
-  padding: 16px;
-}
-
-.courseSection {
-  gap: 8px;
-}
-
-.courseChip,
-.courseUnitChip {
-  min-height: 40px;
-  font-size: 14px;
 }
 
 .courseConfirmButton {
@@ -6640,55 +7098,130 @@ onBeforeUnmount(() => {
   transform: none;
 }
 
-.dictationNav,
-.playerHeaderTop {
-  min-height: 44px;
-  margin-bottom: 12px;
-  justify-content: flex-start;
-  padding-right: 126px;
+.dictationNav {
+  position: relative;
+  min-height: var(--capsule-h, 32px);
+  margin-bottom: 8px;
+  justify-content: center;
+  padding-right: 0;
   padding-left: 0;
   box-sizing: border-box;
 }
 
-.dictationNav .navBack,
+.pageChrome {
+  margin: 0 -18px;
+  padding-right: 18px;
+  padding-left: 18px;
+  background: #e8f5ee;
+}
+
+.pageChrome .dictationNav,
+.pageChrome .playerHeader,
+.pageChrome .playerHeaderTop {
+  background: transparent;
+}
+
+.pageChrome .playerHeader {
+  margin-bottom: 6px;
+}
+
+.pageChrome .playerProgressTrack {
+  margin-top: 12px;
+  background: rgba(70, 163, 2, 0.18);
+}
+
+.screen.isSplitScreen .pageChrome,
+.screen.isSplitScreen .pageBodyScroll {
+  background: #e8f5ee;
+}
+
+.edgeSwipeCatcher {
+  width: 32px;
+}
+
+.playerHeaderTop {
+  position: relative;
+  min-height: var(--capsule-h, 32px);
+  margin-bottom: 4px;
+  justify-content: center;
+  padding-right: 0;
+  padding-left: 0;
+  box-sizing: border-box;
+}
+
 .playerHeaderTop .navBack {
-  position: static;
-  left: auto;
-  top: auto;
+  position: absolute;
+  left: -4px;
+  top: 50%;
+  z-index: 1;
   flex: 0 0 44px;
-  margin-right: 10px;
-  transform: none;
+  margin-right: 0;
+  transform: translateY(-50%);
+}
+
+.playerHeaderTop .playerTitle {
+  flex: 0 1 auto;
+  max-width: calc(100% - 168px);
+  text-align: center;
+}
+
+.playerHeaderTop .playerProgressText {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  z-index: 1;
+  max-width: 72px;
+  margin-left: 0;
+  transform: translateY(-50%);
+  text-align: right;
 }
 
 .sectionStack > .flowHeader {
-  justify-content: flex-start;
-  padding-right: 126px;
+  position: relative;
+  min-height: var(--capsule-h, 32px);
+  margin-bottom: 6px;
+  justify-content: center;
+  padding-right: 0;
   box-sizing: border-box;
 }
 
 .sectionStack > .flowHeader .backButton {
-  flex: 0 0 44px;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  z-index: 1;
+  flex: 0 0 auto;
+  transform: translateY(-50%);
 }
 
 .sectionStack > .flowHeader .flowTitle {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-width: 0;
-  text-align: left;
+  text-align: center;
 }
 
-.navTitle,
-.playerTitle {
+.navTitle {
   display: block;
-  flex: 1 1 auto;
   min-width: 0;
   font-size: 18px;
   font-weight: 950;
-  text-align: left;
+  text-align: center;
+}
+
+.playerTitle {
+  display: block;
+  flex: 0 1 auto;
+  min-width: 0;
+  font-size: 18px;
+  font-weight: 950;
+  text-align: center;
 }
 
 .playerProgressText {
   flex: 0 0 auto;
-  margin-left: 10px;
+  color: #9a9ca2;
+  font-size: 13px;
+  font-weight: 850;
 }
 
 .flowScreen {
@@ -6703,7 +7236,16 @@ onBeforeUnmount(() => {
 }
 
 .progressHeader {
-  align-items: flex-start;
+  align-items: center;
+  gap: 8px;
+}
+
+.progressHeader .navBack {
+  position: static;
+  left: auto;
+  top: auto;
+  flex: 0 0 40px;
+  transform: none;
 }
 
 .questionPanel,
@@ -6731,8 +7273,9 @@ onBeforeUnmount(() => {
 .choiceList {
   display: grid;
   margin-top: 42px;
-  padding-top: 0;
+  padding: 2px 3px 10px;
   gap: 12px;
+  overflow: visible;
 }
 
 .choiceItem {
@@ -6742,6 +7285,8 @@ onBeforeUnmount(() => {
   align-items: center;
   min-height: 62px;
   padding: 10px 14px;
+  border: 2px solid #e8ebe9;
+  box-sizing: border-box;
 }
 
 .choiceResult {
@@ -6749,7 +7294,7 @@ onBeforeUnmount(() => {
 }
 
 .checkupIntro {
-  margin-top: 20px;
+  margin-top: 8px;
 }
 
 .checkupStatGrid {
@@ -6952,8 +7497,8 @@ onBeforeUnmount(() => {
 
 .selectWordRow.isSelected,
 .wordPickRow.isSelected {
-  border-color: #84d8ff;
-  background: #ddf4ff;
+  background: #e8f6ff;
+  box-shadow: 0 0 0 1.5px #84d8ff;
 }
 
 .selectWordRow.isSelected .selectDot,
@@ -6965,13 +7510,15 @@ onBeforeUnmount(() => {
 
 .choiceItem.isCorrect,
 .choiceItem.isCorrectAnswer {
-  border-color: #58cc02;
+  border: 2px solid #58cc02;
   background: #d7ffb8;
+  box-shadow: none;
 }
 
 .choiceItem.isWrong {
-  border-color: #ff4b4b;
+  border: 2px solid #ff4b4b;
   background: #ffdfe0;
+  box-shadow: none;
 }
 
 .choiceKey {
@@ -6996,23 +7543,43 @@ onBeforeUnmount(() => {
   color: #fff;
 }
 
-.courseChip.isActive,
-.courseUnitChip.isActive {
-  border-color: #84d8ff;
-  background: #ddf4ff;
-  color: #1cb0f6;
-}
-
 .unitWordKnownButton {
   background: #58cc02;
   color: #fff;
   box-shadow: inset 0 -4px #46a302;
 }
 
+.unitWordKnownButton.isDone {
+  background: #d9ddd9;
+  color: #8a8f8a;
+  box-shadow: inset 0 -4px #c8ccc8;
+}
+
+.unitWordRow.isMastered {
+  background: #eef3f0;
+}
+
 .reportActions .bottomButton {
   background: #58cc02;
   color: #fff;
   box-shadow: inset 0 -5px #46a302;
+}
+
+.reportScreen .reportSecondaryActions .secondaryButton {
+  height: 48px;
+  border: 2px solid #84d8ff;
+  border-bottom-width: 4px;
+  border-radius: 14px;
+  background: #fff;
+  color: #1cb0f6;
+  box-shadow: none;
+}
+
+.reportScreen .reportSecondaryActions .secondaryButton.isDisabled {
+  border-color: #e5e5e5;
+  border-bottom-width: 4px;
+  background: #fff;
+  color: #c4c4c4;
 }
 
 .reportScreen {
