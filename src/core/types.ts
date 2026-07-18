@@ -25,8 +25,11 @@ export interface WordEntry {
   unitName: string
   word: string
   phonetic: string
+  usPhonetic?: string
   partOfSpeech: string
   meaning: string
+  exampleSentence?: string
+  exampleTranslation?: string
   difficulty: number
   audio: WordAudio
   source: {

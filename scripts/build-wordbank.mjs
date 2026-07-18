@@ -5,7 +5,7 @@ import XLSX from 'xlsx'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(__dirname, '..')
-const sourcePath = path.join(root, 'doc', '沪教版高中英语教材_Words_by_unit汇总.xlsx')
+const sourcePath = path.join(root, 'doc', '沪教版高中英语教材_Words_by_unit汇总_终版_增加经典例句及翻译.xlsx')
 const outputPath = path.join(root, 'src', 'data', 'wordbank.generated.json')
 
 const publisher = {
@@ -74,6 +74,8 @@ for (const [bookIndex, [sheetName, bookId]] of sheetMeta.entries()) {
     const phonetic = clean(row[2])
     const partOfSpeech = clean(row[3])
     const meaning = clean(row[4])
+    const exampleSentence = clean(row[5])
+    const exampleTranslation = clean(row[6])
 
     if (!unitNumber && !word && !meaning) continue
     if (!unitNumber || !word || !meaning) {
@@ -125,7 +127,9 @@ for (const [bookIndex, [sheetName, bookId]] of sheetMeta.entries()) {
       meaning,
       difficulty,
       wordSlug,
-      rowIndex + 4
+      rowIndex + 4,
+      exampleSentence,
+      exampleTranslation
     ])
   }
 

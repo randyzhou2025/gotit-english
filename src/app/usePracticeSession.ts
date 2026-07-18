@@ -30,7 +30,7 @@ import {
   groupUnits
 } from '@/core/wordbank'
 
-export type AppScreen = 'courseSetup' | 'home' | 'weakbook' | 'unitWords' | 'checkupSetup' | 'checkup' | 'spelling' | 'report' | 'dictationSetup' | 'dictationWords' | 'dictation' | 'dictationReport' | 'dictationReward'
+export type AppScreen = 'courseSetup' | 'home' | 'weakbook' | 'unitWords' | 'wordDetail' | 'checkupSetup' | 'checkup' | 'spelling' | 'report' | 'dictationSetup' | 'dictationWords' | 'dictation' | 'dictationReport' | 'dictationReward'
 export type RecognitionState = 'idle' | 'correct' | 'wrong'
 export type SchoolStage = '初中' | '高中'
 
@@ -238,6 +238,7 @@ function createPracticeSession() {
   const savedWeakWordIds = ref<string[]>(loadSavedWordIds(SAVED_WEAK_WORD_IDS_KEY))
   const masteredWordIds = ref<string[]>(loadSavedWordIds(MASTERED_WORD_IDS_KEY))
   const selectedWeakWordIds = ref<string[]>([])
+  const selectedWordDetailId = ref('')
 
   const dictationMode = ref<DictationMode>('paper')
   const dictationPrompt = ref<DictationPrompt>('chinese')
@@ -319,6 +320,28 @@ function createPracticeSession() {
     if (unitWordCount.value === 0) return 0
     return Math.round((masteredUnitWordCount.value / unitWordCount.value) * 100)
   })
+  const wordDetailOrderedIds = computed(() => {
+    const unmastered = unitWords.value.filter(word => !masteredWordIdSet.value.has(word.id))
+    const mastered = unitWords.value.filter(word => masteredWordIdSet.value.has(word.id))
+    return [...unmastered, ...mastered].map(word => word.id)
+  })
+  const wordDetailEntry = computed(() => {
+    if (!selectedWordDetailId.value) return null
+    return unitWords.value.find(word => word.id === selectedWordDetailId.value) ?? null
+  })
+  const wordDetailIndex = computed(() => {
+    const index = wordDetailOrderedIds.value.indexOf(selectedWordDetailId.value)
+    return index >= 0 ? index : 0
+  })
+  const wordDetailProgressLabel = computed(() => {
+    const total = wordDetailOrderedIds.value.length
+    if (total <= 0) return '0/0'
+    return `${wordDetailIndex.value + 1}/${total}`
+  })
+  const hasNextWordDetail = computed(() => (
+    wordDetailIndex.value >= 0
+    && wordDetailIndex.value < wordDetailOrderedIds.value.length - 1
+  ))
   const activeWords = computed(() => unitWords.value.filter(word => !masteredWordIdSet.value.has(word.id)))
   const defaultCheckupLimit = computed(() => getDefaultCheckupLimit(activeWords.value.length))
   const effectiveCheckupLimit = computed(() => normalizeCheckupLimit(checkupLimit.value, activeWords.value.length))
@@ -738,6 +761,24 @@ function createPracticeSession() {
 
   function openUnitWords() {
     screen.value = 'unitWords'
+    scrollToTop()
+  }
+
+  function openWordDetail(wordId: string) {
+    selectedWordDetailId.value = wordId
+    screen.value = 'wordDetail'
+    scrollToTop()
+  }
+
+  function nextWordDetail() {
+    const ids = wordDetailOrderedIds.value
+    const index = ids.indexOf(selectedWordDetailId.value)
+    if (index < 0 || index >= ids.length - 1) return
+
+    const nextId = ids[index + 1]
+    if (!nextId) return
+
+    selectedWordDetailId.value = nextId
     scrollToTop()
   }
 
@@ -1200,8 +1241,10 @@ function createPracticeSession() {
     openCourseSetup,
     openSelectedWeakDictationSetup,
     openUnitWords,
+    openWordDetail,
     openWeakbook,
     nextAfterWrong,
+    nextWordDetail,
     recognitionState,
     resetPractice,
     revealPaperAnswer,
@@ -1255,6 +1298,9 @@ function createPracticeSession() {
     toggleDictationReportWordStatus,
     toggleDictationWordSelection,
     toggleWeakWordSelection,
+    hasNextWordDetail,
+    wordDetailEntry,
+    wordDetailProgressLabel,
     unitQuickOptions,
     unitLabel,
     unitOptions,

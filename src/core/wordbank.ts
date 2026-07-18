@@ -9,7 +9,9 @@ type CompactWordRecord = [
   meaning: string,
   difficulty: number,
   slug: string,
-  rowNumber: number
+  rowNumber: number,
+  exampleSentence?: string,
+  exampleTranslation?: string
 ]
 
 interface CompactWordbank {
@@ -47,7 +49,7 @@ export function getWordbank(): WordEntry[] {
     for (const unit of book.units) {
       const unitId = `${compact.publisher.id}:${book.id}:u${unit.number}`
 
-      for (const [word, phonetic, partOfSpeech, meaning, difficulty, slug, rowNumber] of unit.words) {
+      for (const [word, phonetic, partOfSpeech, meaning, difficulty, slug, rowNumber, exampleSentence, exampleTranslation] of unit.words) {
         const cdnKey = `${compact.publisher.id}/${book.id}/unit-${unit.number}/${slug}`
         const audioRecord = audioManifest.items[cdnKey]
 
@@ -65,6 +67,8 @@ export function getWordbank(): WordEntry[] {
           phonetic,
           partOfSpeech,
           meaning,
+          exampleSentence: exampleSentence || undefined,
+          exampleTranslation: exampleTranslation || undefined,
           difficulty,
           audio: {
             status: audioRecord?.status ?? 'pending',

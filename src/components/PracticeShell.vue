@@ -386,7 +386,7 @@
             :key="`${item.word.id}:${isUnitWordMastered(item.word.id) ? 'mastered' : 'learning'}`"
             :class="['unitWordRow', isUnitWordMastered(item.word.id) && 'isMastered']"
           >
-            <view class="unitWordCopy">
+            <view class="unitWordCopy" @tap="openWordDetailPage(item.word.id)">
               <view class="unitWordTitleRow">
                 <text class="unitWordEnglish">{{ item.word.word }}</text>
                 <text v-if="item.word.phonetic" class="unitWordPhonetic">{{ item.word.phonetic }}</text>
@@ -402,6 +402,86 @@
           </view>
         </view>
       </scroll-view>
+    </view>
+
+    <view v-else-if="activeScreen === 'wordDetail' && wordDetailEntry" class="wordDetailScreen isSplitLayout">
+      <view class="pageChrome">
+        <view class="wordDetailNav">
+          <view class="navBack" @tap="goBack">
+            <view class="chevronLeft" />
+          </view>
+          <text class="wordDetailProgress">{{ wordDetailProgressLabel }}</text>
+        </view>
+      </view>
+
+      <scroll-view scroll-y class="pageBodyScroll wordDetailScroll" :show-scrollbar="false">
+        <view class="wordDetailHeroCard">
+          <text class="wordDetailWord">{{ wordDetailEntry.word }}</text>
+          <view v-if="wordDetailEntry.phonetic" class="wordDetailPhoneticRow">
+            <view class="wordDetailPhoneticItem">
+              <text class="wordDetailPhoneticLabel">英</text>
+              <text class="wordDetailPhoneticText">{{ wordDetailEntry.phonetic }}</text>
+              <view
+                :class="['wordDetailSpeaker', wordDetailPlayingAccent === 'uk' && isAudioPlaying && 'isPlaying']"
+                @tap="playWordDetailAudio('uk')"
+              >
+                <view class="wordDetailSpeakerIcon" />
+              </view>
+            </view>
+            <view v-if="wordDetailEntry.usPhonetic && wordDetailHasUsAudio" class="wordDetailPhoneticItem">
+              <text class="wordDetailPhoneticLabel">美</text>
+              <text class="wordDetailPhoneticText">{{ wordDetailEntry.usPhonetic }}</text>
+              <view
+                :class="['wordDetailSpeaker', wordDetailPlayingAccent === 'us' && isAudioPlaying && 'isPlaying']"
+                @tap="playWordDetailAudio('us')"
+              >
+                <view class="wordDetailSpeakerIcon" />
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="wordDetailCard">
+          <view class="wordDetailSectionTag">
+            <text class="wordDetailSectionTagText">释义</text>
+          </view>
+          <text class="wordDetailMeaning">{{ wordDetailMeaningLabel }}</text>
+        </view>
+
+        <view v-if="wordDetailEntry.exampleSentence" class="wordDetailCard">
+          <view class="wordDetailSectionHead">
+            <view class="wordDetailSectionBar" />
+            <text class="wordDetailSectionTitle">例句</text>
+          </view>
+          <view class="wordDetailExampleBody">
+            <view class="wordDetailExampleCopy">
+              <text class="wordDetailExampleText">
+                <text
+                  v-for="(part, index) in wordDetailExampleParts"
+                  :key="`${part.text}-${index}`"
+                  :class="part.highlight && 'wordDetailExampleHighlight'"
+                >{{ part.text }}</text>
+              </text>
+              <text v-if="wordDetailEntry.exampleTranslation" class="wordDetailExampleTranslation">{{ wordDetailEntry.exampleTranslation }}</text>
+            </view>
+            <view
+              :class="['wordDetailExampleSpeaker', isAudioPlaying && wordDetailPlayingAccent && 'isPlaying']"
+              @tap="playWordDetailExampleAudio"
+            >
+              <view class="wordDetailSpeakerIcon" />
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+
+      <view class="wordDetailFooter">
+        <view
+          :class="['wordDetailNextButton', !hasNextWordDetail && 'isDisabled']"
+          @tap="goNextWordDetail"
+        >
+          <text class="wordDetailNextLabel">{{ hasNextWordDetail ? '下一词' : '已是本单元最后一个' }}</text>
+        </view>
+      </view>
     </view>
 
     <view v-else-if="activeScreen === 'checkup' && currentCheckupQuestion" class="flowScreen isSplitLayout">
@@ -1036,6 +1116,8 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { onHide, onShow } from '@dcloudio/uni-app'
 import { usePracticeSession, type AppScreen } from '@/app/usePracticeSession'
+import { getAudioUrl, hasPlayableAudio } from '@/core/audio'
+import type { Accent } from '@/core/types'
 
 const props = defineProps<{
   tabScreen?: 'home' | 'weakbook' | 'dictationSetup'
@@ -1108,6 +1190,7 @@ const {
   dictationPickerWords,
   effectiveCheckupLimit,
   finishDictationReward: finishDictationRewardInSession,
+  hasNextWordDetail,
   isUnitWordMastered,
   markSelectedWeakWordsKnown,
   markCurrentDictationForgotten: markCurrentDictationForgottenInSession,
@@ -1116,9 +1199,11 @@ const {
   openCheckupSetup,
   openCourseSetup: openCourseSetupScreen,
   nextAfterWrong,
+  nextWordDetail,
   openDictationSetup: openDictationSetupScreen,
   openSelectedWeakDictationSetup,
   openUnitWords,
+  openWordDetail,
   openWeakbook: openWeakbookScreen,
   publisherOptions,
   quickSelectDictationWords,
@@ -1169,8 +1254,12 @@ const {
   unitWordCount,
   unitWords,
   weakWords,
-  nextDictation
+  nextDictation,
+  wordDetailEntry,
+  wordDetailProgressLabel,
 } = usePracticeSession()
+
+const wordDetailPlayingAccent = ref<Accent | null>(null)
 
 let activeAudio: UniApp.InnerAudioContext | null = null
 let countdownTimer: ReturnType<typeof setInterval> | null = null
@@ -1205,6 +1294,7 @@ const TAB_ROOT_SCREENS = new Set<AppScreen>(['home', 'weakbook', 'dictationSetup
 const ROUTE_BY_SCREEN: Partial<Record<AppScreen, string>> = {
   courseSetup: '/pages/course/index',
   unitWords: '/pages/unit-words/index',
+  wordDetail: '/pages/word-detail/index',
   checkupSetup: '/pages/checkup/setup',
   checkup: '/pages/checkup/play',
   spelling: '/pages/checkup/spelling',
@@ -1404,6 +1494,7 @@ const isRoutePage = computed(() => Boolean(props.routeScreen))
 
 const isSplitScreen = computed(() => (
   activeScreen.value === 'unitWords'
+  || activeScreen.value === 'wordDetail'
   || activeScreen.value === 'dictationWords'
   || activeScreen.value === 'weakbook'
   || activeScreen.value === 'checkup'
@@ -1685,6 +1776,12 @@ function goToFallbackScreen(fallbackScreen: AppScreen) {
     return
   }
 
+  if (fallbackScreen === 'unitWords') {
+    openUnitWords()
+    redirectToRoute('unitWords')
+    return
+  }
+
   resetPractice()
 }
 
@@ -1711,6 +1808,87 @@ function openCourseSetupPage() {
 function openUnitWordsPage() {
   openUnitWords()
   navigateToRoute('unitWords')
+}
+
+function openWordDetailPage(wordId: string) {
+  openWordDetail(wordId)
+  navigateToRoute('wordDetail')
+}
+
+function goNextWordDetail() {
+  if (!hasNextWordDetail.value) return
+  nextWordDetail()
+}
+
+function splitExampleHighlight(sentence: string, word: string) {
+  const parts: Array<{ text: string; highlight: boolean }> = []
+  const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const regex = new RegExp(`(${escaped})`, 'gi')
+  let lastIndex = 0
+  let match: RegExpExecArray | null = null
+
+  while ((match = regex.exec(sentence)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push({ text: sentence.slice(lastIndex, match.index), highlight: false })
+    }
+    parts.push({ text: match[0], highlight: true })
+    lastIndex = regex.lastIndex
+  }
+
+  if (lastIndex < sentence.length) {
+    parts.push({ text: sentence.slice(lastIndex), highlight: false })
+  }
+
+  return parts.length > 0 ? parts : [{ text: sentence, highlight: false }]
+}
+
+const wordDetailMeaningLabel = computed(() => {
+  const entry = wordDetailEntry.value
+  if (!entry) return ''
+  const pos = entry.partOfSpeech.trim()
+  return pos ? `${pos} ${entry.meaning}` : entry.meaning
+})
+
+const wordDetailExampleParts = computed(() => {
+  const entry = wordDetailEntry.value
+  if (!entry?.exampleSentence) return []
+  return splitExampleHighlight(entry.exampleSentence, entry.word)
+})
+
+const wordDetailHasUsAudio = computed(() => {
+  const entry = wordDetailEntry.value
+  return entry ? hasPlayableAudio(entry, 'us') : false
+})
+
+function playWordDetailExampleAudio() {
+  const entry = wordDetailEntry.value
+  if (!entry) return
+  playWordDetailAudio(hasPlayableAudio(entry, 'us') ? 'us' : 'uk')
+}
+
+function playWordDetailAudio(accent: Accent) {
+  const entry = wordDetailEntry.value
+  if (!entry || !hasPlayableAudio(entry, accent)) {
+    uni.showToast({
+      title: '音频待生成',
+      icon: 'none'
+    })
+    return
+  }
+
+  const url = getAudioUrl(entry, accent)
+  const audio = ensureAudioContext(true)
+  wordDetailPlayingAccent.value = accent
+  audioRepeatsLeft = 1
+  audioErrorShouldToast = true
+  audio.stop()
+  audio.src = url
+  try {
+    audio.seek(0)
+  } catch {
+    // Some H5 runtimes only allow seek after metadata is ready.
+  }
+  audio.play()
 }
 
 function openCheckupSetupPage() {
@@ -1795,6 +1973,9 @@ function goBack(): boolean {
     case 'spelling':
     case 'report':
       navigateBackToPrevious('home')
+      return true
+    case 'wordDetail':
+      navigateBackToPrevious('unitWords')
       return true
     case 'dictation':
     case 'dictationReport':
@@ -1985,18 +2166,22 @@ function ensureAudioContext(showToast: boolean) {
           activeAudio?.play()
         } catch {
           isAudioPlaying.value = false
+          wordDetailPlayingAccent.value = null
         }
       }, 180)
       return
     }
     audioRepeatsLeft = 0
     isAudioPlaying.value = false
+    wordDetailPlayingAccent.value = null
   })
   activeAudio.onStop(() => {
     isAudioPlaying.value = false
+    wordDetailPlayingAccent.value = null
   })
   activeAudio.onError(() => {
     isAudioPlaying.value = false
+    wordDetailPlayingAccent.value = null
     if (audioErrorShouldToast) {
       uni.showToast({
         title: '音频播放失败',
@@ -8045,5 +8230,223 @@ onBeforeUnmount(() => {
   .audioButton.isPlaying .playIcon {
     animation: none;
   }
+}
+
+.wordDetailScreen {
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: calc(-16px - env(safe-area-inset-top)) -18px calc(-26px - env(safe-area-inset-bottom));
+  padding: calc(14px + env(safe-area-inset-top)) 20px calc(96px + env(safe-area-inset-bottom));
+  background: transparent;
+}
+
+.wordDetailNav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+}
+
+.wordDetailNav .navBack {
+  position: static;
+  left: auto;
+  top: auto;
+  flex-shrink: 0;
+  transform: none;
+}
+
+.wordDetailProgress {
+  color: #777;
+  font-size: 15px;
+  font-weight: 850;
+}
+
+.wordDetailScroll {
+  padding-top: 8px;
+}
+
+.wordDetailHeroCard,
+.wordDetailCard {
+  margin-bottom: 12px;
+  padding: 18px 16px;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.wordDetailWord {
+  display: block;
+  color: #111;
+  font-size: 34px;
+  line-height: 1.1;
+  font-weight: 950;
+}
+
+.wordDetailPhoneticRow {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.wordDetailPhoneticItem {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.wordDetailPhoneticLabel {
+  flex: 0 0 auto;
+  color: #777;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.wordDetailPhoneticText {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: #777;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.wordDetailSpeaker,
+.wordDetailExampleSpeaker {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #eef8ff;
+}
+
+.wordDetailSpeaker.isPlaying,
+.wordDetailExampleSpeaker.isPlaying {
+  background: #d4efff;
+}
+
+.wordDetailSpeakerIcon {
+  width: 14px;
+  height: 14px;
+  background: #1cb0f6;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z'/%3E%3C/svg%3E") center / contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.wordDetailSectionTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #f3f4f6;
+}
+
+.wordDetailSectionTagText {
+  color: #777;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.wordDetailMeaning {
+  display: block;
+  margin-top: 12px;
+  color: #3c3c3c;
+  font-size: 16px;
+  line-height: 1.55;
+  font-weight: 850;
+}
+
+.wordDetailSectionHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.wordDetailSectionBar {
+  width: 4px;
+  height: 16px;
+  border-radius: 999px;
+  background: #1cb0f6;
+}
+
+.wordDetailSectionTitle {
+  color: #3c3c3c;
+  font-size: 16px;
+  font-weight: 950;
+}
+
+.wordDetailExampleBody {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.wordDetailExampleCopy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.wordDetailExampleText {
+  color: #3c3c3c;
+  font-size: 16px;
+  line-height: 1.6;
+  font-weight: 850;
+}
+
+.wordDetailExampleHighlight {
+  color: #111;
+  font-weight: 950;
+}
+
+.wordDetailExampleTranslation {
+  display: block;
+  margin-top: 10px;
+  color: #777;
+  font-size: 14px;
+  line-height: 1.55;
+  font-weight: 750;
+}
+
+.wordDetailFooter {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 6;
+  box-sizing: border-box;
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 12px 20px calc(16px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(243, 244, 246, 0) 0%, #f3f4f6 28%);
+}
+
+.wordDetailNextButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  border-radius: 16px;
+  background: #1cb0f6;
+  box-shadow: inset 0 -4px #1096e4;
+}
+
+.wordDetailNextButton.isDisabled {
+  background: #d9dde2;
+  box-shadow: inset 0 -4px #c8ccd1;
+}
+
+.wordDetailNextLabel {
+  color: #fff;
+  font-size: 17px;
+  font-weight: 950;
+}
+
+.wordDetailNextButton.isDisabled .wordDetailNextLabel {
+  color: #8a9098;
+  font-size: 15px;
 }
 </style>
