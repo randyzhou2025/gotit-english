@@ -1615,6 +1615,8 @@ function getPageStackLength(): number {
   }
 }
 
+let pendingRedirectRoute = ''
+
 function navigateToRoute(nextScreen: AppScreen) {
   const url = ROUTE_BY_SCREEN[nextScreen]
   if (!url) {
@@ -1645,9 +1647,18 @@ function redirectToRoute(nextScreen: AppScreen) {
     return
   }
 
+  if (pendingRedirectRoute === url) return
+  pendingRedirectRoute = url
+
   uni.redirectTo({
     url,
-    fail: () => showScreen(nextScreen)
+    complete: () => {
+      if (pendingRedirectRoute === url) pendingRedirectRoute = ''
+    },
+    fail: () => {
+      pendingRedirectRoute = ''
+      showScreen(nextScreen)
+    }
   })
 }
 
@@ -1755,9 +1766,6 @@ function confirmDictationWordSelectionPage() {
 
 function confirmDictationResultPage() {
   confirmDictationResult()
-  if (screen.value === 'dictationReward') {
-    redirectToRoute('dictationReward')
-  }
 }
 
 function startForgottenDictationPage() {
