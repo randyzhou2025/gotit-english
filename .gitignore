@@ -10,6 +10,11 @@ generated/
 
 # Local backups & QA screenshots
 backup/
+.tmp/
+
+# Scratch doc assets (canonical wordbank xlsx files remain tracked)
+doc/*.png
+doc/*增加经典例句.xlsx
 
 # IDE / editor
 .hbuilderx/
