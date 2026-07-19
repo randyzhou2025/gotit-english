@@ -56,8 +56,44 @@ const SAVED_WEAK_WORD_IDS_KEY = 'gotit:savedWeakWordIds'
 const MASTERED_WORD_IDS_KEY = 'gotit:masteredWordIds'
 const SELECTED_UNIT_ID_KEY = 'gotit:selectedUnitId'
 const COURSE_SETUP_COMPLETED_KEY = 'gotit:courseSetupCompleted'
+const UNFINISHED_DICTATION_KEY = 'gotit:unfinishedDictation'
 const SCHOOL_STAGE_OPTIONS: SchoolStage[] = ['初中', '高中']
 const JUNIOR_GRADE_OPTIONS = ['六年级', '七年级', '八年级', '九年级']
+
+interface SavedDictationProgress {
+  plan: DictationPlan
+  index: number
+}
+
+function loadUnfinishedDictation(): SavedDictationProgress | null {
+  try {
+    const saved = uni.getStorageSync(UNFINISHED_DICTATION_KEY) as Partial<SavedDictationProgress> | null
+    if (!saved?.plan || !Array.isArray(saved.plan.words) || saved.plan.words.length === 0) return null
+
+    const index = Number(saved.index)
+    if (!Number.isInteger(index) || index < 0 || index >= saved.plan.words.length) return null
+
+    return { plan: saved.plan, index }
+  } catch {
+    return null
+  }
+}
+
+function saveUnfinishedDictation(plan: DictationPlan, index: number) {
+  try {
+    uni.setStorageSync(UNFINISHED_DICTATION_KEY, { plan, index })
+  } catch {
+    // Storage can be unavailable in restricted preview contexts.
+  }
+}
+
+function clearUnfinishedDictation() {
+  try {
+    uni.removeStorageSync(UNFINISHED_DICTATION_KEY)
+  } catch {
+    // Storage can be unavailable in restricted preview contexts.
+  }
+}
 
 function loadSavedWordIds(key: string): string[] {
   try {
@@ -247,13 +283,14 @@ function triggerHapticFeedback(strength: HapticStrength = 'medium') {
   }
 }
 
-function createPracticeSession() {
+export function createPracticeSession() {
   const words = getWordbank()
   const units = groupUnits(words)
   const defaultUnit = getDefaultUnit(units)
   const savedUnitId = loadSavedUnitId()
   const initialUnit = findUnit(units, savedUnitId) ?? defaultUnit
   const initiallyCompletedCourseSetup = loadCourseSetupCompleted(savedUnitId)
+  const unfinishedDictation = loadUnfinishedDictation()
 
   const screen = ref<AppScreen>(initiallyCompletedCourseSetup ? 'home' : 'courseSetup')
   const selectedUnitId = ref(initialUnit?.unitId ?? '')
@@ -278,13 +315,14 @@ function createPracticeSession() {
   const selectedWordDetailId = ref('')
   const unitWordsMasteredFirst = ref(false)
 
-  const dictationMode = ref<DictationMode>('paper')
-  const dictationPrompt = ref<DictationPrompt>('chinese')
-  const dictationIntervalSeconds = ref(8)
-  const dictationOrder = ref<DictationOrder>('shuffle')
-  const dictationRepeatCount = ref<DictationRepeatCount>(1)
-  const dictationPlan = ref<DictationPlan | null>(null)
-  const dictationIndex = ref(0)
+  const dictationMode = ref<DictationMode>(unfinishedDictation?.plan.mode ?? 'paper')
+  const dictationPrompt = ref<DictationPrompt>(unfinishedDictation?.plan.prompt ?? 'chinese')
+  const dictationIntervalSeconds = ref(unfinishedDictation?.plan.intervalSeconds ?? 8)
+  const dictationOrder = ref<DictationOrder>(unfinishedDictation?.plan.order ?? 'shuffle')
+  const dictationRepeatCount = ref<DictationRepeatCount>(unfinishedDictation?.plan.repeatCount ?? 1)
+  const dictationPlan = ref<DictationPlan | null>(unfinishedDictation?.plan ?? null)
+  const dictationIndex = ref(unfinishedDictation?.index ?? 0)
+  const dictationInProgress = ref(Boolean(unfinishedDictation))
   const dictationInput = ref('')
   const dictationRecords = ref<DictationRecord[]>([])
   const showDictationAnswer = ref(false)
@@ -662,6 +700,8 @@ function createPracticeSession() {
     checkupLimit.value = 0
     dictationPlan.value = null
     dictationIndex.value = 0
+    dictationInProgress.value = false
+    clearUnfinishedDictation()
     dictationInput.value = ''
     dictationRecords.value = []
     showDictationAnswer.value = false
@@ -1029,6 +1069,8 @@ function createPracticeSession() {
     )
     dictationPlan.value = plan
     dictationIndex.value = 0
+    dictationInProgress.value = true
+    saveUnfinishedDictation(plan, 0)
     dictationInput.value = ''
     dictationRecords.value = []
     showDictationAnswer.value = false
@@ -1197,6 +1239,23 @@ function createPracticeSession() {
     showDictationAnswer.value = true
   }
 
+  function resumeDictation() {
+    if (!dictationInProgress.value || !dictationPlan.value || !currentDictationEntry.value) return
+
+    screen.value = 'dictation'
+    scrollToTop()
+  }
+
+  function previousDictation() {
+    if (!dictationPlan.value || dictationIndex.value <= 0) return
+
+    dictationIndex.value -= 1
+    dictationInput.value = ''
+    showDictationAnswer.value = false
+    saveUnfinishedDictation(dictationPlan.value, dictationIndex.value)
+    scrollToTop()
+  }
+
   function nextDictation() {
     if (!dictationPlan.value) return
 
@@ -1204,10 +1263,13 @@ function createPracticeSession() {
       dictationIndex.value += 1
       dictationInput.value = ''
       showDictationAnswer.value = false
+      saveUnfinishedDictation(dictationPlan.value, dictationIndex.value)
       scrollToTop()
       return
     }
 
+    dictationInProgress.value = false
+    clearUnfinishedDictation()
     selectedWeakWordIds.value = savedWeakWords.value.map(word => word.id)
     screen.value = 'dictationReport'
     scrollToTop()
@@ -1248,6 +1310,7 @@ function createPracticeSession() {
     dictationAudioReady,
     dictationAudioUrl,
     dictationIndex,
+    dictationInProgress,
     dictationInput,
     dictationIntervalSeconds,
     dictationMode,
@@ -1287,6 +1350,7 @@ function createPracticeSession() {
     nextWordDetail,
     recognitionState,
     resetPractice,
+    resumeDictation,
     revealPaperAnswer,
     screen,
     selectMeaning,
@@ -1351,7 +1415,8 @@ function createPracticeSession() {
     unitWordsMasteredFirst,
     units,
     weakWords,
-    nextDictation
+    nextDictation,
+    previousDictation
   }
 }
 

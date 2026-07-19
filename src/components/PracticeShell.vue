@@ -660,6 +660,14 @@
         <text class="dictationIntroTitle">设置听写方式</text>
       </view>
 
+      <view v-if="dictationInProgress" class="resumeDictationButton" @tap="resumeDictationPage">
+        <view>
+          <text class="resumeDictationTitle">继续上一次听写</text>
+          <text class="resumeDictationMeta">从第 {{ dictationIndex + 1 }} / {{ dictationTotalCount }} 个词继续</text>
+        </view>
+        <text class="resumeDictationArrow">›</text>
+      </view>
+
       <view class="settingGroup">
         <text class="settingLabel">报词内容</text>
         <view class="pillRow">
@@ -823,7 +831,7 @@
       <view class="pageChrome">
         <view class="playerHeader">
           <view class="playerHeaderTop">
-            <view class="navBack" @tap="goBack">
+            <view class="navBack" @tap="leaveDictationToSetupPage">
               <view class="chevronLeft" />
             </view>
             <text class="playerTitle">自动听写</text>
@@ -859,12 +867,12 @@
         </view>
 
         <view v-if="dictationMode === 'paper'" class="transportRow">
-          <view class="transportButton" @tap="repeatCurrentDictation">
-            <view class="transportIcon repeatIcon">
-              <view class="repeatRing" />
-              <view class="repeatHead" />
+          <view :class="['transportButton', dictationIndex === 0 && 'isDisabled']" @tap="previousDictationPage">
+            <view class="transportIcon previousIcon">
+              <view class="previousBar" />
+              <view class="previousTriangle" />
             </view>
-            <text class="transportLabel">重复</text>
+            <text class="transportLabel">上一个</text>
           </view>
           <view class="transportButton isPrimary" @tap="toggleDictationPause">
             <view class="transportIcon">
@@ -918,7 +926,7 @@
       <view class="playerFootnote">
         <text>保持屏幕常亮。静音模式下仍可播放。</text>
       </view>
-      <view class="exitDictationButton" @tap="exitDictation">
+      <view class="exitDictationButton" @tap="leaveDictationToSetupPage">
         <text>退出听写</text>
       </view>
     </view>
@@ -1160,6 +1168,7 @@ const {
   dictationAudioReady,
   dictationAudioUrl,
   dictationIndex,
+  dictationInProgress,
   dictationInput,
   dictationIntervalSeconds,
   dictationMode,
@@ -1199,6 +1208,7 @@ const {
   quickSelectDictationWords,
   recognitionState,
   resetPractice: resetPracticeScreen,
+  resumeDictation,
   screen,
   selectMeaning,
   selectAllDictationWords,
@@ -1246,6 +1256,7 @@ const {
   unitWordsMasteredFirst,
   weakWords,
   nextDictation,
+  previousDictation,
   wordDetailEntry,
   wordDetailProgressLabel,
 } = usePracticeSession()
@@ -1701,6 +1712,7 @@ function getPageStackLength(): number {
 }
 
 let pendingRedirectRoute = ''
+let pendingPushedScreen: AppScreen | null = null
 
 function navigateToRoute(nextScreen: AppScreen) {
   const url = ROUTE_BY_SCREEN[nextScreen]
@@ -2035,15 +2047,26 @@ function finishDictationRewardAndOpenWeakbook() {
 
 function beginDictation() {
   lastPlaybackKey = ''
+  pendingPushedScreen = props.routeScreen ? 'dictation' : null
   startDictation()
   if (screen.value === 'dictation') {
     clearDictationTimers()
-    if (props.routeScreen) {
-      redirectToRoute('dictation')
-    } else {
-      navigateToRoute('dictation')
-    }
+    navigateToRoute('dictation')
+    return
   }
+  pendingPushedScreen = null
+}
+
+function resumeDictationPage() {
+  lastPlaybackKey = ''
+  pendingPushedScreen = props.routeScreen ? 'dictation' : null
+  resumeDictation()
+  if (screen.value === 'dictation') {
+    clearDictationTimers()
+    navigateToRoute('dictation')
+    return
+  }
+  pendingPushedScreen = null
 }
 
 function markCurrentDictationForgotten() {
@@ -2274,10 +2297,21 @@ function skipCurrentDictation() {
   }
 }
 
-function exitDictation() {
+function previousDictationPage() {
+  if (dictationIndex.value <= 0) return
+
   clearDictationTimers()
   stopActiveAudio()
-  openDictationSetup()
+  previousDictation()
+  if (activeScreen.value === 'dictation') {
+    startCurrentDictationPlayback()
+  }
+}
+
+function leaveDictationToSetupPage() {
+  clearDictationTimers()
+  stopActiveAudio()
+  navigateBackToPrevious('dictationSetup')
 }
 
 watch(
@@ -2296,6 +2330,10 @@ watch(
     syncNativeTabBar()
 
     if (!props.routeScreen) return
+    if (pendingPushedScreen === nextScreen) {
+      pendingPushedScreen = null
+      return
+    }
     if (nextScreen === props.routeScreen || TAB_ROOT_SCREENS.has(nextScreen)) return
 
     redirectToRoute(nextScreen)
@@ -3895,6 +3933,51 @@ onBeforeUnmount(() => {
   font-weight: 750;
 }
 
+.resumeDictationButton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 64px;
+  margin-top: 12px;
+  padding: 12px 16px;
+  border: 2px solid #84d8ff;
+  border-bottom-width: 5px;
+  border-radius: 18px;
+  background: #ddf4ff;
+  color: #1cb0f6;
+}
+
+.resumeDictationButton:active {
+  transform: translateY(2px);
+}
+
+.resumeDictationTitle,
+.resumeDictationMeta,
+.resumeDictationArrow {
+  display: block;
+}
+
+.resumeDictationTitle {
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 950;
+}
+
+.resumeDictationMeta {
+  margin-top: 4px;
+  color: #777;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.resumeDictationArrow {
+  flex: 0 0 auto;
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 950;
+}
+
 .settingGroup {
   margin-top: 14px;
 }
@@ -4634,6 +4717,11 @@ onBeforeUnmount(() => {
   background: #0d0f0e;
 }
 
+.transportButton.isDisabled {
+  pointer-events: none;
+  opacity: 0.35;
+}
+
 .transportPlayTriangle {
   width: 0;
   height: 0;
@@ -4672,25 +4760,24 @@ onBeforeUnmount(() => {
   background: #0d0f0e;
 }
 
-.repeatRing {
-  width: 23px;
-  height: 23px;
-  border: 4px solid #0d0f0e;
-  border-right-color: transparent;
-  border-radius: 999px;
-  transform: rotate(-35deg);
+.previousIcon {
+  flex-direction: row;
+  gap: 5px;
 }
 
-.repeatHead {
-  position: absolute;
-  top: 15px;
-  right: 15px;
+.previousBar {
+  width: 4px;
+  height: 20px;
+  border-radius: 999px;
+  background: #0d0f0e;
+}
+
+.previousTriangle {
   width: 0;
   height: 0;
-  border-top: 5px solid transparent;
-  border-bottom: 5px solid transparent;
-  border-left: 8px solid #0d0f0e;
-  transform: rotate(28deg);
+  border-top: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+  border-right: 15px solid #0d0f0e;
 }
 
 .transportLabel {

@@ -1,6 +1,6 @@
 {
   "name": "gotit-english",
-  "version": "0.2.1",
+  "version": "1.0.0",
   "private": true,
   "description": "课本单词通：专注课本单词的体检与自动听写",
   "scripts": {
