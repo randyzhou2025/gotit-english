@@ -1,7 +1,18 @@
-import type { Accent, DictationPlan, WordEntry } from './types'
+import type { Accent, DictationPlan, WordAudio, WordEntry } from './types'
 
 const LOCAL_AUDIO_BASE_PATH = '/generated/audio'
 const audioCdnBaseUrl = String(import.meta.env.VITE_AUDIO_CDN_BASE_URL || '').replace(/\/+$/, '')
+
+export function buildWordAudio(cdnKey: string): WordAudio {
+  const base = `${LOCAL_AUDIO_BASE_PATH}/${cdnKey}`
+  return {
+    status: 'ready',
+    cdnKey,
+    ukUrl: `${base}/uk.mp3`,
+    usUrl: `${base}/us.mp3`,
+    zhUrl: `${base}/zh.mp3`
+  }
+}
 
 function resolveAudioUrl(url: string): string {
   if (!url) return ''

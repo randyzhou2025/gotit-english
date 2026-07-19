@@ -441,7 +441,16 @@
           <view class="wordDetailSectionTag">
             <text class="wordDetailSectionTagText">释义</text>
           </view>
-          <text class="wordDetailMeaning">{{ wordDetailMeaningLabel }}</text>
+          <view class="wordDetailMeaningList">
+            <view
+              v-for="(line, index) in wordDetailMeaningLines"
+              :key="`${line.partOfSpeech}-${index}`"
+              class="wordDetailMeaningLine"
+            >
+              <text class="wordDetailMeaningPos">{{ line.partOfSpeech }}</text>
+              <text class="wordDetailMeaningText">{{ line.meaning }}</text>
+            </view>
+          </view>
         </view>
 
         <view v-if="wordDetailEntry.exampleSentence" class="wordDetailCard">
@@ -1129,6 +1138,7 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { onHide, onShow } from '@dcloudio/uni-app'
 import { usePracticeSession, type AppScreen } from '@/app/usePracticeSession'
 import { getAudioUrl, hasPlayableAudio } from '@/core/audio'
+import { splitMeaningByPartOfSpeech } from '@/core/wordMeaning'
 import type { Accent } from '@/core/types'
 
 const props = defineProps<{
@@ -1878,11 +1888,10 @@ function splitExampleHighlight(sentence: string, word: string) {
   return parts.length > 0 ? parts : [{ text: sentence, highlight: false }]
 }
 
-const wordDetailMeaningLabel = computed(() => {
+const wordDetailMeaningLines = computed(() => {
   const entry = wordDetailEntry.value
-  if (!entry) return ''
-  const pos = entry.partOfSpeech.trim()
-  return pos ? `${pos} ${entry.meaning}` : entry.meaning
+  if (!entry) return []
+  return splitMeaningByPartOfSpeech(entry.partOfSpeech, entry.meaning)
 })
 
 const wordDetailExampleParts = computed(() => {
@@ -9119,9 +9128,32 @@ onBeforeUnmount(() => {
   font-weight: 850;
 }
 
-.wordDetailMeaning {
-  display: block;
+.wordDetailMeaningList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   margin-top: 12px;
+}
+
+.wordDetailMeaningLine {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.wordDetailMeaningPos {
+  flex: 0 0 auto;
+  min-width: 36px;
+  color: #66706a;
+  font-size: 15px;
+  line-height: 1.55;
+  font-style: italic;
+  font-weight: 750;
+}
+
+.wordDetailMeaningText {
+  flex: 1 1 0;
+  min-width: 0;
   color: #3c3c3c;
   font-size: 16px;
   line-height: 1.55;
@@ -9160,15 +9192,20 @@ onBeforeUnmount(() => {
 }
 
 .wordDetailExampleText {
-  color: #3c3c3c;
+  color: #4f5854;
   font-size: 16px;
-  line-height: 1.6;
-  font-weight: 850;
+  line-height: 1.65;
+  font-weight: 750;
 }
 
 .wordDetailExampleHighlight {
-  color: #111;
+  color: #0a8ecf;
   font-weight: 950;
+  background-color: rgba(28, 176, 246, 0.16);
+  border-radius: 6px;
+  padding: 1px 6px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
 .wordDetailExampleTranslation {

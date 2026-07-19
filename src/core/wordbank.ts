@@ -1,5 +1,5 @@
 import rawWordbank from '@/data/wordbank.generated.json'
-import rawAudioManifest from '@/data/audio.generated.json'
+import { buildWordAudio } from '@/core/audio'
 import type { UnitGroup, WordEntry } from './types'
 
 type CompactWordRecord = [
@@ -42,15 +42,6 @@ interface CompactWordbank {
   publishers?: CompactPublisherBlock[]
 }
 
-interface AudioManifest {
-  items: Record<string, {
-    status?: 'pending' | 'ready'
-    ukUrl?: string
-    usUrl?: string
-    zhUrl?: string
-  }>
-}
-
 function unitSegment(unit: CompactUnit): string {
   return unit.key ?? String(unit.number)
 }
@@ -80,7 +71,6 @@ export function isPhraseEntry(word: string): boolean {
 }
 
 export function getWordbank(): WordEntry[] {
-  const audioManifest = rawAudioManifest as AudioManifest
   const entries: WordEntry[] = []
 
   for (const block of getPublisherBlocks(rawWordbank as CompactWordbank)) {
@@ -93,7 +83,6 @@ export function getWordbank(): WordEntry[] {
           if (isPhraseEntry(word)) continue
 
           const cdnKey = `${block.publisher.id}/${book.id}/unit-${segment}/${slug}`
-          const audioRecord = audioManifest.items[cdnKey]
 
           entries.push({
             id: `${unitId}:${slug}`,
@@ -112,13 +101,7 @@ export function getWordbank(): WordEntry[] {
             exampleSentence: exampleSentence || undefined,
             exampleTranslation: exampleTranslation || undefined,
             difficulty,
-            audio: {
-              status: audioRecord?.status ?? 'pending',
-              cdnKey,
-              ukUrl: audioRecord?.ukUrl ?? '',
-              usUrl: audioRecord?.usUrl ?? '',
-              zhUrl: audioRecord?.zhUrl ?? ''
-            },
+            audio: buildWordAudio(cdnKey),
             source: {
               workbook: block.sourceWorkbook,
               sheet: book.name,
