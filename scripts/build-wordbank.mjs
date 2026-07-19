@@ -41,6 +41,10 @@ function clean(value) {
   return String(value ?? '').trim()
 }
 
+function isPhraseEntry(word) {
+  return /\s/.test(clean(word))
+}
+
 function toUnitNumber(value) {
   const raw = clean(value)
   const match = raw.match(/\d+/)
@@ -158,12 +162,13 @@ function buildShjPublisher() {
       const meaning = clean(row[4])
       if (!word && !meaning) continue
 
-      const targetUnit = upsertUnit(units, unitMeta)
-      const wordSlug = slugify(word)
       if (!word || !meaning) {
         throw new Error(`${sheetName} row ${rowIndex + 4} has incomplete word data`)
       }
+      if (isPhraseEntry(word)) continue
 
+      const targetUnit = upsertUnit(units, unitMeta)
+      const wordSlug = slugify(word)
       targetUnit.words.push([
         word,
         clean(row[2]),
@@ -217,6 +222,7 @@ function buildSwjPublisher() {
       if (!word || !meaning) {
         throw new Error(`${sheetName} row ${rowIndex + 4} has incomplete word data`)
       }
+      if (isPhraseEntry(word)) continue
 
       const wordSlug = slugify(normalizeWordForSlug(word))
       for (const unitMeta of parseSwjUnits(row[0])) {
@@ -274,12 +280,13 @@ function buildRjPublisher() {
       const meaning = clean(row[4])
       if (!word && !meaning) continue
 
-      const unitMeta = parseRjUnit(row[0])
-      const targetUnit = upsertUnit(units, unitMeta)
       if (!word || !meaning) {
         throw new Error(`${fileName} row ${rowIndex + 4} has incomplete word data`)
       }
+      if (isPhraseEntry(word)) continue
 
+      const unitMeta = parseRjUnit(row[0])
+      const targetUnit = upsertUnit(units, unitMeta)
       targetUnit.words.push([
         word,
         clean(row[2]),

@@ -4,7 +4,9 @@
       'screen',
       showBottomNav && 'hasBottomNav',
       isSplitScreen && 'isSplitScreen',
-      activeScreen === 'dictationSetup' && 'isDictationSetupScreen'
+      activeScreen === 'dictationSetup' && 'isDictationSetupScreen',
+      activeScreen === 'dictationWords' && 'isDictationWordScreen',
+      activeScreen === 'dictation' && 'isDictationPlayerScreen'
     ]"
     :style="screenStyle"
   >
@@ -8496,6 +8498,333 @@ onBeforeUnmount(() => {
 
 .scoreNumberBlock {
   background: #ddf4ff;
+}
+
+.screen.isDictationWordScreen {
+  background: linear-gradient(180deg, #e6f6ee 0%, #eef7f3 48%, #f3f6f5 100%);
+}
+
+.screen.isDictationWordScreen .dictationWordScreen,
+.screen.isDictationWordScreen .pageChrome,
+.screen.isDictationWordScreen .pageBodyScroll {
+  background: transparent;
+}
+
+.screen.isDictationWordScreen .wordPickerHeader {
+  margin-top: 14px;
+  padding: 0 2px;
+}
+
+.screen.isDictationWordScreen .wordPickerTitle {
+  color: #26342d;
+  font-size: 25px;
+  font-weight: 850;
+  letter-spacing: -0.3px;
+}
+
+.screen.isDictationWordScreen .wordPickerMeta {
+  margin-top: 6px;
+  color: #65736c;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.screen.isDictationWordScreen .wordPickerToolbar {
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.screen.isDictationWordScreen .wordPickerScopePanel,
+.screen.isDictationWordScreen .quickPickPanel {
+  border: 1px solid rgba(194, 218, 207, 0.72);
+  border-radius: 16px;
+  background: rgba(237, 246, 242, 0.78);
+  box-shadow: none;
+}
+
+.screen.isDictationWordScreen .wordPickerScopePanel {
+  padding: 11px 12px;
+}
+
+.screen.isDictationWordScreen .wordPickerSectionLabel,
+.screen.isDictationWordScreen .quickPickLabel {
+  color: #5f6d66;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.screen.isDictationWordScreen .wordPickerScopeChip,
+.screen.isDictationWordScreen .quickPickButton {
+  border: 1px solid #d7e2dd;
+  background: rgba(226, 236, 231, 0.86);
+  color: #5f6c65;
+  box-shadow: none;
+  font-weight: 800;
+  box-sizing: border-box;
+}
+
+.screen.isDictationWordScreen .wordPickerScopeChip.isActive,
+.screen.isDictationWordScreen .wordPickerScopeChip.isIncluded.isActive,
+.screen.isDictationWordScreen .quickPickButton.isActive {
+  border-color: #65c8ee;
+  background: #dff3fc;
+  color: #168fc8;
+  box-shadow: none;
+}
+
+.screen.isDictationWordScreen .quickPickPanel {
+  gap: 10px;
+  padding: 12px;
+}
+
+.screen.isDictationWordScreen .quickPickGroup {
+  gap: 8px;
+}
+
+.screen.isDictationWordScreen .quickPickButton {
+  height: 38px;
+  border-radius: 999px;
+}
+
+.screen.isDictationWordScreen .wordPickerList {
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.screen.isDictationWordScreen .wordPickRow,
+.screen.isDictationWordScreen .wordPickRow.isSelected {
+  min-height: 74px;
+  padding: 10px 12px;
+  border: 1px solid rgba(199, 217, 208, 0.78);
+  border-radius: 14px;
+  background: rgba(247, 251, 249, 0.74);
+  box-shadow: 0 5px 14px rgba(47, 90, 69, 0.035);
+}
+
+.screen.isDictationWordScreen .wordPickRow.isSelected {
+  border-color: #86d4f1;
+  background: rgba(229, 246, 253, 0.88);
+}
+
+.screen.isDictationWordScreen .wordPickCheck {
+  flex-basis: 25px;
+  width: 25px;
+  height: 25px;
+  border: 1px solid #cedbd5;
+  background: #dfe8e4;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.screen.isDictationWordScreen .wordPickRow.isSelected .wordPickCheck {
+  border-color: #20a9e5;
+  background: #20a9e5;
+}
+
+.screen.isDictationWordScreen .wordPickWord {
+  color: #26332d;
+  font-weight: 850;
+}
+
+.screen.isDictationWordScreen .unitWordPhonetic,
+.screen.isDictationWordScreen .wordPickMeaning {
+  color: #748079;
+}
+
+.screen.isDictationWordScreen .wordPickLevel {
+  color: #919c96;
+  font-weight: 750;
+}
+
+.screen.isDictationWordScreen .wordPickKnownBadge {
+  background: #e3ece8;
+  color: #64726b;
+  font-weight: 800;
+}
+
+.screen.isDictationWordScreen .wordPickerConfirm {
+  border: 1px solid #3ea704;
+  border-radius: 18px;
+  background: #4bc405;
+  box-shadow: 0 9px 20px rgba(61, 155, 5, 0.22);
+  font-weight: 850;
+}
+
+.screen.isDictationWordScreen .wordPickerConfirm:active {
+  transform: translateX(-50%) translateY(2px) scale(0.995);
+  box-shadow: 0 5px 12px rgba(61, 155, 5, 0.18);
+}
+
+.screen.isDictationPlayerScreen {
+  background: linear-gradient(180deg, #e6f6ee 0%, #eef7f3 48%, #f3f6f5 100%);
+}
+
+.screen.isDictationPlayerScreen .dictationPlayerScreen,
+.screen.isDictationPlayerScreen .pageChrome {
+  background: transparent;
+}
+
+.screen.isDictationPlayerScreen .pageChrome {
+  padding-bottom: 12px;
+}
+
+.screen.isDictationPlayerScreen .playerTitle {
+  color: #26342d;
+  font-size: 18px;
+  font-weight: 850;
+}
+
+.screen.isDictationPlayerScreen .playerProgressMeta {
+  margin-top: 5px;
+  color: #65736c;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.screen.isDictationPlayerScreen .pageChrome .playerProgressTrack {
+  height: 6px;
+  margin-top: 10px;
+  background: rgba(63, 145, 104, 0.16);
+}
+
+.screen.isDictationPlayerScreen .playerProgressFill {
+  background: #49bf22;
+  box-shadow: none;
+}
+
+.screen.isDictationPlayerScreen .playerStage {
+  margin-top: 0;
+  padding: 10px 2px 4px;
+}
+
+.screen.isDictationPlayerScreen .playerInstruction {
+  color: #76837c;
+  font-size: 15px;
+  font-weight: 750;
+  letter-spacing: 0.2px;
+}
+
+.screen.isDictationPlayerScreen .speakerButton {
+  width: 148px;
+  height: 148px;
+  margin-top: 22px;
+  border: 5px solid rgba(255, 255, 255, 0.92);
+  background: #20a9e5;
+  box-shadow:
+    0 0 0 1px rgba(31, 155, 211, 0.28),
+    0 16px 34px rgba(32, 169, 229, 0.2);
+  box-sizing: border-box;
+}
+
+.screen.isDictationPlayerScreen .speakerButton.isPlaying {
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 0 1px rgba(31, 155, 211, 0.34),
+    0 18px 38px rgba(32, 169, 229, 0.25);
+}
+
+.screen.isDictationPlayerScreen .speakerGlyph {
+  transform: scale(0.78);
+}
+
+.screen.isDictationPlayerScreen .spokenPrompt {
+  max-width: 92%;
+  margin-top: 22px;
+  color: #26332d;
+  font-size: 22px;
+  line-height: 1.42;
+  font-weight: 850;
+}
+
+.screen.isDictationPlayerScreen .forgotButton {
+  min-width: 132px;
+  min-height: 42px;
+  margin-top: 14px;
+  border: 1px solid #ffb7b7;
+  border-radius: 999px;
+  background: rgba(255, 248, 248, 0.9);
+  color: #eb4f4f;
+  font-size: 14px;
+  font-weight: 800;
+  box-shadow: 0 7px 18px rgba(232, 79, 79, 0.07);
+}
+
+.screen.isDictationPlayerScreen .forgotButton.isMarked {
+  border-color: #f08a8a;
+  background: #fff0f0;
+}
+
+.screen.isDictationPlayerScreen .autoNextText {
+  margin-top: 10px;
+  color: #68766f;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.screen.isDictationPlayerScreen .countdownTrack {
+  width: 76%;
+  height: 5px;
+  margin-top: 20px;
+  background: rgba(73, 191, 34, 0.14);
+}
+
+.screen.isDictationPlayerScreen .countdownFill {
+  background: #49bf22;
+  box-shadow: none;
+}
+
+.screen.isDictationPlayerScreen .transportRow {
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.screen.isDictationPlayerScreen .transportButton {
+  gap: 9px;
+  color: #34423b;
+}
+
+.screen.isDictationPlayerScreen .transportIcon {
+  width: 56px;
+  height: 56px;
+  border: 1px solid #dce6e1;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 8px 20px rgba(54, 91, 72, 0.08);
+  box-sizing: border-box;
+}
+
+.screen.isDictationPlayerScreen .transportButton.isPrimary .transportIcon {
+  border-color: #1899d2;
+  background: #20a9e5;
+  box-shadow: 0 10px 22px rgba(32, 169, 229, 0.2);
+}
+
+.screen.isDictationPlayerScreen .transportButton.isPrimary .transportPlayTriangle {
+  border-left-color: #f7fcff;
+}
+
+.screen.isDictationPlayerScreen .transportButton.isPrimary .pauseBar {
+  background: #f7fcff;
+}
+
+.screen.isDictationPlayerScreen .transportLabel {
+  color: #34423b;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.screen.isDictationPlayerScreen .playerFootnote {
+  margin-top: 14px;
+  color: #8d9993;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.screen.isDictationPlayerScreen .exitDictationButton {
+  margin-top: 14px;
+  padding: 8px 0 4px;
+  color: #e84e4e;
+  font-size: 14px;
+  font-weight: 800;
 }
 /* #endif */
 

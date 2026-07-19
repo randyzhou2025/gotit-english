@@ -75,6 +75,10 @@ function getPublisherBlocks(raw: CompactWordbank): CompactPublisherBlock[] {
   return []
 }
 
+export function isPhraseEntry(word: string): boolean {
+  return /\s/.test(word.trim())
+}
+
 export function getWordbank(): WordEntry[] {
   const audioManifest = rawAudioManifest as AudioManifest
   const entries: WordEntry[] = []
@@ -86,6 +90,8 @@ export function getWordbank(): WordEntry[] {
         const unitId = `${block.publisher.id}:${book.id}:u${segment}`
 
         for (const [word, phonetic, partOfSpeech, meaning, difficulty, slug, rowNumber, exampleSentence, exampleTranslation] of unit.words) {
+          if (isPhraseEntry(word)) continue
+
           const cdnKey = `${block.publisher.id}/${book.id}/unit-${segment}/${slug}`
           const audioRecord = audioManifest.items[cdnKey]
 
