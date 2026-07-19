@@ -137,7 +137,7 @@
           <text class="homeUnitMeta">{{ unitMasteryPercent }}% 掌握</text>
         </view>
 
-        <text class="homeUnitTitle">{{ selectedUnit?.bookName }} · Unit {{ selectedUnit?.unitNumber }}</text>
+        <text class="homeUnitTitle">{{ selectedUnit?.bookName }} · {{ selectedUnit?.unitName }}</text>
         <text class="homeUnitSubtitle">{{ selectedUnit?.publisherName }}</text>
 
         <view class="homeUnitRow">
@@ -203,7 +203,7 @@
       </view>
 
       <view class="checkupIntro">
-        <text class="wordPickerTitle">Unit {{ selectedUnit?.unitNumber }}</text>
+        <text class="wordPickerTitle">{{ selectedUnit?.unitName }}</text>
         <text class="wordPickerMeta">先测出不会的，再决定练哪些。</text>
       </view>
 
@@ -364,7 +364,7 @@
 
       <scroll-view scroll-y class="pageBodyScroll" :show-scrollbar="false">
         <view class="unitWordHeader">
-          <text class="unitWordTitle">{{ selectedUnit?.bookName }} Unit {{ selectedUnit?.unitNumber }}</text>
+          <text class="unitWordTitle">{{ selectedUnit?.bookName }} {{ selectedUnit?.unitName }}</text>
           <text class="unitWordMeta">已掌握 {{ unitMasteryLabel }}</text>
           <text class="unitWordTip">标记认识后，该词不会进入体检和听写。</text>
         </view>
@@ -761,7 +761,7 @@
 
       <scroll-view scroll-y class="pageBodyScroll" :show-scrollbar="false">
         <view class="wordPickerHeader">
-          <text class="wordPickerTitle">{{ selectedUnit?.bookName }} Unit {{ selectedUnit?.unitNumber }}</text>
+          <text class="wordPickerTitle">{{ selectedUnit?.bookName }} {{ selectedUnit?.unitName }}</text>
           <text class="wordPickerMeta">已选 {{ selectedDictationWordCount }} / {{ dictationPickerWords.length }} 个词</text>
         </view>
 
@@ -1464,7 +1464,7 @@ const dictationSetupMinutes = computed(() => {
 
 const dictationSourceLabel = computed(() => {
   if (targetDictationWords.value.length === unitWords.value.length) return unitLabel.value
-  return `${selectedUnit.value?.bookName ?? '本单元'} Unit ${selectedUnit.value?.unitNumber ?? ''} 自选词`
+  return `${selectedUnit.value?.bookName ?? '本单元'} ${selectedUnit.value?.unitName ?? ''} 自选词`
 })
 
 const dictationSpokenPrompt = computed(() => {
@@ -6248,11 +6248,10 @@ onBeforeUnmount(() => {
 }
 
 .quickPickButton {
-  flex: 1 1 30%;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 82px;
+  min-width: 0;
   height: 38px;
   padding: 0 10px;
   border: 2px solid #e5e5e5;
@@ -6272,10 +6271,9 @@ onBeforeUnmount(() => {
 }
 
 .quickPickGroup {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
-  align-items: stretch;
 }
 
 .quickPickButton.isActive {

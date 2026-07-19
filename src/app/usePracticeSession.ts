@@ -51,7 +51,7 @@ const CORRECT_ADVANCE_DELAY_MS = 640
 const DICTATION_CORRECT_ADVANCE_DELAY_MS = 760
 const FORGOTTEN_ADVANCE_DELAY_MS = 1000
 const DEFAULT_DICTATION_ACCENT = 'uk'
-const DICTATION_QUICK_PICK_COUNTS = [1, 5, 10, 20, 30, 50]
+const DICTATION_QUICK_PICK_COUNTS = [5, 10, 20, 30, 50]
 const SAVED_WEAK_WORD_IDS_KEY = 'gotit:savedWeakWordIds'
 const MASTERED_WORD_IDS_KEY = 'gotit:masteredWordIds'
 const SELECTED_UNIT_ID_KEY = 'gotit:selectedUnitId'
@@ -357,8 +357,8 @@ export function createPracticeSession() {
         && unit.bookId === selectedUnit.value?.bookId
     })
     .sort((a, b) => a.unitNumber - b.unitNumber)
-    .map(unit => `Unit ${unit.unitNumber}`))
-  const selectedUnitQuickIndex = computed(() => Math.max(0, unitQuickOptions.value.indexOf(`Unit ${selectedUnit.value?.unitNumber ?? 1}`)))
+    .map(unit => unit.unitName))
+  const selectedUnitQuickIndex = computed(() => Math.max(0, unitQuickOptions.value.indexOf(selectedUnit.value?.unitName ?? '')))
   const courseSetupStageOptions = computed(() => SCHOOL_STAGE_OPTIONS)
   const courseSetupGradeOptions = computed(() => JUNIOR_GRADE_OPTIONS)
   const courseSetupStageUnits = computed(() => {
@@ -383,7 +383,7 @@ export function createPracticeSession() {
     .sort((a, b) => a.unitNumber - b.unitNumber)
     .map(unit => ({
       id: unit.unitId,
-      name: `Unit ${unit.unitNumber}`,
+      name: unit.unitName,
       count: unit.words.length,
       masteryPercent: computeMasteryPercent(unit.words.map(word => word.id), masteredWordIdSet.value)
     })))

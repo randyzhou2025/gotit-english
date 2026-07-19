@@ -14,7 +14,14 @@ type CompactWordRecord = [
   exampleTranslation?: string
 ]
 
-interface CompactWordbank {
+interface CompactUnit {
+  number: number
+  key?: string
+  label?: string
+  words: CompactWordRecord[]
+}
+
+interface CompactPublisherBlock {
   publisher: {
     id: string
     name: string
@@ -24,11 +31,15 @@ interface CompactWordbank {
     id: string
     name: string
     order: number
-    units: Array<{
-      number: number
-      words: CompactWordRecord[]
-    }>
+    units: CompactUnit[]
   }>
+}
+
+interface CompactWordbank {
+  publisher?: CompactPublisherBlock['publisher']
+  sourceWorkbook?: string
+  books?: CompactPublisherBlock['books']
+  publishers?: CompactPublisherBlock[]
 }
 
 interface AudioManifest {
@@ -40,49 +51,75 @@ interface AudioManifest {
   }>
 }
 
+function unitSegment(unit: CompactUnit): string {
+  return unit.key ?? String(unit.number)
+}
+
+function unitDisplayName(unit: CompactUnit): string {
+  return unit.label ?? (unit.number === 0 ? 'Welcome Unit' : `Unit ${unit.number}`)
+}
+
+function getPublisherBlocks(raw: CompactWordbank): CompactPublisherBlock[] {
+  if (raw.publishers?.length) {
+    return raw.publishers
+  }
+
+  if (raw.publisher && raw.books) {
+    return [{
+      publisher: raw.publisher,
+      sourceWorkbook: raw.sourceWorkbook ?? '',
+      books: raw.books
+    }]
+  }
+
+  return []
+}
+
 export function getWordbank(): WordEntry[] {
-  const compact = rawWordbank as CompactWordbank
   const audioManifest = rawAudioManifest as AudioManifest
   const entries: WordEntry[] = []
 
-  for (const book of compact.books) {
-    for (const unit of book.units) {
-      const unitId = `${compact.publisher.id}:${book.id}:u${unit.number}`
+  for (const block of getPublisherBlocks(rawWordbank as CompactWordbank)) {
+    for (const book of block.books) {
+      for (const unit of book.units) {
+        const segment = unitSegment(unit)
+        const unitId = `${block.publisher.id}:${book.id}:u${segment}`
 
-      for (const [word, phonetic, partOfSpeech, meaning, difficulty, slug, rowNumber, exampleSentence, exampleTranslation] of unit.words) {
-        const cdnKey = `${compact.publisher.id}/${book.id}/unit-${unit.number}/${slug}`
-        const audioRecord = audioManifest.items[cdnKey]
+        for (const [word, phonetic, partOfSpeech, meaning, difficulty, slug, rowNumber, exampleSentence, exampleTranslation] of unit.words) {
+          const cdnKey = `${block.publisher.id}/${book.id}/unit-${segment}/${slug}`
+          const audioRecord = audioManifest.items[cdnKey]
 
-        entries.push({
-          id: `${unitId}:${slug}`,
-          publisherId: compact.publisher.id,
-          publisherName: compact.publisher.name,
-          bookId: book.id,
-          bookName: book.name,
-          bookOrder: book.order,
-          unitId,
-          unitNumber: unit.number,
-          unitName: `Unit ${unit.number}`,
-          word,
-          phonetic,
-          partOfSpeech,
-          meaning,
-          exampleSentence: exampleSentence || undefined,
-          exampleTranslation: exampleTranslation || undefined,
-          difficulty,
-          audio: {
-            status: audioRecord?.status ?? 'pending',
-            cdnKey,
-            ukUrl: audioRecord?.ukUrl ?? '',
-            usUrl: audioRecord?.usUrl ?? '',
-            zhUrl: audioRecord?.zhUrl ?? ''
-          },
-          source: {
-            workbook: compact.sourceWorkbook,
-            sheet: book.name,
-            rowNumber
-          }
-        })
+          entries.push({
+            id: `${unitId}:${slug}`,
+            publisherId: block.publisher.id,
+            publisherName: block.publisher.name,
+            bookId: book.id,
+            bookName: book.name,
+            bookOrder: book.order,
+            unitId,
+            unitNumber: unit.number,
+            unitName: unitDisplayName(unit),
+            word,
+            phonetic,
+            partOfSpeech,
+            meaning,
+            exampleSentence: exampleSentence || undefined,
+            exampleTranslation: exampleTranslation || undefined,
+            difficulty,
+            audio: {
+              status: audioRecord?.status ?? 'pending',
+              cdnKey,
+              ukUrl: audioRecord?.ukUrl ?? '',
+              usUrl: audioRecord?.usUrl ?? '',
+              zhUrl: audioRecord?.zhUrl ?? ''
+            },
+            source: {
+              workbook: block.sourceWorkbook,
+              sheet: book.name,
+              rowNumber
+            }
+          })
+        }
       }
     }
   }
@@ -126,7 +163,7 @@ export function findUnit(units: UnitGroup[], unitId: string): UnitGroup | undefi
 }
 
 export function getUnitLabel(unit: UnitGroup): string {
-  return `${unit.publisherName} ${unit.bookName} Unit ${unit.unitNumber}`
+  return `${unit.publisherName} ${unit.bookName} ${unit.unitName}`
 }
 
 export function getWeakWords(words: WordEntry[], weakWordIds: string[]): WordEntry[] {

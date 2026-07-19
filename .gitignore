@@ -15,6 +15,7 @@ backup/
 # Scratch doc assets (canonical wordbank xlsx files remain tracked)
 doc/*.png
 doc/*增加经典例句.xlsx
+doc/人教版/
 
 # IDE / editor
 .hbuilderx/

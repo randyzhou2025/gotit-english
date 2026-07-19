@@ -138,16 +138,37 @@ async function synthesizeEdge(text, voiceName, filePath) {
   }
 }
 
+function unitSegment(unit) {
+  return unit.key ?? String(unit.number)
+}
+
+function getPublisherBlocks(raw) {
+  if (raw.publishers?.length) {
+    return raw.publishers
+  }
+
+  if (raw.publisher && raw.books) {
+    return [raw]
+  }
+
+  return []
+}
+
 function flattenWords(raw) {
   const entries = []
-  for (const book of raw.books) {
-    for (const unit of book.units) {
-      for (const [word, , , meaning, , slug] of unit.words) {
-        const cdnKey = `${raw.publisher.id}/${book.id}/unit-${unit.number}/${slug}`
-        entries.push({ word, meaning, cdnKey })
+
+  for (const block of getPublisherBlocks(raw)) {
+    for (const book of block.books) {
+      for (const unit of book.units) {
+        const segment = unitSegment(unit)
+        for (const [word, , , meaning, , slug] of unit.words) {
+          const cdnKey = `${block.publisher.id}/${book.id}/unit-${segment}/${slug}`
+          entries.push({ word, meaning, cdnKey })
+        }
       }
     }
   }
+
   return entries
 }
 
