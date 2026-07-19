@@ -3,7 +3,8 @@
     :class="[
       'screen',
       showBottomNav && 'hasBottomNav',
-      isSplitScreen && 'isSplitScreen'
+      isSplitScreen && 'isSplitScreen',
+      activeScreen === 'dictationSetup' && 'isDictationSetupScreen'
     ]"
     :style="screenStyle"
   >
@@ -289,7 +290,7 @@
         <view v-if="savedWeakWords.length === 0" class="weakbookEmpty">
           <view class="weakbookEmptyIcon">生</view>
           <text class="weakbookEmptyTitle">暂无生词</text>
-          <text class="weakbookEmptyText">体检或在线听写出错的单词，会自动进入生词本。</text>
+          <text class="weakbookEmptyText">听写时手动标记，或在线听写出错的单词，会自动进入生词本。</text>
         </view>
 
         <view v-else class="weakbookContent">
@@ -3941,11 +3942,11 @@ onBeforeUnmount(() => {
   min-height: 64px;
   margin-top: 12px;
   padding: 12px 16px;
-  border: 2px solid #84d8ff;
-  border-bottom-width: 5px;
+  border: 1px solid #b9e6fb;
   border-radius: 18px;
-  background: #ddf4ff;
-  color: #1cb0f6;
+  background: #eef9fe;
+  color: #128cc5;
+  box-shadow: 0 8px 20px rgba(27, 128, 173, 0.08);
 }
 
 .resumeDictationButton:active {
@@ -3961,14 +3962,14 @@ onBeforeUnmount(() => {
 .resumeDictationTitle {
   font-size: 16px;
   line-height: 1.2;
-  font-weight: 950;
+  font-weight: 800;
 }
 
 .resumeDictationMeta {
   margin-top: 4px;
-  color: #777;
+  color: #66746d;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 650;
 }
 
 .resumeDictationArrow {
@@ -7310,6 +7311,11 @@ onBeforeUnmount(() => {
   flex-direction: column;
 }
 
+.screen.isDictationSetupScreen {
+  background: linear-gradient(180deg, #e6f6ee 0%, #f3f7f5 34%, #f3f5f6 100%) no-repeat;
+  background-color: #f3f5f6;
+}
+
 .dictationSetupScreen .dictationIntro {
   margin-top: clamp(12px, 2.4vh, 24px);
 }
@@ -8164,8 +8170,11 @@ onBeforeUnmount(() => {
 }
 
 .dictationSetupScreen .dictationIntroTitle {
-  font-size: 30px;
-  line-height: 1.08;
+  color: #26342d;
+  font-size: 29px;
+  line-height: 1.1;
+  font-weight: 850;
+  letter-spacing: -0.5px;
 }
 
 .dictationSetupScreen .settingGroup {
@@ -8175,7 +8184,9 @@ onBeforeUnmount(() => {
 }
 
 .dictationSetupScreen .settingLabel {
+  color: #5f6d66;
   font-size: 14px;
+  font-weight: 750;
 }
 
 .dictationSetupScreen .pillRow {
@@ -8187,31 +8198,64 @@ onBeforeUnmount(() => {
 
 .dictationSetupScreen .pill {
   min-width: 62px;
-  height: 36px;
+  height: 38px;
   padding: 0 13px;
-  border-color: transparent;
-  background: #f3f3f6;
-  color: #9a9ca2;
+  border: 1px solid #dfe7e3;
+  background: rgba(255, 255, 255, 0.86);
+  color: #5d6963;
   font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 2px 7px rgba(45, 67, 55, 0.035);
 }
 
 .dictationSetupScreen .pill.isActive {
-  border-color: #46a302;
-  background: #58cc02;
+  border-color: #42ad05;
+  background: #50c807;
   color: #fff;
-  box-shadow: inset 0 -4px #46a302;
+  box-shadow: 0 5px 12px rgba(63, 164, 3, 0.2);
 }
 
 .dictationModeTip {
-  margin-top: 10px;
+  margin-top: 12px;
   margin-left: 90px;
-  padding: 10px 12px;
+  padding: 11px 13px;
+  border: 1px solid #c9eafb;
+  border-radius: 13px;
+  background: #eef9fe;
+  color: #168fc8;
   font-size: 13px;
+  font-weight: 700;
 }
 
 .dictationSetupScreen .dictationContentCard {
-  margin-top: 18px;
-  padding: 14px 15px;
+  margin-top: 20px;
+  padding: 17px 16px;
+  border: 1px solid #e0e7e3;
+  border-radius: 18px;
+  box-shadow: 0 10px 26px rgba(45, 67, 55, 0.06);
+}
+
+.dictationSetupScreen .contentLabel {
+  color: #7d8983;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.dictationSetupScreen .contentTitle {
+  margin-top: 7px;
+  color: #243129;
+  font-size: 17px;
+  font-weight: 850;
+}
+
+.dictationSetupScreen .contentMeta {
+  color: #78847e;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.dictationSetupScreen .contentArrow {
+  color: #7f8c85;
 }
 
 .wordPickerToolbar {
@@ -8255,6 +8299,19 @@ onBeforeUnmount(() => {
   background: #58cc02;
   color: #fff;
   box-shadow: inset 0 -5px #46a302;
+}
+
+.dictationSetupScreen > .dictationStartButton {
+  border: 1px solid #3ea704;
+  border-radius: 18px;
+  background: #4bc405;
+  box-shadow: 0 9px 20px rgba(61, 155, 5, 0.22);
+  font-weight: 850;
+}
+
+.dictationSetupScreen > .dictationStartButton:active {
+  transform: translateY(2px) scale(0.995);
+  box-shadow: 0 5px 12px rgba(61, 155, 5, 0.18);
 }
 
 .secondaryButton {
