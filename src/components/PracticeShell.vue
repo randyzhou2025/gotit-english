@@ -115,15 +115,17 @@
       </view>
     </view>
 
-    <view v-else-if="activeScreen === 'home'" class="sectionStack homeScreen">
+    <view
+      v-else-if="activeScreen === 'home'"
+      class="sectionStack homeScreen"
+    >
       <view class="homeHero">
         <view class="homeHeroMain">
           <view class="homeHeroTitle">课本单词通</view>
-          <view class="homeHeroSubtitle">先把课本拿下，再向更高处出发</view>
+          <view class="homeHeroSubtitle">别急着背更多，先把课本里的单词真正掌握</view>
         </view>
         <view class="homeHeroTags">
-          <text class="homeHeroTag">教材同步学习</text>
-          <text class="homeHeroTag">掌握检测</text>
+          <text class="homeHeroTag">教材同步</text>
           <text class="homeHeroTag">自动听写</text>
           <text class="homeHeroTag">生词复习</text>
         </view>
@@ -171,37 +173,21 @@
         </view>
       </view>
 
-      <view class="homeActionHeader">
-        <text class="homeActionTitle">开始学习</text>
-        <text class="homeActionMeta">先测薄弱词</text>
-      </view>
-
-      <view class="practiceList">
-        <view class="practiceItem isPrimary" @tap="openCheckupSetupPage">
-          <view class="practiceRank">
-            <text>1</text>
-          </view>
-          <view class="practiceCopy">
-            <text class="practiceTitle">词汇体检</text>
-            <text class="practiceDesc">先测出真正不会的词</text>
-            <text class="practiceMini">默认 {{ effectiveCheckupLimit }} 题，可调整</text>
-          </view>
-          <view class="practiceAction">
-            <text>开始</text>
-          </view>
-        </view>
-
-        <view class="practiceItem isSecondary" @tap="openDictationSetupPage">
-          <view class="practiceRank">
-            <text>2</text>
-          </view>
-          <view class="practiceCopy">
-            <text class="practiceTitle">自动听写</text>
-            <text class="practiceDesc">听英文或中文，写出单词</text>
-            <text class="practiceMini">可选在线输入或纸笔默写</text>
-          </view>
-          <view class="practiceAction">
-            <text>开始</text>
+      <view class="homeDictationStage">
+        <view
+          class="homeDictationEntry"
+          hover-class="isPressed"
+          :hover-start-time="20"
+          :hover-stay-time="80"
+          @tap="openDictationSetupPage"
+        >
+          <view class="homeDictationRing">
+            <view class="homeDictationButton">
+              <view class="homeDictationIcon">
+                <image src="/static/tabbar/dictation-active.png" mode="aspectFit" />
+              </view>
+              <text class="homeDictationTitle">自动听写</text>
+            </view>
           </view>
         </view>
       </view>
@@ -495,8 +481,8 @@
               <view class="chevronLeft" />
             </view>
             <text class="playerTitle">词汇体检</text>
-            <text class="playerProgressText">{{ checkupProgressLabel }}</text>
           </view>
+          <text class="playerProgressMeta">{{ checkupProgressLabel }}</text>
           <view class="playerProgressTrack">
             <view class="playerProgressFill" :style="{ width: checkupProgressPercent + '%' }" />
           </view>
@@ -557,8 +543,8 @@
               <view class="chevronLeft" />
             </view>
             <text class="playerTitle">拼出单词</text>
-            <text class="playerProgressText">{{ checkupProgressLabel }}</text>
           </view>
+          <text class="playerProgressMeta">{{ checkupProgressLabel }}</text>
           <view class="playerProgressTrack">
             <view class="playerProgressFill" :style="{ width: checkupProgressPercent + '%' }" />
           </view>
@@ -841,8 +827,8 @@
               <view class="chevronLeft" />
             </view>
             <text class="playerTitle">自动听写</text>
-            <text class="playerProgressText">{{ dictationProgressLabel }}</text>
           </view>
+          <text class="playerProgressMeta">{{ dictationProgressLabel }}</text>
           <view class="playerProgressTrack">
             <view class="playerProgressFill" :style="{ width: dictationProgressPercent + '%' }" />
           </view>
@@ -2431,7 +2417,7 @@ onBeforeUnmount(() => {
 }
 
 .screen.hasBottomNav {
-  padding-bottom: calc(82px + env(safe-area-inset-bottom));
+  padding-bottom: calc(86px + env(safe-area-inset-bottom));
 }
 
 .screen.isSplitScreen {
@@ -2495,7 +2481,7 @@ onBeforeUnmount(() => {
 .contentTitle,
 .contentMeta,
 .playerTitle,
-.playerProgressText,
+.playerProgressMeta,
 .playerInstruction,
 .spokenPrompt,
 .autoNextText,
@@ -3861,15 +3847,6 @@ onBeforeUnmount(() => {
   text-align: center;
 }
 
-.playerHeaderTop .playerProgressText {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  z-index: 1;
-  margin-left: 0;
-  transform: translateY(-50%);
-}
-
 .navBack {
   position: absolute;
   left: -4px;
@@ -4345,7 +4322,7 @@ onBeforeUnmount(() => {
   box-sizing: border-box;
   width: 100%;
   max-width: 100%;
-  min-height: 56px;
+  min-height: 78px;
   padding: 10px 12px;
   border: 2px solid transparent;
   border-radius: 12px;
@@ -4457,21 +4434,20 @@ onBeforeUnmount(() => {
   padding-top: 2px;
 }
 
-.playerProgressText {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #9a9ca2;
-  font-size: 14px;
+.playerProgressMeta {
+  display: block;
+  margin-top: 4px;
+  color: #8d8f96;
+  font-size: 13px;
   line-height: 1;
-  font-weight: 800;
+  font-weight: 850;
+  text-align: center;
 }
 
 .playerProgressTrack {
   width: 100%;
   height: 10px;
-  margin-top: 14px;
+  margin-top: 8px;
   overflow: hidden;
   border-radius: 999px;
   background: rgba(20, 80, 50, 0.12);
@@ -5576,7 +5552,7 @@ onBeforeUnmount(() => {
 }
 
 .bottomNavLabel {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -6379,12 +6355,12 @@ onBeforeUnmount(() => {
 }
 
 .homeUnitTitle {
-  margin-top: 12px;
+  margin-top: 10px;
   overflow: hidden;
   color: #3c3c3c;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 23px;
+  font-size: 24px;
   line-height: 1.12;
   font-weight: 950;
 }
@@ -6404,7 +6380,7 @@ onBeforeUnmount(() => {
 .homeUnitRow {
   justify-content: space-between;
   gap: 10px;
-  margin-top: 12px;
+  margin-top: 10px;
 }
 
 .homeUnitBadge,
@@ -6460,19 +6436,19 @@ onBeforeUnmount(() => {
 .homeStatRow {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 12px;
+  gap: 9px;
+  margin-top: 10px;
 }
 
 .homeStatPrimary,
 .homeStatSecondary {
   gap: 9px;
   min-width: 0;
-  min-height: 58px;
-  padding: 10px;
+  min-height: 64px;
+  padding: 12px;
   border: 2px solid #e5e5e5;
   border-bottom-width: 4px;
-  border-radius: 18px;
+  border-radius: 19px;
   background: #fff;
 }
 
@@ -6495,7 +6471,7 @@ onBeforeUnmount(() => {
 .homeStatNumber {
   flex: 0 0 auto;
   color: #3c3c3c;
-  font-size: 25px;
+  font-size: 28px;
   line-height: 1;
   font-weight: 950;
 }
@@ -6533,7 +6509,7 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-top: 12px;
+  margin-top: 10px;
   min-height: 54px;
   padding: 10px 14px;
   border-radius: 16px;
@@ -6588,103 +6564,263 @@ onBeforeUnmount(() => {
   font-weight: 850;
 }
 
-.homeActionHeader {
-  padding: 0 2px;
-}
-
-.homeActionTitle {
-  color: #3c3c3c;
-  font-size: 17px;
-  line-height: 1.2;
-  font-weight: 950;
-}
-
-.homeActionMeta {
-  color: #afafaf;
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.homeScreen .practiceList {
-  gap: 10px;
-}
-
-.homeScreen .practiceItem {
-  grid-template-columns: 38px minmax(0, 1fr) 74px;
-  align-items: center;
-  min-height: 90px;
-  padding: 14px;
-  border: 2px solid transparent;
-  border-bottom-width: 6px;
-  border-radius: 22px;
-  box-shadow: none;
-}
-
-.homeScreen .practiceItem.isPrimary {
-  border-color: #46a302;
-  background: #58cc02;
-}
-
-.homeScreen .practiceItem.isSecondary {
-  border-color: #1899d6;
-  background: #1cb0f6;
-}
-
-.practiceRank {
+.homeDictationStage {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.22);
-  color: #fff;
-  font-size: 16px;
-  font-weight: 950;
+  min-height: 242px;
+  padding: 0;
+  overflow: visible;
 }
 
-.homeScreen .practiceCopy {
+.homeDictationEntry {
+  display: flex;
+  align-items: center;
   justify-content: center;
+  width: 236px;
+  height: 236px;
+  border-radius: 50%;
+  background: rgba(221, 244, 255, 0.74);
+  transition: transform 150ms ease;
 }
 
-.homeScreen .practiceTitle {
-  margin-top: 0;
+.homeDictationRing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 216px;
+  height: 216px;
+  border: 2px solid #84d8ff;
+  border-radius: 50%;
+  background: #f4fbff;
+  box-sizing: border-box;
+  animation: homeDictationBreathe 2800ms ease-in-out infinite;
+}
+
+.homeDictationButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 196px;
+  height: 196px;
+  border: 3px solid #0d9bd7;
+  border-radius: 50%;
+  background: #1cb0f6;
+  box-shadow: inset 0 -10px #0d8fc7, 0 18px 34px rgba(28, 176, 246, 0.22);
+  box-sizing: border-box;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.homeDictationEntry.isPressed {
+  transform: translateY(4px) scale(0.985);
+}
+
+.homeDictationEntry.isPressed .homeDictationButton {
+  box-shadow: inset 0 -5px #0d8fc7, 0 10px 22px rgba(28, 176, 246, 0.18);
+  transform: translateY(3px);
+}
+
+.homeDictationIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: inset 0 -4px #d7eef8;
+}
+
+.homeDictationIcon image {
+  width: 40px;
+  height: 40px;
+}
+
+.homeDictationTitle {
+  display: block;
+  margin-top: 17px;
   color: #fff;
-  font-size: 23px;
-  line-height: 1.12;
+  font-size: 29px;
+  line-height: 1;
   font-weight: 950;
 }
 
-.homeScreen .practiceDesc {
-  margin-top: 4px;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 13px;
-  line-height: 1.25;
-  font-weight: 850;
+@keyframes homeDictationBreathe {
+  0%,
+  100% {
+    transform: scale(0.985);
+  }
+
+  50% {
+    transform: scale(1);
+  }
 }
 
-.practiceMini {
-  margin-top: 5px;
-  color: rgba(255, 255, 255, 0.78);
-  font-size: 11px;
-  line-height: 1.2;
-  font-weight: 800;
+@media (max-width: 390px), (max-height: 760px) {
+  .homeDictationStage {
+    min-height: 210px;
+  }
+
+  .homeDictationEntry {
+    width: 204px;
+    height: 204px;
+  }
+
+  .homeDictationRing {
+    width: 188px;
+    height: 188px;
+  }
+
+  .homeDictationButton {
+    width: 172px;
+    height: 172px;
+    box-shadow: inset 0 -8px #0d8fc7, 0 14px 28px rgba(28, 176, 246, 0.2);
+  }
+
+  .homeDictationIcon {
+    width: 52px;
+    height: 52px;
+  }
+
+  .homeDictationIcon image {
+    width: 32px;
+    height: 32px;
+  }
+
+  .homeDictationTitle {
+    margin-top: 13px;
+    font-size: 24px;
+  }
 }
 
-.homeScreen .practiceAction {
-  align-self: center;
-  justify-self: end;
-  width: 70px;
-  height: 42px;
-  border-radius: 999px;
-  background: #fff;
-  color: #58a700;
-  font-size: 15px;
-  box-shadow: inset 0 -3px #d9d9d9;
+@media (max-height: 760px) {
+  .homeScreen {
+    gap: 8px;
+  }
+
+  .homeHero {
+    padding-bottom: 30px;
+  }
+
+  .homeHeroTitle {
+    font-size: 28px;
+  }
+
+  .homeHeroSubtitle {
+    margin-top: 7px;
+    font-size: 10px;
+  }
+
+  .homeHeroTags {
+    gap: 5px;
+    margin-top: 9px;
+  }
+
+  .homeHeroTag {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+
+  .homeUnitCard {
+    margin-top: -24px;
+    padding: 10px;
+    border-radius: 18px;
+  }
+
+  .homeUnitLabel {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+
+  .homeUnitMeta,
+  .homeUnitSubtitle {
+    font-size: 10px;
+  }
+
+  .homeUnitTitle {
+    margin-top: 6px;
+    font-size: 20px;
+  }
+
+  .homeUnitRow,
+  .homeStatRow,
+  .homeSwitchRow {
+    margin-top: 6px;
+  }
+
+  .homeMasteryPill {
+    min-height: 30px;
+    line-height: 30px;
+  }
+
+  .homeStatPrimary,
+  .homeStatSecondary {
+    min-height: 48px;
+    padding: 7px 9px;
+    border-radius: 16px;
+  }
+
+  .homeStatNumber {
+    font-size: 23px;
+  }
+
+  .homeSwitchRow {
+    min-height: 40px;
+    padding: 7px 10px;
+  }
+
+  .homeSwitchValue {
+    font-size: 12px;
+  }
 }
 
-.homeScreen .practiceItem.isSecondary .practiceAction {
-  color: #1096e4;
+@media (max-width: 350px), (max-height: 680px) {
+  .homeDictationStage {
+    min-height: 186px;
+  }
+
+  .homeDictationEntry {
+    width: 180px;
+    height: 180px;
+  }
+
+  .homeDictationRing {
+    width: 166px;
+    height: 166px;
+  }
+
+  .homeDictationButton {
+    width: 150px;
+    height: 150px;
+  }
+
+  .homeDictationIcon {
+    width: 46px;
+    height: 46px;
+  }
+
+  .homeDictationIcon image {
+    width: 28px;
+    height: 28px;
+  }
+
+  .homeDictationTitle {
+    margin-top: 10px;
+    font-size: 21px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .homeDictationEntry,
+  .homeDictationButton {
+    transition: none;
+  }
+
+  .homeDictationRing {
+    animation: none;
+  }
 }
 
 .unitWordScreen {
@@ -7687,7 +7823,7 @@ onBeforeUnmount(() => {
 }
 
 .screen.hasBottomNav {
-  padding-bottom: calc(84px + env(safe-area-inset-bottom));
+  padding-bottom: calc(86px + env(safe-area-inset-bottom));
 }
 
 .courseSetupScreen,
@@ -7749,7 +7885,7 @@ onBeforeUnmount(() => {
 }
 
 .pageChrome .playerProgressTrack {
-  margin-top: 12px;
+  margin-top: 8px;
   background: rgba(70, 163, 2, 0.18);
 }
 
@@ -7780,19 +7916,8 @@ onBeforeUnmount(() => {
 
 .playerHeaderTop .playerTitle {
   flex: 0 1 auto;
-  max-width: calc(100% - 168px);
+  max-width: calc(100% - 96px);
   text-align: center;
-}
-
-.playerHeaderTop .playerProgressText {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  z-index: 1;
-  max-width: 72px;
-  margin-left: 0;
-  transform: translateY(-50%);
-  text-align: right;
 }
 
 .sectionStack > .flowHeader {
