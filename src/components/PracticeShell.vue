@@ -471,11 +471,19 @@
       </scroll-view>
 
       <view class="wordDetailFooter">
-        <view
-          :class="['wordDetailNextButton', !hasNextWordDetail && 'isDisabled']"
-          @tap="goNextWordDetail"
-        >
-          <text class="wordDetailNextLabel">{{ hasNextWordDetail ? '下一词' : '已是最后一个' }}</text>
+        <view class="wordDetailNavRow">
+          <view
+            :class="['wordDetailNavButton', 'wordDetailPrevButton', !hasPreviousWordDetail && 'isDisabled']"
+            @tap="goPreviousWordDetail"
+          >
+            <text class="wordDetailNavLabel">{{ hasPreviousWordDetail ? '上一词' : '已是第一个' }}</text>
+          </view>
+          <view
+            :class="['wordDetailNavButton', 'wordDetailNextButton', !hasNextWordDetail && 'isDisabled']"
+            @tap="goNextWordDetail"
+          >
+            <text class="wordDetailNavLabel">{{ hasNextWordDetail ? '下一词' : '已是最后一个' }}</text>
+          </view>
         </view>
       </view>
     </view>
@@ -1195,6 +1203,7 @@ const {
   dictationPickerWords,
   effectiveCheckupLimit,
   finishDictationReward: finishDictationRewardInSession,
+  hasPreviousWordDetail,
   hasNextWordDetail,
   isUnitWordMastered,
   markSelectedWeakWordsKnown,
@@ -1206,6 +1215,7 @@ const {
   openCourseSetup: openCourseSetupScreen,
   nextAfterWrong,
   nextWordDetail,
+  previousWordDetail,
   openDictationSetup: openDictationSetupScreen,
   openSelectedWeakDictationSetup,
   openUnitWords,
@@ -1824,13 +1834,21 @@ function openUnitWordsPage(masteredFirst = false) {
 }
 
 function openWordDetailPage(wordId: string) {
-  openWordDetail(wordId)
+  openWordDetail(wordId, { source: 'unitWords' })
   navigateToRoute('wordDetail')
 }
 
 function openWeakbookWordDetailPage(wordId: string) {
-  openWordDetail(wordId, savedWeakWords.value.map(word => word.id))
+  openWordDetail(wordId, {
+    source: 'weakbook',
+    orderedWordIds: savedWeakWords.value.map(word => word.id)
+  })
   navigateToRoute('wordDetail')
+}
+
+function goPreviousWordDetail() {
+  if (!hasPreviousWordDetail.value) return
+  previousWordDetail()
 }
 
 function goNextWordDetail() {
@@ -9175,29 +9193,59 @@ onBeforeUnmount(() => {
   background: linear-gradient(180deg, rgba(243, 244, 246, 0) 0%, #f3f4f6 28%);
 }
 
-.wordDetailNextButton {
+.wordDetailNavRow {
+  display: flex;
+  gap: 10px;
+}
+
+.wordDetailNavButton {
+  flex: 1 1 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 0;
   height: 52px;
   border-radius: 16px;
+  box-sizing: border-box;
+}
+
+.wordDetailPrevButton {
+  border: 1px solid #c9d8d2;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 6px 16px rgba(52, 83, 68, 0.06);
+}
+
+.wordDetailNextButton {
+  border: 1px solid #1096e4;
   background: #1cb0f6;
   box-shadow: inset 0 -4px #1096e4;
 }
 
+.wordDetailNavButton.isDisabled {
+  border-color: #d5dad8;
+  background: #e8ecea;
+  box-shadow: none;
+}
+
 .wordDetailNextButton.isDisabled {
-  background: #d9dde2;
-  box-shadow: inset 0 -4px #c8ccd1;
+  border-color: #d0d4d2;
+  background: #e8ecea;
+  box-shadow: none;
 }
 
-.wordDetailNextLabel {
+.wordDetailNavLabel {
   color: #fff;
-  font-size: 17px;
-  font-weight: 950;
+  font-size: 16px;
+  font-weight: 900;
 }
 
-.wordDetailNextButton.isDisabled .wordDetailNextLabel {
-  color: #8a9098;
-  font-size: 15px;
+.wordDetailPrevButton .wordDetailNavLabel {
+  color: #3a4a42;
+}
+
+.wordDetailNavButton.isDisabled .wordDetailNavLabel {
+  color: #98a39d;
+  font-size: 14px;
+  font-weight: 750;
 }
 </style>

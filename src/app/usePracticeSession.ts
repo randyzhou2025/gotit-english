@@ -400,9 +400,21 @@ export function createPracticeSession() {
     return Math.round((masteredUnitWordCount.value / unitWordCount.value) * 100)
   })
   const unitWordDetailOrderedIds = computed(() => {
-    const unmastered = unitWords.value.filter(word => !masteredWordIdSet.value.has(word.id))
-    const mastered = unitWords.value.filter(word => masteredWordIdSet.value.has(word.id))
-    return [...unmastered, ...mastered].map(word => word.id)
+    if (!unitWordsMasteredFirst.value) {
+      return unitWords.value.map(word => word.id)
+    }
+
+    const mastered: string[] = []
+    const unmastered: string[] = []
+    for (const word of unitWords.value) {
+      if (masteredWordIdSet.value.has(word.id)) {
+        mastered.push(word.id)
+      } else {
+        unmastered.push(word.id)
+      }
+    }
+
+    return [...mastered, ...unmastered]
   })
   const wordDetailEntry = computed(() => {
     if (!selectedWordDetailId.value) return null
@@ -417,6 +429,7 @@ export function createPracticeSession() {
     if (total <= 0) return '0/0'
     return `${wordDetailIndex.value + 1}/${total}`
   })
+  const hasPreviousWordDetail = computed(() => wordDetailIndex.value > 0)
   const hasNextWordDetail = computed(() => (
     wordDetailIndex.value >= 0
     && wordDetailIndex.value < wordDetailOrderedIds.value.length - 1
@@ -853,15 +866,37 @@ export function createPracticeSession() {
     scrollToTop()
   }
 
-  function openWordDetail(wordId: string, orderedWordIds?: string[]) {
+  function openWordDetail(
+    wordId: string,
+    options?: {
+      source?: 'unitWords' | 'weakbook'
+      orderedWordIds?: string[]
+    }
+  ) {
+    const source = options?.source ?? 'unitWords'
     const unitWordIdSet = new Set(unitWords.value.map(word => word.id))
-    const requestedIds = orderedWordIds ?? unitWordDetailOrderedIds.value
-    const availableIds = requestedIds.filter(id => unitWordIdSet.has(id))
+    const availableIds = source === 'weakbook'
+      ? (options?.orderedWordIds ?? savedWeakWords.value.map(word => word.id))
+          .filter(id => unitWordIdSet.has(id))
+      : unitWordDetailOrderedIds.value
+
     wordDetailOrderedIds.value = availableIds.includes(wordId)
       ? availableIds
       : unitWordDetailOrderedIds.value
     selectedWordDetailId.value = wordId
     screen.value = 'wordDetail'
+    scrollToTop()
+  }
+
+  function previousWordDetail() {
+    const ids = wordDetailOrderedIds.value
+    const index = ids.indexOf(selectedWordDetailId.value)
+    if (index <= 0) return
+
+    const previousId = ids[index - 1]
+    if (!previousId) return
+
+    selectedWordDetailId.value = previousId
     scrollToTop()
   }
 
@@ -1363,6 +1398,7 @@ export function createPracticeSession() {
     openWeakbook,
     nextAfterWrong,
     nextWordDetail,
+    previousWordDetail,
     recognitionState,
     resetPractice,
     resumeDictation,
@@ -1417,6 +1453,7 @@ export function createPracticeSession() {
     toggleDictationReportWordStatus,
     toggleDictationWordSelection,
     toggleWeakWordSelection,
+    hasPreviousWordDetail,
     hasNextWordDetail,
     wordDetailEntry,
     wordDetailProgressLabel,

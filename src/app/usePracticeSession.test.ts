@@ -78,7 +78,10 @@ describe('practice session dictation navigation', () => {
     session.toggleWeakWordSelection(weakWordIds[1]!)
 
     const selectionBeforeDetail = [...session.selectedWeakWordIds.value]
-    session.openWordDetail(weakWordIds[0]!, weakWordIds)
+    session.openWordDetail(weakWordIds[0]!, {
+      source: 'weakbook',
+      orderedWordIds: weakWordIds
+    })
     session.openWeakbook()
 
     expect(session.selectedWeakWordIds.value).toEqual(selectionBeforeDetail)
@@ -92,10 +95,42 @@ describe('practice session dictation navigation', () => {
     storage.set('gotit:savedWeakWordIds', weakWordIds)
 
     const session = createPracticeSession()
-    session.openWordDetail(weakWordIds[1]!, weakWordIds)
+    session.openWordDetail(weakWordIds[1]!, {
+      source: 'weakbook',
+      orderedWordIds: weakWordIds
+    })
 
     expect(session.wordDetailProgressLabel.value).toBe('2/3')
     session.nextWordDetail()
     expect(session.wordDetailProgressLabel.value).toBe('3/3')
+    session.previousWordDetail()
+    expect(session.wordDetailProgressLabel.value).toBe('2/3')
+  })
+
+  it('uses textbook order for unit word detail progress', () => {
+    const session = createPracticeSession()
+    const firstWord = session.unitWords.value[0]
+    if (!firstWord) return
+
+    session.openUnitWords(false)
+    session.openWordDetail(firstWord.id, { source: 'unitWords' })
+
+    expect(session.wordDetailProgressLabel.value).toBe(`1/${session.unitWords.value.length}`)
+    expect(session.hasPreviousWordDetail.value).toBe(false)
+    expect(session.hasNextWordDetail.value).toBe(session.unitWords.value.length > 1)
+  })
+
+  it('uses mastered-first order when opening unit word detail from that list', () => {
+    const session = createPracticeSession()
+    const [firstWord, secondWord] = session.unitWords.value
+    if (!firstWord || !secondWord) return
+
+    session.markUnitWordKnown(firstWord.id)
+    session.openUnitWords(true)
+    session.openWordDetail(firstWord.id, { source: 'unitWords' })
+
+    expect(session.wordDetailProgressLabel.value).toBe('1/' + session.unitWords.value.length)
+    session.openWordDetail(secondWord.id, { source: 'unitWords' })
+    expect(session.wordDetailProgressLabel.value).toBe('2/' + session.unitWords.value.length)
   })
 })

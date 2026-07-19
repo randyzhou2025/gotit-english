@@ -27,15 +27,10 @@ const swjSheetMeta = [
   ['选必第四册', 'selective-required-4']
 ]
 
-const rjFileMeta = [
-  ['人教版高中英语必修第一册_词汇表.xlsx', 'required-1', '必修第一册'],
-  ['人教版高中英语必修第二册_词汇表.xlsx', 'required-2', '必修第二册'],
-  ['人教版高中英语必修第三册_词汇表.xlsx', 'required-3', '必修第三册'],
-  ['人教版高中英语选择性必修第一册_词汇表.xlsx', 'selective-required-1', '选择性必修第一册'],
-  ['人教版高中英语选择性必修第二册_词汇表.xlsx', 'selective-required-2', '选择性必修第二册'],
-  ['人教版高中英语选择性必修第三册_词汇表.xlsx', 'selective-required-3', '选择性必修第三册'],
-  ['人教版高中英语选择性必修第四册_词汇表.xlsx', 'selective-required-4', '选择性必修第四册']
-]
+const rjBookIds = bookIds
+
+const swjSourceFile = '沪外教高中英语教材_Glossary汇总_增加经典例句及翻译.xlsx'
+const rjSourceFile = '人教版高中英语教材_词汇表汇总_增加经典例句及翻译.xlsx'
 
 function clean(value) {
   return String(value ?? '').trim()
@@ -198,7 +193,7 @@ function buildShjPublisher() {
 }
 
 function buildSwjPublisher() {
-  const sourcePath = path.join(root, 'doc', '沪外教高中英语教材_Glossary汇总.xlsx')
+  const sourcePath = path.join(root, 'doc', swjSourceFile)
   if (!fs.existsSync(sourcePath)) {
     throw new Error(`Missing source workbook: ${sourcePath}`)
   }
@@ -235,8 +230,8 @@ function buildSwjPublisher() {
           computeDifficulty(word),
           wordSlug,
           rowIndex + 4,
-          '',
-          ''
+          clean(row[5]),
+          clean(row[6])
         ])
       }
     }
@@ -257,22 +252,21 @@ function buildSwjPublisher() {
 }
 
 function buildRjPublisher() {
-  const sourceDir = path.join(root, 'doc', '人教版')
-  if (!fs.existsSync(sourceDir)) {
-    throw new Error(`Missing source directory: ${sourceDir}`)
+  const sourcePath = path.join(root, 'doc', rjSourceFile)
+  if (!fs.existsSync(sourcePath)) {
+    throw new Error(`Missing source workbook: ${sourcePath}`)
   }
 
+  const workbook = XLSX.readFile(sourcePath)
   const books = []
 
-  for (const [bookIndex, [fileName, bookId, bookName]] of rjFileMeta.entries()) {
-    const sourcePath = path.join(sourceDir, fileName)
-    if (!fs.existsSync(sourcePath)) {
-      throw new Error(`Missing source workbook: ${sourcePath}`)
+  for (const [bookIndex, [sheetName, bookId]] of rjBookIds.entries()) {
+    const sheet = workbook.Sheets[sheetName]
+    if (!sheet) {
+      throw new Error(`Missing sheet: ${sheetName}`)
     }
 
-    const workbook = XLSX.readFile(sourcePath)
-    const sheetName = workbook.SheetNames[0]
-    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1, defval: '' })
+    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' })
     const units = []
 
     for (const [rowIndex, row] of rows.slice(3).entries()) {
@@ -281,7 +275,7 @@ function buildRjPublisher() {
       if (!word && !meaning) continue
 
       if (!word || !meaning) {
-        throw new Error(`${fileName} row ${rowIndex + 4} has incomplete word data`)
+        throw new Error(`${sheetName} row ${rowIndex + 4} has incomplete word data`)
       }
       if (isPhraseEntry(word)) continue
 
@@ -295,14 +289,14 @@ function buildRjPublisher() {
         computeDifficulty(word),
         slugify(normalizeWordForSlug(word)),
         rowIndex + 4,
-        '',
-        ''
+        clean(row[5]),
+        clean(row[6])
       ])
     }
 
     books.push({
       id: bookId,
-      name: bookName,
+      name: sheetName,
       order: bookIndex + 1,
       units: units.sort((a, b) => unitSortKey(a) - unitSortKey(b))
     })
@@ -310,7 +304,7 @@ function buildRjPublisher() {
 
   return {
     publisher: { id: 'rj', name: '人教版' },
-    sourceWorkbook: 'doc/人教版/*.xlsx',
+    sourceWorkbook: path.basename(sourcePath),
     books
   }
 }
