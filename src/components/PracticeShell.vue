@@ -841,7 +841,6 @@
               <text class="wordPickMeaning">{{ item.word.meaning }}</text>
             </view>
             <text v-if="isUnitWordMastered(item.word.id)" class="wordPickKnownBadge">已掌握</text>
-            <text v-else class="wordPickLevel">L{{ item.word.difficulty }}</text>
           </view>
         </view>
 
@@ -4510,16 +4509,6 @@ onBeforeUnmount(() => {
   font-weight: 760;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.wordPickLevel {
-  flex: 0 0 30px;
-  min-width: 0;
-  color: #b0b2b8;
-  font-size: 12px;
-  line-height: 1;
-  font-weight: 900;
-  text-align: right;
 }
 
 .wordPickKnownBadge {
@@ -8665,11 +8654,6 @@ onBeforeUnmount(() => {
 .screen.isDictationWordScreen .unitWordPhonetic,
 .screen.isDictationWordScreen .wordPickMeaning {
   color: #748079;
-}
-
-.screen.isDictationWordScreen .wordPickLevel {
-  color: #919c96;
-  font-weight: 750;
 }
 
 .screen.isDictationWordScreen .wordPickKnownBadge {
