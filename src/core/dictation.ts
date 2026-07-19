@@ -33,7 +33,9 @@ export function createDictationPlan(
   const planWords = order === 'shuffle' ? shuffleWords(words) : [...words]
   const secondsPerWord = mode === 'paper'
     ? intervalSeconds * repeatCount
-    : Math.max(18, intervalSeconds * repeatCount)
+    : mode === 'recognition'
+      ? Math.max(8, intervalSeconds)
+      : Math.max(18, intervalSeconds * repeatCount)
 
   return {
     id: `dictation:${mode}:${accent}:${prompt}:${intervalSeconds}:${order}:${repeatCount}:${planWords.map(word => word.id).join('|')}`,

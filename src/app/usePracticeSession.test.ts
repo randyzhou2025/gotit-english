@@ -133,4 +133,31 @@ describe('practice session dictation navigation', () => {
     session.openWordDetail(secondWord.id, { source: 'unitWords' })
     expect(session.wordDetailProgressLabel.value).toBe('2/' + session.unitWords.value.length)
   })
+
+  it('records recognition dictation answers', () => {
+    const session = createPracticeSession()
+    session.dictationPrompt.value = 'english'
+    session.dictationMode.value = 'recognition'
+    session.openDictationSetup()
+    session.startDictation()
+
+    const firstWord = session.dictationPlan.value?.words[0]
+    const secondWord = session.dictationPlan.value?.words[1]
+    if (!firstWord || !secondWord) return
+
+    session.submitDictationRecognition(true)
+    expect(session.dictationRecords.value).toEqual([
+      expect.objectContaining({ wordId: firstWord.id, correct: true })
+    ])
+    expect(session.dictationIndex.value).toBe(1)
+
+    session.submitDictationRecognition(false)
+    expect(session.dictationRecords.value).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ wordId: firstWord.id, correct: true }),
+        expect.objectContaining({ wordId: secondWord.id, correct: false, forgotten: true })
+      ])
+    )
+    expect(session.dictationIndex.value).toBe(2)
+  })
 })

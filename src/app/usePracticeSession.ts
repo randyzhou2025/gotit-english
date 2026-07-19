@@ -1129,6 +1129,29 @@ export function createPracticeSession() {
     scrollToTop()
   }
 
+  function submitDictationRecognition(known: boolean) {
+    const entry = currentDictationEntry.value
+    if (!entry || dictationMode.value !== 'recognition') return
+    if (dictationRecords.value.some(record => record.wordId === entry.id)) return
+
+    if (known) {
+      dictationRecords.value = [
+        ...dictationRecords.value,
+        {
+          wordId: entry.id,
+          input: '',
+          correct: true
+        }
+      ]
+      triggerHapticFeedback('medium')
+    } else {
+      markDictationWordForgotten(entry.id)
+      triggerHapticFeedback('heavy')
+    }
+
+    nextDictation()
+  }
+
   function submitDictationInput() {
     const entry = currentDictationEntry.value
     if (!entry || dictationMode.value !== 'online' || !dictationInput.value.trim() || showDictationAnswer.value) return
@@ -1447,6 +1470,7 @@ export function createPracticeSession() {
     startDictation,
     startForgottenDictation,
     submitDictationInput,
+    submitDictationRecognition,
     submitSpelling,
     targetDictationWords,
     toggleExcludeMasteredDictationWords,

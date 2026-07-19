@@ -35,10 +35,13 @@ describe('dictation', () => {
   it('creates mode-aware plans', () => {
     const paper = createDictationPlan([word, word], 'paper', 'uk', 'chinese', 8, 'sequence', 1)
     const online = createDictationPlan([word, word], 'online', 'us', 'english', 8, 'sequence', 1)
+    const recognition = createDictationPlan([word, word], 'recognition', 'uk', 'english', 8, 'sequence', 1)
     const chinese = createDictationPlan([word, word], 'online', 'uk', 'chinese', 12, 'sequence', 2)
 
     expect(paper.estimatedSeconds).toBe(16)
     expect(online.estimatedSeconds).toBe(36)
+    expect(recognition.estimatedSeconds).toBe(16)
+    expect(recognition.mode).toBe('recognition')
     expect(chinese.prompt).toBe('chinese')
     expect(chinese.intervalSeconds).toBe(12)
     expect(chinese.repeatCount).toBe(2)

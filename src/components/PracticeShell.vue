@@ -752,11 +752,18 @@
           <view :class="['pill', dictationMode === 'online' && 'isActive']" @tap="setDictationMode('online')">
             <text>在线输入</text>
           </view>
+          <view
+            v-if="dictationPrompt === 'english'"
+            :class="['pill', dictationMode === 'recognition' && 'isActive']"
+            @tap="setDictationMode('recognition')"
+          >
+            <text>核对释义</text>
+          </view>
         </view>
       </view>
 
       <view class="dictationModeTip">
-        <text>{{ dictationMode === 'paper' ? '手机负责报词，用纸笔完成默写。' : '在线输入会记录对错并同步生词本。' }}</text>
+        <text>{{ dictationModeTipText }}</text>
       </view>
 
       <view class="dictationContentCard" @tap="openDictationWordPickerPage">
@@ -867,16 +874,27 @@
       </view>
 
       <view class="playerStage">
-        <text class="playerInstruction">请写下这个单词</text>
-        <view :class="['speakerButton', isAudioPlaying && 'isPlaying', !dictationAudioReady && 'isMissing']" @tap="repeatCurrentDictation">
-          <view class="speakerGlyph">
-            <view class="speakerCore" />
-            <view class="speakerCone" />
-            <view class="speakerWave one" />
-            <view class="speakerWave two" />
+        <text class="playerInstruction">{{ dictationPlayerInstruction }}</text>
+        <view v-if="isDictationRecognitionMode" class="dictationRecognitionWordCard">
+          <text class="dictationRecognitionWord">{{ currentDictationEntry.word }}</text>
+          <text v-if="currentDictationEntry.phonetic" class="dictationRecognitionPhonetic">{{ currentDictationEntry.phonetic }}</text>
+          <view
+            :class="['dictationSpeakerButton', isAudioPlaying && 'isPlaying', !dictationAudioReady && 'isMissing']"
+            @tap.stop="repeatCurrentDictation"
+          >
+            <view class="dictationSpeakerIcon" />
           </view>
         </view>
-        <text class="spokenPrompt">{{ dictationSpokenPrompt }}</text>
+        <view v-else class="dictationAudioCard">
+          <text v-if="dictationPrompt === 'chinese'" class="dictationAudioMeaning">{{ currentDictationEntry.meaning }}</text>
+          <view
+            :class="['dictationSpeakerButton', dictationPrompt === 'english' && 'isSolo', isAudioPlaying && 'isPlaying', !dictationAudioReady && 'isMissing']"
+            @tap.stop="repeatCurrentDictation"
+          >
+            <view class="dictationSpeakerIcon" />
+          </view>
+        </view>
+        <text v-if="isDictationRecognitionMode" class="spokenPrompt">{{ dictationSpokenPrompt }}</text>
         <view
           v-if="dictationPrompt === 'chinese'"
           :class="['forgotButton', currentDictationMarkedForgotten && 'isMarked']"
@@ -884,7 +902,7 @@
         >
           <text>{{ currentDictationMarkedForgotten ? '已加入生词本' : '忘记了' }}</text>
         </view>
-        <text class="autoNextText">{{ dictationTransportStatus }}</text>
+        <text v-if="dictationMode !== 'recognition'" class="autoNextText">{{ dictationTransportStatus }}</text>
         <view v-if="dictationMode === 'paper'" class="countdownTrack">
           <view class="countdownFill" :style="{ width: dictationCountdownPercent + '%' }" />
         </view>
@@ -914,6 +932,21 @@
             </view>
             <text class="transportLabel">跳过</text>
           </view>
+        </view>
+      </view>
+
+      <view v-if="dictationMode === 'recognition'" class="dictationRecognitionPanel">
+        <view
+          :class="['dictationRecognitionButton', 'isKnown', currentDictationRecognitionAnswered && 'isDisabled']"
+          @tap="submitDictationRecognitionAnswer(true)"
+        >
+          <text>认识</text>
+        </view>
+        <view
+          :class="['dictationRecognitionButton', 'isUnknown', currentDictationRecognitionAnswered && 'isDisabled']"
+          @tap="submitDictationRecognitionAnswer(false)"
+        >
+          <text>不认识</text>
         </view>
       </view>
 
@@ -973,7 +1006,7 @@
                 <text class="summaryInlineMeta">{{ dictationSummary.total }} 词</text>
               </view>
               <text class="reportText">
-                {{ dictationMode === 'paper' ? dictationPaperReportText : dictationReportText }}
+                {{ dictationReportSummaryText }}
               </text>
             </view>
             <view class="dictationSummaryStats">
@@ -1268,6 +1301,7 @@ const {
   startDictation,
   startForgottenDictation,
   submitDictationInput,
+  submitDictationRecognition,
   submitSpelling,
   targetDictationWords,
   toggleDictationReportWordStatus,
@@ -1454,6 +1488,13 @@ const currentDictationMarkedForgotten = computed(() => {
   return dictationRecordMap.value.get(id)?.forgotten === true
 })
 
+const currentDictationRecognitionAnswered = computed(() => {
+  const id = currentDictationEntry.value?.id
+  if (!id) return false
+
+  return dictationRecordMap.value.has(id)
+})
+
 const dictationReviewItems = computed(() => {
   return (dictationPlan.value?.words ?? []).map((word, index) => {
     const record = dictationRecordMap.value.get(word.id)
@@ -1483,6 +1524,17 @@ const dictationPaperReportText = computed(() => {
   return '按下方清单逐词核对。'
 })
 
+const dictationRecognitionReportText = computed(() => {
+  if (dictationSummary.value.forgotten === 0) return '全部认识，清单可用于复盘。'
+  return `已标记 ${dictationSummary.value.forgotten} 个不认识，已加入生词本。`
+})
+
+const dictationReportSummaryText = computed(() => {
+  if (dictationMode.value === 'paper') return dictationPaperReportText.value
+  if (dictationMode.value === 'recognition') return dictationRecognitionReportText.value
+  return dictationReportText.value
+})
+
 const dictationSetupMinutes = computed(() => {
   const seconds = targetDictationWords.value.length * dictationIntervalSeconds.value * dictationRepeatCount.value
   return `${Math.max(1, Math.ceil(seconds / 60))} 分钟`
@@ -1493,14 +1545,37 @@ const dictationSourceLabel = computed(() => {
   return `${selectedUnit.value?.bookName ?? '本单元'} ${selectedUnit.value?.unitName ?? ''} 自选词`
 })
 
+const isDictationRecognitionMode = computed(() => dictationMode.value === 'recognition')
+
+const dictationModeTipText = computed(() => {
+  if (dictationMode.value === 'paper') {
+    return dictationPrompt.value === 'english'
+      ? '播放英文发音，在纸上写出英文单词。'
+      : '手机负责报词，用纸笔完成默写。'
+  }
+  if (dictationMode.value === 'recognition') {
+    return '看英文想中文，点认识或不认识记录掌握情况。'
+  }
+  return dictationPrompt.value === 'english'
+    ? '听英文发音，在线输入英文单词。'
+    : '在线输入会记录对错并同步生词本。'
+})
+
+const dictationPlayerInstruction = computed(() => {
+  if (dictationMode.value === 'recognition') return '请想出这个单词的中文释义'
+  return '请写下这个单词'
+})
+
 const dictationSpokenPrompt = computed(() => {
   if (!currentDictationEntry.value) return ''
-  return dictationPrompt.value === 'chinese' ? currentDictationEntry.value.meaning : '英文单词发音'
+  if (dictationMode.value === 'recognition') return '想不出释义可点「不认识」'
+  return ''
 })
 
 const dictationTransportStatus = computed(() => {
   if (!dictationAudioReady.value) return '音频待生成'
   if (dictationMode.value === 'online') return '输入后提交判定'
+  if (dictationMode.value === 'recognition') return '点认识或不认识继续'
   if (isAutoPaused.value) return '已暂停'
   return `${remainingSeconds.value} 秒后自动进入下一个`
 })
@@ -1628,6 +1703,9 @@ function updateMiniProgramNavInset() {
 
 function setDictationPrompt(value: 'chinese' | 'english') {
   dictationPrompt.value = value
+  if (value === 'chinese' && dictationMode.value === 'recognition') {
+    dictationMode.value = 'paper'
+  }
 }
 
 function setDictationInterval(value: 5 | 8 | 12) {
@@ -1642,8 +1720,14 @@ function setDictationRepeatCount(value: 1 | 2) {
   dictationRepeatCount.value = value
 }
 
-function setDictationMode(value: 'paper' | 'online') {
+function setDictationMode(value: 'paper' | 'online' | 'recognition') {
+  if (value === 'recognition' && dictationPrompt.value !== 'english') return
   dictationMode.value = value
+}
+
+function submitDictationRecognitionAnswer(known: boolean) {
+  if (currentDictationRecognitionAnswered.value) return
+  submitDictationRecognition(known)
 }
 
 function syncNativeTabBar() {
@@ -4586,73 +4670,119 @@ onBeforeUnmount(() => {
   font-weight: 850;
 }
 
-.speakerButton {
+.dictationAudioCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  margin-top: 18px;
+  padding: 26px 20px 22px;
+  border: 1px solid rgba(73, 191, 34, 0.12);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 10px 24px rgba(52, 83, 68, 0.06);
+  box-sizing: border-box;
+}
+
+.dictationAudioMeaning {
+  max-width: 100%;
+  color: #24342c;
+  font-size: 24px;
+  line-height: 1.45;
+  font-weight: 850;
+  text-align: center;
+}
+
+.dictationSpeakerButton {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 174px;
-  height: 174px;
-  margin-top: 36px;
+  width: 58px;
+  height: 58px;
   border-radius: 999px;
-  background: #0d0f0e;
-  box-shadow: 0 22px 46px rgba(13, 15, 14, 0.16);
+  background: #fff;
+  box-shadow:
+    0 6px 18px rgba(28, 176, 246, 0.1),
+    inset 0 0 0 1px rgba(28, 176, 246, 0.08);
+  box-sizing: border-box;
 }
 
-.speakerButton.isPlaying {
-  transform: translateY(-1px);
-  box-shadow: 0 26px 54px rgba(13, 15, 14, 0.2);
+.dictationSpeakerButton.isSolo {
+  width: 66px;
+  height: 66px;
 }
 
-.speakerButton.isMissing {
-  opacity: 0.38;
+.dictationSpeakerButton.isPlaying {
+  background: #f3faff;
+  box-shadow:
+    0 8px 22px rgba(28, 176, 246, 0.16),
+    inset 0 0 0 1px rgba(28, 176, 246, 0.14);
 }
 
-.speakerGlyph {
-  position: relative;
-  width: 92px;
-  height: 92px;
-}
-
-.speakerCore {
+.dictationSpeakerButton.isPlaying::before,
+.dictationSpeakerButton.isPlaying::after {
+  content: '';
   position: absolute;
-  left: 8px;
-  top: 32px;
+  inset: -4px;
+  border: 1px solid rgba(28, 176, 246, 0.16);
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.dictationSpeakerButton.isPlaying::before {
+  animation: dictationSpeakerRipple 1.6s ease-out infinite;
+}
+
+.dictationSpeakerButton.isPlaying::after {
+  animation: dictationSpeakerRipple 1.6s ease-out 0.55s infinite;
+}
+
+.dictationSpeakerButton.isMissing {
+  opacity: 0.42;
+}
+
+.dictationSpeakerIcon {
+  position: relative;
+  z-index: 1;
   width: 28px;
   height: 28px;
-  background: #fff;
+  background: #1cb0f6;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z'/%3E%3C/svg%3E") center / contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
-.speakerCone {
-  position: absolute;
-  left: 32px;
-  top: 20px;
-  width: 0;
-  height: 0;
-  border-top: 26px solid transparent;
-  border-bottom: 26px solid transparent;
-  border-right: 36px solid #fff;
+.dictationSpeakerButton.isSolo .dictationSpeakerIcon {
+  width: 32px;
+  height: 32px;
 }
 
-.speakerWave {
-  position: absolute;
-  top: 21px;
-  border: 4px solid transparent;
-  border-right-color: #fff;
-  border-radius: 999px;
+.dictationSpeakerButton.isPlaying .dictationSpeakerIcon {
+  animation: dictationSpeakerIconPulse 0.95s ease-in-out infinite;
 }
 
-.speakerWave.one {
-  right: 8px;
-  width: 26px;
-  height: 48px;
+@keyframes dictationSpeakerIconPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.06);
+  }
 }
 
-.speakerWave.two {
-  right: -8px;
-  width: 42px;
-  height: 72px;
-  top: 9px;
+@keyframes dictationSpeakerRipple {
+  0% {
+    opacity: 0.45;
+    transform: scale(0.94);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.22);
+  }
 }
 
 .spokenPrompt {
@@ -4819,6 +4949,76 @@ onBeforeUnmount(() => {
   display: grid;
   gap: 14px;
   margin-top: 38px;
+}
+
+.dictationRecognitionWordCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 18px;
+  padding: 22px 18px;
+  border: 1px solid rgba(28, 176, 246, 0.14);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 10px 24px rgba(52, 83, 68, 0.06);
+  box-sizing: border-box;
+}
+
+.dictationRecognitionWord {
+  color: #1f2a25;
+  font-size: 34px;
+  line-height: 1.15;
+  font-weight: 950;
+  text-align: center;
+}
+
+.dictationRecognitionPhonetic {
+  color: #68766f;
+  font-size: 16px;
+  line-height: 1.35;
+  font-weight: 750;
+  text-align: center;
+}
+
+.dictationRecognitionPanel {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.dictationRecognitionButton {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  height: 54px;
+  border-radius: 18px;
+  box-sizing: border-box;
+}
+
+.dictationRecognitionButton.isKnown {
+  border: 1px solid #49bf22;
+  background: #49bf22;
+  box-shadow: inset 0 -4px #3ea61c;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.dictationRecognitionButton.isUnknown {
+  border: 1px solid #d8ddd9;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 8px 18px rgba(52, 83, 68, 0.06);
+  color: #5f6a64;
+  font-size: 17px;
+  font-weight: 850;
+}
+
+.dictationRecognitionButton.isDisabled {
+  opacity: 0.45;
 }
 
 .correctionLine {
@@ -6064,22 +6264,6 @@ onBeforeUnmount(() => {
 .playerInstruction {
   color: #afafaf;
   font-size: 15px;
-}
-
-.speakerButton {
-  width: 146px;
-  height: 146px;
-  margin-top: 22px;
-  background: #1cb0f6;
-  box-shadow: inset 0 -7px #178ec8, 0 18px 34px rgba(28, 176, 246, 0.18);
-}
-
-.speakerButton.isPlaying {
-  box-shadow: inset 0 -7px #178ec8, 0 20px 38px rgba(28, 176, 246, 0.22);
-}
-
-.speakerGlyph {
-  transform: scale(0.82);
 }
 
 .spokenPrompt {
@@ -8820,27 +9004,62 @@ onBeforeUnmount(() => {
   letter-spacing: 0.2px;
 }
 
-.screen.isDictationPlayerScreen .speakerButton {
-  width: 148px;
-  height: 148px;
-  margin-top: 22px;
-  border: 5px solid rgba(255, 255, 255, 0.92);
-  background: #20a9e5;
-  box-shadow:
-    0 0 0 1px rgba(31, 155, 211, 0.28),
-    0 16px 34px rgba(32, 169, 229, 0.2);
-  box-sizing: border-box;
+.screen.isDictationPlayerScreen .dictationRecognitionWordCard {
+  border-color: rgba(73, 191, 34, 0.16);
+  background: rgba(255, 255, 255, 0.96);
 }
 
-.screen.isDictationPlayerScreen .speakerButton.isPlaying {
-  transform: translateY(-1px);
-  box-shadow:
-    0 0 0 1px rgba(31, 155, 211, 0.34),
-    0 18px 38px rgba(32, 169, 229, 0.25);
+.screen.isDictationPlayerScreen .dictationRecognitionWord {
+  color: #24342c;
 }
 
-.screen.isDictationPlayerScreen .speakerGlyph {
-  transform: scale(0.78);
+.screen.isDictationPlayerScreen .dictationSpeakerButton {
+  background: #fff;
+  box-shadow:
+    0 6px 18px rgba(28, 176, 246, 0.1),
+    inset 0 0 0 1px rgba(28, 176, 246, 0.08);
+}
+
+.screen.isDictationPlayerScreen .dictationSpeakerButton.isPlaying {
+  background: #f3faff;
+  box-shadow:
+    0 8px 22px rgba(28, 176, 246, 0.16),
+    inset 0 0 0 1px rgba(28, 176, 246, 0.14);
+}
+
+.screen.isDictationPlayerScreen .dictationRecognitionWordCard ~ .spokenPrompt {
+  max-width: 88%;
+  margin-top: 12px;
+  color: #68766f;
+  font-size: 14px;
+  line-height: 1.45;
+  font-weight: 750;
+}
+
+.screen.isDictationPlayerScreen .dictationRecognitionPanel {
+  margin-top: 24px;
+}
+
+.screen.isDictationPlayerScreen .dictationRecognitionButton.isKnown {
+  border-color: #49bf22;
+  background: #49bf22;
+  box-shadow: inset 0 -4px #3ea61c;
+}
+
+.screen.isDictationPlayerScreen .dictationRecognitionButton.isUnknown {
+  border-color: #c9d8d2;
+  background: rgba(255, 255, 255, 0.94);
+  color: #56635c;
+}
+
+.screen.isDictationPlayerScreen .dictationAudioCard {
+  border-color: rgba(73, 191, 34, 0.16);
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.screen.isDictationPlayerScreen .dictationAudioMeaning {
+  color: #24342c;
+  font-size: 26px;
 }
 
 .screen.isDictationPlayerScreen .spokenPrompt {
@@ -8980,15 +9199,12 @@ onBeforeUnmount(() => {
   .choiceItem {
     min-height: 54px;
   }
-
-  .speakerButton {
-    width: 132px;
-    height: 132px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .speakerButton.isPlaying,
+  .dictationSpeakerButton.isPlaying::before,
+  .dictationSpeakerButton.isPlaying::after,
+  .dictationSpeakerButton.isPlaying .dictationSpeakerIcon,
   .audioButton.isPlaying .playIcon {
     animation: none;
   }

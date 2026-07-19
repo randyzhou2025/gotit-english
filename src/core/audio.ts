@@ -46,6 +46,7 @@ export function getAccentLabel(accent: Accent): string {
   return accent === 'uk' ? '英音' : '美音'
 }
 
-export function getDictationPromptLabel(plan: Pick<DictationPlan, 'accent' | 'prompt'>): string {
+export function getDictationPromptLabel(plan: Pick<DictationPlan, 'accent' | 'prompt' | 'mode'>): string {
+  if (plan.mode === 'recognition') return '释义核对'
   return plan.prompt === 'chinese' ? '中文听写' : `${getAccentLabel(plan.accent)}听写`
 }
