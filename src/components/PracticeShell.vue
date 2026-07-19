@@ -6,7 +6,8 @@
       isSplitScreen && 'isSplitScreen',
       activeScreen === 'dictationSetup' && 'isDictationSetupScreen',
       activeScreen === 'dictationWords' && 'isDictationWordScreen',
-      activeScreen === 'dictation' && 'isDictationPlayerScreen'
+      activeScreen === 'dictation' && 'isDictationPlayerScreen',
+      activeScreen === 'weakbook' && 'isWeakbookScreen'
     ]"
     :style="screenStyle"
   >
@@ -337,9 +338,12 @@
               v-for="word in savedWeakWords"
               :key="word.id"
               :class="['weakbookWordRow', isWeakWordSelected(word.id) && 'isSelected']"
-              @tap="toggleWeakWordSelection(word.id)"
+              @tap="openWeakbookWordDetailPage(word.id)"
             >
-              <view :class="['weakbookCheckDot', isWeakWordSelected(word.id) && 'isChecked']">
+              <view
+                :class="['weakbookCheckDot', isWeakWordSelected(word.id) && 'isChecked']"
+                @tap.stop="toggleWeakWordSelection(word.id)"
+              >
                 <text v-if="isWeakWordSelected(word.id)">✓</text>
               </view>
               <view class="weakbookWordCopy">
@@ -369,7 +373,7 @@
         <view class="unitWordHeader">
           <text class="unitWordTitle">{{ selectedUnit?.bookName }} {{ selectedUnit?.unitName }}</text>
           <text class="unitWordMeta">已掌握 {{ unitMasteryLabel }}</text>
-          <text class="unitWordTip">标记认识后，该词不会进入体检和听写。</text>
+          <text class="unitWordTip">标记认识后，该词默认不会进入听写范围。</text>
         </view>
 
         <view class="unitWordList">
@@ -471,7 +475,7 @@
           :class="['wordDetailNextButton', !hasNextWordDetail && 'isDisabled']"
           @tap="goNextWordDetail"
         >
-          <text class="wordDetailNextLabel">{{ hasNextWordDetail ? '下一词' : '已是本单元最后一个' }}</text>
+          <text class="wordDetailNextLabel">{{ hasNextWordDetail ? '下一词' : '已是最后一个' }}</text>
         </view>
       </view>
     </view>
@@ -1821,6 +1825,11 @@ function openUnitWordsPage(masteredFirst = false) {
 
 function openWordDetailPage(wordId: string) {
   openWordDetail(wordId)
+  navigateToRoute('wordDetail')
+}
+
+function openWeakbookWordDetailPage(wordId: string) {
+  openWordDetail(wordId, savedWeakWords.value.map(word => word.id))
   navigateToRoute('wordDetail')
 }
 
@@ -8653,6 +8662,102 @@ onBeforeUnmount(() => {
 .screen.isDictationWordScreen .wordPickerConfirm:active {
   transform: translateX(-50%) translateY(2px) scale(0.995);
   box-shadow: 0 5px 12px rgba(61, 155, 5, 0.18);
+}
+
+.screen.isWeakbookScreen {
+  background: linear-gradient(180deg, #e6f6ee 0%, #eef7f3 48%, #f3f6f5 100%);
+}
+
+.screen.isWeakbookScreen .weakbookScreen,
+.screen.isWeakbookScreen .pageChrome,
+.screen.isWeakbookScreen .pageBodyScroll {
+  background: transparent;
+}
+
+.screen.isWeakbookScreen .weakbookContent {
+  gap: 14px;
+}
+
+.screen.isWeakbookScreen .weakbookSummary {
+  padding: 16px 17px;
+  border: 1px solid rgba(194, 218, 207, 0.76);
+  border-radius: 17px;
+  background: rgba(237, 246, 242, 0.86);
+  box-shadow: 0 8px 22px rgba(47, 90, 69, 0.045);
+}
+
+.screen.isWeakbookScreen .weakbookSummaryLabel {
+  color: #69766f;
+  font-weight: 750;
+}
+
+.screen.isWeakbookScreen .weakbookSummaryCount {
+  color: #26342d;
+  font-weight: 900;
+}
+
+.screen.isWeakbookScreen .weakbookSummaryUnit,
+.screen.isWeakbookScreen .weakbookSummaryHint {
+  color: #718078;
+}
+
+.screen.isWeakbookScreen .weakbookSelectToggle {
+  min-height: 34px;
+  border: 1px solid #c6e7f4;
+  background: #e4f4fa;
+  color: #168fc8;
+  box-sizing: border-box;
+}
+
+.screen.isWeakbookScreen .weakbookQuickActions {
+  gap: 9px;
+}
+
+.screen.isWeakbookScreen .weakbookQuickAction {
+  min-height: 47px;
+  border-width: 1px;
+  border-bottom-width: 1px;
+  border-radius: 15px;
+  box-sizing: border-box;
+  transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+}
+
+.screen.isWeakbookScreen .weakbookQuickAction.isPrimary {
+  border-color: #46b40b;
+  background: #50c90a;
+  box-shadow: 0 7px 16px rgba(70, 180, 11, 0.16);
+}
+
+.screen.isWeakbookScreen .weakbookQuickAction.isSecondary {
+  border-color: #209ed5;
+  background: #28aae4;
+  box-shadow: 0 7px 16px rgba(32, 158, 213, 0.15);
+}
+
+.screen.isWeakbookScreen .weakbookQuickAction.isMuted {
+  border-color: #ccdcd4;
+  background: rgba(226, 237, 232, 0.9);
+  color: #526159;
+  box-shadow: 0 6px 14px rgba(52, 83, 68, 0.06);
+}
+
+.screen.isWeakbookScreen .weakbookQuickAction:active {
+  transform: translateY(1px) scale(0.99);
+  box-shadow: none;
+}
+
+.screen.isWeakbookScreen .weakbookQuickAction.isDisabled {
+  border-color: #d7e1dc;
+  background: #e8eeeb;
+  color: #98a39d;
+  box-shadow: none;
+}
+
+.screen.isWeakbookScreen .weakbookWordCopy {
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .screen.isDictationPlayerScreen {

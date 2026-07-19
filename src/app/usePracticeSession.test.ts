@@ -65,4 +65,37 @@ describe('practice session dictation navigation', () => {
     restoredSession.resumeDictation()
     expect(restoredSession.screen.value).toBe('dictation')
   })
+
+  it('preserves weakbook selection after returning from a weak-word detail', () => {
+    const initialSession = createPracticeSession()
+    const weakWordIds = initialSession.unitWords.value
+      .slice(0, 3)
+      .map(word => word.id)
+    storage.set('gotit:savedWeakWordIds', weakWordIds)
+
+    const session = createPracticeSession()
+    session.openWeakbook()
+    session.toggleWeakWordSelection(weakWordIds[1]!)
+
+    const selectionBeforeDetail = [...session.selectedWeakWordIds.value]
+    session.openWordDetail(weakWordIds[0]!, weakWordIds)
+    session.openWeakbook()
+
+    expect(session.selectedWeakWordIds.value).toEqual(selectionBeforeDetail)
+  })
+
+  it('uses the weakbook order and count in weak-word detail progress', () => {
+    const initialSession = createPracticeSession()
+    const weakWordIds = initialSession.unitWords.value
+      .slice(0, 3)
+      .map(word => word.id)
+    storage.set('gotit:savedWeakWordIds', weakWordIds)
+
+    const session = createPracticeSession()
+    session.openWordDetail(weakWordIds[1]!, weakWordIds)
+
+    expect(session.wordDetailProgressLabel.value).toBe('2/3')
+    session.nextWordDetail()
+    expect(session.wordDetailProgressLabel.value).toBe('3/3')
+  })
 })

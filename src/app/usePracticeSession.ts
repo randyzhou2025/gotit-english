@@ -312,7 +312,9 @@ export function createPracticeSession() {
   const masteredWordIds = ref<string[]>(loadSavedWordIds(MASTERED_WORD_IDS_KEY))
   const masteredWordIdSet = computed(() => new Set(masteredWordIds.value))
   const selectedWeakWordIds = ref<string[]>([])
+  const weakbookSelectionInitialized = ref(false)
   const selectedWordDetailId = ref('')
+  const wordDetailOrderedIds = ref<string[]>([])
   const unitWordsMasteredFirst = ref(false)
 
   const dictationMode = ref<DictationMode>(unfinishedDictation?.plan.mode ?? 'paper')
@@ -397,7 +399,7 @@ export function createPracticeSession() {
     if (unitWordCount.value === 0) return 0
     return Math.round((masteredUnitWordCount.value / unitWordCount.value) * 100)
   })
-  const wordDetailOrderedIds = computed(() => {
+  const unitWordDetailOrderedIds = computed(() => {
     const unmastered = unitWords.value.filter(word => !masteredWordIdSet.value.has(word.id))
     const mastered = unitWords.value.filter(word => masteredWordIdSet.value.has(word.id))
     return [...unmastered, ...mastered].map(word => word.id)
@@ -833,7 +835,14 @@ export function createPracticeSession() {
   }
 
   function openWeakbook() {
-    selectedWeakWordIds.value = savedWeakWords.value.map(word => word.id)
+    const availableIds = savedWeakWords.value.map(word => word.id)
+    if (!weakbookSelectionInitialized.value) {
+      selectedWeakWordIds.value = availableIds
+      weakbookSelectionInitialized.value = true
+    } else {
+      const availableIdSet = new Set(availableIds)
+      selectedWeakWordIds.value = selectedWeakWordIds.value.filter(id => availableIdSet.has(id))
+    }
     screen.value = 'weakbook'
     scrollToTop()
   }
@@ -844,7 +853,13 @@ export function createPracticeSession() {
     scrollToTop()
   }
 
-  function openWordDetail(wordId: string) {
+  function openWordDetail(wordId: string, orderedWordIds?: string[]) {
+    const unitWordIdSet = new Set(unitWords.value.map(word => word.id))
+    const requestedIds = orderedWordIds ?? unitWordDetailOrderedIds.value
+    const availableIds = requestedIds.filter(id => unitWordIdSet.has(id))
+    wordDetailOrderedIds.value = availableIds.includes(wordId)
+      ? availableIds
+      : unitWordDetailOrderedIds.value
     selectedWordDetailId.value = wordId
     screen.value = 'wordDetail'
     scrollToTop()
