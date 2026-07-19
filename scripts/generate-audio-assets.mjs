@@ -6,7 +6,7 @@ import { promisify } from 'node:util'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(__dirname, '..')
-const wordbankPath = path.join(root, 'src', 'data', 'wordbank.generated.json')
+const wordbankPath = path.resolve(root, process.env.AUDIO_WORDBANK_PATH || 'src/data/wordbank.generated.json')
 const manifestPath = path.join(root, 'src', 'data', 'audio.generated.json')
 const outputDir = path.resolve(root, process.env.AUDIO_OUTPUT_DIR || 'generated/audio')
 const execFileAsync = promisify(execFile)
@@ -29,6 +29,17 @@ const skipSynthesis = process.env.AUDIO_SKIP_SYNTHESIS === '1'
 const writeManifest = process.env.AUDIO_WRITE_MANIFEST !== '0'
 const forceSynthesis = process.env.AUDIO_FORCE === '1'
 const maxRetries = Math.max(1, Number(process.env.AUDIO_RETRIES || 3))
+const variants = (process.env.AUDIO_VARIANTS || 'uk,us,zh')
+  .split(',')
+  .map(value => value.trim())
+  .filter(Boolean)
+const mergeManifest = process.env.AUDIO_MERGE_MANIFEST === '1'
+
+const variantConfig = {
+  uk: { voice: voiceUk, text: entry => entry.word },
+  us: { voice: voiceUs, text: entry => entry.word },
+  zh: { voice: voiceZh, text: entry => entry.meaning }
+}
 
 function requiredEnv(name, value) {
   if (!value) {
@@ -109,8 +120,7 @@ async function synthesizeEdge(text, voiceName, filePath) {
       edgeVolume,
       '--pitch',
       edgePitch,
-      '--text',
-      text,
+      `--text=${text}`,
       '--write-media',
       tempPath
     ], {
@@ -191,9 +201,10 @@ async function runPool(tasks, worker) {
 }
 
 async function ensureAudioSet(entry) {
-  await ensureAudioFile(entry, 'uk', entry.word, voiceUk)
-  await ensureAudioFile(entry, 'us', entry.word, voiceUs)
-  await ensureAudioFile(entry, 'zh', entry.meaning, voiceZh)
+  for (const variant of variants) {
+    const config = variantConfig[variant]
+    await ensureAudioFile(entry, variant, config.text(entry), config.voice)
+  }
 }
 
 async function assertEdgeAvailable() {
@@ -209,6 +220,10 @@ async function assertEdgeAvailable() {
 }
 
 async function main() {
+  if (variants.length === 0 || variants.some(variant => !variantConfig[variant])) {
+    throw new Error(`AUDIO_VARIANTS must contain one or more of: ${Object.keys(variantConfig).join(', ')}`)
+  }
+
   if (provider === 'azure') {
     requiredEnv('AZURE_SPEECH_KEY', speechKey)
     requiredEnv('AZURE_SPEECH_REGION', speechRegion)
@@ -220,17 +235,18 @@ async function main() {
 
   const raw = JSON.parse(await fs.readFile(wordbankPath, 'utf8'))
   const words = flattenWords(raw).slice(0, limit > 0 ? limit : undefined)
-  const items = {}
+  const previousManifest = mergeManifest
+    ? JSON.parse(await fs.readFile(manifestPath, 'utf8'))
+    : null
+  const items = previousManifest?.items ?? {}
 
   await runPool(words, async (entry, index) => {
     await ensureAudioSet(entry)
-    const hasAudioUrl = Boolean(audioUrl(entry.cdnKey, 'uk'))
-
     items[entry.cdnKey] = {
-      status: hasAudioUrl ? 'ready' : 'pending',
-      ukUrl: audioUrl(entry.cdnKey, 'uk'),
-      usUrl: audioUrl(entry.cdnKey, 'us'),
-      zhUrl: audioUrl(entry.cdnKey, 'zh')
+      status: variants.every(variant => Boolean(audioUrl(entry.cdnKey, variant))) ? 'ready' : 'pending',
+      ukUrl: variants.includes('uk') ? audioUrl(entry.cdnKey, 'uk') : '',
+      usUrl: variants.includes('us') ? audioUrl(entry.cdnKey, 'us') : '',
+      zhUrl: variants.includes('zh') ? audioUrl(entry.cdnKey, 'zh') : ''
     }
 
     if ((index + 1) % 25 === 0 || index + 1 === words.length) {
