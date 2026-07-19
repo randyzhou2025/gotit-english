@@ -133,6 +133,42 @@ function inferJuniorGrade(unit: UnitGroup): string {
   return JUNIOR_GRADE_OPTIONS.find(grade => unit.bookName.includes(grade)) ?? ''
 }
 
+function computeMasteryPercent(wordIds: string[], masteredSet: Set<string>): number | null {
+  if (wordIds.length === 0) return null
+
+  let masteredCount = 0
+  for (const wordId of wordIds) {
+    if (masteredSet.has(wordId)) masteredCount += 1
+  }
+  if (masteredCount === 0) return null
+
+  return Math.round((masteredCount / wordIds.length) * 100)
+}
+
+function toBookCourseOptions(
+  units: UnitGroup[],
+  masteredSet: Set<string>
+): Array<{ id: string, name: string, masteryPercent: number | null }> {
+  const books = new Map<string, { id: string, name: string, order: number, wordIds: string[] }>()
+
+  for (const unit of units) {
+    let book = books.get(unit.bookId)
+    if (!book) {
+      book = { id: unit.bookId, name: unit.bookName, order: unit.bookOrder, wordIds: [] }
+      books.set(unit.bookId, book)
+    }
+    book.wordIds.push(...unit.words.map(word => word.id))
+  }
+
+  return Array.from(books.values())
+    .sort((a, b) => a.order - b.order)
+    .map(book => ({
+      id: book.id,
+      name: book.name,
+      masteryPercent: computeMasteryPercent(book.wordIds, masteredSet)
+    }))
+}
+
 function toCourseOptions<T extends UnitGroup>(
   units: T[],
   getId: (unit: T) => string,
@@ -237,8 +273,10 @@ function createPracticeSession() {
   const spellingInput = ref('')
   const savedWeakWordIds = ref<string[]>(loadSavedWordIds(SAVED_WEAK_WORD_IDS_KEY))
   const masteredWordIds = ref<string[]>(loadSavedWordIds(MASTERED_WORD_IDS_KEY))
+  const masteredWordIdSet = computed(() => new Set(masteredWordIds.value))
   const selectedWeakWordIds = ref<string[]>([])
   const selectedWordDetailId = ref('')
+  const unitWordsMasteredFirst = ref(false)
 
   const dictationMode = ref<DictationMode>('paper')
   const dictationPrompt = ref<DictationPrompt>('chinese')
@@ -298,20 +336,21 @@ function createPracticeSession() {
     unit => unit.publisherId,
     unit => unit.publisherName
   ))
-  const courseSetupBookOptions = computed(() => toCourseOptions(
-    courseSetupStageUnits.value
-      .filter(unit => unit.publisherId === courseSetupPublisherId.value)
-      .sort((a, b) => a.bookOrder - b.bookOrder),
-    unit => unit.bookId,
-    unit => unit.bookName
+  const courseSetupBookOptions = computed(() => toBookCourseOptions(
+    courseSetupStageUnits.value.filter(unit => unit.publisherId === courseSetupPublisherId.value),
+    masteredWordIdSet.value
   ))
   const courseSetupUnitOptions = computed(() => courseSetupStageUnits.value
     .filter(unit => unit.publisherId === courseSetupPublisherId.value && unit.bookId === courseSetupBookId.value)
     .sort((a, b) => a.unitNumber - b.unitNumber)
-    .map(unit => ({ id: unit.unitId, name: `Unit ${unit.unitNumber}`, count: unit.words.length })))
+    .map(unit => ({
+      id: unit.unitId,
+      name: `Unit ${unit.unitNumber}`,
+      count: unit.words.length,
+      masteryPercent: computeMasteryPercent(unit.words.map(word => word.id), masteredWordIdSet.value)
+    })))
   const courseSetupCanConfirm = computed(() => courseSetupUnitOptions.value.some(unit => unit.id === courseSetupUnitId.value))
   const unitWords = computed(() => selectedUnit.value?.words ?? [])
-  const masteredWordIdSet = computed(() => new Set(masteredWordIds.value))
   const masteredUnitWords = computed(() => unitWords.value.filter(word => masteredWordIdSet.value.has(word.id)))
   const masteredUnitWordCount = computed(() => masteredUnitWords.value.length)
   const unitWordCount = computed(() => unitWords.value.length)
@@ -759,7 +798,8 @@ function createPracticeSession() {
     scrollToTop()
   }
 
-  function openUnitWords() {
+  function openUnitWords(masteredFirst = false) {
+    unitWordsMasteredFirst.value = masteredFirst
     screen.value = 'unitWords'
     scrollToTop()
   }
@@ -1308,6 +1348,7 @@ function createPracticeSession() {
     unitMasteryPercent,
     unitWordCount,
     unitWords,
+    unitWordsMasteredFirst,
     units,
     weakWords,
     nextDictation

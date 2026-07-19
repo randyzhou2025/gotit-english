@@ -77,10 +77,11 @@
             <view
               v-for="book in courseSetupBookOptions"
               :key="book.id"
-              :class="['courseChip', courseSetupBookId === book.id && 'isActive']"
+              :class="['courseChip', book.masteryPercent != null && 'hasMeta', courseSetupBookId === book.id && 'isActive']"
               @tap="setCourseSetupBook(book.id)"
             >
-              <text>{{ book.name }}</text>
+              <text class="courseChipLabel">{{ book.name }}</text>
+              <text v-if="book.masteryPercent != null" class="courseChipMeta">{{ book.masteryPercent }}% 掌握</text>
             </view>
           </view>
           <view v-else class="courseUnavailable">
@@ -98,7 +99,9 @@
               @tap="setCourseSetupUnit(unit.id)"
             >
               <text class="courseUnitName">{{ unit.name }}</text>
-              <text class="courseUnitCount">{{ unit.count }} 词</text>
+              <text class="courseUnitCount">
+                {{ unit.count }} 词<text v-if="unit.masteryPercent != null" class="courseUnitMastery"> · {{ unit.masteryPercent }}% 掌握</text>
+              </text>
             </view>
           </view>
           <view v-else class="courseUnavailable">
@@ -143,18 +146,18 @@
         </view>
 
         <view class="homeStatRow">
-          <view class="homeStatPrimary" @tap="openUnitWordsPage">
+          <view class="homeStatPrimary" @tap="openUnitWordsPage()">
             <text class="homeStatNumber">{{ unitWordCount }}</text>
             <view>
               <text class="homeStatTitle">总单词</text>
               <text class="homeStatHint">查看完整词表</text>
             </view>
           </view>
-          <view class="homeStatSecondary" @tap="openUnitWordsPage">
-            <text class="homeStatNumber">{{ activeWords.length }}</text>
+          <view class="homeStatSecondary" @tap="openUnitWordsPage(true)">
+            <text class="homeStatNumber">{{ masteredUnitWordCount }}</text>
             <view>
-              <text class="homeStatTitle">待练</text>
-              <text class="homeStatHint">未掌握词</text>
+              <text class="homeStatTitle">已掌握</text>
+              <text class="homeStatHint">查看掌握词</text>
             </view>
           </view>
         </view>
@@ -397,7 +400,7 @@
               :class="['unitWordKnownButton', isUnitWordMastered(item.word.id) && 'isDone']"
               @tap.stop="markUnitWordKnown(item.word.id)"
             >
-              <text class="unitWordKnownLabel">{{ isUnitWordMastered(item.word.id) ? '已掌握' : '认识' }}</text>
+              <text class="unitWordKnownLabel">{{ isUnitWordMastered(item.word.id) ? '✓ 已掌握' : '认识' }}</text>
             </view>
           </view>
         </view>
@@ -1195,6 +1198,7 @@ const {
   markSelectedWeakWordsKnown,
   markCurrentDictationForgotten: markCurrentDictationForgottenInSession,
   markUnitWordKnown,
+  masteredUnitWordCount,
   openDictationWordPicker,
   openCheckupSetup,
   openCourseSetup: openCourseSetupScreen,
@@ -1253,6 +1257,7 @@ const {
   unitMasteryPercent,
   unitWordCount,
   unitWords,
+  unitWordsMasteredFirst,
   weakWords,
   nextDictation,
   wordDetailEntry,
@@ -1508,10 +1513,13 @@ const sortedUnitWords = computed(() => {
     word,
     mastered: isUnitWordMastered(word.id)
   }))
-  return [
-    ...items.filter(item => !item.mastered),
-    ...items.filter(item => item.mastered)
-  ]
+  if (!unitWordsMasteredFirst.value) {
+    return items
+  }
+
+  const unmastered = items.filter(item => !item.mastered)
+  const mastered = items.filter(item => item.mastered)
+  return [...mastered, ...unmastered]
 })
 
 const showAppHeader = computed(() => {
@@ -1805,8 +1813,8 @@ function openCourseSetupPage() {
   navigateToRoute('courseSetup')
 }
 
-function openUnitWordsPage() {
-  openUnitWords()
+function openUnitWordsPage(masteredFirst = false) {
+  openUnitWords(masteredFirst)
   navigateToRoute('unitWords')
 }
 
@@ -3630,8 +3638,11 @@ onBeforeUnmount(() => {
 .courseHeroText,
 .courseSectionTitle,
 .courseUnavailable,
+.courseChipLabel,
+.courseChipMeta,
 .courseUnitName,
 .courseUnitCount,
+.courseUnitMastery,
 .courseConfirmButton {
   display: block;
 }
@@ -3729,6 +3740,28 @@ onBeforeUnmount(() => {
   box-shadow: none;
 }
 
+.courseChip.hasMeta {
+  flex-direction: column;
+  gap: 3px;
+  min-height: 52px;
+  padding: 7px 10px;
+}
+
+.courseChipLabel {
+  line-height: 1.15;
+}
+
+.courseChipMeta {
+  color: #58cc02;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 800;
+}
+
+.courseChip.isActive .courseChipMeta {
+  color: #46a302;
+}
+
 .courseUnitChip {
   flex-direction: column;
   align-items: center;
@@ -3755,6 +3788,16 @@ onBeforeUnmount(() => {
 
 .courseUnitChip.isActive .courseUnitCount {
   color: #1cb0f6;
+}
+
+.courseUnitMastery {
+  display: inline;
+  color: #58cc02;
+  font-weight: 800;
+}
+
+.courseUnitChip.isActive .courseUnitMastery {
+  color: #46a302;
 }
 
 .courseUnavailable {
@@ -6697,29 +6740,23 @@ onBeforeUnmount(() => {
 
 .unitWordRow {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 78px;
+  grid-template-columns: minmax(0, 1fr) 88px;
   gap: 10px;
   align-items: center;
   min-height: 66px;
   padding: 12px 14px;
-  border: 0;
-  border-radius: 12px;
+  border: 2px solid #ececec;
+  border-bottom-width: 3px;
+  border-bottom-color: #dedede;
+  border-radius: 14px;
   background: #fff;
   box-shadow: none;
 }
 
 .unitWordRow.isMastered {
-  background: #eef3f0;
-  box-shadow: none;
-}
-
-.unitWordRow.isMastered .unitWordEnglish {
-  color: #6f7370;
-}
-
-.unitWordRow.isMastered .unitWordPhonetic,
-.unitWordRow.isMastered .unitWordMeaning {
-  color: #9aa09c;
+  border-color: #c5f0a8;
+  border-bottom-color: #58cc02;
+  background: #f7fcf4;
 }
 
 .unitWordCopy {
@@ -6778,22 +6815,29 @@ onBeforeUnmount(() => {
 }
 
 .unitWordKnownButton {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 40px;
+  padding: 0 4px;
   border-radius: 14px;
   background: #58cc02;
   color: #fff;
   box-shadow: inset 0 -4px #46a302;
   font-size: 13px;
   font-weight: 950;
+  white-space: nowrap;
 }
 
 .unitWordKnownButton.isDone {
-  background: #d9ddd9;
-  color: #8a8f8a;
-  box-shadow: inset 0 -4px #c8ccc8;
+  background: #e9ffe0;
+  color: #46a302;
+  border: 2px solid #58cc02;
+  border-bottom-width: 3px;
+  border-bottom-color: #46a302;
+  box-shadow: none;
+  font-size: 12px;
 }
 
 .unitWordKnownLabel {
@@ -8111,13 +8155,19 @@ onBeforeUnmount(() => {
 }
 
 .unitWordKnownButton.isDone {
-  background: #d9ddd9;
-  color: #8a8f8a;
-  box-shadow: inset 0 -4px #c8ccc8;
+  background: #e9ffe0;
+  color: #46a302;
+  border: 2px solid #58cc02;
+  border-bottom-width: 3px;
+  border-bottom-color: #46a302;
+  box-shadow: none;
+  font-size: 12px;
 }
 
 .unitWordRow.isMastered {
-  background: #eef3f0;
+  border-color: #c5f0a8;
+  border-bottom-color: #58cc02;
+  background: #f7fcf4;
 }
 
 .reportActions .bottomButton {

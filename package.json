@@ -2,7 +2,7 @@
   "name": "gotit-english",
   "version": "0.2.1",
   "private": true,
-  "description": "会了吗英语：uni-app 版英语词汇体检与自动听写",
+  "description": "课本单词通：专注课本单词的体检与自动听写",
   "scripts": {
     "wordbank:build": "node scripts/build-wordbank.mjs",
     "audio:generate": "node scripts/generate-audio-assets.mjs",

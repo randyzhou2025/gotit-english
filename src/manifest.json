@@ -1,7 +1,7 @@
 {
-  "name": "会了吗英语",
+  "name": "课本单词通",
   "appid": "wx703d7f44468c7dbf",
-  "description": "英语词汇体检与自动听写",
+  "description": "专注课本单词的体检与自动听写",
   "versionName": "0.2.1",
   "versionCode": "21",
   "transformPx": false,
