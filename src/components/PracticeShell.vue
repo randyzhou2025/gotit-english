@@ -453,6 +453,37 @@
           </view>
         </view>
 
+        <view v-if="wordDetailPhraseLines.length > 0" class="wordDetailCard">
+          <view class="wordDetailSectionHead">
+            <view class="wordDetailSectionBar" />
+            <text class="wordDetailSectionTitle">词组</text>
+          </view>
+          <view class="wordDetailPhraseList">
+            <view
+              v-for="(line, index) in wordDetailPhraseLines"
+              :key="`${line.phrase}-${index}`"
+              class="wordDetailPhraseLine"
+            >
+              <text class="wordDetailPhraseText">{{ line.phrase }}</text>
+              <text v-if="line.gloss" class="wordDetailPhraseGloss">{{ line.gloss }}</text>
+            </view>
+          </view>
+        </view>
+
+        <view v-if="wordDetailFormLines.length > 0" class="wordDetailCard">
+          <view class="wordDetailSectionHead">
+            <view class="wordDetailSectionBar" />
+            <text class="wordDetailSectionTitle">词形变化</text>
+          </view>
+          <view class="wordDetailFormList">
+            <text
+              v-for="(line, index) in wordDetailFormLines"
+              :key="`${line}-${index}`"
+              class="wordDetailFormLine"
+            >{{ line }}</text>
+          </view>
+        </view>
+
         <view v-if="wordDetailEntry.exampleSentence" class="wordDetailCard">
           <view class="wordDetailSectionHead">
             <view class="wordDetailSectionBar" />
@@ -474,6 +505,23 @@
               @tap="playWordDetailExampleAudio"
             >
               <view class="wordDetailSpeakerIcon" />
+            </view>
+          </view>
+        </view>
+
+        <view v-if="wordDetailMemoryLines.length > 0" class="wordDetailCard">
+          <view class="wordDetailSectionHead">
+            <view class="wordDetailSectionBar" />
+            <text class="wordDetailSectionTitle">记忆要点</text>
+          </view>
+          <view class="wordDetailMemoryList">
+            <view
+              v-for="(line, index) in wordDetailMemoryLines"
+              :key="`${line.label}-${index}`"
+              class="wordDetailMemoryLine"
+            >
+              <text class="wordDetailMemoryLabel">{{ line.label }}</text>
+              <text class="wordDetailMemoryText">{{ line.text }}</text>
             </view>
           </view>
         </view>
@@ -876,8 +924,27 @@
       <view class="playerStage">
         <text class="playerInstruction">{{ dictationPlayerInstruction }}</text>
         <view v-if="isDictationRecognitionMode" class="dictationRecognitionWordCard">
-          <text class="dictationRecognitionWord">{{ currentDictationEntry.word }}</text>
-          <text v-if="currentDictationEntry.phonetic" class="dictationRecognitionPhonetic">{{ currentDictationEntry.phonetic }}</text>
+          <view class="dictationRecognitionWordHead">
+            <view class="dictationRecognitionWordCopy">
+              <view class="dictationRecognitionWordRow">
+                <text
+                  v-if="dictationRecognitionWordVisible"
+                  class="dictationRecognitionWord"
+                >{{ currentDictationEntry.word }}</text>
+                <text v-else class="dictationRecognitionWord isMasked">······</text>
+                <view
+                  :class="['dictationRecognitionEyeButton', !dictationRecognitionWordVisible && 'isOff']"
+                  @tap.stop="toggleDictationRecognitionWordVisible"
+                >
+                  <view class="dictationRecognitionEyeIcon" />
+                </view>
+              </view>
+              <text
+                v-if="dictationRecognitionWordVisible && currentDictationEntry.phonetic"
+                class="dictationRecognitionPhonetic"
+              >{{ currentDictationEntry.phonetic }}</text>
+            </view>
+          </view>
           <view
             :class="['dictationSpeakerButton', isAudioPlaying && 'isPlaying', !dictationAudioReady && 'isMissing']"
             @tap.stop="repeatCurrentDictation"
@@ -896,7 +963,7 @@
         </view>
         <text v-if="isDictationRecognitionMode" class="spokenPrompt">{{ dictationSpokenPrompt }}</text>
         <view
-          v-if="dictationPrompt === 'chinese'"
+          v-if="dictationMode === 'paper'"
           :class="['forgotButton', currentDictationMarkedForgotten && 'isMarked']"
           @tap="markCurrentDictationForgotten"
         >
@@ -966,6 +1033,13 @@
             <text class="correctionMeaning">{{ currentDictationEntry.meaning }}</text>
           </view>
           <text v-if="currentDictationMarkedForgotten" class="feedbackText">已标记忘记，并加入生词本。</text>
+        </view>
+        <view
+          v-if="dictationPrompt === 'english' && !showDictationAnswer"
+          :class="['forgotButton', 'onlineForgotButton', currentDictationMarkedForgotten && 'isMarked']"
+          @tap="markCurrentDictationForgotten"
+        >
+          <text>{{ currentDictationMarkedForgotten ? '已加入生词本' : '忘记了' }}</text>
         </view>
         <view
           v-if="!showDictationAnswer"
@@ -1171,6 +1245,11 @@ import { onHide, onShow } from '@dcloudio/uni-app'
 import { usePracticeSession, type AppScreen } from '@/app/usePracticeSession'
 import { getAudioUrl, hasPlayableAudio } from '@/core/audio'
 import { splitMeaningByPartOfSpeech } from '@/core/wordMeaning'
+import {
+  buildWordDetailMemoryLines,
+  parseWordDetailPhrases,
+  parseWordDetailWordForms
+} from '@/core/wordDetailExtras'
 import type { Accent } from '@/core/types'
 
 const props = defineProps<{
@@ -1338,7 +1417,27 @@ const shellVisible = ref(false)
 const miniProgramNavTop = ref(16)
 const miniProgramCapsuleTop = ref(28)
 const miniProgramCapsuleHeight = ref(32)
+const DICTATION_RECOGNITION_WORD_VISIBLE_KEY = 'gotit:dictationRecognitionWordVisible'
+
+function loadDictationRecognitionWordVisible(): boolean {
+  try {
+    const saved = uni.getStorageSync(DICTATION_RECOGNITION_WORD_VISIBLE_KEY)
+    return saved !== false
+  } catch {
+    return true
+  }
+}
+
+function saveDictationRecognitionWordVisible(visible: boolean) {
+  try {
+    uni.setStorageSync(DICTATION_RECOGNITION_WORD_VISIBLE_KEY, visible)
+  } catch {
+    // Storage can be unavailable in restricted preview contexts.
+  }
+}
+
 const rewardProgressPercent = ref(0)
+const dictationRecognitionWordVisible = ref(loadDictationRecognitionWordVisible())
 
 const screenStyle = computed(() => {
   // #ifdef MP-WEIXIN
@@ -1977,6 +2076,28 @@ const wordDetailMeaningLines = computed(() => {
   return splitMeaningByPartOfSpeech(entry.partOfSpeech, entry.meaning)
 })
 
+const wordDetailPhraseLines = computed(() => {
+  const entry = wordDetailEntry.value
+  if (!entry) return []
+  return parseWordDetailPhrases(entry.commonPhrases)
+})
+
+const wordDetailFormLines = computed(() => {
+  const entry = wordDetailEntry.value
+  if (!entry) return []
+  return parseWordDetailWordForms(entry.wordForms)
+})
+
+const wordDetailMemoryLines = computed(() => {
+  const entry = wordDetailEntry.value
+  if (!entry) return []
+  return buildWordDetailMemoryLines({
+    etymology: entry.etymology,
+    cognates: entry.cognates,
+    antonyms: entry.antonyms
+  })
+})
+
 const wordDetailExampleParts = computed(() => {
   const entry = wordDetailEntry.value
   if (!entry?.exampleSentence) return []
@@ -2195,6 +2316,11 @@ function markCurrentDictationForgotten() {
   clearDictationTimers()
   stopActiveAudio()
   markCurrentDictationForgottenInSession()
+}
+
+function toggleDictationRecognitionWordVisible() {
+  dictationRecognitionWordVisible.value = !dictationRecognitionWordVisible.value
+  saveDictationRecognitionWordVisible(dictationRecognitionWordVisible.value)
 }
 
 function isCorrectSelected(choice: string): boolean {
@@ -4951,6 +5077,11 @@ onBeforeUnmount(() => {
   margin-top: 38px;
 }
 
+.onlineForgotButton {
+  justify-self: center;
+  margin-top: 0;
+}
+
 .dictationRecognitionWordCard {
   display: flex;
   flex-direction: column;
@@ -4966,12 +5097,68 @@ onBeforeUnmount(() => {
   box-sizing: border-box;
 }
 
+.dictationRecognitionWordHead {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.dictationRecognitionWordCopy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.dictationRecognitionWordRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  max-width: 100%;
+}
+
 .dictationRecognitionWord {
   color: #1f2a25;
   font-size: 34px;
   line-height: 1.15;
   font-weight: 950;
   text-align: center;
+}
+
+.dictationRecognitionWord.isMasked {
+  color: #b8c0bc;
+  letter-spacing: 0.18em;
+}
+
+.dictationRecognitionEyeButton {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: rgba(28, 176, 246, 0.08);
+}
+
+.dictationRecognitionEyeButton.isOff {
+  background: rgba(104, 118, 111, 0.1);
+}
+
+.dictationRecognitionEyeIcon {
+  width: 18px;
+  height: 18px;
+  background: #1cb0f6;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5C21.27 7.61 17 4.5 12 4.5zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z'/%3E%3C/svg%3E") center / contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5C21.27 7.61 17 4.5 12 4.5zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.dictationRecognitionEyeButton.isOff .dictationRecognitionEyeIcon {
+  background: #68766f;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78 3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z'/%3E%3C/svg%3E") center / contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78 3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
 .dictationRecognitionPhonetic {
@@ -6134,7 +6321,8 @@ onBeforeUnmount(() => {
 .dictationWordScreen,
 .dictationPlayerScreen,
 .courseSetupScreen,
-.unitWordScreen {
+.unitWordScreen,
+.wordDetailScreen {
   padding-right: 20px;
   padding-left: 20px;
 }
@@ -8133,7 +8321,8 @@ onBeforeUnmount(() => {
 .dictationSetupScreen,
 .dictationWordScreen,
 .dictationPlayerScreen,
-.unitWordScreen {
+.unitWordScreen,
+.wordDetailScreen {
   box-sizing: border-box;
   min-height: auto;
   width: 100%;
@@ -8177,6 +8366,7 @@ onBeforeUnmount(() => {
 }
 
 .pageChrome .dictationNav,
+.pageChrome .wordDetailNav,
 .pageChrome .playerHeader,
 .pageChrome .playerHeaderTop {
   background: transparent;
@@ -9013,6 +9203,26 @@ onBeforeUnmount(() => {
   color: #24342c;
 }
 
+.screen.isDictationPlayerScreen .dictationRecognitionWord.isMasked {
+  color: #b4bfba;
+}
+
+.screen.isDictationPlayerScreen .dictationRecognitionEyeButton {
+  background: rgba(73, 191, 34, 0.08);
+}
+
+.screen.isDictationPlayerScreen .dictationRecognitionEyeButton.isOff {
+  background: rgba(104, 118, 111, 0.1);
+}
+
+.screen.isDictationPlayerScreen .dictationRecognitionEyeIcon {
+  background: #49bf22;
+}
+
+.screen.isDictationPlayerScreen .dictationRecognitionEyeButton.isOff .dictationRecognitionEyeIcon {
+  background: #68766f;
+}
+
 .screen.isDictationPlayerScreen .dictationSpeakerButton {
   background: #fff;
   box-shadow:
@@ -9210,19 +9420,22 @@ onBeforeUnmount(() => {
   }
 }
 
-.wordDetailScreen {
-  min-height: 100vh;
-  min-height: 100dvh;
-  margin: calc(-16px - env(safe-area-inset-top)) -18px calc(-26px - env(safe-area-inset-bottom));
-  padding: calc(14px + env(safe-area-inset-top)) 20px calc(96px + env(safe-area-inset-bottom));
-  background: transparent;
+.wordDetailScreen.isSplitLayout .pageBodyScroll {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  box-sizing: border-box;
 }
 
 .wordDetailNav {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 46px;
+  min-height: var(--capsule-h, 32px);
+  margin-bottom: 8px;
+  padding-right: 0;
+  padding-left: 0;
+  box-sizing: border-box;
 }
 
 .wordDetailNav .navBack {
@@ -9240,7 +9453,7 @@ onBeforeUnmount(() => {
 }
 
 .wordDetailScroll {
-  padding-top: 8px;
+  padding-top: 0;
 }
 
 .wordDetailHeroCard,
@@ -9360,6 +9573,77 @@ onBeforeUnmount(() => {
   font-weight: 850;
 }
 
+.wordDetailPhraseList,
+.wordDetailFormList,
+.wordDetailMemoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wordDetailPhraseLine {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 11px 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.wordDetailPhraseText {
+  color: #1f2937;
+  font-size: 15px;
+  line-height: 1.45;
+  font-weight: 800;
+}
+
+.wordDetailPhraseGloss {
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.wordDetailFormLine {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #374151;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 750;
+}
+
+.wordDetailMemoryLine {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #fafcff 0%, #f4f8ff 100%);
+  border: 1px solid rgba(28, 176, 246, 0.08);
+}
+
+.wordDetailMemoryLabel {
+  align-self: flex-start;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(28, 176, 246, 0.1);
+  color: #1a8ecf;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 850;
+  letter-spacing: 0.2px;
+}
+
+.wordDetailMemoryText {
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.55;
+  font-weight: 750;
+}
+
 .wordDetailSectionHead {
   display: flex;
   align-items: center;
@@ -9418,16 +9702,11 @@ onBeforeUnmount(() => {
 }
 
 .wordDetailFooter {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  flex: 0 0 auto;
   z-index: 6;
   box-sizing: border-box;
-  max-width: 430px;
-  margin: 0 auto;
-  padding: 12px 20px calc(16px + env(safe-area-inset-bottom));
-  background: linear-gradient(180deg, rgba(243, 244, 246, 0) 0%, #f3f4f6 28%);
+  padding: 12px 0 0;
+  background: linear-gradient(180deg, rgba(232, 245, 238, 0) 0%, #e8f5ee 28%);
 }
 
 .wordDetailNavRow {

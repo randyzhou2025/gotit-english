@@ -29,8 +29,79 @@ const swjSheetMeta = [
 
 const rjBookIds = bookIds
 
-const swjSourceFile = '沪外教高中英语教材_Glossary汇总_增加经典例句及翻译.xlsx'
-const rjSourceFile = '人教版高中英语教材_词汇表汇总_增加经典例句及翻译.xlsx'
+const swjSourceFile = '沪外教高中英语教材_全7册词汇扩展版.xlsx'
+const rjSourceFile = '人教版高中英语教材_全7册词汇扩展版.xlsx'
+const shjSourceFile = '沪教版高中英语教材_全7册词汇扩展版.xlsx'
+const shjExampleFallbackFile = '沪教版高中英语教材_Words_by_unit汇总_终版_增加经典例句及翻译.xlsx'
+
+function buildColumnIndex(headerRow) {
+  const columns = {}
+  for (const [index, cell] of headerRow.entries()) {
+    const key = clean(cell)
+    if (key) columns[key] = index
+  }
+  return columns
+}
+
+function cell(row, columns, name) {
+  const index = columns[name]
+  if (index === undefined) return ''
+  return clean(row[index])
+}
+
+function optionalField(value) {
+  return clean(value) || undefined
+}
+
+function buildWordTuple(row, columns, rowNumber, word, slug) {
+  return [
+    word,
+    cell(row, columns, '音标'),
+    cell(row, columns, '词性'),
+    cell(row, columns, '释义'),
+    computeDifficulty(word),
+    slug,
+    rowNumber,
+    optionalField(cell(row, columns, '经典例句')),
+    optionalField(cell(row, columns, '例句翻译')),
+    optionalField(cell(row, columns, '常用词组')),
+    optionalField(cell(row, columns, '词形变化')),
+    optionalField(cell(row, columns, '词根词缀')),
+    optionalField(cell(row, columns, '同源词')),
+    optionalField(cell(row, columns, '反义词'))
+  ]
+}
+
+function buildShjExampleLookup() {
+  const sourcePath = path.join(root, 'doc', shjExampleFallbackFile)
+  if (!fs.existsSync(sourcePath)) return new Map()
+
+  const workbook = XLSX.readFile(sourcePath)
+  const lookup = new Map()
+
+  for (const [sheetName, bookId] of bookIds) {
+    const sheet = workbook.Sheets[sheetName]
+    if (!sheet) continue
+
+    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' })
+    for (const row of rows.slice(3)) {
+      const unitNumber = toUnitNumber(row[0])
+      const word = clean(row[1])
+      if (!unitNumber || !word) continue
+
+      const exampleSentence = clean(row[5])
+      const exampleTranslation = clean(row[6])
+      if (!exampleSentence && !exampleTranslation) continue
+
+      lookup.set(`${bookId}:${unitNumber}:${word.toLowerCase()}`, {
+        exampleSentence,
+        exampleTranslation
+      })
+    }
+  }
+
+  return lookup
+}
 
 function clean(value) {
   return String(value ?? '').trim()
@@ -134,12 +205,13 @@ function upsertUnit(units, unitMeta) {
 }
 
 function buildShjPublisher() {
-  const sourcePath = path.join(root, 'doc', '沪教版高中英语教材_Words_by_unit汇总_终版_增加经典例句及翻译.xlsx')
+  const sourcePath = path.join(root, 'doc', shjSourceFile)
   if (!fs.existsSync(sourcePath)) {
     throw new Error(`Missing source workbook: ${sourcePath}`)
   }
 
   const workbook = XLSX.readFile(sourcePath)
+  const exampleLookup = buildShjExampleLookup()
   const books = []
 
   for (const [bookIndex, [sheetName, bookId]] of bookIds.entries()) {
@@ -149,12 +221,13 @@ function buildShjPublisher() {
     }
 
     const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' })
+    const columns = buildColumnIndex(rows[2] ?? [])
     const units = []
 
     for (const [rowIndex, row] of rows.slice(3).entries()) {
-      const unitMeta = parseNumericUnit(row[0])
-      const word = clean(row[1])
-      const meaning = clean(row[4])
+      const unitMeta = parseNumericUnit(row[columns['单元'] ?? 0])
+      const word = clean(row[columns['英文'] ?? 1])
+      const meaning = cell(row, columns, '释义')
       if (!word && !meaning) continue
 
       if (!word || !meaning) {
@@ -164,17 +237,13 @@ function buildShjPublisher() {
 
       const targetUnit = upsertUnit(units, unitMeta)
       const wordSlug = slugify(word)
-      targetUnit.words.push([
-        word,
-        clean(row[2]),
-        clean(row[3]),
-        meaning,
-        computeDifficulty(word),
-        wordSlug,
-        rowIndex + 4,
-        clean(row[5]),
-        clean(row[6])
-      ])
+      const tuple = buildWordTuple(row, columns, rowIndex + 4, word, wordSlug)
+      const fallback = exampleLookup.get(`${bookId}:${unitMeta.number}:${word.toLowerCase()}`)
+      if (fallback) {
+        if (!tuple[7]) tuple[7] = fallback.exampleSentence || undefined
+        if (!tuple[8]) tuple[8] = fallback.exampleTranslation || undefined
+      }
+      targetUnit.words.push(tuple)
     }
 
     books.push({
@@ -208,11 +277,12 @@ function buildSwjPublisher() {
     }
 
     const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' })
+    const columns = buildColumnIndex(rows[2] ?? [])
     const units = []
 
     for (const [rowIndex, row] of rows.slice(3).entries()) {
-      const word = clean(row[1])
-      const meaning = clean(row[4])
+      const word = cell(row, columns, '英文')
+      const meaning = cell(row, columns, '释义')
       if (!word && !meaning) continue
       if (!word || !meaning) {
         throw new Error(`${sheetName} row ${rowIndex + 4} has incomplete word data`)
@@ -220,19 +290,9 @@ function buildSwjPublisher() {
       if (isPhraseEntry(word)) continue
 
       const wordSlug = slugify(normalizeWordForSlug(word))
-      for (const unitMeta of parseSwjUnits(row[0])) {
+      for (const unitMeta of parseSwjUnits(row[columns['单元'] ?? 0])) {
         const targetUnit = upsertUnit(units, unitMeta)
-        targetUnit.words.push([
-          word,
-          clean(row[2]),
-          clean(row[3]),
-          meaning,
-          computeDifficulty(word),
-          wordSlug,
-          rowIndex + 4,
-          clean(row[5]),
-          clean(row[6])
-        ])
+        targetUnit.words.push(buildWordTuple(row, columns, rowIndex + 4, word, wordSlug))
       }
     }
 
@@ -267,11 +327,12 @@ function buildRjPublisher() {
     }
 
     const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' })
+    const columns = buildColumnIndex(rows[2] ?? [])
     const units = []
 
     for (const [rowIndex, row] of rows.slice(3).entries()) {
-      const word = clean(row[1])
-      const meaning = clean(row[4])
+      const word = cell(row, columns, '英文')
+      const meaning = cell(row, columns, '释义')
       if (!word && !meaning) continue
 
       if (!word || !meaning) {
@@ -279,19 +340,15 @@ function buildRjPublisher() {
       }
       if (isPhraseEntry(word)) continue
 
-      const unitMeta = parseRjUnit(row[0])
+      const unitMeta = parseRjUnit(row[columns['单元'] ?? 0])
       const targetUnit = upsertUnit(units, unitMeta)
-      targetUnit.words.push([
-        word,
-        clean(row[2]),
-        clean(row[3]),
-        meaning,
-        computeDifficulty(word),
-        slugify(normalizeWordForSlug(word)),
+      targetUnit.words.push(buildWordTuple(
+        row,
+        columns,
         rowIndex + 4,
-        clean(row[5]),
-        clean(row[6])
-      ])
+        word,
+        slugify(normalizeWordForSlug(word))
+      ))
     }
 
     books.push({

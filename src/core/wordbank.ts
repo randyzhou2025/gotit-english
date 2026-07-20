@@ -11,7 +11,12 @@ type CompactWordRecord = [
   slug: string,
   rowNumber: number,
   exampleSentence?: string,
-  exampleTranslation?: string
+  exampleTranslation?: string,
+  commonPhrases?: string,
+  wordForms?: string,
+  etymology?: string,
+  cognates?: string,
+  antonyms?: string
 ]
 
 interface CompactUnit {
@@ -79,7 +84,22 @@ export function getWordbank(): WordEntry[] {
         const segment = unitSegment(unit)
         const unitId = `${block.publisher.id}:${book.id}:u${segment}`
 
-        for (const [word, phonetic, partOfSpeech, meaning, difficulty, slug, rowNumber, exampleSentence, exampleTranslation] of unit.words) {
+        for (const [
+          word,
+          phonetic,
+          partOfSpeech,
+          meaning,
+          difficulty,
+          slug,
+          rowNumber,
+          exampleSentence,
+          exampleTranslation,
+          commonPhrases,
+          wordForms,
+          etymology,
+          cognates,
+          antonyms
+        ] of unit.words) {
           if (isPhraseEntry(word)) continue
 
           const cdnKey = `${block.publisher.id}/${book.id}/unit-${segment}/${slug}`
@@ -100,6 +120,11 @@ export function getWordbank(): WordEntry[] {
             meaning,
             exampleSentence: exampleSentence || undefined,
             exampleTranslation: exampleTranslation || undefined,
+            commonPhrases: commonPhrases || undefined,
+            wordForms: wordForms || undefined,
+            etymology: etymology || undefined,
+            cognates: cognates || undefined,
+            antonyms: antonyms || undefined,
             difficulty,
             audio: buildWordAudio(cdnKey),
             source: {

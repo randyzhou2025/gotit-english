@@ -30,6 +30,11 @@ export interface WordEntry {
   meaning: string
   exampleSentence?: string
   exampleTranslation?: string
+  commonPhrases?: string
+  wordForms?: string
+  etymology?: string
+  cognates?: string
+  antonyms?: string
   difficulty: number
   audio: WordAudio
   source: {
