@@ -9578,29 +9578,32 @@ onBeforeUnmount(() => {
 .wordDetailMemoryList {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .wordDetailPhraseLine {
   display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 11px 12px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  padding: 10px 12px;
   border-radius: 12px;
   background: #f8fafc;
+  line-height: 1.5;
 }
 
 .wordDetailPhraseText {
+  flex: 0 1 auto;
   color: #1f2937;
   font-size: 15px;
-  line-height: 1.45;
   font-weight: 800;
 }
 
 .wordDetailPhraseGloss {
+  flex: 0 1 auto;
   color: #6b7280;
-  font-size: 13px;
-  line-height: 1.4;
+  font-size: 14px;
   font-weight: 700;
 }
 
