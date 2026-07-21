@@ -1565,6 +1565,10 @@ export async function ensurePracticeSessionReady(): Promise<PracticeSession> {
   return sessionInitPromise
 }
 
+export function isPracticeSessionReady(): boolean {
+  return practiceSession !== null
+}
+
 export function usePracticeSession(): PracticeSession {
   if (!practiceSession) {
     throw new Error('Practice session is not ready. Call ensurePracticeSessionReady() first.')
