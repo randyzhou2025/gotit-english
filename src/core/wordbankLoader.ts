@@ -373,15 +373,27 @@ async function loadPublisherBlock(
 let resolvedManifest: WordbankManifest | null = null
 let cachedWords: WordEntry[] | null = null
 let loadPromise: Promise<WordEntry[]> | null = null
+let refreshInFlight: Promise<boolean> | null = null
+
+function clearWordbankMemoryCache() {
+  resolvedManifest = null
+  cachedWords = null
+  loadPromise = null
+}
+
+function activeWordbankVersion(): string {
+  return resolvedManifest?.version
+    ?? readStorage(WORDBANK_VERSION_KEY)
+    ?? bundledManifest.version
+}
 
 export function getWordbankManifest(): WordbankManifest {
   return resolvedManifest ?? bundledManifest
 }
 
 export function resetWordbankCacheForTests() {
-  resolvedManifest = null
-  cachedWords = null
-  loadPromise = null
+  clearWordbankMemoryCache()
+  refreshInFlight = null
   removeStorage(WORDBANK_VERSION_KEY)
   removeStorage(WORDBANK_MANIFEST_KEY)
   removeStorage(WORDBANK_PUBLISHER_IDS_KEY)
@@ -415,4 +427,31 @@ export async function ensureWordbankLoaded(): Promise<WordEntry[]> {
     })()
   }
   return loadPromise
+}
+
+async function refreshWordbankIfUpdatedInternal(): Promise<boolean> {
+  if (loadPromise) {
+    await loadPromise.catch(() => undefined)
+  }
+
+  const remote = await fetchRemoteManifest()
+  if (!remote) return false
+
+  if (remote.version === activeWordbankVersion()) {
+    return false
+  }
+
+  cacheManifest(remote)
+  clearWordbankMemoryCache()
+  await ensureWordbankLoaded()
+  return true
+}
+
+export function refreshWordbankIfUpdated(): Promise<boolean> {
+  if (!refreshInFlight) {
+    refreshInFlight = refreshWordbankIfUpdatedInternal().finally(() => {
+      refreshInFlight = null
+    })
+  }
+  return refreshInFlight
 }

@@ -201,6 +201,28 @@ describe('practice session dictation navigation', () => {
     expect(session.courseSetupPublisherId.value).toBe(activeId)
   })
 
+  it('restores junior course setup after switching senior back to junior', async () => {
+    const session = await openSession()
+    session.openCourseSetup()
+
+    session.setCourseSetupStage('初中')
+    session.setCourseSetupGrade('七年级')
+    session.setCourseSetupPublisher('kp')
+
+    session.setCourseSetupStage('高中')
+    expect(session.courseSetupStage.value).toBe('高中')
+
+    session.setCourseSetupStage('初中')
+
+    expect(session.courseSetupStage.value).toBe('初中')
+    expect(session.courseSetupGrade.value).toBe('七年级')
+    expect(session.courseSetupPublisherId.value).toBe('kp')
+    expect(session.courseSetupPublisherOptions.value.some(option => option.id === 'kp')).toBe(true)
+    expect(session.courseSetupBookOptions.value.length).toBeGreaterThan(0)
+    expect(session.courseSetupUnitOptions.value.length).toBeGreaterThan(0)
+    expect(session.courseSetupCanConfirm.value).toBe(true)
+  })
+
   it('highlights the same publisher chip after kp and rj junior selections', async () => {
     const session = await openSession()
     session.openCourseSetup()

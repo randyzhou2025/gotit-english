@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   ensureWordbankLoaded,
+  refreshWordbankIfUpdated,
   resetWordbankCacheForTests
 } from './wordbankLoader'
 
@@ -120,5 +121,88 @@ describe('wordbankLoader manifest resolution', () => {
     expect(fetchMock.mock.calls[1]?.[0]).toMatch(/b\.json\?v=2/)
     expect(JSON.parse(String(storage.get('gotit:wordbank:data:b'))).publisher.name).toBe('Fresh B')
     expect(JSON.parse(String(storage.get('gotit:wordbank:data:a'))).publisher.name).toBe('A')
+  })
+
+  it('reloads wordbank when remote manifest version changes on refresh', async () => {
+    const initialManifest = {
+      version: 'a:1',
+      publishers: [{ publisher: { id: 'a', name: 'A' }, sourceWorkbook: '', books: [] }]
+    }
+    const updatedManifest = {
+      version: 'a:1|b:2',
+      publishers: [
+        { publisher: { id: 'a', name: 'A' }, sourceWorkbook: '', books: [] },
+        { publisher: { id: 'b', name: 'B' }, sourceWorkbook: '', books: [] }
+      ]
+    }
+
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: async () => initialManifest
+    })
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        publisher: { id: 'a', name: 'A' },
+        sourceWorkbook: '',
+        books: []
+      })
+    })
+
+    await ensureWordbankLoaded()
+
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: async () => updatedManifest
+    })
+    fetchMock.mockRejectedValueOnce(new Error('offline'))
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        publisher: { id: 'b', name: 'B' },
+        sourceWorkbook: '',
+        books: []
+      })
+    })
+
+    const updated = await refreshWordbankIfUpdated()
+
+    expect(updated).toBe(true)
+    expect(storage.get('gotit:wordbank:version')).toBe('a:1|b:2')
+    expect(fetchMock.mock.calls.at(-1)?.[0]).toMatch(/b\.json\?v=2/)
+  })
+
+  it('skips refresh when remote manifest version is unchanged', async () => {
+    const manifest = {
+      version: 'a:1',
+      publishers: [{ publisher: { id: 'a', name: 'A' }, sourceWorkbook: '', books: [] }]
+    }
+
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: async () => manifest
+    })
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        publisher: { id: 'a', name: 'A' },
+        sourceWorkbook: '',
+        books: []
+      })
+    })
+
+    await ensureWordbankLoaded()
+    fetchMock.mockClear()
+
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: async () => manifest
+    })
+
+    const updated = await refreshWordbankIfUpdated()
+
+    expect(updated).toBe(false)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock.mock.calls[0]?.[0]).toMatch(/manifest\.json\?_=\d+/)
   })
 })

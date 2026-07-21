@@ -5,11 +5,18 @@
 </template>
 
 <script setup lang="ts">
-import { onLaunch } from '@dcloudio/uni-app'
-import { ensurePracticeSessionReady } from '@/app/usePracticeSession'
+import { onLaunch, onShow } from '@dcloudio/uni-app'
+import {
+  ensurePracticeSessionReady,
+  refreshPracticeSessionIfWordbankUpdated
+} from '@/app/usePracticeSession'
 
 onLaunch(() => {
   void ensurePracticeSessionReady()
+})
+
+onShow(() => {
+  void refreshPracticeSessionIfWordbankUpdated()
 })
 </script>
 

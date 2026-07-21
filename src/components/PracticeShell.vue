@@ -1,5 +1,10 @@
 <template>
-  <PracticeShellInner v-if="ready" v-bind="$attrs" class="practiceShellInner" />
+  <PracticeShellInner
+    v-if="ready"
+    :key="practiceSessionGeneration"
+    v-bind="$attrs"
+    class="practiceShellInner"
+  />
   <view
     v-else
     :class="['practiceBoot', 'screen', isTabRoot && 'hasBottomNav']"
@@ -39,7 +44,11 @@
 
 <script setup lang="ts">
 import { computed, onBeforeMount, onMounted, ref, useAttrs } from 'vue'
-import { ensurePracticeSessionReady, isPracticeSessionReady } from '@/app/usePracticeSession'
+import {
+  ensurePracticeSessionReady,
+  isPracticeSessionReady,
+  practiceSessionGeneration
+} from '@/app/usePracticeSession'
 import PracticeShellInner from '@/components/PracticeShellInner.vue'
 
 defineOptions({

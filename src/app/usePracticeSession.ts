@@ -28,6 +28,7 @@ import {
   getUnitLabel,
   getWeakWords,
   groupUnits,
+  refreshWordbankIfUpdated,
   resetWordbankCacheForTests
 } from '@/core/wordbank'
 
@@ -310,6 +311,20 @@ export function createPracticeSession(words: WordEntry[]) {
   const courseSetupPublisherId = ref(initialUnit?.publisherId ?? '')
   const courseSetupBookId = ref(initialUnit?.bookId ?? '')
   const courseSetupUnitId = ref(initialUnit?.unitId ?? '')
+
+  interface JuniorCourseSetupDraft {
+    grade: string
+    publisherId: string
+    bookId: string
+    unitId: string
+  }
+
+  const lastJuniorCourseSetupDraft = ref<JuniorCourseSetupDraft>({
+    grade: courseSetupGrade.value,
+    publisherId: courseSetupPublisherId.value,
+    bookId: courseSetupBookId.value,
+    unitId: courseSetupUnitId.value
+  })
 
   const checkupQuestions = ref<CheckupQuestion[]>([])
   const checkupAnswers = ref<CheckupAnswer[]>([])
@@ -626,18 +641,56 @@ export function createPracticeSession(words: WordEntry[]) {
     syncCourseSetupSelectionFromUnitId(next.unitId)
   }
 
-  function setCourseSetupStage(stage: SchoolStage) {
-    courseSetupGrade.value = ''
+  function defaultJuniorGrade(): string {
+    return JUNIOR_GRADE_OPTIONS.find(grade => (
+      units.some(unit => inferSchoolStage(unit) === '初中' && unit.bookName.includes(grade))
+    )) ?? JUNIOR_GRADE_OPTIONS[1] ?? '七年级'
+  }
 
-    if (stage === '初中') {
-      courseSetupStage.value = stage
-      courseSetupPublisherId.value = ''
-      courseSetupBookId.value = ''
-      courseSetupUnitId.value = ''
+  function saveJuniorCourseSetupDraft() {
+    if (courseSetupStage.value !== '初中') return
+
+    lastJuniorCourseSetupDraft.value = {
+      grade: courseSetupGrade.value,
+      publisherId: courseSetupPublisherId.value,
+      bookId: courseSetupBookId.value,
+      unitId: courseSetupUnitId.value
+    }
+  }
+
+  function restoreJuniorCourseSetupDraft() {
+    courseSetupStage.value = '初中'
+
+    const draft = lastJuniorCourseSetupDraft.value
+    const draftUnit = draft.unitId ? findUnit(units, draft.unitId) : undefined
+
+    if (draft.grade && draftUnit && inferSchoolStage(draftUnit) === '初中') {
+      courseSetupGrade.value = draft.grade
+      syncCourseSetupSelectionFromUnitId(draft.unitId)
       return
     }
 
-    // Drop junior-only publisher ids before the stage flips so WeChat re-renders chips cleanly.
+    const fallbackUnit = units.find(unit => (
+      inferSchoolStage(unit) === '初中' && unit.bookName.includes(defaultJuniorGrade())
+    )) ?? units.find(unit => inferSchoolStage(unit) === '初中')
+
+    if (fallbackUnit) {
+      syncCourseSetupDraftFromUnit(fallbackUnit)
+      return
+    }
+
+    courseSetupGrade.value = defaultJuniorGrade()
+    setCourseDraftToFirstUnit('初中')
+  }
+
+  function setCourseSetupStage(stage: SchoolStage) {
+    if (stage === '初中') {
+      restoreJuniorCourseSetupDraft()
+      return
+    }
+
+    saveJuniorCourseSetupDraft()
+    courseSetupGrade.value = ''
     courseSetupPublisherId.value = ''
     courseSetupBookId.value = ''
     courseSetupUnitId.value = ''
@@ -1543,6 +1596,9 @@ type PracticeSession = ReturnType<typeof createPracticeSession>
 
 let practiceSession: PracticeSession | null = null
 let sessionInitPromise: Promise<PracticeSession> | null = null
+let sessionRefreshInFlight: Promise<boolean> | null = null
+
+export const practiceSessionGeneration = ref(0)
 
 export function resetPracticeSessionState() {
   practiceSession = null
@@ -1567,6 +1623,23 @@ export async function ensurePracticeSessionReady(): Promise<PracticeSession> {
 
 export function isPracticeSessionReady(): boolean {
   return practiceSession !== null
+}
+
+export function refreshPracticeSessionIfWordbankUpdated(): Promise<boolean> {
+  if (!sessionRefreshInFlight) {
+    sessionRefreshInFlight = (async () => {
+      const updated = await refreshWordbankIfUpdated()
+      if (!updated) return false
+
+      resetPracticeSessionState()
+      await ensurePracticeSessionReady()
+      practiceSessionGeneration.value += 1
+      return true
+    })().finally(() => {
+      sessionRefreshInFlight = null
+    })
+  }
+  return sessionRefreshInFlight
 }
 
 export function usePracticeSession(): PracticeSession {

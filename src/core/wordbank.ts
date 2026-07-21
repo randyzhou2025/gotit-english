@@ -1,7 +1,13 @@
 import type { UnitGroup, WordEntry } from './types'
 import { ensureWordbankLoaded, expandPublisherBlock, getWordbankManifest } from './wordbankLoader'
 
-export { ensureWordbankLoaded, expandPublisherBlock, getWordbankManifest, resetWordbankCacheForTests } from './wordbankLoader'
+export {
+  ensureWordbankLoaded,
+  expandPublisherBlock,
+  getWordbankManifest,
+  refreshWordbankIfUpdated,
+  resetWordbankCacheForTests
+} from './wordbankLoader'
 export type { CompactPublisherBlock, WordbankManifest } from './wordbankLoader'
 
 export function isPhraseEntry(word: string): boolean {
