@@ -22,12 +22,13 @@ import type {
   WordEntry
 } from '@/core/types'
 import {
+  ensureWordbankLoaded,
   findUnit,
   getDefaultUnit,
   getUnitLabel,
   getWeakWords,
-  getWordbank,
-  groupUnits
+  groupUnits,
+  resetWordbankCacheForTests
 } from '@/core/wordbank'
 
 export type AppScreen = 'courseSetup' | 'home' | 'weakbook' | 'unitWords' | 'wordDetail' | 'checkupSetup' | 'checkup' | 'spelling' | 'report' | 'dictationSetup' | 'dictationWords' | 'dictation' | 'dictationReport' | 'dictationReward'
@@ -205,6 +206,16 @@ function toBookCourseOptions(
     }))
 }
 
+function publisherIdFromUnitId(unitId: string): string {
+  const end = unitId.indexOf(':')
+  return end > 0 ? unitId.slice(0, end) : ''
+}
+
+function bookIdFromUnitId(unitId: string): string {
+  const parts = unitId.split(':')
+  return parts.length >= 2 ? parts[1]! : ''
+}
+
 function toCourseOptions<T extends UnitGroup>(
   units: T[],
   getId: (unit: T) => string,
@@ -283,8 +294,7 @@ function triggerHapticFeedback(strength: HapticStrength = 'medium') {
   }
 }
 
-export function createPracticeSession() {
-  const words = getWordbank()
+export function createPracticeSession(words: WordEntry[]) {
   const units = groupUnits(words)
   const defaultUnit = getDefaultUnit(units)
   const savedUnitId = loadSavedUnitId()
@@ -389,6 +399,19 @@ export function createPracticeSession() {
       count: unit.words.length,
       masteryPercent: computeMasteryPercent(unit.words.map(word => word.id), masteredWordIdSet.value)
     })))
+  const courseSetupActivePublisherId = computed(() => {
+    const explicit = courseSetupPublisherId.value
+    if (explicit && courseSetupPublisherOptions.value.some(option => option.id === explicit)) {
+      return explicit
+    }
+
+    const inferred = publisherIdFromUnitId(courseSetupUnitId.value)
+    if (inferred && courseSetupPublisherOptions.value.some(option => option.id === inferred)) {
+      return inferred
+    }
+
+    return ''
+  })
   const courseSetupCanConfirm = computed(() => courseSetupUnitOptions.value.some(unit => unit.id === courseSetupUnitId.value))
   const unitWords = computed(() => selectedUnit.value?.words ?? [])
   const masteredUnitWords = computed(() => unitWords.value.filter(word => masteredWordIdSet.value.has(word.id)))
@@ -570,14 +593,25 @@ export function createPracticeSession() {
       .filter((word): word is WordEntry => word !== undefined)
   })
 
+  function syncCourseSetupSelectionFromUnitId(unitId: string) {
+    if (!unitId) return
+
+    const publisherId = publisherIdFromUnitId(unitId)
+    if (!publisherId) return
+    if (!courseSetupPublisherOptions.value.some(option => option.id === publisherId)) return
+
+    courseSetupPublisherId.value = publisherId
+    const bookId = bookIdFromUnitId(unitId)
+    if (bookId) courseSetupBookId.value = bookId
+    courseSetupUnitId.value = unitId
+  }
+
   function syncCourseSetupDraftFromUnit(unit: UnitGroup | undefined) {
     if (!unit) return
 
     courseSetupStage.value = inferSchoolStage(unit)
     courseSetupGrade.value = courseSetupStage.value === '初中' ? inferJuniorGrade(unit) : ''
-    courseSetupPublisherId.value = unit.publisherId
-    courseSetupBookId.value = unit.bookId
-    courseSetupUnitId.value = unit.unitId
+    syncCourseSetupSelectionFromUnitId(unit.unitId)
   }
 
   function setCourseDraftToFirstUnit(stage: SchoolStage) {
@@ -589,22 +623,25 @@ export function createPracticeSession() {
       return
     }
 
-    courseSetupPublisherId.value = next.publisherId
-    courseSetupBookId.value = next.bookId
-    courseSetupUnitId.value = next.unitId
+    syncCourseSetupSelectionFromUnitId(next.unitId)
   }
 
   function setCourseSetupStage(stage: SchoolStage) {
-    courseSetupStage.value = stage
+    courseSetupGrade.value = ''
+
     if (stage === '初中') {
-      courseSetupGrade.value = ''
+      courseSetupStage.value = stage
       courseSetupPublisherId.value = ''
       courseSetupBookId.value = ''
       courseSetupUnitId.value = ''
       return
     }
 
-    courseSetupGrade.value = ''
+    // Drop junior-only publisher ids before the stage flips so WeChat re-renders chips cleanly.
+    courseSetupPublisherId.value = ''
+    courseSetupBookId.value = ''
+    courseSetupUnitId.value = ''
+    courseSetupStage.value = stage
     setCourseDraftToFirstUnit(stage)
   }
 
@@ -614,10 +651,15 @@ export function createPracticeSession() {
   }
 
   function setCourseSetupPublisher(publisherId: string) {
-    courseSetupPublisherId.value = publisherId
     const next = courseSetupStageUnits.value.find(unit => unit.publisherId === publisherId)
-    courseSetupBookId.value = next?.bookId ?? ''
-    courseSetupUnitId.value = next?.unitId ?? ''
+    if (next) {
+      syncCourseSetupSelectionFromUnitId(next.unitId)
+      return
+    }
+
+    courseSetupPublisherId.value = publisherId
+    courseSetupBookId.value = ''
+    courseSetupUnitId.value = ''
   }
 
   function setCourseSetupBook(bookId: string) {
@@ -629,7 +671,7 @@ export function createPracticeSession() {
   }
 
   function setCourseSetupUnit(unitId: string) {
-    courseSetupUnitId.value = unitId
+    syncCourseSetupSelectionFromUnitId(unitId)
   }
 
   function openCourseSetup() {
@@ -1373,6 +1415,7 @@ export function createPracticeSession() {
     courseSetupGrade,
     courseSetupGradeOptions,
     courseSetupPublisherId,
+    courseSetupActivePublisherId,
     courseSetupPublisherOptions,
     courseSetupStage,
     courseSetupStageOptions,
@@ -1499,10 +1542,32 @@ export function createPracticeSession() {
 type PracticeSession = ReturnType<typeof createPracticeSession>
 
 let practiceSession: PracticeSession | null = null
+let sessionInitPromise: Promise<PracticeSession> | null = null
+
+export function resetPracticeSessionState() {
+  practiceSession = null
+  sessionInitPromise = null
+}
+
+export function resetPracticeSessionForTests() {
+  resetPracticeSessionState()
+  resetWordbankCacheForTests()
+}
+
+export async function ensurePracticeSessionReady(): Promise<PracticeSession> {
+  if (practiceSession) return practiceSession
+  if (!sessionInitPromise) {
+    sessionInitPromise = ensureWordbankLoaded().then(words => {
+      practiceSession = createPracticeSession(words)
+      return practiceSession
+    })
+  }
+  return sessionInitPromise
+}
 
 export function usePracticeSession(): PracticeSession {
   if (!practiceSession) {
-    practiceSession = createPracticeSession()
+    throw new Error('Practice session is not ready. Call ensurePracticeSessionReady() first.')
   }
 
   return practiceSession

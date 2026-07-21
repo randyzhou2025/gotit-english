@@ -4,6 +4,15 @@
   </view>
 </template>
 
+<script setup lang="ts">
+import { onLaunch } from '@dcloudio/uni-app'
+import { ensurePracticeSessionReady } from '@/app/usePracticeSession'
+
+onLaunch(() => {
+  void ensurePracticeSessionReady()
+})
+</script>
+
 <style lang="scss">
 page {
   width: 100%;

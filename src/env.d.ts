@@ -3,6 +3,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_AUDIO_CDN_BASE_URL?: string
+  readonly VITE_WORDBANK_CDN_BASE_URL?: string
 }
 
 interface ImportMeta {

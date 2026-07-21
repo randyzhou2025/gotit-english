@@ -3,7 +3,7 @@
     {
       "path": "pages/index/index",
       "style": {
-        "navigationBarTitleText": "会了吗英语",
+        "navigationBarTitleText": "课本单词通",
         "navigationStyle": "custom"
       }
     },
@@ -135,7 +135,7 @@
   "globalStyle": {
     "backgroundColor": "#f3f4f6",
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "会了吗英语",
+    "navigationBarTitleText": "课本单词通",
     "navigationBarBackgroundColor": "#f3f4f6"
   }
 }

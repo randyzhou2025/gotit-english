@@ -1,3 +1,4 @@
+import crypto from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -475,6 +476,45 @@ function countWords(publisherBlock) {
   ), 0)
 }
 
+function hashPublisherBlock(publisherBlock) {
+  return crypto
+    .createHash('sha256')
+    .update(JSON.stringify(publisherBlock))
+    .digest('hex')
+    .slice(0, 4)
+}
+
+function buildPublisherVersionToken(publisherBlock, builtAt = new Date()) {
+  const wordCount = countWords(publisherBlock)
+  const date = builtAt.toISOString().slice(0, 10)
+  const digest = hashPublisherBlock(publisherBlock)
+  return `${date}-w${wordCount}-${digest}`
+}
+
+function buildManifestVersion(publisherBlocks, builtAt = new Date()) {
+  return publisherBlocks
+    .map(block => `${block.publisher.id}:${buildPublisherVersionToken(block, builtAt)}`)
+    .join('|')
+}
+
+function buildManifestPublisher(block) {
+  return {
+    publisher: block.publisher,
+    sourceWorkbook: block.sourceWorkbook,
+    books: block.books.map(book => ({
+      id: book.id,
+      name: book.name,
+      order: book.order,
+      units: book.units.map(unit => ({
+        number: unit.number,
+        ...(unit.key ? { key: unit.key } : {}),
+        ...(unit.label ? { label: unit.label } : {}),
+        wordCount: unit.words.length
+      }))
+    }))
+  }
+}
+
 const publishers = [
   buildShjPublisher(),
   buildSwjPublisher(),
@@ -482,8 +522,25 @@ const publishers = [
   buildKpJuniorPublisher()
 ]
 
+const manifestPath = path.join(root, 'src', 'data', 'wordbank.manifest.json')
+const cdnDir = path.join(root, 'generated', 'wordbank')
+const builtAt = new Date()
+const manifest = {
+  version: buildManifestVersion(publishers, builtAt),
+  publishers: publishers.map(buildManifestPublisher)
+}
+
 fs.mkdirSync(path.dirname(outputPath), { recursive: true })
+fs.mkdirSync(cdnDir, { recursive: true })
 fs.writeFileSync(outputPath, `${JSON.stringify({ publishers })}\n`)
+fs.writeFileSync(manifestPath, `${JSON.stringify(manifest)}\n`)
+
+fs.writeFileSync(path.join(cdnDir, 'manifest.json'), `${JSON.stringify(manifest)}\n`)
+
+for (const block of publishers) {
+  const publisherPath = path.join(cdnDir, `${block.publisher.id}.json`)
+  fs.writeFileSync(publisherPath, `${JSON.stringify(block)}\n`)
+}
 
 for (const block of publishers) {
   const units = block.books.reduce((sum, book) => sum + book.units.length, 0)
@@ -491,3 +548,5 @@ for (const block of publishers) {
 }
 
 console.log(`Written to ${path.relative(root, outputPath)}`)
+console.log(`Written to ${path.relative(root, manifestPath)}`)
+console.log(`Written ${publishers.length} publisher files to ${path.relative(root, cdnDir)}/`)

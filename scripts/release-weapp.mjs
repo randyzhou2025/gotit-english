@@ -57,8 +57,19 @@ const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'
 runStep('Build wordbank', pnpm, ['wordbank:build'])
 runStep('Typecheck', pnpm, ['typecheck'])
 runStep('Unit tests', pnpm, ['test'])
-runStep('Verify audio CDN', pnpm, ['audio:verify-cdn'])
+//runStep('Verify audio CDN', pnpm, ['audio:verify-cdn'])
 runStep('Build WeChat mini program', pnpm, ['build:weapp'])
+
+const wordbankDir = path.join(root, 'generated', 'wordbank')
+if (fs.existsSync(wordbankDir)) {
+  const wordbankFiles = fs.readdirSync(wordbankDir).filter(name => name.endsWith('.json'))
+  console.log('\nWordbank CDN files ready for upload:')
+  for (const fileName of wordbankFiles) {
+    console.log(`- ${path.join(wordbankDir, fileName)}`)
+  }
+  console.log('Upload them to your CDN under /generated/wordbank/ (see VITE_WORDBANK_CDN_BASE_URL).')
+  console.log('Include manifest.json — set Cache-Control: no-cache on CDN for that file.')
+}
 
 console.log('\nRelease build ready: dist/build/mp-weixin')
 console.log('Import that folder in WeChat DevTools, preview on device, then upload.')

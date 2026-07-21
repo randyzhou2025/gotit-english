@@ -33,6 +33,7 @@
     "@types/node": "^24.0.0",
     "@vue/compiler-sfc": "3.4.21",
     "@vue/tsconfig": "^0.8.1",
+    "puppeteer": "^25.3.0",
     "sass": "^1.75.0",
     "typescript": "^5.4.5",
     "vite": "5.2.8",
