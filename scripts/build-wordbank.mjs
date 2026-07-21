@@ -29,6 +29,25 @@ const swjSheetMeta = [
 
 const rjBookIds = bookIds
 
+const rjJuniorDir = path.join('初中课本', '人教版')
+const rjJuniorBookMeta = [
+  ['人教版初中英语七年级上册_词汇表.xlsx', '七年级上册', 'grade-7-1'],
+  ['人教版初中英语七年级下册_词汇表.xlsx', '七年级下册', 'grade-7-2'],
+  ['人教版初中英语八年级上册_词汇表.xlsx', '八年级上册', 'grade-8-1'],
+  ['人教版初中英语八年级下册_词汇表.xlsx', '八年级下册', 'grade-8-2'],
+  ['人教版初中英语九年级全一册_词汇表.xlsx', '九年级全一册', 'grade-9']
+]
+
+const kpJuniorDir = path.join('初中课本', '科普版')
+const kpJuniorBookMeta = [
+  ['科普版初中英语七年级上册_词汇表.xlsx', '七年级上册', 'grade-7-1'],
+  ['科普版初中英语七年级下册_词汇表.xlsx', '七年级下册', 'grade-7-2'],
+  ['科普版初中英语八年级上册_词汇表.xlsx', '八年级上册', 'grade-8-1'],
+  ['科普版初中英语八年级下册_词汇表.xlsx', '八年级下册', 'grade-8-2'],
+  ['科普版初中英语九年级上册_词汇表.xlsx', '九年级上册', 'grade-9-1'],
+  ['科普版初中英语九年级下册_词汇表.xlsx', '九年级下册', 'grade-9-2']
+]
+
 const swjSourceFile = '沪外教高中英语教材_全7册词汇扩展版.xlsx'
 const rjSourceFile = '人教版高中英语教材_全7册词汇扩展版.xlsx'
 const shjSourceFile = '沪教版高中英语教材_全7册词汇扩展版.xlsx'
@@ -311,6 +330,85 @@ function buildSwjPublisher() {
   }
 }
 
+function buildJuniorBooksFromDir(relativeDir, bookMeta, parseUnit) {
+  const books = []
+
+  for (const [bookIndex, [fileName, bookName, bookId]] of bookMeta.entries()) {
+    const sourcePath = path.join(root, 'doc', relativeDir, fileName)
+    if (!fs.existsSync(sourcePath)) {
+      throw new Error(`Missing source workbook: ${sourcePath}`)
+    }
+
+    const workbook = XLSX.readFile(sourcePath)
+    const sheetName = workbook.SheetNames[0]
+    const sheet = workbook.Sheets[sheetName]
+    if (!sheet) {
+      throw new Error(`Missing sheet in ${fileName}`)
+    }
+
+    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' })
+    const columns = buildColumnIndex(rows[2] ?? [])
+    const units = []
+
+    for (const [rowIndex, row] of rows.slice(3).entries()) {
+      const word = cell(row, columns, '英文')
+      const meaning = cell(row, columns, '释义')
+      if (!word && !meaning) continue
+
+      if (!word || !meaning) {
+        throw new Error(`${bookName} row ${rowIndex + 4} has incomplete word data`)
+      }
+      if (isPhraseEntry(word)) continue
+
+      const unitMeta = parseUnit(row[columns['单元'] ?? 0])
+      const targetUnit = upsertUnit(units, unitMeta)
+      targetUnit.words.push(buildWordTuple(
+        row,
+        columns,
+        rowIndex + 4,
+        word,
+        slugify(normalizeWordForSlug(word))
+      ))
+    }
+
+    books.push({
+      id: bookId,
+      name: bookName,
+      order: bookIndex + 1,
+      units: units.sort((a, b) => unitSortKey(a) - unitSortKey(b))
+    })
+  }
+
+  return books
+}
+
+function parseRjJuniorUnit(rawUnit) {
+  const unitLabel = clean(rawUnit)
+  const starterMatch = unitLabel.match(/^Starter Unit\s*(\d+)/i)
+  if (starterMatch) {
+    const number = Number(starterMatch[1])
+    return {
+      number: -1000 + number,
+      key: `starter-${number}`,
+      label: `Starter Unit ${number}`
+    }
+  }
+
+  return parseNumericUnit(unitLabel)
+}
+
+function buildRjJuniorBooks() {
+  return buildJuniorBooksFromDir(rjJuniorDir, rjJuniorBookMeta, parseRjJuniorUnit)
+}
+
+function buildKpJuniorPublisher() {
+  return {
+    publisher: { id: 'kp', name: '科普版' },
+    sourceWorkbook: kpJuniorDir,
+    books: buildJuniorBooksFromDir(kpJuniorDir, kpJuniorBookMeta, parseNumericUnit)
+  }
+}
+
 function buildRjPublisher() {
   const sourcePath = path.join(root, 'doc', rjSourceFile)
   if (!fs.existsSync(sourcePath)) {
@@ -359,6 +457,11 @@ function buildRjPublisher() {
     })
   }
 
+  books.push(...buildRjJuniorBooks().map((book, index) => ({
+    ...book,
+    order: rjBookIds.length + index + 1
+  })))
+
   return {
     publisher: { id: 'rj', name: '人教版' },
     sourceWorkbook: path.basename(sourcePath),
@@ -375,7 +478,8 @@ function countWords(publisherBlock) {
 const publishers = [
   buildShjPublisher(),
   buildSwjPublisher(),
-  buildRjPublisher()
+  buildRjPublisher(),
+  buildKpJuniorPublisher()
 ]
 
 fs.mkdirSync(path.dirname(outputPath), { recursive: true })
