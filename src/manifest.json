@@ -30,7 +30,7 @@
     "appid": "wx703d7f44468c7dbf",
     "lazyCodeLoading": "requiredComponents",
     "setting": {
-      "urlCheck": true,
+      "urlCheck": false,
       "es6": true,
       "postcss": true,
       "minified": true

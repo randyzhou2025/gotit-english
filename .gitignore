@@ -13,6 +13,7 @@ generated/
 backup/
 .tmp/
 .tmp-*/
+tmp/
 
 # Local doc assets (wordbank xlsx, product docs, QA screenshots)
 doc/
@@ -40,3 +41,9 @@ npm-debug.log*
 pnpm-debug.log*
 coverage/
 .vite/
+
+# GotIt API server
+server/node_modules/
+server/dist/
+server/data/
+server/drizzle/

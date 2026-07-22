@@ -5,18 +5,30 @@
 </template>
 
 <script setup lang="ts">
-import { onLaunch, onShow } from '@dcloudio/uni-app'
+import { onLaunch, onHide, onShow } from '@dcloudio/uni-app'
 import {
   ensurePracticeSessionReady,
   refreshPracticeSessionIfWordbankUpdated
 } from '@/app/usePracticeSession'
+import { flushCloudSyncOnBackground, flushCloudSyncOnForeground } from '@/core/cloudSyncPolicy'
+import {
+  startStudyDurationPing,
+  stopStudyDurationPing
+} from '@/core/studyStats'
 
 onLaunch(() => {
   void ensurePracticeSessionReady()
 })
 
 onShow(() => {
+  startStudyDurationPing()
   void refreshPracticeSessionIfWordbankUpdated()
+  flushCloudSyncOnForeground()
+})
+
+onHide(() => {
+  stopStudyDurationPing()
+  flushCloudSyncOnBackground()
 })
 </script>
 

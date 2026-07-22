@@ -43,6 +43,17 @@ const icons = {
       <path d="M48 31 C53.5 40.5 53.5 40.5 48 50" fill="none" stroke="${ACTIVE}" stroke-width="3.4" stroke-linecap="round"/>
       <path d="M54.5 24.5 C62.5 40.5 62.5 40.5 54.5 56.5" fill="none" stroke="${ACTIVE}" stroke-width="3.4" stroke-linecap="round"/>
     `
+  },
+  profile: {
+    inactive: `
+      <circle cx="40.5" cy="30" r="11" fill="none" stroke="${INACTIVE}" stroke-width="3.2"/>
+      <path d="M20 63 C22 49 30 42 40.5 42 C51 42 59 49 61 63" fill="none" stroke="${INACTIVE}" stroke-width="3.2" stroke-linecap="round"/>
+    `,
+    active: `
+      <circle cx="40.5" cy="30" r="11" fill="${ACTIVE}"/>
+      <path d="M20 63 C22 49 30 42 40.5 42 C51 42 59 49 61 63" fill="${ACTIVE}"/>
+      <circle cx="40.5" cy="30" r="5" fill="#ffffff"/>
+    `
   }
 }
 

@@ -1,0 +1,21 @@
+services:
+  gotit_postgres:
+    image: postgres:16-alpine
+    container_name: gotit_postgres_dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: gotit
+      POSTGRES_PASSWORD: gotit
+      POSTGRES_DB: gotit
+    ports:
+      - "5434:5432"
+    volumes:
+      - gotit_pgdata_dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gotit -d gotit"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  gotit_pgdata_dev:

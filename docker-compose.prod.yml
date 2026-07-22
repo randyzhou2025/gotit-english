@@ -1,0 +1,45 @@
+services:
+  gotit_postgres:
+    image: postgres:16-alpine
+    container_name: gotit_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: gotit
+      POSTGRES_PASSWORD: ${GOTIT_POSTGRES_PASSWORD}
+      POSTGRES_DB: gotit
+    volumes:
+      - gotit_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gotit -d gotit"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  gotit_api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: gotit_api
+    restart: unless-stopped
+    depends_on:
+      gotit_postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://gotit:${GOTIT_POSTGRES_PASSWORD}@gotit_postgres:5432/gotit
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      WECHAT_MINI_APPID: ${WECHAT_MINI_APPID}
+      WECHAT_MINI_SECRET: ${WECHAT_MINI_SECRET}
+      CUSTOMER_SERVICE_QR_URL: ${CUSTOMER_SERVICE_QR_URL:-}
+      ICP_NUMBER: ${ICP_NUMBER:-}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-https://api.xuexidazi.site}
+      PORT: "4000"
+      HOST: 0.0.0.0
+    ports:
+      - "127.0.0.1:3050:4000"
+    volumes:
+      - gotit_uploads:/app/data/uploads
+
+volumes:
+  gotit_pgdata:
+  gotit_uploads:

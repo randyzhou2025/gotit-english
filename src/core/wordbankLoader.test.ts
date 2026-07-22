@@ -169,7 +169,7 @@ describe('wordbankLoader manifest resolution', () => {
 
     expect(updated).toBe(true)
     expect(storage.get('gotit:wordbank:version')).toBe('a:1|b:2')
-    expect(fetchMock.mock.calls.at(-1)?.[0]).toMatch(/b\.json\?v=2/)
+    expect(fetchMock.mock.calls[fetchMock.mock.calls.length - 1]?.[0]).toMatch(/b\.json\?v=2/)
   })
 
   it('skips refresh when remote manifest version is unchanged', async () => {

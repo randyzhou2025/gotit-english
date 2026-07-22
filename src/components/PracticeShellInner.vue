@@ -1204,29 +1204,11 @@
       </view>
     </view>
 
-    <view v-if="showBottomNav" class="bottomNav">
-      <view class="bottomNavInner">
-        <view :class="['bottomNavItem', activeScreen === 'home' && 'isActive']" @tap="goHome">
-          <view class="bottomNavIconWrap">
-            <image class="bottomNavIcon" :src="activeScreen === 'home' ? '/static/tabbar/home-active.png' : '/static/tabbar/home.png'" mode="aspectFit" />
-          </view>
-          <text class="bottomNavLabel">首页</text>
-        </view>
-        <view :class="['bottomNavItem', activeScreen === 'weakbook' && 'isActive']" @tap="goWeakbook">
-          <view class="bottomNavIconWrap">
-            <image class="bottomNavIcon" :src="activeScreen === 'weakbook' ? '/static/tabbar/weakbook-active.png' : '/static/tabbar/weakbook.png'" mode="aspectFit" />
-          </view>
-          <text class="bottomNavLabel">生词本</text>
-          <text v-if="savedWeakWords.length > 0" class="bottomNavBadge">{{ savedWeakWords.length }}</text>
-        </view>
-        <view :class="['bottomNavItem', activeScreen === 'dictationSetup' && 'isActive']" @tap="goDictationSetup">
-          <view class="bottomNavIconWrap">
-            <image class="bottomNavIcon" :src="activeScreen === 'dictationSetup' ? '/static/tabbar/dictation-active.png' : '/static/tabbar/dictation.png'" mode="aspectFit" />
-          </view>
-          <text class="bottomNavLabel">听写</text>
-        </view>
-      </view>
-    </view>
+    <TabBottomNav
+      v-if="showBottomNav"
+      :active="bottomNavActive"
+      :weakbook-count="savedWeakWords.length"
+    />
   </view>
 </template>
 
@@ -1234,6 +1216,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { onHide, onShow } from '@dcloudio/uni-app'
 import { usePracticeSession, type AppScreen } from '@/app/usePracticeSession'
+import TabBottomNav from '@/components/TabBottomNav.vue'
 import { getAudioUrl, hasPlayableAudio } from '@/core/audio'
 import { splitMeaningByPartOfSpeech } from '@/core/wordMeaning'
 import {
@@ -1244,7 +1227,7 @@ import {
 import type { Accent } from '@/core/types'
 
 const props = defineProps<{
-  tabScreen?: 'home' | 'weakbook' | 'dictationSetup'
+  tabScreen?: 'home' | 'weakbook'
   routeScreen?: AppScreen
 }>()
 
@@ -1453,11 +1436,11 @@ const screenStyle = computed(() => {
   return ''
 })
 
-const TAB_ROOT_SCREENS = new Set<AppScreen>(['home', 'weakbook', 'dictationSetup'])
+const TAB_ROOT_SCREENS = new Set<AppScreen>(['home', 'weakbook'])
 const NATIVE_TAB_BAR_ROUTES = new Set([
   '/pages/index/index',
   '/pages/weakbook/index',
-  '/pages/dictation/index'
+  '/pages/profile/index'
 ])
 
 const ROUTE_BY_SCREEN: Partial<Record<AppScreen, string>> = {
@@ -1478,9 +1461,12 @@ const ROUTE_BY_SCREEN: Partial<Record<AppScreen, string>> = {
 const tabRootScreen = computed<AppScreen>(() => {
   if (!courseSetupCompleted.value) return 'courseSetup'
   if (props.tabScreen === 'weakbook') return 'weakbook'
-  if (props.tabScreen === 'dictationSetup') return 'dictationSetup'
   return 'home'
 })
+
+const bottomNavActive = computed<'home' | 'weakbook'>(() => (
+  props.tabScreen === 'weakbook' ? 'weakbook' : 'home'
+))
 
 const activeScreen = computed<AppScreen>(() => props.routeScreen ?? tabRootScreen.value)
 
@@ -1909,7 +1895,6 @@ function isHostingPageActive(): boolean {
 
   if (props.tabScreen === 'home') return currentPath === '/pages/index/index'
   if (props.tabScreen === 'weakbook') return currentPath === '/pages/weakbook/index'
-  if (props.tabScreen === 'dictationSetup') return currentPath === '/pages/dictation/index'
   return false
 }
 
@@ -1937,8 +1922,6 @@ function activateTabRoot() {
     resetPracticeScreen()
   } else if (props.tabScreen === 'weakbook') {
     openWeakbookScreen()
-  } else if (props.tabScreen === 'dictationSetup') {
-    openDictationSetupScreen()
   }
 
   syncNativeTabBar()
@@ -2062,7 +2045,7 @@ function openWeakbook() {
 
 function openDictationSetup() {
   openDictationSetupScreen()
-  switchNativeTab('/pages/dictation/index')
+  navigateToRoute('dictationSetup')
 }
 
 function openCourseSetupPage() {
@@ -2258,10 +2241,6 @@ function goHome() {
 
 function goWeakbook() {
   openWeakbook()
-}
-
-function goDictationSetup() {
-  openDictationSetup()
 }
 
 function goBack(): boolean {

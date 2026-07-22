@@ -1,4 +1,12 @@
 import { computed, ref } from 'vue'
+import {
+  mergeProgress,
+  readLocalProgressSnapshot,
+  writeLocalProgressSnapshot
+} from '@/core/progressMerge'
+import { flushProgressUpload, markProgressDirty, scheduleProgressUpload } from '@/core/progressSync'
+import { queueStudyWordIds, setCachedDashboard } from '@/core/studyStats'
+import { ensureUserSession, markProgressUpdatedAt } from '@/core/userSession'
 import { getDictationAudioUrl, getDictationPromptLabel, hasPlayableDictationAudio } from '@/core/audio'
 import {
   createCheckupQuestions,
@@ -106,12 +114,20 @@ function loadSavedWordIds(key: string): string[] {
   }
 }
 
-function saveWordIds(key: string, ids: string[]) {
+function saveWordIds(key: string, ids: string[], studyWordIds: string[] = []) {
   try {
     uni.setStorageSync(key, ids)
   } catch {
     // Storage can be unavailable in restricted preview contexts.
   }
+  markProgressDirty()
+  if (studyWordIds.length > 0) {
+    queueStudyWordIds(studyWordIds)
+  }
+}
+
+function notifyProgressChanged() {
+  markProgressDirty()
 }
 
 function loadSavedUnitId(): string {
@@ -139,6 +155,7 @@ function saveCourseSetupCompleted() {
   } catch {
     // Storage can be unavailable in restricted preview contexts.
   }
+  notifyProgressChanged()
 }
 
 function saveSelectedUnitId(unitId: string) {
@@ -147,6 +164,7 @@ function saveSelectedUnitId(unitId: string) {
   } catch {
     // Storage can be unavailable in restricted preview contexts.
   }
+  notifyProgressChanged()
 }
 
 function sampleWords<T>(items: T[], count: number): T[] {
@@ -852,7 +870,7 @@ export function createPracticeSession(words: WordEntry[]) {
 
     const nextIds = [wordId, ...savedWeakWordIds.value]
     savedWeakWordIds.value = nextIds
-    saveWordIds(SAVED_WEAK_WORD_IDS_KEY, nextIds)
+    saveWordIds(SAVED_WEAK_WORD_IDS_KEY, nextIds, [wordId])
   }
 
   function removeWeakWords(wordIds: string[]) {
@@ -870,7 +888,7 @@ export function createPracticeSession(words: WordEntry[]) {
 
     const nextIds = Array.from(new Set([...masteredWordIds.value, ...wordIds]))
     masteredWordIds.value = nextIds
-    saveWordIds(MASTERED_WORD_IDS_KEY, nextIds)
+    saveWordIds(MASTERED_WORD_IDS_KEY, nextIds, wordIds)
     removeWeakWords(wordIds)
   }
 
@@ -1613,12 +1631,29 @@ export function resetPracticeSessionForTests() {
 export async function ensurePracticeSessionReady(): Promise<PracticeSession> {
   if (practiceSession) return practiceSession
   if (!sessionInitPromise) {
-    sessionInitPromise = ensureWordbankLoaded().then(words => {
+    sessionInitPromise = (async () => {
+      const [sessionPayload, words] = await Promise.all([
+        ensureUserSession(),
+        ensureWordbankLoaded()
+      ])
+
+      if (sessionPayload) {
+        const merged = mergeProgress(readLocalProgressSnapshot(), sessionPayload.progress)
+        writeLocalProgressSnapshot(merged)
+        markProgressUpdatedAt(merged.updatedAt)
+        setCachedDashboard(sessionPayload.dashboard)
+        scheduleProgressUpload(merged, 300)
+      }
+
       practiceSession = createPracticeSession(words)
       return practiceSession
-    })
+    })()
   }
   return sessionInitPromise
+}
+
+export function flushPracticeCloudSync(): Promise<void> {
+  return flushProgressUpload()
 }
 
 export function isPracticeSessionReady(): boolean {

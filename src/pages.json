@@ -15,9 +15,16 @@
       }
     },
     {
-      "path": "pages/dictation/index",
+      "path": "pages/profile/index",
       "style": {
-        "navigationBarTitleText": "自动听写",
+        "navigationBarTitleText": "我的",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/feedback/index",
+      "style": {
+        "navigationBarTitleText": "意见反馈",
         "navigationStyle": "custom"
       }
     },
@@ -67,6 +74,13 @@
       "path": "pages/checkup/report",
       "style": {
         "navigationBarTitleText": "体检报告",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/dictation/index",
+      "style": {
+        "navigationBarTitleText": "自动听写",
         "navigationStyle": "custom"
       }
     },
@@ -125,10 +139,10 @@
         "text": "生词本"
       },
       {
-        "pagePath": "pages/dictation/index",
-        "iconPath": "static/tabbar/dictation.png",
-        "selectedIconPath": "static/tabbar/dictation-active.png",
-        "text": "听写"
+        "pagePath": "pages/profile/index",
+        "iconPath": "static/tabbar/profile.png",
+        "selectedIconPath": "static/tabbar/profile-active.png",
+        "text": "我的"
       }
     ]
   },
