@@ -1099,11 +1099,13 @@ export function createPracticeSession(words: WordEntry[]) {
     moveToNextCheckupQuestion()
   }
 
-  function openDictationSetup() {
+  function openDictationSetup(options?: { scrollToTop?: boolean }) {
     dictationSourceWords.value = null
     setDefaultDictationSelection(true)
     screen.value = 'dictationSetup'
-    scrollToTop()
+    if (options?.scrollToTop !== false) {
+      scrollToTop()
+    }
   }
 
   function openSelectedWeakDictationSetup() {

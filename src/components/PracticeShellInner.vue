@@ -2,12 +2,13 @@
   <view
     :class="[
       'screen',
-      showBottomNav && 'hasBottomNav',
+      (showBottomNav || reserveTabBottomNavSpace) && 'hasBottomNav',
       isSplitScreen && 'isSplitScreen',
       activeScreen === 'dictationSetup' && 'isDictationSetupScreen',
       activeScreen === 'dictationWords' && 'isDictationWordScreen',
       activeScreen === 'dictation' && 'isDictationPlayerScreen',
-      activeScreen === 'weakbook' && 'isWeakbookScreen'
+      activeScreen === 'weakbook' && 'isWeakbookScreen',
+      activeScreen === 'home' && 'isHomeScreen'
     ]"
     :style="screenStyle"
   >
@@ -171,9 +172,7 @@
       <view class="homeDictationStage">
         <view
           class="homeDictationEntry"
-          hover-class="isPressed"
-          :hover-start-time="20"
-          :hover-stay-time="80"
+          hover-class="none"
           @tap="openDictationSetupPage"
         >
           <view class="homeDictationRing">
@@ -1690,6 +1689,16 @@ const showBottomNav = computed(() => {
   return false
 })
 
+const reserveTabBottomNavSpace = computed(() => {
+  // #ifdef MP-WEIXIN
+  // Tab-root pages reserve bottom inset even while a pushed sub-page briefly hides
+  // the in-page tab bar during navigateTo (prevents home dictation button jump).
+  if (props.routeScreen) return false
+  return Boolean(props.tabScreen) && TAB_ROOT_SCREENS.has(tabRootScreen.value)
+  // #endif
+  return false
+})
+
 const isRoutePage = computed(() => Boolean(props.routeScreen))
 
 const isSplitScreen = computed(() => (
@@ -1955,6 +1964,7 @@ function getPageStackLength(): number {
 
 let pendingRedirectRoute = ''
 let pendingPushedScreen: AppScreen | null = null
+let tabPagePushInFlight = false
 
 function navigateToRoute(nextScreen: AppScreen) {
   const url = ROUTE_BY_SCREEN[nextScreen]
@@ -1968,10 +1978,29 @@ function navigateToRoute(nextScreen: AppScreen) {
     return
   }
 
+  const fromTabRoot = Boolean(props.tabScreen) && !props.routeScreen
+  if (fromTabRoot) tabPagePushInFlight = true
+
   uni.navigateTo({
     url,
-    fail: () => showScreen(nextScreen)
+    success: () => {
+      tabPagePushInFlight = false
+    },
+    fail: () => {
+      tabPagePushInFlight = false
+      showScreen(nextScreen)
+    }
   })
+}
+
+function pushScreenRoute(nextScreen: AppScreen, prepare: () => void) {
+  pendingPushedScreen = props.routeScreen ? nextScreen : null
+  prepare()
+  if (screen.value === nextScreen) {
+    navigateToRoute(nextScreen)
+    return
+  }
+  pendingPushedScreen = null
 }
 
 function redirectToRoute(nextScreen: AppScreen) {
@@ -2059,16 +2088,18 @@ function openUnitWordsPage(masteredFirst = false) {
 }
 
 function openWordDetailPage(wordId: string) {
-  openWordDetail(wordId, { source: 'unitWords' })
-  navigateToRoute('wordDetail')
+  pushScreenRoute('wordDetail', () => {
+    openWordDetail(wordId, { source: 'unitWords' })
+  })
 }
 
 function openWeakbookWordDetailPage(wordId: string) {
-  openWordDetail(wordId, {
-    source: 'weakbook',
-    orderedWordIds: savedWeakWords.value.map(word => word.id)
+  pushScreenRoute('wordDetail', () => {
+    openWordDetail(wordId, {
+      source: 'weakbook',
+      orderedWordIds: savedWeakWords.value.map(word => word.id)
+    })
   })
-  navigateToRoute('wordDetail')
 }
 
 function goPreviousWordDetail() {
@@ -2179,7 +2210,7 @@ function openCheckupSetupPage() {
 }
 
 function openDictationSetupPage() {
-  openDictationSetupScreen()
+  openDictationSetupScreen({ scrollToTop: false })
   navigateToRoute('dictationSetup')
 }
 
@@ -2210,8 +2241,9 @@ function openSelectedWeakDictationSetupPage() {
 }
 
 function openDictationWordPickerPage() {
-  openDictationWordPicker()
-  navigateToRoute('dictationWords')
+  pushScreenRoute('dictationWords', () => {
+    openDictationWordPicker()
+  })
 }
 
 function backFromDictationWordPickerPage() {
@@ -2696,9 +2728,17 @@ onShow(() => {
 })
 
 onHide(() => {
-  shellVisible.value = false
   clearDictationTimers()
   destroyActiveAudio()
+
+  // navigateTo from a tab root triggers onHide while the tab page is still visible
+  // during the slide transition. Clearing shellVisible removes TabBottomNav and
+  // hasBottomNav padding, which re-centers the home dictation button downward.
+  if (props.tabScreen && (tabPagePushInFlight || getPageStackLength() > 1)) {
+    return
+  }
+
+  shellVisible.value = false
 })
 
 onBeforeUnmount(() => {
@@ -7030,6 +7070,99 @@ onBeforeUnmount(() => {
   gap: 14px;
 }
 
+.screen.isHomeScreen {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow: hidden;
+}
+
+.screen.isHomeScreen .homeScreen {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.screen.isHomeScreen .homeHero,
+.screen.isHomeScreen .homeUnitCard {
+  flex-shrink: 0;
+}
+
+.screen.isHomeScreen .homeDictationStage {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.screen.isHomeScreen .homeDictationEntry {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  container-type: size;
+  aspect-ratio: 1 / 1;
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+  max-height: 236px;
+}
+
+.screen.isHomeScreen .homeDictationRing {
+  width: 91.53%;
+  height: 91.53%;
+}
+
+.screen.isHomeScreen .homeDictationButton {
+  width: 83.05%;
+  height: 83.05%;
+  padding: 0 9%;
+  box-sizing: border-box;
+  box-shadow: inset 0 -5.08% #0d8fc7, 0 9.32% 17.8% rgba(28, 176, 246, 0.22);
+}
+
+.screen.isHomeScreen .homeDictationIcon {
+  width: clamp(40px, 27.1cqmin, 64px);
+  height: clamp(40px, 27.1cqmin, 64px);
+  flex-shrink: 0;
+  box-shadow: inset 0 -4px #d7eef8;
+}
+
+.screen.isHomeScreen .homeDictationIcon image {
+  width: 62.5%;
+  height: 62.5%;
+}
+
+.screen.isHomeScreen .homeDictationTitle {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin-top: clamp(8px, 7.2cqmin, 17px);
+  padding: 0 2px;
+  box-sizing: border-box;
+  color: #fff;
+  font-size: clamp(13px, 12.3cqmin, 29px);
+  line-height: 1.05;
+  font-weight: 950;
+  text-align: center;
+  white-space: nowrap;
+}
+
+@supports not (font-size: 1cqmin) {
+  .screen.isHomeScreen .homeDictationButton {
+    font-size: 29px;
+  }
+
+  .screen.isHomeScreen .homeDictationIcon {
+    width: 2.2em;
+    height: 2.2em;
+  }
+
+  .screen.isHomeScreen .homeDictationTitle {
+    margin-top: 0.42em;
+    font-size: 0.72em;
+  }
+}
+
 .homeDictationStage {
   box-sizing: border-box;
   display: flex;
@@ -7048,7 +7181,6 @@ onBeforeUnmount(() => {
   height: 236px;
   border-radius: 50%;
   background: rgba(221, 244, 255, 0.74);
-  transition: transform 150ms ease;
 }
 
 .homeDictationRing {
@@ -7076,16 +7208,6 @@ onBeforeUnmount(() => {
   background: #1cb0f6;
   box-shadow: inset 0 -10px #0d8fc7, 0 18px 34px rgba(28, 176, 246, 0.22);
   box-sizing: border-box;
-  transition: transform 150ms ease, box-shadow 150ms ease;
-}
-
-.homeDictationEntry.isPressed {
-  transform: translateY(4px) scale(0.985);
-}
-
-.homeDictationEntry.isPressed .homeDictationButton {
-  box-shadow: inset 0 -5px #0d8fc7, 0 10px 22px rgba(28, 176, 246, 0.18);
-  transform: translateY(3px);
 }
 
 .homeDictationIcon {
@@ -7116,11 +7238,11 @@ onBeforeUnmount(() => {
 @keyframes homeDictationBreathe {
   0%,
   100% {
-    transform: scale(0.985);
+    box-shadow: 0 0 0 0 rgba(132, 216, 255, 0.28);
   }
 
   50% {
-    transform: scale(1);
+    box-shadow: 0 0 0 12px rgba(132, 216, 255, 0.06);
   }
 }
 
@@ -7128,6 +7250,11 @@ onBeforeUnmount(() => {
   .homeDictationStage {
     min-height: 180px;
     padding-top: 4px;
+  }
+
+  .screen.isHomeScreen .homeDictationStage {
+    min-height: 0;
+    padding-top: 0;
   }
 
   .homeDictationEntry {
@@ -7248,6 +7375,17 @@ onBeforeUnmount(() => {
     min-height: 186px;
   }
 
+  .screen.isHomeScreen .homeDictationStage {
+    min-height: 0;
+  }
+
+  .screen.isHomeScreen .homeDictationEntry {
+    max-height: 180px;
+    height: 100%;
+    width: auto;
+    max-width: 100%;
+  }
+
   .homeDictationEntry {
     width: 180px;
     height: 180px;
@@ -7280,11 +7418,6 @@ onBeforeUnmount(() => {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .homeDictationEntry,
-  .homeDictationButton {
-    transition: none;
-  }
-
   .homeDictationRing {
     animation: none;
   }
