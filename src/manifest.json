@@ -2,8 +2,8 @@
   "name": "课本单词通",
   "appid": "wx703d7f44468c7dbf",
   "description": "专注课本单词的体检与自动听写",
-  "versionName": "1.0.2",
-  "versionCode": "24",
+  "versionName": "1.1.0",
+  "versionCode": "25",
   "transformPx": false,
   "uniStatistics": {
     "enable": false
