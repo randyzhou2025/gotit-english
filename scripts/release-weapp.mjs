@@ -5,11 +5,11 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(__dirname, '..')
-const envPath = path.join(root, '.env')
+const productionEnvPath = path.join(root, '.env.production')
 
 function loadEnv(filePath) {
   if (!fs.existsSync(filePath)) {
-    console.error(`Missing ${filePath}. Copy .env.example to .env and fill in CDN URLs.`)
+    console.error(`Missing ${filePath}.`)
     process.exit(1)
   }
 
@@ -22,9 +22,47 @@ function loadEnv(filePath) {
 
     const key = trimmed.slice(0, separator).trim()
     const value = trimmed.slice(separator + 1).trim()
-    if (key && process.env[key] === undefined) {
+    if (key) {
       process.env[key] = value
     }
+  }
+}
+
+function assertProductionApiUrl(url) {
+  if (!url) {
+    console.error('VITE_API_BASE_URL is required in .env.production for release builds.')
+    process.exit(1)
+  }
+
+  let parsed
+  try {
+    parsed = new URL(url)
+  } catch {
+    console.error(`Invalid VITE_API_BASE_URL in .env.production: ${url}`)
+    process.exit(1)
+  }
+
+  if (parsed.protocol !== 'https:') {
+    console.error(
+      `Release builds must use HTTPS API URL (.env.production). Got: ${url}\n` +
+      'Local LAN URLs belong in .env for dev only.'
+    )
+    process.exit(1)
+  }
+
+  const host = parsed.hostname
+  const isPrivateHost =
+    host === 'localhost'
+    || host === '127.0.0.1'
+    || host.startsWith('192.168.')
+    || host.startsWith('10.')
+    || /^172\.(1[6-9]|2\d|3[01])\./.test(host)
+
+  if (isPrivateHost) {
+    console.error(
+      `Release builds cannot use private/LAN API hosts (.env.production). Got: ${url}`
+    )
+    process.exit(1)
   }
 }
 
@@ -41,12 +79,16 @@ function runStep(label, command, args) {
   }
 }
 
-loadEnv(envPath)
+loadEnv(productionEnvPath)
+console.log(`Using production env: ${productionEnvPath}`)
+console.log(`VITE_API_BASE_URL=${process.env.VITE_API_BASE_URL ?? '(missing)'}`)
 
 if (!process.env.VITE_AUDIO_CDN_BASE_URL) {
-  console.error('VITE_AUDIO_CDN_BASE_URL is required in .env for release builds.')
+  console.error('VITE_AUDIO_CDN_BASE_URL is required in .env.production for release builds.')
   process.exit(1)
 }
+
+assertProductionApiUrl(process.env.VITE_API_BASE_URL)
 
 if (!process.env.AUDIO_CDN_BASE_URL) {
   process.env.AUDIO_CDN_BASE_URL = process.env.VITE_AUDIO_CDN_BASE_URL

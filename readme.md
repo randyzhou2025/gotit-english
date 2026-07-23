@@ -18,3 +18,5 @@ pnpm audio:verify-cdn
 5
 pnpm build:weapp
 编译微信小程序到 dist/build/mp-weixin
+
+环境变量：本地开发用 `.env`（如 `VITE_API_BASE_URL=http://192.168.x.x:4000`）；发布构建用已提交的 `.env.production`（`pnpm release:weapp` 自动读取，无需手动切换）。
