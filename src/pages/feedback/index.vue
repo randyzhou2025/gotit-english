@@ -143,6 +143,7 @@ async function submit() {
 }
 
 .feedbackBody {
+  box-sizing: border-box;
   padding: 18px;
   border: 2px solid #e5e5e5;
   border-radius: 20px;
@@ -180,7 +181,10 @@ async function submit() {
 }
 
 .feedbackTextarea {
+  box-sizing: border-box;
+  display: block;
   width: 100%;
+  max-width: 100%;
   min-height: 160px;
   padding: 14px;
   border: 2px solid #e5e5e5;

@@ -91,7 +91,7 @@
             </view>
             <text class="toolLabel">意见反馈</text>
           </view>
-          <view class="toolItem" @tap="openCustomerService">
+          <view v-if="customerServiceEnabled" class="toolItem" @tap="openCustomerService">
             <view class="toolIcon">
               <view class="toolGlyph toolGlyphService" />
             </view>
@@ -127,7 +127,7 @@
 
     <TabBottomNav active="profile" :weakbook-count="weakbookCount" />
 
-    <view v-if="showServiceModal" class="serviceMask" @tap="closeCustomerService">
+    <view v-if="customerServiceEnabled && showServiceModal" class="serviceMask" @tap="closeCustomerService">
       <view class="servicePanel" @tap.stop>
         <text class="serviceTitle">联系客服</text>
         <text class="serviceDesc">使用中遇到任何问题，可联系客服寻求帮助</text>
@@ -180,6 +180,7 @@ const editingNickname = ref(false)
 const nicknameDraft = ref('')
 const syncing = ref(false)
 const apiEnabled = isApiEnabled()
+const customerServiceEnabled = false
 
 const { savedWeakWords } = usePracticeSession()
 
