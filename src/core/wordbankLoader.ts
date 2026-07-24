@@ -100,6 +100,7 @@ export function expandPublisherBlock(block: CompactPublisherBlock): WordEntry[] 
     for (const unit of book.units) {
       const segment = unitSegment(unit)
       const unitId = `${block.publisher.id}:${book.id}:u${segment}`
+      const seenSlugs = new Set<string>()
 
       for (const [
         word,
@@ -120,9 +121,11 @@ export function expandPublisherBlock(block: CompactPublisherBlock): WordEntry[] 
         if (isPhraseEntry(word)) continue
 
         const cdnKey = `${block.publisher.id}/${book.id}/unit-${segment}/${slug}`
+        const idKey = seenSlugs.has(slug) ? `${slug}@${rowNumber}` : slug
+        seenSlugs.add(slug)
 
         entries.push({
-          id: `${unitId}:${slug}`,
+          id: `${unitId}:${idKey}`,
           publisherId: block.publisher.id,
           publisherName: block.publisher.name,
           bookId: book.id,

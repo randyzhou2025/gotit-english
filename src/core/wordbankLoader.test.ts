@@ -1,9 +1,40 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   ensureWordbankLoaded,
+  expandPublisherBlock,
   refreshWordbankIfUpdated,
   resetWordbankCacheForTests
 } from './wordbankLoader'
+
+describe('expandPublisherBlock word ids', () => {
+  it('keeps the first slug and disambiguates duplicates within a unit', () => {
+    const entries = expandPublisherBlock({
+      publisher: { id: 'ylj', name: '译林版' },
+      sourceWorkbook: 'test.xlsx',
+      books: [{
+        id: 'grade-7-1',
+        name: '七年级上册',
+        order: 1,
+        units: [{
+          number: 5,
+          key: '5',
+          label: 'Unit 5',
+          words: [
+            ['bottle', '', '', '瓶子', 1, 'bottle', 10],
+            ['sweet', '', '', '糖果；甜食', 1, 'sweet', 11],
+            ['sweet', '', '', '甜的；可爱的', 1, 'sweet', 25]
+          ]
+        }]
+      }]
+    })
+
+    expect(entries.map(entry => entry.id)).toEqual([
+      'ylj:grade-7-1:u5:bottle',
+      'ylj:grade-7-1:u5:sweet',
+      'ylj:grade-7-1:u5:sweet@25'
+    ])
+  })
+})
 
 describe('wordbankLoader manifest resolution', () => {
   let storage: Map<string, unknown>
