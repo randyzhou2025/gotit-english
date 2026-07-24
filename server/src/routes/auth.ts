@@ -7,7 +7,10 @@ import {
   getProgress,
   getUserById,
   serializeUser,
+  touchUserActivity,
 } from "../services/user.js";
+import { clientIp } from "../lib/client-ip.js";
+import { resolveIpLocation } from "../lib/ip-location.js";
 import { code2Session } from "../wechat.js";
 
 const sessionSchema = z.object({
@@ -23,9 +26,13 @@ export async function registerAuthRoutes(app: FastifyInstance, authenticate: pre
 
     try {
       const { openid } = await code2Session(parsed.data.code);
+      const ip = clientIp(request);
+      const location = await resolveIpLocation(ip);
       let user = await findUserByOpenId(openid);
       if (!user) {
-        user = await createUser(openid);
+        user = await createUser(openid, { ip, location });
+      } else {
+        user = (await touchUserActivity(user.id, { ip, location })) ?? user;
       }
 
       const progress = await getProgress(user.id);

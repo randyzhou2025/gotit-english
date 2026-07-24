@@ -26,7 +26,7 @@ if (!jwtSecret || jwtSecret.length < 16) {
   throw new Error("JWT_SECRET must be at least 16 characters");
 }
 
-const app = Fastify({ logger: true });
+const app = Fastify({ logger: true, trustProxy: true });
 
 await app.register(cors, { origin: true });
 await app.register(sensible);

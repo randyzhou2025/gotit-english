@@ -21,13 +21,18 @@ export async function findUserByOpenId(openid: string) {
   return row ?? null;
 }
 
-export async function createUser(openid: string) {
+export async function createUser(
+  openid: string,
+  activity?: { ip: string; location: string }
+) {
   const now = new Date();
   const [user] = await db
     .insert(users)
     .values({
       openid,
       nickname: defaultNickname(),
+      lastActiveIp: activity?.ip,
+      lastActiveLocation: activity?.location,
       updatedAt: now,
     })
     .returning();
@@ -38,6 +43,24 @@ export async function createUser(openid: string) {
   });
 
   return user!;
+}
+
+export async function touchUserActivity(
+  userId: string,
+  activity: { ip: string; location: string }
+) {
+  const now = new Date();
+  const [row] = await db
+    .update(users)
+    .set({
+      lastActiveIp: activity.ip,
+      lastActiveLocation: activity.location,
+      updatedAt: now,
+    })
+    .where(eq(users.id, userId))
+    .returning();
+
+  return row ?? null;
 }
 
 export async function getUserById(userId: string) {

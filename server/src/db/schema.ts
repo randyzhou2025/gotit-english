@@ -19,6 +19,8 @@ export const users = pgTable("users", {
   phoneNumber: varchar("phone_number", { length: 20 }),
   phoneCountryCode: varchar("phone_country_code", { length: 8 }),
   phoneVerifiedAt: timestamp("phone_verified_at", { withTimezone: true }),
+  lastActiveIp: varchar("last_active_ip", { length: 64 }),
+  lastActiveLocation: varchar("last_active_location", { length: 128 }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
