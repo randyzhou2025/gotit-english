@@ -91,7 +91,7 @@
               @tap="setCourseSetupBook(book.id)"
             >
               <text class="courseChipLabel">{{ book.name }}</text>
-              <text v-if="book.masteryPercent != null" class="courseChipMeta">{{ book.masteryPercent }}% 掌握</text>
+              <text v-if="book.masteryPercent != null" class="courseChipMeta">{{ Math.max(1, book.masteryPercent) }}% 掌握</text>
             </view>
           </view>
           <view v-else class="courseUnavailable">
@@ -110,7 +110,7 @@
             >
               <text class="courseUnitName">{{ unit.name }}</text>
               <text class="courseUnitCount">
-                {{ unit.count }} 词<text v-if="unit.masteryPercent != null" class="courseUnitMastery"> · {{ unit.masteryPercent }}% 掌握</text>
+                {{ unit.count }} 词<text v-if="unit.masteryPercent != null" class="courseUnitMastery"> · {{ Math.max(1, unit.masteryPercent) }}% 掌握</text>
               </text>
             </view>
           </view>
@@ -10469,7 +10469,10 @@ onBeforeUnmount(() => {
 .homeBookCover.hasImage {
   overflow: hidden;
   padding: 0;
+  border: none;
+  background: transparent;
   box-shadow: none;
+  border-radius: 6px;
 }
 
 .homeBookCoverImage,
@@ -10480,6 +10483,7 @@ onBeforeUnmount(() => {
 
 .homeBookCoverImage {
   display: block;
+  border-radius: 6px;
 }
 
 .homeBookCoverFallback {

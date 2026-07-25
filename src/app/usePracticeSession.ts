@@ -217,7 +217,8 @@ function computeMasteryPercent(wordIds: string[], masteredSet: Set<string>): num
   }
   if (masteredCount === 0) return null
 
-  return Math.round((masteredCount / wordIds.length) * 100)
+  const percent = Math.round((masteredCount / wordIds.length) * 100)
+  return Math.max(1, percent)
 }
 
 function toBookCourseOptions(
@@ -473,7 +474,9 @@ export function createPracticeSession(words: WordEntry[]) {
   const unitMasteryLabel = computed(() => `${masteredUnitWordCount.value}/${unitWordCount.value}`)
   const unitMasteryPercent = computed(() => {
     if (unitWordCount.value === 0) return 0
-    return Math.round((masteredUnitWordCount.value / unitWordCount.value) * 100)
+    if (masteredUnitWordCount.value === 0) return 0
+    const percent = Math.round((masteredUnitWordCount.value / unitWordCount.value) * 100)
+    return Math.max(1, percent)
   })
   const unitWordDetailOrderedIds = computed(() => {
     if (!unitWordsMasteredFirst.value) {
