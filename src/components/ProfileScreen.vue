@@ -83,6 +83,33 @@
         </text>
       </view>
 
+      <view class="weeklyStudyCard">
+        <view class="weeklyStudyHeader">
+          <view class="weeklyStudyHeading">
+            <view class="weeklyStudyMark" />
+            <text class="weeklyStudyTitle">本周学习</text>
+          </view>
+          <text class="weeklyStudyTotal">共 {{ weeklyStudyTotal }} 分钟</text>
+        </view>
+        <view class="weeklyStudyChart">
+          <view
+            v-for="(item, index) in weeklyStudyItems"
+            :key="item.label"
+            class="weeklyStudyDay"
+          >
+            <view class="weeklyStudyBarTrack">
+              <view
+                :class="['weeklyStudyBar', index === currentWeekdayIndex && 'isToday']"
+                :style="{ height: item.height + 'px' }"
+              />
+            </view>
+            <text :class="['weeklyStudyLabel', index === currentWeekdayIndex && 'isToday']">
+              {{ item.label }}
+            </text>
+          </view>
+        </view>
+      </view>
+
       <view class="sectionCard">
         <text class="sectionTitle">工具和服务</text>
         <view class="toolGrid">
@@ -189,6 +216,35 @@ const { savedWeakWords } = usePracticeSession()
 const weakbookCount = computed(() => savedWeakWords.value.length)
 const weakbookBadge = computed(() => String(Math.min(weakbookCount.value, 99)))
 const localMasteredCount = computed(() => readLocalProgressSnapshot().masteredWordIds.length)
+const weekLabels = ['一', '二', '三', '四', '五', '六', '日']
+const currentWeekdayIndex = computed(() => {
+  const day = new Date().getDay()
+  return day === 0 ? 6 : day - 1
+})
+const weeklyStudyMinutes = computed(() => {
+  const values = dashboard.value?.weeklyMinutes
+  if (Array.isArray(values) && values.length === 7) {
+    return values.map((value) => Math.max(0, Math.round(Number(value) || 0)))
+  }
+  const fallback = Array(7).fill(0) as number[]
+  fallback[currentWeekdayIndex.value] = dashboard.value?.todayMinutes ?? 0
+  return fallback
+})
+const weeklyStudyTotal = computed(() => (
+  dashboard.value?.weeklyTotalMinutes
+  ?? weeklyStudyMinutes.value.reduce((sum, minutes) => sum + minutes, 0)
+))
+const weeklyStudyItems = computed(() => {
+  const maxMinutes = Math.max(1, ...weeklyStudyMinutes.value)
+  return weekLabels.map((label, index) => {
+    const minutes = weeklyStudyMinutes.value[index] ?? 0
+    return {
+      label,
+      minutes,
+      height: minutes > 0 ? Math.round(12 + (minutes / maxMinutes) * 52) : 8
+    }
+  })
+})
 const avatarPreviewUrl = ref('')
 const avatarDisplayUrl = computed(() => (
   avatarPreviewUrl.value
@@ -769,6 +825,95 @@ onShow(() => {
   font-size: 12px;
   font-weight: 700;
   line-height: 1.5;
+}
+
+.weeklyStudyCard {
+  margin-bottom: 12px;
+  padding: 17px 16px 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.weeklyStudyHeader,
+.weeklyStudyHeading {
+  display: flex;
+  align-items: center;
+}
+
+.weeklyStudyHeader {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.weeklyStudyHeading {
+  gap: 10px;
+}
+
+.weeklyStudyMark {
+  width: 4px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.weeklyStudyTitle {
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.weeklyStudyTotal {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.weeklyStudyChart {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.weeklyStudyDay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+.weeklyStudyBarTrack {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  height: 68px;
+}
+
+.weeklyStudyBar {
+  width: 13px;
+  min-height: 8px;
+  border-radius: 6px 6px 2px 2px;
+  background: #b8cdc4;
+}
+
+.weeklyStudyBar.isToday {
+  background: #c27b28;
+}
+
+.weeklyStudyLabel {
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.weeklyStudyLabel.isToday {
+  color: #a8661f;
 }
 
 .toolGrid {

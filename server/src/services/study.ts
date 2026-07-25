@@ -1,4 +1,4 @@
-import { and, count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, gte } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { appConfig, userDailyStats, userProgress } from "../db/schema.js";
 import { shanghaiDateString, uniqueWordIds } from "../lib/utils.js";
@@ -9,6 +9,21 @@ export interface DashboardSnapshot {
   streakDays: number;
   totalMastered: number;
   totalStudyDays: number;
+  weeklyMinutes: number[];
+  weeklyTotalMinutes: number;
+}
+
+function currentWeekDates(): string[] {
+  const today = shanghaiDateString();
+  const cursor = new Date(`${today}T12:00:00+08:00`);
+  const weekday = cursor.getUTCDay() || 7;
+  cursor.setUTCDate(cursor.getUTCDate() - weekday + 1);
+
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(cursor);
+    date.setUTCDate(cursor.getUTCDate() + index);
+    return shanghaiDateString(date);
+  });
 }
 
 export async function recordStudyEvent(
@@ -86,7 +101,8 @@ async function countConsecutiveStudyDays(userId: string): Promise<number> {
 
 export async function getDashboard(userId: string): Promise<DashboardSnapshot> {
   const today = shanghaiDateString();
-  const [[todayRow], [progressRow], [studyDaysRow], streakDays] = await Promise.all([
+  const weekDates = currentWeekDates();
+  const [[todayRow], [progressRow], [studyDaysRow], streakDays, weekRows] = await Promise.all([
     db
       .select()
       .from(userDailyStats)
@@ -98,9 +114,22 @@ export async function getDashboard(userId: string): Promise<DashboardSnapshot> {
       .from(userDailyStats)
       .where(eq(userDailyStats.userId, userId)),
     countConsecutiveStudyDays(userId),
+    db
+      .select({
+        statDate: userDailyStats.statDate,
+        studySeconds: userDailyStats.studySeconds,
+      })
+      .from(userDailyStats)
+      .where(and(eq(userDailyStats.userId, userId), gte(userDailyStats.statDate, weekDates[0]!))),
   ]);
 
   const mastered = progressRow?.masteredWordIds ?? [];
+  const secondsByDate = new Map(
+    weekRows.map((row) => [String(row.statDate), row.studySeconds])
+  );
+  const weeklyMinutes = weekDates.map((date) =>
+    Math.round((secondsByDate.get(date) ?? 0) / 60)
+  );
 
   return {
     todayWords: todayRow?.wordsStudied ?? 0,
@@ -108,6 +137,8 @@ export async function getDashboard(userId: string): Promise<DashboardSnapshot> {
     streakDays,
     totalMastered: mastered.length,
     totalStudyDays: Number(studyDaysRow?.total ?? 0),
+    weeklyMinutes,
+    weeklyTotalMinutes: weeklyMinutes.reduce((sum, minutes) => sum + minutes, 0),
   };
 }
 

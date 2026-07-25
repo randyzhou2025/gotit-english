@@ -196,6 +196,13 @@ describe('practice shell full-page layout', () => {
     expect(source).not.toContain('今日听写建议')
   })
 
+  it('lets compact home screens scroll clear of the fixed bottom navigation', () => {
+    expect(source).toContain('.screen.isHomeScreen.hasBottomNav')
+    expect(source).toContain('height: auto;')
+    expect(source).toContain('overflow-y: visible;')
+    expect(source).toContain('padding-bottom: calc(92px + env(safe-area-inset-bottom));')
+  })
+
   it('uses the editorial number face and baseline layout for home statistics', () => {
     expect(source).toContain('.screen.isHomeScreen .homeCourseStatNumber')
     expect(source).toContain('font-family: var(--font-word);')

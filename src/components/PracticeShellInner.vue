@@ -7402,14 +7402,18 @@ onBeforeUnmount(() => {
 .screen.isHomeScreen {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  height: 100dvh;
+  height: auto;
   min-height: 100dvh;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: visible;
+}
+
+.screen.isHomeScreen.hasBottomNav {
+  padding-bottom: calc(92px + env(safe-area-inset-bottom));
 }
 
 .screen.isHomeScreen .homeScreen {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   min-height: 0;
 }
 

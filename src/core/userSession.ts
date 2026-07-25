@@ -18,6 +18,8 @@ export interface DashboardSnapshot {
   streakDays: number
   totalMastered: number
   totalStudyDays: number
+  weeklyMinutes?: number[]
+  weeklyTotalMinutes?: number
 }
 
 export interface PublicAppConfig {
