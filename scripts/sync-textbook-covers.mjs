@@ -6,6 +6,7 @@ import { basename, join, resolve } from 'node:path'
 const projectRoot = resolve(import.meta.dirname, '..')
 const catalogDir = join(projectRoot, 'assets/textbook-covers/official')
 const appDir = join(projectRoot, 'src/static/textbook-covers')
+const cdnDir = join(projectRoot, 'generated/textbook-covers')
 const officialVersionUrl =
   'https://s-file-2.ykt.cbern.com.cn/zxx/ndrs/resources/tch_material/version/data_version.json'
 const catalogWidth = 384
@@ -228,6 +229,7 @@ const main = async () => {
 
   await mkdir(catalogDir, { recursive: true })
   await mkdir(appDir, { recursive: true })
+  await mkdir(cdnDir, { recursive: true })
   const tempDir = await mkdtemp(join(tmpdir(), 'gotit-textbook-covers-'))
 
   const manifest = []
@@ -279,13 +281,15 @@ const main = async () => {
       if (!match) throw new Error(`找不到项目教材对应封面：${publisher.name} ${book.name}`)
 
       const appFile = `${publisher.id}-${book.id}.jpg`
+      const appPath = join(appDir, appFile)
       await makeThumbnail(
         join(catalogDir, match.fileName),
-        join(appDir, appFile),
+        appPath,
         appWidth,
         appHeight,
         88,
       )
+      await copyFile(appPath, join(cdnDir, appFile))
       appFiles.push({
         publisherId: publisher.id,
         publisherName: publisher.name,
@@ -333,6 +337,7 @@ const main = async () => {
   console.log(`当前小程序教材封面：${appFiles.length} 张`)
   console.log(`完整目录：${catalogDir}`)
   console.log(`小程序目录：${appDir}`)
+  console.log(`CDN 上传目录：${cdnDir}`)
 }
 
 await main()

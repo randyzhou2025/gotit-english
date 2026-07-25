@@ -233,7 +233,7 @@ describe('practice shell full-page layout', () => {
   })
 
   it('supports real textbook covers and prioritizes randomized home recommendations', () => {
-    expect(source).toContain('/static/textbook-covers/${unit.publisherId}-${unit.bookId}.jpg')
+    expect(source).toContain('buildTextbookCoverUrl(unit.publisherId, unit.bookId)')
     expect(source).toContain('class="homeBookCoverImage"')
     expect(source).toContain('@error="homeBookCoverFailed = true"')
     expect(source).toContain('if (savedWeakWords.value.length > 0)')

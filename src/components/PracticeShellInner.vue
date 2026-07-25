@@ -1362,6 +1362,7 @@ import { onHide, onShow } from '@dcloudio/uni-app'
 import { usePracticeSession, type AppScreen } from '@/app/usePracticeSession'
 import TabBottomNav from '@/components/TabBottomNav.vue'
 import { getAudioUrl, hasPlayableAudio } from '@/core/audio'
+import { buildTextbookCoverUrl } from '@/core/textbookCover'
 import { splitMeaningByPartOfSpeech } from '@/core/wordMeaning'
 import {
   buildWordDetailMemoryLines,
@@ -1909,7 +1910,7 @@ const HIGH_DIFFICULTY_THRESHOLD = 2
 const homeBookCoverSource = computed(() => {
   const unit = selectedUnit.value
   if (!unit) return ''
-  return `/static/textbook-covers/${unit.publisherId}-${unit.bookId}.jpg`
+  return buildTextbookCoverUrl(unit.publisherId, unit.bookId)
 })
 
 const homeBookCoverVisible = computed(() => Boolean(homeBookCoverSource.value) && !homeBookCoverFailed.value)

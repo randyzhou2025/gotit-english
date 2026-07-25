@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import type { ServerResponse } from 'node:http'
 import path from 'node:path'
 import { defineConfig } from 'vitest/config'
+import { loadEnv } from 'vite'
 import uni from '@dcloudio/vite-plugin-uni'
 import type { Connect, Plugin, ViteDevServer } from 'vite'
 
@@ -84,8 +85,34 @@ function h5WordbankAssetPlugin(): Plugin {
   )
 }
 
-export default defineConfig({
-  plugins: [localAudioMiddleware(), localWordbankMiddleware(), h5AudioAssetPlugin(), h5WordbankAssetPlugin(), uni()],
+function weappStripBundledCoversPlugin(coversCdnBaseUrl: string): Plugin {
+  return {
+    name: 'gotit-weapp-strip-bundled-covers',
+    apply: 'build' as const,
+    closeBundle() {
+      if (!coversCdnBaseUrl) return
+
+      const coversDir = path.resolve(__dirname, 'dist/build/mp-weixin/static/textbook-covers')
+      if (!fs.existsSync(coversDir)) return
+
+      fs.rmSync(coversDir, { recursive: true, force: true })
+    }
+  }
+}
+
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, __dirname, '')
+  const coversCdnBaseUrl = String(env.VITE_COVERS_CDN_BASE_URL || '').replace(/\/+$/, '')
+
+  return {
+  plugins: [
+    localAudioMiddleware(),
+    localWordbankMiddleware(),
+    h5AudioAssetPlugin(),
+    h5WordbankAssetPlugin(),
+    weappStripBundledCoversPlugin(coversCdnBaseUrl),
+    uni()
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src')
@@ -94,5 +121,6 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts']
+  }
   }
 })

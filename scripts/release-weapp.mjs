@@ -88,6 +88,11 @@ if (!process.env.VITE_AUDIO_CDN_BASE_URL) {
   process.exit(1)
 }
 
+if (!process.env.VITE_COVERS_CDN_BASE_URL) {
+  console.error('VITE_COVERS_CDN_BASE_URL is required in .env.production for release builds.')
+  process.exit(1)
+}
+
 assertProductionApiUrl(process.env.VITE_API_BASE_URL)
 
 if (!process.env.AUDIO_CDN_BASE_URL) {
@@ -111,6 +116,16 @@ if (fs.existsSync(wordbankDir)) {
   }
   console.log('Upload them to your CDN under /generated/wordbank/ (see VITE_WORDBANK_CDN_BASE_URL).')
   console.log('Include manifest.json — set Cache-Control: no-cache on CDN for that file.')
+}
+
+const coversDir = path.join(root, 'generated', 'textbook-covers')
+if (fs.existsSync(coversDir)) {
+  const coverFiles = fs.readdirSync(coversDir).filter(name => name.endsWith('.jpg'))
+  console.log('\nTextbook cover CDN files ready for upload:')
+  for (const fileName of coverFiles) {
+    console.log(`- ${path.join(coversDir, fileName)}`)
+  }
+  console.log('Upload them to your CDN under /generated/textbook-covers/ (see VITE_COVERS_CDN_BASE_URL).')
 }
 
 console.log('\nRelease build ready: dist/build/mp-weixin')

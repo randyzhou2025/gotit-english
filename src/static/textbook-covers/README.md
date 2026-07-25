@@ -15,6 +15,9 @@
 
 `pnpm covers:sync`
 
+**小程序正式包**通过 `VITE_COVERS_CDN_BASE_URL` 从 CDN 加载封面，不会把本目录打进主包。
+同步脚本会同时输出到 `generated/textbook-covers/`，发版前上传到 CDN。
+
 官网全部初中（含五四学制）和高中英语教材封面及来源清单保存在：
 
 `assets/textbook-covers/official/`
