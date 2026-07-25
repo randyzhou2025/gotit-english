@@ -1269,12 +1269,18 @@
       </view>
 
       <view class="rewardContent">
-        <view class="rewardStamp" aria-hidden="true">
-          <text class="rewardStampLabel">本次</text>
-          <text class="rewardStampValue">
-            {{ dictationReward.newlyMasteredCount > 0 ? `+${dictationReward.newlyMasteredCount}` : '0' }}
-          </text>
-          <text class="rewardStampUnit">掌握词</text>
+        <view
+          :class="['rewardStampWrap', dictationReward.newlyMasteredCount > 0 && 'hasAura']"
+          aria-hidden="true"
+        >
+          <view v-if="dictationReward.newlyMasteredCount > 0" class="rewardStampAura" />
+          <view class="rewardStamp">
+            <text class="rewardStampLabel">本次</text>
+            <text class="rewardStampValue">
+              {{ dictationReward.newlyMasteredCount > 0 ? `+${dictationReward.newlyMasteredCount}` : '0' }}
+            </text>
+            <text class="rewardStampUnit">掌握词</text>
+          </view>
         </view>
 
         <text class="rewardOverline">今天又向前了一点</text>
@@ -1390,19 +1396,22 @@ const rewardParticles = [
   { id: 'p9', className: 'rewardParticle toneTeal dot leftSoft' },
   { id: 'p10', className: 'rewardParticle toneBlue dot rightSoft' }
 ]
-const rewardConfettiPieces = Array.from({ length: 36 }, (_, index) => {
+const rewardConfettiPieces = Array.from({ length: 64 }, (_, index) => {
   const tones = ['toneAccent', 'toneInfo', 'toneGold', 'toneCoral', 'toneMint']
-  const angle = (index / 36) * Math.PI * 2
-  const distance = 150 + ((index * 29) % 130)
-  const burstX = Math.round(Math.cos(angle) * distance)
-  const burstY = Math.round(Math.sin(angle) * distance)
-  const delay = (index % 6) * 18
-  const duration = 860 + ((index * 47) % 360)
+  const angle = (index / 64) * Math.PI * 2 + (index % 3) * 0.11
+  const distance = 130 + ((index * 19) % 140) + (index % 5) * 8
+  const burstX = Math.cos(angle) * distance
+  const burstY = Math.sin(angle) * distance * 0.94
+  const wave = Math.floor(index / 8)
+  const delay = wave * 42 + (index % 8) * 9
+  const duration = 1880 + (index % 6) * 110 + wave * 40
+  const rotate = 90 + (index * 29) % 210
+  const sizeClass = index % 7 === 0 ? 'isLarge' : index % 3 === 0 ? 'isSmall' : ''
 
   return {
     id: `reward-confetti-${index}`,
-    className: `rewardConfettiPiece ${tones[index % tones.length]} ${index % 4 === 0 ? 'isRound' : 'isBar'}`,
-    style: `--burst-x:${burstX}px;--burst-y:${burstY}px;animation-delay:${delay}ms;animation-duration:${duration}ms;`
+    className: `rewardConfettiPiece ${tones[index % tones.length]} ${index % 4 === 0 ? 'isRound' : 'isBar'} ${sizeClass}`.trim(),
+    style: `--burst-x:${burstX.toFixed(1)}px;--burst-y:${burstY.toFixed(1)}px;--burst-rotate:${rotate}deg;animation-delay:${delay}ms;animation-duration:${duration}ms;`
   }
 })
 
@@ -12176,21 +12185,52 @@ onBeforeUnmount(() => {
   box-sizing: border-box;
 }
 
+.screen.isDictationRewardScreen .rewardStampWrap {
+  position: relative;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  width: 112px;
+  height: 112px;
+}
+
+.screen.isDictationRewardScreen .rewardStampWrap.hasAura {
+  animation: rewardStampEnter 620ms cubic-bezier(0.2, 1.24, 0.32, 1) both;
+}
+
+.rewardStampAura {
+  position: absolute;
+  inset: -5px;
+  border: 2px solid rgba(23, 107, 80, 0.34);
+  border-radius: 999px;
+  pointer-events: none;
+  animation: rewardStampAuraShine 2.1s ease-in-out infinite;
+}
+
 .screen.isDictationRewardScreen .rewardStamp {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex: 0 0 auto;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  align-self: center;
   width: 106px;
   height: 106px;
   border: 2px solid var(--accent);
   border-radius: 999px;
   background: rgba(255, 253, 248, 0.9);
-  box-shadow: inset 0 0 0 7px rgba(23, 107, 80, 0.08);
+  box-shadow:
+    inset 0 0 0 7px rgba(23, 107, 80, 0.08),
+    0 8px 24px rgba(23, 107, 80, 0.12);
   color: var(--accent);
   box-sizing: border-box;
+}
+
+.screen.isDictationRewardScreen .rewardStampWrap.hasAura .rewardStamp {
+  animation: rewardStampGlow 2.1s ease-in-out infinite;
 }
 
 .screen.isDictationRewardScreen .rewardStampLabel,
@@ -12467,6 +12507,7 @@ onBeforeUnmount(() => {
     padding-top: 2px;
   }
 
+  .screen.isDictationRewardScreen .rewardStampWrap,
   .screen.isDictationRewardScreen .rewardStamp {
     width: 88px;
     height: 88px;
@@ -13684,6 +13725,11 @@ onBeforeUnmount(() => {
   height: 112px;
 }
 
+.screen.isDictationRewardScreen .rewardStampWrap {
+  width: 112px;
+  height: 112px;
+}
+
 .screen.isDictationRewardScreen .rewardStampValue {
   margin: 6px 0 8px;
   font-size: 40px;
@@ -13726,32 +13772,38 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 
-.rewardConfettiLayer::before {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 24px;
-  height: 24px;
-  border: 3px solid rgba(23, 107, 80, 0.45);
-  border-radius: 999px;
-  content: '';
-  opacity: 0;
-  transform: translate(-50%, -50%) scale(0.2);
-  animation: rewardBurstRing 720ms cubic-bezier(0.18, 0.78, 0.32, 1) both;
-}
-
 .rewardConfettiPiece {
   position: absolute;
   top: 50%;
   left: 50%;
   width: 7px;
-  height: 16px;
+  height: 14px;
   opacity: 0;
-  transform: translate3d(0, 0, 0) scale(0.3) rotate(0deg);
+  transform: translate3d(-50%, -50%, 0) scale(0.45) rotate(0deg);
   animation-name: rewardConfettiBurst;
-  animation-timing-function: cubic-bezier(0.18, 0.78, 0.32, 1);
+  animation-timing-function: cubic-bezier(0.08, 0.82, 0.17, 1);
   animation-fill-mode: both;
-  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+.rewardConfettiPiece.isSmall {
+  width: 5px;
+  height: 10px;
+}
+
+.rewardConfettiPiece.isLarge {
+  width: 9px;
+  height: 18px;
+}
+
+.rewardConfettiPiece.isRound.isSmall {
+  width: 7px;
+  height: 7px;
+}
+
+.rewardConfettiPiece.isRound.isLarge {
+  width: 11px;
+  height: 11px;
 }
 
 .rewardConfettiPiece.isRound {
@@ -13787,36 +13839,64 @@ onBeforeUnmount(() => {
 @keyframes rewardConfettiBurst {
   0% {
     opacity: 0;
-    transform: translate3d(0, 0, 0) scale(0.3) rotate(0deg);
+    transform: translate3d(-50%, -50%, 0) scale(0.45) rotate(0deg);
   }
 
-  10% {
-    opacity: 1;
+  7% {
+    opacity: 0.98;
   }
 
-  68% {
-    opacity: 1;
+  85% {
+    opacity: 0.88;
   }
 
   100% {
     opacity: 0;
-    transform: translate3d(var(--burst-x), var(--burst-y), 0) scale(1) rotate(540deg);
+    transform: translate3d(calc(-50% + var(--burst-x)), calc(-50% + var(--burst-y)), 0) scale(1) rotate(var(--burst-rotate));
   }
 }
 
-@keyframes rewardBurstRing {
-  0% {
+@keyframes rewardStampEnter {
+  from {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.2);
+    transform: scale(0.82);
   }
 
-  20% {
-    opacity: 0.8;
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
+}
 
+@keyframes rewardStampAuraShine {
+  0%,
   100% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(8);
+    opacity: 0.32;
+    border-color: rgba(23, 107, 80, 0.22);
+    box-shadow: 0 0 0 0 rgba(23, 107, 80, 0.08);
+  }
+
+  50% {
+    opacity: 0.92;
+    border-color: rgba(23, 107, 80, 0.58);
+    box-shadow: 0 0 18px 5px rgba(23, 107, 80, 0.22);
+  }
+}
+
+@keyframes rewardStampGlow {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 0 0 7px rgba(23, 107, 80, 0.08),
+      0 0 0 0 rgba(23, 107, 80, 0.1),
+      0 8px 24px rgba(23, 107, 80, 0.12);
+  }
+
+  50% {
+    box-shadow:
+      inset 0 0 0 7px rgba(23, 107, 80, 0.14),
+      0 0 0 6px rgba(23, 107, 80, 0.08),
+      0 10px 28px rgba(23, 107, 80, 0.18);
   }
 }
 
@@ -13843,6 +13923,12 @@ onBeforeUnmount(() => {
 @media (prefers-reduced-motion: reduce) {
   .rewardConfettiLayer {
     display: none;
+  }
+
+  .rewardStampWrap.hasAura,
+  .rewardStampWrap.hasAura .rewardStamp,
+  .rewardStampAura {
+    animation: none !important;
   }
 }
 </style>
