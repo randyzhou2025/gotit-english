@@ -1207,6 +1207,7 @@
 
         <view class="dictationReportLegend">
           <text>点击单词右侧按钮可切换掌握情况</text>
+          <text>{{ dictationSummary.total }} 词</text>
         </view>
       </view>
 
