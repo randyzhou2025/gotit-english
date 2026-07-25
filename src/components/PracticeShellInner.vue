@@ -1091,15 +1091,14 @@
 
         <view v-if="dictationMode === 'paper'" class="transportRow">
           <view :class="['transportButton', dictationIndex === 0 && 'isDisabled']" @tap="previousDictationPage">
-            <view class="transportIcon previousIcon">
-              <view class="previousBar" />
-              <view class="previousTriangle" />
+            <view class="transportIcon">
+              <view class="transportTrackGlyph isPrevious" aria-hidden="true" />
             </view>
             <text class="transportLabel">上一个</text>
           </view>
           <view class="transportButton isPrimary" @tap="toggleDictationPause">
             <view class="transportIcon">
-              <view v-if="isAutoPaused" class="transportPlayTriangle" />
+              <view v-if="isAutoPaused" class="transportPlayGlyph" aria-hidden="true" />
               <view v-else class="pauseBars">
                 <view class="pauseBar" />
                 <view class="pauseBar" />
@@ -1108,9 +1107,8 @@
             <text class="transportLabel">{{ isAutoPaused ? '继续' : '暂停' }}</text>
           </view>
           <view class="transportButton" @tap="skipCurrentDictation">
-            <view class="transportIcon skipIcon">
-              <view class="transportPlayTriangle" />
-              <view class="skipBar" />
+            <view class="transportIcon">
+              <view class="transportTrackGlyph isNext" aria-hidden="true" />
             </view>
             <text class="transportLabel">下一词</text>
           </view>
@@ -1209,7 +1207,6 @@
 
         <view class="dictationReportLegend">
           <text>点击单词右侧按钮可切换掌握情况</text>
-          <text>{{ dictationSummary.total }} 词</text>
         </view>
       </view>
 
@@ -3677,9 +3674,10 @@ onBeforeUnmount(() => {
   justify-content: center;
   width: 72px;
   height: 72px;
+  border: 1px solid rgba(23, 107, 80, 0.14);
   border-radius: 999px;
-  background: #eef8ff;
-  color: #1cb0f6;
+  background: var(--accent-soft);
+  color: var(--accent);
   font-size: 28px;
   line-height: 1;
   font-weight: 900;
@@ -3688,7 +3686,7 @@ onBeforeUnmount(() => {
 .weakbookEmptyTitle {
   display: block;
   margin-top: 16px;
-  color: #0d0f0e;
+  color: var(--ink);
   font-size: 20px;
   font-weight: 900;
 }
@@ -3696,7 +3694,8 @@ onBeforeUnmount(() => {
 .weakbookEmptyText {
   display: block;
   margin-top: 8px;
-  color: #8e8e93;
+  max-width: 280px;
+  color: var(--muted);
   font-size: 14px;
   line-height: 1.5;
   font-weight: 600;
@@ -5358,17 +5357,26 @@ onBeforeUnmount(() => {
   opacity: 0.35;
 }
 
-.transportPlayTriangle {
-  width: 0;
-  height: 0;
-  margin-left: 4px;
-  border-top: 9px solid transparent;
-  border-bottom: 9px solid transparent;
-  border-left: 15px solid #0d0f0e;
+.transportPlayTriangle,
+.transportPlayGlyph {
+  width: 18px;
+  height: 18px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%230d0f0e' d='M4.6 3.6v12.8c0 .78.96 1.22 1.62.74l7.36-5.34a.9.9 0 0 0 0-1.44L6.22 3.86A.9.9 0 0 0 4.6 3.6z'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
-.transportButton.isPrimary .transportPlayTriangle {
-  border-left-color: #fff;
+.transportButton.isPrimary .transportPlayTriangle,
+.transportButton.isPrimary .transportPlayGlyph {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%23ffffff' d='M4.6 3.6v12.8c0 .78.96 1.22 1.62.74l7.36-5.34a.9.9 0 0 0 0-1.44L6.22 3.86A.9.9 0 0 0 4.6 3.6z'/%3E%3C/svg%3E");
+}
+
+.transportTrackGlyph {
+  width: 22px;
+  height: 22px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%230d0f0e' d='M5.4 4.4v15.2c0 .92 1.13 1.43 1.91.87l8.69-6.31a1.05 1.05 0 0 0 0-1.7L7.31 3.53A1.05 1.05 0 0 0 5.4 4.4z'/%3E%3Crect fill='%230d0f0e' x='18.1' y='4.4' width='4.1' height='15.2' rx='2.05'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.transportTrackGlyph.isPrevious {
+  transform: scaleX(-1);
 }
 
 .pauseBars {
@@ -5379,41 +5387,9 @@ onBeforeUnmount(() => {
 
 .pauseBar {
   width: 6px;
-  height: 19px;
+  height: 18px;
   border-radius: 999px;
   background: #fff;
-}
-
-.skipIcon {
-  flex-direction: row;
-  gap: 6px;
-}
-
-.skipBar {
-  width: 4px;
-  height: 20px;
-  border-radius: 999px;
-  background: #0d0f0e;
-}
-
-.previousIcon {
-  flex-direction: row;
-  gap: 5px;
-}
-
-.previousBar {
-  width: 4px;
-  height: 20px;
-  border-radius: 999px;
-  background: #0d0f0e;
-}
-
-.previousTriangle {
-  width: 0;
-  height: 0;
-  border-top: 9px solid transparent;
-  border-bottom: 9px solid transparent;
-  border-right: 15px solid #0d0f0e;
 }
 
 .transportLabel {
@@ -9520,6 +9496,31 @@ onBeforeUnmount(() => {
   gap: 14px;
 }
 
+.screen.isWeakbookScreen .weakbookEmpty {
+  min-height: 360px;
+  padding: 40px 28px 48px;
+}
+
+.screen.isWeakbookScreen .weakbookEmptyIcon {
+  width: 76px;
+  height: 76px;
+  border-color: rgba(23, 107, 80, 0.16);
+  background: rgba(237, 246, 242, 0.92);
+  box-shadow: 0 10px 24px rgba(23, 107, 80, 0.08);
+  color: var(--accent);
+}
+
+.screen.isWeakbookScreen .weakbookEmptyTitle {
+  color: #26342d;
+  font-size: 19px;
+  font-weight: 850;
+}
+
+.screen.isWeakbookScreen .weakbookEmptyText {
+  color: #718078;
+  font-weight: 650;
+}
+
 .screen.isWeakbookScreen .weakbookSummary {
   padding: 16px 17px;
   border: 1px solid rgba(194, 218, 207, 0.76);
@@ -9788,22 +9789,21 @@ onBeforeUnmount(() => {
 }
 
 .screen.isDictationPlayerScreen .transportIcon {
-  width: 56px;
-  height: 56px;
-  border: 1px solid #dce6e1;
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow: 0 8px 20px rgba(54, 91, 72, 0.08);
+  width: 58px;
+  height: 58px;
+  border: 1px solid rgba(23, 107, 80, 0.14);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 10px 22px rgba(23, 107, 80, 0.1);
   box-sizing: border-box;
 }
 
-.screen.isDictationPlayerScreen .transportButton.isPrimary .transportIcon {
-  border-color: #1899d2;
-  background: #20a9e5;
-  box-shadow: 0 10px 22px rgba(32, 169, 229, 0.2);
+.screen.isDictationPlayerScreen .transportTrackGlyph {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%233f564d' d='M5.4 4.4v15.2c0 .92 1.13 1.43 1.91.87l8.69-6.31a1.05 1.05 0 0 0 0-1.7L7.31 3.53A1.05 1.05 0 0 0 5.4 4.4z'/%3E%3Crect fill='%233f564d' x='18.1' y='4.4' width='4.1' height='15.2' rx='2.05'/%3E%3C/svg%3E");
 }
 
-.screen.isDictationPlayerScreen .transportButton.isPrimary .transportPlayTriangle {
-  border-left-color: #f7fcff;
+.screen.isDictationPlayerScreen .transportButton.isPrimary .transportPlayTriangle,
+.screen.isDictationPlayerScreen .transportButton.isPrimary .transportPlayGlyph {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%23ffffff' d='M4.6 3.6v12.8c0 .78.96 1.22 1.62.74l7.36-5.34a.9.9 0 0 0 0-1.44L6.22 3.86A.9.9 0 0 0 4.6 3.6z'/%3E%3C/svg%3E");
 }
 
 .screen.isDictationPlayerScreen .transportButton.isPrimary .pauseBar {
@@ -10703,18 +10703,20 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 54px;
-  height: 54px;
-  border: 1px solid var(--line);
+  width: 58px;
+  height: 58px;
+  border: 1px solid rgba(23, 107, 80, 0.14);
   border-radius: 999px;
-  background: var(--surface);
-  box-shadow: 0 6px 14px rgba(23, 52, 44, 0.06);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 10px 22px rgba(23, 107, 80, 0.1);
 }
 
 .screen.isDictationPlayerScreen .transportButton.isPrimary .transportIcon {
-  border-color: var(--accent);
+  width: 60px;
+  height: 60px;
+  border-color: rgba(23, 107, 80, 0.18);
   background: var(--accent);
-  box-shadow: 0 7px 15px rgba(23, 107, 80, 0.16);
+  box-shadow: 0 12px 24px rgba(23, 107, 80, 0.18);
 }
 
 .screen.isDictationPlayerScreen .transportButton.isPrimary .pauseBar {
