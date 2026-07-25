@@ -63,6 +63,7 @@ const FORGOTTEN_ADVANCE_DELAY_MS = 1000
 const DEFAULT_DICTATION_ACCENT = 'uk'
 const DICTATION_QUICK_PICK_COUNTS = [5, 10, 20, 30, 50]
 const SAVED_WEAK_WORD_IDS_KEY = 'gotit:savedWeakWordIds'
+const SAVED_WEAK_WORD_SOURCES_KEY = 'gotit:savedWeakWordSources'
 const MASTERED_WORD_IDS_KEY = 'gotit:masteredWordIds'
 const SELECTED_UNIT_ID_KEY = 'gotit:selectedUnitId'
 const COURSE_SETUP_COMPLETED_KEY = 'gotit:courseSetupCompleted'
@@ -74,6 +75,8 @@ interface SavedDictationProgress {
   plan: DictationPlan
   index: number
 }
+
+type WeakWordSource = 'checkup' | 'dictation' | 'manual'
 
 function loadUnfinishedDictation(): SavedDictationProgress | null {
   try {
@@ -111,6 +114,22 @@ function loadSavedWordIds(key: string): string[] {
     return Array.isArray(saved) ? saved.filter((id): id is string => typeof id === 'string') : []
   } catch {
     return []
+  }
+}
+
+function loadWeakWordSources(): Record<string, WeakWordSource> {
+  try {
+    const saved = uni.getStorageSync(SAVED_WEAK_WORD_SOURCES_KEY)
+    if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return {}
+
+    return Object.fromEntries(
+      Object.entries(saved as Record<string, unknown>)
+        .filter((entry): entry is [string, WeakWordSource] => (
+          entry[1] === 'checkup' || entry[1] === 'dictation' || entry[1] === 'manual'
+        ))
+    )
+  } catch {
+    return {}
   }
 }
 
@@ -352,6 +371,7 @@ export function createPracticeSession(words: WordEntry[]) {
   const recognitionState = ref<RecognitionState>('idle')
   const spellingInput = ref('')
   const savedWeakWordIds = ref<string[]>(loadSavedWordIds(SAVED_WEAK_WORD_IDS_KEY))
+  const savedWeakWordSources = ref<Record<string, WeakWordSource>>(loadWeakWordSources())
   const masteredWordIds = ref<string[]>(loadSavedWordIds(MASTERED_WORD_IDS_KEY))
   const masteredWordIdSet = computed(() => new Set(masteredWordIds.value))
   const selectedWeakWordIds = ref<string[]>([])
@@ -581,8 +601,8 @@ export function createPracticeSession(words: WordEntry[]) {
   const currentDictationEntry = computed(() => dictationPlan.value?.words[dictationIndex.value])
   const dictationProgressLabel = computed(() => {
     const total = dictationPlan.value?.words.length ?? 0
-    if (total === 0) return '0/0'
-    return `${dictationIndex.value + 1}/${total}`
+    if (total === 0) return '0 / 0'
+    return `${dictationIndex.value + 1} / ${total}`
   })
   const dictationTitle = computed(() => {
     if (!dictationPlan.value) return '自动听写'
@@ -860,11 +880,19 @@ export function createPracticeSession(words: WordEntry[]) {
       .map(word => word.id)
   }
 
-  function recordWeakWord(wordId: string) {
+  function recordWeakWord(wordId: string, source: WeakWordSource) {
     if (masteredWordIds.value.includes(wordId)) {
       const nextMasteredIds = masteredWordIds.value.filter(id => id !== wordId)
       masteredWordIds.value = nextMasteredIds
       saveWordIds(MASTERED_WORD_IDS_KEY, nextMasteredIds)
+    }
+    if (savedWeakWordSources.value[wordId] !== source) {
+      savedWeakWordSources.value = { ...savedWeakWordSources.value, [wordId]: source }
+      try {
+        uni.setStorageSync(SAVED_WEAK_WORD_SOURCES_KEY, savedWeakWordSources.value)
+      } catch {
+        // Storage can be unavailable in restricted preview contexts.
+      }
     }
     if (savedWeakWordIds.value.includes(wordId)) return
 
@@ -880,6 +908,14 @@ export function createPracticeSession(words: WordEntry[]) {
     const nextIds = savedWeakWordIds.value.filter(id => !removeSet.has(id))
     savedWeakWordIds.value = nextIds
     selectedWeakWordIds.value = selectedWeakWordIds.value.filter(id => !removeSet.has(id))
+    savedWeakWordSources.value = Object.fromEntries(
+      Object.entries(savedWeakWordSources.value).filter(([id]) => !removeSet.has(id))
+    )
+    try {
+      uni.setStorageSync(SAVED_WEAK_WORD_SOURCES_KEY, savedWeakWordSources.value)
+    } catch {
+      // Storage can be unavailable in restricted preview contexts.
+    }
     saveWordIds(SAVED_WEAK_WORD_IDS_KEY, nextIds)
   }
 
@@ -895,7 +931,7 @@ export function createPracticeSession(words: WordEntry[]) {
   function recordCheckupAnswer(answer: CheckupAnswer) {
     checkupAnswers.value = [...checkupAnswers.value, answer]
     if (answer.status !== 'mastered') {
-      recordWeakWord(answer.wordId)
+      recordWeakWord(answer.wordId, 'checkup')
       return
     }
 
@@ -1041,6 +1077,11 @@ export function createPracticeSession(words: WordEntry[]) {
 
   function markSelectedWeakWordsKnown() {
     recordMasteredWords(selectedWeakWordIds.value)
+  }
+
+  function saveWeakWord(wordId: string) {
+    triggerHapticFeedback('light')
+    recordWeakWord(wordId, 'manual')
   }
 
   function markUnitWordKnown(wordId: string) {
@@ -1281,7 +1322,7 @@ export function createPracticeSession(words: WordEntry[]) {
         }
     dictationRecords.value = [...dictationRecords.value, nextRecord]
     if (!record.correct) {
-      recordWeakWord(entry.id)
+      recordWeakWord(entry.id, 'dictation')
     }
     showDictationAnswer.value = true
 
@@ -1300,7 +1341,7 @@ export function createPracticeSession(words: WordEntry[]) {
     if (!word) return
 
     if (forgotten) {
-      recordWeakWord(word.id)
+      recordWeakWord(word.id, 'dictation')
     }
 
     const existingRecord = dictationRecords.value.find(record => record.wordId === word.id)
@@ -1526,6 +1567,7 @@ export function createPracticeSession(words: WordEntry[]) {
     markCurrentDictationForgotten,
     markDictationWordForgotten,
     markUnitWordKnown,
+    saveWeakWord,
     masteredUnitWordCount,
     openDictationSetup,
     openDictationWordPicker,
@@ -1565,6 +1607,7 @@ export function createPracticeSession(words: WordEntry[]) {
     publisherOptions,
     bookOptions,
     savedWeakWords,
+    savedWeakWordSources,
     setSelectedBookByIndex,
     setCheckupLimit,
     setCourseSetupBook,

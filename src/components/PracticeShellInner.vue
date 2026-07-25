@@ -8,7 +8,16 @@
       activeScreen === 'dictationWords' && 'isDictationWordScreen',
       activeScreen === 'dictation' && 'isDictationPlayerScreen',
       activeScreen === 'weakbook' && 'isWeakbookScreen',
-      activeScreen === 'home' && 'isHomeScreen'
+      activeScreen === 'home' && 'isHomeScreen',
+      activeScreen === 'courseSetup' && 'isCourseSetupScreen',
+      activeScreen === 'checkupSetup' && 'isCheckupSetupScreen',
+      activeScreen === 'checkup' && 'isCheckupScreen',
+      activeScreen === 'spelling' && 'isSpellingScreen',
+      activeScreen === 'report' && 'isCheckupReportScreen',
+      activeScreen === 'unitWords' && 'isUnitWordScreen',
+      activeScreen === 'wordDetail' && 'isWordDetailScreen',
+      activeScreen === 'dictationReport' && 'isDictationReportScreen',
+      activeScreen === 'dictationReward' && 'isDictationRewardScreen'
     ]"
     :style="screenStyle"
   >
@@ -18,6 +27,11 @@
           <view class="chevronLeft" />
         </view>
         <text class="navTitle">教材选择</text>
+      </view>
+
+      <view class="courseIntro">
+        <text class="courseIntroTitle">选择你正在学的课本</text>
+        <text class="courseIntroText">选择会自动保存，下次从这里继续。</text>
       </view>
 
       <view class="coursePanel">
@@ -106,6 +120,9 @@
         </view>
       </view>
 
+      <text v-if="courseSetupCanConfirm" class="courseSelectionNote">
+        已选择：{{ courseSetupSelectionLabel }}
+      </text>
       <view :class="['courseConfirmButton', !courseSetupCanConfirm && 'isDisabled']" @tap="confirmCourseSetupPage">
         <text>{{ courseSetupCanConfirm ? '进入学习' : '暂未上线' }}</text>
       </view>
@@ -119,73 +136,97 @@
         <view class="homeHeroMain">
           <view class="homeHeroTitle">课本单词通</view>
           <view class="homeHeroSubtitle">别急着背更多，先把课本里的单词真正掌握</view>
-        </view>
-        <view class="homeHeroTags">
-          <text class="homeHeroTag">教材同步</text>
-          <text class="homeHeroTag">自动听写</text>
-          <text class="homeHeroTag">生词复习</text>
+          <view class="homeHeroTags" aria-label="产品特点">
+            <text class="homeHeroTag">教材同步</text>
+            <text class="homeHeroTag">自动听写</text>
+            <text class="homeHeroTag">生词复习</text>
+          </view>
         </view>
       </view>
 
       <view class="homeUnitCard">
-        <view class="homeUnitTopline">
-          <text class="homeUnitLabel">当前学习</text>
-          <text class="homeUnitMeta">{{ unitMasteryPercent }}% 掌握</text>
-        </view>
-
-        <text class="homeUnitTitle">{{ selectedUnit?.bookName }} · {{ selectedUnit?.unitName }}</text>
-        <text class="homeUnitSubtitle">{{ selectedUnit?.publisherName }}</text>
-
-        <view class="homeUnitRow">
-          <view class="homeMasteryPill">
-            <view class="homeMasteryPillFill" :style="{ width: unitMasteryPercent + '%' }" />
-            <text class="homeMasteryText">{{ unitMasteryLabel }} 已掌握</text>
-          </view>
-        </view>
-
-        <view class="homeStatRow">
-          <view class="homeStatPrimary" @tap="openUnitWordsPage()">
-            <text class="homeStatNumber">{{ unitWordCount }}</text>
-            <view>
-              <text class="homeStatTitle">总单词</text>
-              <text class="homeStatHint">查看完整词表</text>
+        <view class="homeCourseMain" @tap="openCourseSetupPage">
+          <view :class="['homeBookCover', homeBookCoverVisible && 'hasImage']">
+            <image
+              v-if="homeBookCoverVisible"
+              class="homeBookCoverImage"
+              :src="homeBookCoverSource"
+              mode="aspectFill"
+              @error="homeBookCoverFailed = true"
+            />
+            <view v-else class="homeBookCoverFallback">
+              <text>{{ selectedUnit?.bookName?.slice(0, 2) || '课本' }}</text>
+              <text class="homeBookCoverEnglish">ENGLISH</text>
             </view>
           </view>
-          <view class="homeStatSecondary" @tap="openUnitWordsPage(true)">
-            <text class="homeStatNumber">{{ masteredUnitWordCount }}</text>
-            <view>
-              <text class="homeStatTitle">已掌握</text>
-              <text class="homeStatHint">查看掌握词</text>
-            </view>
-          </view>
-        </view>
-
-        <view class="homeSwitchRow" @tap="openCourseSetupPage">
-          <view class="homeSwitchInfo">
-            <text class="homeSwitchLabel">切换教材</text>
-            <text class="homeSwitchValue">{{ schoolStageOptions[selectedSchoolStageIndex] }} · {{ publisherOptions[selectedPublisherIndex] }} · {{ bookOptions[selectedBookIndex] }} · {{ unitQuickOptions[selectedUnitQuickIndex] }}</text>
+          <view class="homeCourseCopy">
+            <text class="homeUnitLabel">当前学习</text>
+            <text class="homeUnitTitle">{{ selectedUnit?.bookName }} · {{ selectedUnit?.unitName }}</text>
+            <text class="homeUnitSubtitle">{{ selectedUnit?.publisherName }}</text>
           </view>
           <text class="homeSwitchArrow">›</text>
         </view>
-      </view>
 
-      <view class="homeDictationStage">
-        <view
-          class="homeDictationEntry"
-          hover-class="none"
-          @tap="openDictationSetupPage"
-        >
-          <view class="homeDictationRing">
-            <view class="homeDictationButton">
-              <view class="homeDictationIcon">
-                <image src="/static/tabbar/dictation-active.png" mode="aspectFit" />
-              </view>
-              <text class="homeDictationTitle">自动听写</text>
-            </view>
+        <view class="homeCourseStats">
+          <view class="homeCourseStat" @tap="openUnitWordsPage()">
+            <text class="homeCourseStatNumber">{{ unitWordCount }}</text>
+            <text class="homeCourseStatLabel">总单词</text>
           </view>
+          <view class="homeCourseStat" @tap="openUnitWordsPage(true)">
+            <text class="homeCourseStatNumber">{{ masteredUnitWordCount }}</text>
+            <text class="homeCourseStatLabel">已掌握</text>
+          </view>
+        </view>
+
+        <view class="homeProgressBlock">
+          <view class="homeProgressTop">
+            <text>学习进度</text>
+            <text>{{ unitMasteryPercent }}%</text>
+          </view>
+          <view class="homeProgressTrack">
+            <view class="homeProgressFill" :style="{ width: unitMasteryPercent + '%' }" />
+          </view>
+          <text class="homeProgressMeta">{{ unitMasteryLabel }} 词已掌握</text>
         </view>
       </view>
 
+      <view class="homeDictationEntry" hover-class="none" @tap="openDictationSetupPage">
+        <view class="homeDictationIcon">
+          <view class="homeSoundWave one" />
+          <view class="homeSoundWave two" />
+          <view class="homeSoundWave three" />
+        </view>
+        <view class="homeDictationCopy">
+          <text class="homeDictationTitle">开始自动听写</text>
+          <text class="homeDictationSubtitle">放下屏幕，拿起纸笔</text>
+        </view>
+      </view>
+
+      <view v-if="homeRecommendedWord" class="homeDailyWord">
+        <view class="homeDailyTop">
+          <text>今日推荐词</text>
+          <text class="homeDailySwap" @tap="rotateHomeRecommendedWord">换一个</text>
+        </view>
+        <view class="homeDailyMain" @tap="openWordDetailPage(homeRecommendedWord.id)">
+          <view class="homeDailyCopy">
+            <view class="homeDailyWordRow">
+              <text class="homeDailyEnglish">{{ homeRecommendedWord.word }}</text>
+              <text v-if="homeRecommendedWord.phonetic" class="homeDailyPhonetic">{{ homeRecommendedWord.phonetic }}</text>
+            </view>
+            <text class="homeDailyMeaning">{{ homeRecommendedWord.meaning }}</text>
+          </view>
+          <view class="homeDailySound" @tap.stop="playHomeRecommendedAudio">
+            <view class="homeDailySpeakerMark">
+              <view class="homeDailySpeakerCore" />
+              <view class="homeDailySpeakerWave isInner" />
+              <view class="homeDailySpeakerWave isOuter" />
+            </view>
+          </view>
+        </view>
+        <view v-if="homeRecommendedWord.exampleSentence" class="homeDailyExample">
+          <text class="homeDailyExampleText">{{ homeRecommendedWord.exampleSentence }}</text>
+        </view>
+      </view>
     </view>
 
     <view v-else-if="activeScreen === 'checkupSetup'" class="checkupSetupScreen">
@@ -287,37 +328,32 @@
         </view>
 
         <view v-else class="weakbookContent">
-          <view class="weakbookSummary">
-            <view class="weakbookSummaryTop">
-              <view class="weakbookSummaryMain">
-                <text class="weakbookSummaryLabel">待复习</text>
-                <text class="weakbookSummaryCount">
-                  {{ savedWeakWords.length }}<text class="weakbookSummaryUnit"> 个词</text>
-                </text>
+          <view class="weakbookGuideBanner">
+            <view class="weakbookGuideTop">
+              <view class="weakbookCountBlock">
+                <text class="weakbookCountLabel">待复习</text>
+                <view class="weakbookCountLine">
+                  <text class="weakbookCountNumber">{{ savedWeakWords.length }}</text>
+                  <text class="weakbookCountUnit">个词</text>
+                </view>
               </view>
               <view class="weakbookSelectToggle" @tap="allWeakWordsSelected ? clearWeakWordSelection() : selectAllWeakWords()">
                 <text>{{ allWeakWordsSelected ? '取消全选' : '全选' }}</text>
               </view>
             </view>
-            <text class="weakbookSummaryHint">已选 {{ selectedWeakWordCount }} 个 · 体检或听写正确后自动移出</text>
+            <text class="weakbookGuideMeta">已选 {{ selectedWeakWordCount }} 个 · 听写正确后自动移除</text>
           </view>
 
-          <view class="weakbookQuickActions">
+          <view class="weakbookContextActions">
             <view
-              :class="['weakbookQuickAction', 'isPrimary', selectedWeakWordCount === 0 && 'isDisabled']"
-              @tap="startSelectedWeakCheckupPage"
-            >
-              <text>体检</text>
-            </view>
-            <view
-              :class="['weakbookQuickAction', 'isSecondary', selectedWeakWordCount === 0 && 'isDisabled']"
+              :class="['weakbookContextAction', 'isPrimary', selectedWeakWordCount === 0 && 'isDisabled']"
               @tap="openSelectedWeakDictationSetupPage"
             >
-              <text>听写</text>
+              <text>听写已选</text>
             </view>
             <view
-              :class="['weakbookQuickAction', 'isMuted', selectedWeakWordCount === 0 && 'isDisabled']"
-              @tap="markSelectedWeakWordsKnown"
+              :class="['weakbookContextAction', selectedWeakWordCount === 0 && 'isDisabled']"
+              @tap="confirmSelectedWeakWordsKnown"
             >
               <text>标记认识</text>
             </view>
@@ -331,10 +367,12 @@
               @tap="openWeakbookWordDetailPage(word.id)"
             >
               <view
-                :class="['weakbookCheckDot', isWeakWordSelected(word.id) && 'isChecked']"
+                class="weakbookSelectionHitArea"
                 @tap.stop="toggleWeakWordSelection(word.id)"
               >
-                <text v-if="isWeakWordSelected(word.id)">✓</text>
+                <view :class="['weakbookCheckDot', isWeakWordSelected(word.id) && 'isChecked']">
+                  <text v-if="isWeakWordSelected(word.id)">✓</text>
+                </view>
               </view>
               <view class="weakbookWordCopy">
                 <view class="unitWordTitleRow">
@@ -343,6 +381,7 @@
                 </view>
                 <text class="weakMeaning">{{ word.meaning }}</text>
               </view>
+              <text class="weakbookWordSource">{{ getWeakWordSourceLabel(word.id) }}</text>
             </view>
           </view>
         </view>
@@ -359,32 +398,73 @@
         </view>
       </view>
 
-      <scroll-view scroll-y class="pageBodyScroll" :show-scrollbar="false">
-        <view class="unitWordHeader">
-          <text class="unitWordTitle">{{ selectedUnit?.bookName }} {{ selectedUnit?.unitName }}</text>
-          <text class="unitWordMeta">已掌握 {{ unitMasteryLabel }}</text>
-          <text class="unitWordTip">标记认识后，该词默认不会进入听写范围。</text>
+      <view class="unitWordFixedTools">
+        <view class="unitWordFilterTabs">
+          <view
+            v-for="option in unitWordFilterOptions"
+            :key="option.value"
+            :class="['unitWordFilterTab', unitWordFilter === option.value && 'isActive']"
+            @tap="unitWordFilter = option.value"
+          >
+            <text>{{ option.label }}</text>
+          </view>
         </view>
+        <view class="unitWordMetaRow">
+          <text class="unitWordCountLabel">已掌握 {{ masteredUnitWordCount }}/{{ unitWordCount }} 词</text>
+          <view
+            class="unitWordMeaningToggle"
+            role="switch"
+            :aria-checked="unitWordMeaningVisible"
+            @tap="unitWordMeaningVisible = !unitWordMeaningVisible"
+          >
+            <text>释义</text>
+            <view :class="['unitWordMeaningSwitch', unitWordMeaningVisible && 'isActive']">
+              <view class="unitWordMeaningSwitchThumb" />
+            </view>
+          </view>
+        </view>
+      </view>
 
+      <scroll-view scroll-y class="pageBodyScroll unitWordScroll" :show-scrollbar="false">
         <view class="unitWordList">
           <view
-            v-for="item in sortedUnitWords"
+            v-for="(item, index) in filteredUnitWords"
             :key="`${item.word.id}:${isUnitWordMastered(item.word.id) ? 'mastered' : 'learning'}`"
-            :class="['unitWordRow', isUnitWordMastered(item.word.id) && 'isMastered']"
+            :class="[
+              'unitWordRow',
+              isUnitWordMastered(item.word.id) && 'isMastered',
+              isSavedWeakWord(item.word.id) && 'isReview'
+            ]"
+            @tap="openWordDetailPage(item.word.id)"
           >
-            <view class="unitWordCopy" @tap="openWordDetailPage(item.word.id)">
+            <text class="unitWordIndex">{{ String(index + 1).padStart(2, '0') }}</text>
+            <view class="unitWordCopy">
               <view class="unitWordTitleRow">
                 <text class="unitWordEnglish">{{ item.word.word }}</text>
                 <text v-if="item.word.phonetic" class="unitWordPhonetic">{{ item.word.phonetic }}</text>
               </view>
-              <text class="unitWordMeaning">{{ item.word.meaning }}</text>
+              <text v-if="unitWordMeaningVisible" class="unitWordMeaning">{{ item.word.meaning }}</text>
             </view>
-            <view
-              :class="['unitWordKnownButton', isUnitWordMastered(item.word.id) && 'isDone']"
-              @tap.stop="markUnitWordKnown(item.word.id)"
-            >
-              <text class="unitWordKnownLabel">{{ isUnitWordMastered(item.word.id) ? '✓ 已掌握' : '认识' }}</text>
+            <view class="unitWordQuickActions">
+              <view
+                :class="['unitWordQuickButton', 'isMastery', isUnitWordMastered(item.word.id) && 'isActive']"
+                @tap.stop="markUnitWordKnown(item.word.id)"
+              >
+                <text>认识</text>
+              </view>
+              <view
+                :class="['unitWordQuickButton', 'isWeakbook', isSavedWeakWord(item.word.id) && 'isActive']"
+                @tap.stop="saveWeakWord(item.word.id)"
+              >
+                <text>不熟</text>
+              </view>
             </view>
+          </view>
+        </view>
+
+        <view class="unitWordListTools">
+          <view @tap="unitWordAlphabetical = !unitWordAlphabetical">
+            <text>{{ unitWordAlphabetical ? '按教材顺序' : '按字母顺序' }}</text>
           </view>
         </view>
       </scroll-view>
@@ -518,6 +598,20 @@
       </scroll-view>
 
       <view class="wordDetailFooter">
+        <view class="wordDetailMasteryActions">
+          <view
+            :class="['wordDetailMasteryButton', 'isMastered', isUnitWordMastered(wordDetailEntry.id) && 'isActive']"
+            @tap="markUnitWordKnown(wordDetailEntry.id)"
+          >
+            <text>{{ isUnitWordMastered(wordDetailEntry.id) ? '✓ 已掌握' : '标记已掌握' }}</text>
+          </view>
+          <view
+            :class="['wordDetailMasteryButton', isSavedWeakWord(wordDetailEntry.id) && 'isActiveWeak']"
+            @tap="saveWordDetailToWeakbook"
+          >
+            <text>{{ isSavedWeakWord(wordDetailEntry.id) ? '已在生词本' : '加入生词本' }}</text>
+          </view>
+        </view>
         <view class="wordDetailNavRow">
           <view
             :class="['wordDetailNavButton', 'wordDetailPrevButton', !hasPreviousWordDetail && 'isDisabled']"
@@ -719,7 +813,11 @@
       </view>
 
       <view class="dictationIntro">
-        <text class="dictationIntroTitle">设置听写方式</text>
+        <view class="dictationIntroMark" />
+        <view class="dictationIntroCopy">
+          <text class="dictationIntroTitle">设置听写方式</text>
+          <text class="dictationIntroText">手机负责报词，你只管写。</text>
+        </view>
       </view>
 
       <view v-if="dictationInProgress" class="resumeDictationButton" @tap="resumeDictationPage">
@@ -828,74 +926,90 @@
         </view>
       </view>
 
-      <scroll-view scroll-y class="pageBodyScroll" :show-scrollbar="false">
+      <view class="wordPickerFixedArea">
         <view class="wordPickerHeader">
-          <text class="wordPickerTitle">{{ selectedUnit?.bookName }} {{ selectedUnit?.unitName }}</text>
-          <text class="wordPickerMeta">已选 {{ selectedDictationWordCount }} / {{ dictationPickerWords.length }} 个词</text>
+          <view class="wordPickerHeadingCopy">
+            <view class="wordPickerHeadingMark" />
+            <view>
+              <text class="wordPickerTitle">本轮听写</text>
+              <text class="wordPickerUnit">{{ selectedUnit?.bookName }} {{ selectedUnit?.unitName }}</text>
+            </view>
+          </view>
+          <view class="wordPickerCount">
+            <text class="wordPickerCountValue">{{ selectedDictationWordCount }}</text>
+            <text class="wordPickerCountTotal">/ {{ dictationPickerWords.length }} 词</text>
+          </view>
         </view>
+      </view>
 
-        <view class="wordPickerToolbar">
-          <view class="wordPickerScopePanel">
-            <text class="wordPickerSectionLabel">听写范围</text>
-            <view class="wordPickerScopeOptions">
-              <view
-                :class="['wordPickerScopeChip', dictationExcludesMasteredWords && 'isActive']"
-                @tap="setDictationExcludeMasteredWords(true)"
-              >
-                <text>排除已掌握</text>
+      <scroll-view scroll-y class="pageBodyScroll wordPickerListScroll" :show-scrollbar="false">
+        <view class="wordPickerScrollContent">
+          <view class="wordPickerToolbar">
+            <view class="wordPickerScopePanel">
+              <text class="wordPickerSectionLabel">听写范围</text>
+              <view class="wordPickerScopeOptions">
+                <view
+                  :class="['wordPickerScopeChip', dictationExcludesMasteredWords && 'isActive']"
+                  @tap="setDictationExcludeMasteredWords(true)"
+                >
+                  <text>排除已掌握</text>
+                </view>
+                <view
+                  :class="['wordPickerScopeChip', !dictationExcludesMasteredWords && 'isActive', 'isIncluded']"
+                  @tap="setDictationExcludeMasteredWords(false)"
+                >
+                  <text>包含已掌握</text>
+                </view>
               </view>
-              <view
-                :class="['wordPickerScopeChip', !dictationExcludesMasteredWords && 'isActive', 'isIncluded']"
-                @tap="setDictationExcludeMasteredWords(false)"
-              >
-                <text>包含已掌握</text>
+            </view>
+
+            <view class="quickPickPanel">
+              <text class="quickPickLabel">帮我随机选</text>
+              <view class="quickPickGroup">
+                <view
+                  v-for="option in dictationQuickPickOptions"
+                  :key="option.id"
+                  :class="['quickPickButton', isDictationQuickOptionActive(option) && 'isActive']"
+                  @tap="applyDictationQuickOption(option)"
+                >
+                  <text>{{ option.label }}</text>
+                </view>
               </view>
             </view>
           </view>
 
-          <view class="quickPickPanel">
-            <text class="quickPickLabel">帮我随机选</text>
-            <view class="quickPickGroup">
-              <view
-                v-for="option in dictationQuickPickOptions"
-                :key="option.id"
-                :class="['quickPickButton', isDictationQuickOptionActive(option) && 'isActive']"
-                @tap="applyDictationQuickOption(option)"
-              >
-                <text>{{ option.label }}</text>
+          <view class="wordPickerList">
+            <view
+              v-for="item in dictationPickerRows"
+              :key="item.key"
+              :class="['wordPickRow', item.isSelected && 'isSelected']"
+              @tap="toggleDictationWordSelection(item.word.id)"
+            >
+              <view class="wordPickCheck">
+                <text v-if="item.isSelected">✓</text>
               </view>
+              <view class="wordPickCopy">
+                <view class="unitWordTitleRow">
+                  <text class="wordPickWord">{{ item.word.word }}</text>
+                  <text v-if="item.word.phonetic" class="unitWordPhonetic">{{ item.word.phonetic }}</text>
+                </view>
+                <text class="wordPickMeaning">{{ item.word.meaning }}</text>
+              </view>
+              <text v-if="isUnitWordMastered(item.word.id)" class="wordPickKnownBadge">已掌握</text>
             </view>
           </view>
-        </view>
-
-        <view class="wordPickerList">
-          <view
-            v-for="item in dictationPickerRows"
-            :key="item.key"
-            :class="['wordPickRow', item.isSelected && 'isSelected']"
-            @tap="toggleDictationWordSelection(item.word.id)"
-          >
-            <view class="wordPickCheck">
-              <text v-if="item.isSelected">✓</text>
-            </view>
-            <view class="wordPickCopy">
-              <view class="unitWordTitleRow">
-                <text class="wordPickWord">{{ item.word.word }}</text>
-                <text v-if="item.word.phonetic" class="unitWordPhonetic">{{ item.word.phonetic }}</text>
-              </view>
-              <text class="wordPickMeaning">{{ item.word.meaning }}</text>
-            </view>
-            <text v-if="isUnitWordMastered(item.word.id)" class="wordPickKnownBadge">已掌握</text>
-          </view>
-        </view>
-
-        <view :class="['dictationStartButton wordPickerConfirm', selectedDictationWordCount === 0 && 'isDisabled']" @tap="confirmDictationWordSelectionPage">
-          <text>确定 {{ selectedDictationWordCount }} 个词</text>
         </view>
       </scroll-view>
+
+      <view :class="['dictationStartButton wordPickerConfirm', selectedDictationWordCount === 0 && 'isDisabled']" @tap="confirmDictationWordSelectionPage">
+        <text>确定 {{ selectedDictationWordCount }} 个词</text>
+      </view>
     </view>
 
-    <view v-else-if="activeScreen === 'dictation' && currentDictationEntry" class="dictationPlayerScreen isSplitLayout">
+    <view
+      v-else-if="activeScreen === 'dictation' && currentDictationEntry"
+      :class="['dictationPlayerScreen', 'isSplitLayout', isDictationRecognitionMode && 'isRecognitionMode']"
+    >
       <view class="pageChrome">
         <view class="playerHeader">
           <view class="playerHeaderTop">
@@ -939,17 +1053,29 @@
             :class="['dictationSpeakerButton', isAudioPlaying && 'isPlaying', !dictationAudioReady && 'isMissing']"
             @tap.stop="repeatCurrentDictation"
           >
-            <view class="dictationSpeakerIcon" />
+            <view class="dictationSpeakerMark">
+              <view class="dictationSpeakerCore" />
+              <view class="dictationSpeakerWave isInner" />
+              <view class="dictationSpeakerWave isOuter" />
+            </view>
           </view>
         </view>
-        <view v-else class="dictationAudioCard">
+        <view v-if="!isDictationRecognitionMode" :class="['dictationAudioCard', dictationMode === 'paper' && 'isPaper']">
+          <text v-if="dictationMode === 'paper'" class="dictationPaperNumber">
+            {{ String(dictationIndex + 1).padStart(2, '0') }}
+          </text>
           <text v-if="dictationPrompt === 'chinese'" class="dictationAudioMeaning">{{ currentDictationEntry.meaning }}</text>
           <view
             :class="['dictationSpeakerButton', dictationPrompt === 'english' && 'isSolo', isAudioPlaying && 'isPlaying', !dictationAudioReady && 'isMissing']"
             @tap.stop="repeatCurrentDictation"
           >
-            <view class="dictationSpeakerIcon" />
+            <view class="dictationSpeakerMark">
+              <view class="dictationSpeakerCore" />
+              <view class="dictationSpeakerWave isInner" />
+              <view class="dictationSpeakerWave isOuter" />
+            </view>
           </view>
+          <text v-if="dictationMode === 'paper'" class="dictationReplayHint">点一下再听一遍</text>
         </view>
         <text v-if="isDictationRecognitionMode" class="spokenPrompt">{{ dictationSpokenPrompt }}</text>
         <view
@@ -957,12 +1083,9 @@
           :class="['forgotButton', currentDictationMarkedForgotten && 'isMarked']"
           @tap="markCurrentDictationForgotten"
         >
-          <text>{{ currentDictationMarkedForgotten ? '已加入生词本' : '忘记了' }}</text>
+          <text>{{ currentDictationMarkedForgotten ? '已加入生词本' : '这个词没想起来' }}</text>
         </view>
         <text v-if="dictationMode !== 'recognition'" class="autoNextText">{{ dictationTransportStatus }}</text>
-        <view v-if="dictationMode === 'paper'" class="countdownTrack">
-          <view class="countdownFill" :style="{ width: dictationCountdownPercent + '%' }" />
-        </view>
 
         <view v-if="dictationMode === 'paper'" class="transportRow">
           <view :class="['transportButton', dictationIndex === 0 && 'isDisabled']" @tap="previousDictationPage">
@@ -987,7 +1110,7 @@
               <view class="transportPlayTriangle" />
               <view class="skipBar" />
             </view>
-            <text class="transportLabel">跳过</text>
+            <text class="transportLabel">下一词</text>
           </view>
         </view>
       </view>
@@ -1043,11 +1166,13 @@
         </view>
       </view>
 
-      <view class="playerFootnote">
-        <text>保持屏幕常亮。静音模式下仍可播放。</text>
-      </view>
-      <view class="exitDictationButton" @tap="leaveDictationToSetupPage">
-        <text>退出听写</text>
+      <view class="playerBottomInfo">
+        <view class="playerFootnote">
+          <text>屏幕会保持常亮，静音模式下仍可播放。</text>
+        </view>
+        <view class="exitDictationButton" @tap="leaveDictationToSetupPage">
+          <text>退出听写</text>
+        </view>
       </view>
     </view>
 
@@ -1061,144 +1186,164 @@
         </view>
       </view>
 
-      <scroll-view scroll-y class="pageBodyScroll" :show-scrollbar="false">
+      <scroll-view scroll-y class="pageBodyScroll dictationReportScroll" :show-scrollbar="false">
         <view class="dictationReportPanel">
           <view class="dictationSummaryCard">
             <view class="dictationSummaryCopy">
-              <view class="summaryTitleRow">
-                <text class="labelText">本次听写</text>
-                <text class="summaryInlineMeta">{{ dictationSummary.total }} 词</text>
-              </view>
-              <text class="reportText">
-                {{ dictationReportSummaryText }}
-              </text>
+              <text class="dictationSummaryKicker">本次听写</text>
+              <text class="dictationSummaryTitle">{{ dictationSummary.total }} 个词已完成</text>
+              <text class="dictationSummaryDescription">逐个核对纸上的答案，再确认结果。</text>
             </view>
             <view class="dictationSummaryStats">
-              <view class="summaryStat">
-                <text class="summaryStatValue">{{ dictationSummary.total }}</text>
-                <text class="summaryStatLabel">完成</text>
+              <view class="summaryStat isMastered">
+                <text class="summaryStatValue">{{ dictationReportMasteredCount }}</text>
+                <text class="summaryStatLabel">掌握</text>
               </view>
               <view class="summaryStat isProblem">
-                <text class="summaryStatValue">{{ dictationSummary.forgotten }}</text>
-                <text class="summaryStatLabel">忘记</text>
+                <text class="summaryStatValue">{{ dictationReportPendingCount }}</text>
+                <text class="summaryStatLabel">待巩固</text>
               </view>
             </view>
+          </view>
+
+          <view class="dictationReportLegend">
+            <text>点击右侧可切换结果</text>
+            <text>{{ dictationSummary.total }} 词</text>
           </view>
 
           <view class="dictationReviewList">
-            <text class="blockTitle">本次听写清单</text>
-            <view>
+            <view
+              v-for="item in dictationReviewItems"
+              :key="item.word.id"
+              :class="['dictationReviewRow', item.isForgotten ? 'isForgotten' : 'isMastered', 'hasStatus']"
+            >
+              <text class="reviewIndex">{{ item.index }}</text>
+              <view class="reviewCopy">
+                <view class="unitWordTitleRow">
+                  <text class="weakWord">{{ item.word.word }}</text>
+                  <text v-if="item.word.phonetic" class="unitWordPhonetic">{{ item.word.phonetic }}</text>
+                </view>
+                <text class="weakMeaning">{{ item.word.meaning }}</text>
+              </view>
               <view
-                v-for="item in dictationReviewItems"
-                :key="item.word.id"
-                :class="['dictationReviewRow', item.isForgotten ? 'isForgotten' : 'isMastered', 'hasStatus']"
+                :class="['reviewStatusButton', item.isForgotten ? 'isForgotten' : 'isMastered']"
+                @tap="toggleDictationReportWordStatus(item.word.id)"
               >
-                <text class="reviewIndex">{{ item.index }}</text>
-                <view class="reviewCopy">
-                  <view class="unitWordTitleRow">
-                    <text class="weakWord">{{ item.word.word }}</text>
-                    <text v-if="item.word.phonetic" class="unitWordPhonetic">{{ item.word.phonetic }}</text>
-                  </view>
-                  <text class="weakMeaning">{{ item.word.meaning }}</text>
-                </view>
-                <view
-                  :class="['reviewStatusButton', item.isForgotten ? 'isForgotten' : 'isMastered']"
-                  @tap="toggleDictationReportWordStatus(item.word.id)"
-                >
-                  <text>{{ item.isForgotten ? '忘记' : '掌握' }}</text>
-                </view>
+                <text>{{ item.isForgotten ? '待巩固' : '掌握' }}</text>
               </view>
             </view>
           </view>
-        </view>
 
-        <view class="actionStack reportActions">
-          <text class="confirmResultHint">确认后，未标记忘记的单词会标为已掌握；忘记的保留在生词本。</text>
-          <view :class="['bottomButton confirmResultButton', dictationResultConfirmed && 'isDisabled']" @tap="confirmDictationResultPage">
-            <text>{{ dictationResultConfirmed ? '已确认听写结果' : '确认听写结果' }}</text>
-          </view>
-          <view class="reportSecondaryActions">
-            <view :class="['secondaryButton', dictationSummary.forgotten === 0 && 'isDisabled']" @tap="startForgottenDictationPage">
-              <text>生词再听一轮</text>
-            </view>
-            <view class="secondaryButton" @tap="openWeakbook">
-              <text>查看生词本</text>
-            </view>
-          </view>
+          <text class="confirmResultHint">待巩固的词会留在生词本，之后可再听一轮。</text>
         </view>
       </scroll-view>
+
+      <view class="actionStack reportActions">
+        <view :class="['bottomButton confirmResultButton', dictationResultConfirmed && 'isDisabled']" @tap="confirmDictationResultPage">
+          <text>{{ dictationResultConfirmed ? '已确认听写结果' : '确认听写结果' }}</text>
+        </view>
+        <view class="reportSecondaryActions">
+          <view :class="['secondaryButton', dictationReportPendingCount === 0 && 'isDisabled']" @tap="startForgottenDictationPage">
+            <text>生词再听一轮</text>
+          </view>
+          <view class="secondaryButton" @tap="openWeakbook">
+            <text>查看生词本</text>
+          </view>
+        </view>
+      </view>
     </view>
 
     <view v-else-if="activeScreen === 'dictationReward' && dictationReward" class="dictationRewardScreen">
+      <view
+        v-if="dictationReward.newlyMasteredCount > 0"
+        class="rewardConfettiLayer"
+        aria-hidden="true"
+      >
+        <view
+          v-for="piece in rewardConfettiPieces"
+          :key="piece.id"
+          :class="piece.className"
+          :style="piece.style"
+        />
+      </view>
+
       <view class="rewardContent">
-        <view class="rewardHero">
-          <view class="rewardMedal" aria-hidden="true">
-            <view class="rewardHalo" />
-            <view class="rewardMedalCore">
-              <text class="rewardMedalCoreText">{{ dictationReward.newlyMasteredCount > 0 ? `+${dictationReward.newlyMasteredCount}` : 'OK' }}</text>
-            </view>
-            <view class="rewardRay one" />
-            <view class="rewardRay two" />
-            <view class="rewardRay three" />
-            <view class="rewardRay four" />
-          </view>
-          <view class="rewardSparkle one" />
-          <view class="rewardSparkle two" />
-          <view class="rewardSparkle three" />
-          <text class="rewardTitle">{{ dictationRewardTitle }}</text>
-          <text class="rewardSubtitle">{{ dictationRewardSubtitle }}</text>
+        <view class="rewardStamp" aria-hidden="true">
+          <text class="rewardStampLabel">本次</text>
+          <text class="rewardStampValue">
+            {{ dictationReward.newlyMasteredCount > 0 ? `+${dictationReward.newlyMasteredCount}` : '0' }}
+          </text>
+          <text class="rewardStampUnit">掌握词</text>
         </view>
 
-        <view class="rewardProgressCard">
+        <text class="rewardOverline">今天又向前了一点</text>
+        <text class="rewardMainTitle">多掌握了 {{ dictationReward.newlyMasteredCount }} 个词</text>
+        <text class="rewardCopy">{{ dictationRewardSubtitle }}</text>
+
+        <view class="rewardStatsStrip">
+          <view class="rewardStatItem">
+            <text class="rewardStatLabel">本次掌握</text>
+            <view class="rewardStatNumberRow">
+              <text class="rewardStatNumber">{{ dictationReward.masteredCount }}</text>
+              <text class="rewardStatSuffix">词</text>
+            </view>
+          </view>
+          <view class="rewardStatItem">
+            <text class="rewardStatLabel">听写正确率</text>
+            <view class="rewardStatNumberRow">
+              <text class="rewardStatNumber">{{ rewardAccuracy }}</text>
+              <text class="rewardStatSuffix">%</text>
+            </view>
+          </view>
+          <view class="rewardStatItem">
+            <text class="rewardStatLabel">待巩固</text>
+            <view class="rewardStatNumberRow">
+              <text class="rewardStatNumber">{{ dictationReward.forgottenCount }}</text>
+              <text class="rewardStatSuffix">词</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="rewardUnitProgressCard">
           <view class="rewardProgressTop">
-            <text>本单元词汇掌握进度</text>
-            <text>{{ dictationReward.afterMastered }}/{{ unitWordCount }}</text>
+            <text>单元进度</text>
+            <text class="rewardProgressCount">{{ dictationReward.afterMastered }} / {{ unitWordCount }}</text>
           </view>
           <view class="rewardProgressTrack">
             <view class="rewardProgressFill" :style="{ width: rewardProgressPercent + '%' }" />
           </view>
-          <text class="rewardProgressMeta">
-            {{ dictationReward.newlyMasteredCount > 0 ? `本次新增 ${dictationReward.newlyMasteredCount} 个掌握词` : '本次已完成核对' }}
-          </text>
+          <text class="rewardProgressMeta">{{ rewardUnitMeta }}</text>
         </view>
 
-        <view class="rewardStatGrid">
-          <view class="rewardStatCard gold">
-            <view class="rewardStatHeader">
-              <text>本次掌握</text>
+        <view class="rewardNextStepCard">
+          <text class="rewardNextStepLabel">下一步建议</text>
+          <view class="rewardNextStepRow">
+            <view class="rewardNextStepCopy">
+              <view class="rewardNextStepTitleRow">
+                <view class="rewardNextStepAccent" aria-hidden="true" />
+                <text class="rewardNextStepTitle">
+                  {{ dictationReward.forgottenCount > 0 ? `先巩固这 ${dictationReward.forgottenCount} 个生词` : '继续保持今天的节奏' }}
+                </text>
+              </view>
+              <text class="rewardNextStepMeta">{{ rewardNextStepMeta }}</text>
             </view>
-            <view class="rewardStatBody">
-              <text class="rewardStatSymbol">+</text>
-              <text class="rewardStatValue">{{ dictationReward.masteredCount }}</text>
-            </view>
-          </view>
-          <view class="rewardStatCard green">
-            <view class="rewardStatHeader">
-              <text>正确率</text>
-            </view>
-            <view class="rewardStatBody">
-              <text class="rewardStatSymbol">✓</text>
-              <text class="rewardStatValue">{{ rewardAccuracy }}%</text>
-            </view>
-          </view>
-          <view class="rewardStatCard blue">
-            <view class="rewardStatHeader">
-              <text>待巩固</text>
-            </view>
-            <view class="rewardStatBody">
-              <text class="rewardStatSymbol">!</text>
-              <text class="rewardStatValue">{{ dictationReward.forgottenCount }}</text>
-            </view>
+            <text
+              v-if="dictationReward.forgottenCount > 0"
+              class="rewardWeakbookLink"
+              @tap="finishDictationRewardAndOpenWeakbook"
+            >
+              去生词本
+            </text>
           </view>
         </view>
+      </view>
 
-        <view :class="['rewardActions', dictationReward.forgottenCount > 0 && 'isDual']">
-          <view v-if="dictationReward.forgottenCount > 0" class="rewardSecondaryButton" @tap="finishDictationRewardAndOpenWeakbook">
-            <text>查看生词本</text>
-          </view>
-          <view class="rewardButton" @tap="finishDictationRewardAndReturnHome">
-            <text>回到首页</text>
-          </view>
+      <view class="rewardBottomActions">
+        <view class="rewardPrimaryButton" @tap="finishDictationRewardAndReturnHome">
+          <text>回到首页</text>
+        </view>
+        <view class="rewardSecondaryButton" @tap="restartDictationFromReward">
+          <text>{{ dictationReward.forgottenCount > 0 ? '再听一轮生词' : '回到听写' }}</text>
         </view>
       </view>
     </view>
@@ -1243,6 +1388,21 @@ const rewardParticles = [
   { id: 'p9', className: 'rewardParticle toneTeal dot leftSoft' },
   { id: 'p10', className: 'rewardParticle toneBlue dot rightSoft' }
 ]
+const rewardConfettiPieces = Array.from({ length: 36 }, (_, index) => {
+  const tones = ['toneAccent', 'toneInfo', 'toneGold', 'toneCoral', 'toneMint']
+  const angle = (index / 36) * Math.PI * 2
+  const distance = 150 + ((index * 29) % 130)
+  const burstX = Math.round(Math.cos(angle) * distance)
+  const burstY = Math.round(Math.sin(angle) * distance)
+  const delay = (index % 6) * 18
+  const duration = 860 + ((index * 47) % 360)
+
+  return {
+    id: `reward-confetti-${index}`,
+    className: `rewardConfettiPiece ${tones[index % tones.length]} ${index % 4 === 0 ? 'isRound' : 'isBar'}`,
+    style: `--burst-x:${burstX}px;--burst-y:${burstY}px;animation-delay:${delay}ms;animation-duration:${duration}ms;`
+  }
+})
 
 const {
   activeWords,
@@ -1300,9 +1460,10 @@ const {
   hasPreviousWordDetail,
   hasNextWordDetail,
   isUnitWordMastered,
-  markSelectedWeakWordsKnown,
+  markSelectedWeakWordsKnown: markSelectedWeakWordsKnownInSession,
   markCurrentDictationForgotten: markCurrentDictationForgottenInSession,
   markUnitWordKnown,
+  saveWeakWord,
   masteredUnitWordCount,
   openDictationWordPicker,
   openCheckupSetup,
@@ -1320,6 +1481,7 @@ const {
   recognitionState,
   resetPractice: resetPracticeScreen,
   resumeDictation,
+  savedWeakWordSources,
   screen,
   selectMeaning,
   selectAllDictationWords,
@@ -1349,7 +1511,6 @@ const {
   spellingInput,
   startCheckup,
   startReportWeakCheckup,
-  startSelectedWeakCheckup,
   startDictation,
   startForgottenDictation,
   submitDictationInput,
@@ -1386,6 +1547,19 @@ const courseChipActiveStyle = {
 } as const
 
 const wordDetailPlayingAccent = ref<Accent | null>(null)
+type UnitWordFilter = 'all' | 'learning' | 'review' | 'mastered'
+
+const unitWordFilter = ref<UnitWordFilter>('all')
+const unitWordAlphabetical = ref(false)
+const unitWordMeaningVisible = ref(false)
+const homeRecommendedWordId = ref('')
+const homeBookCoverFailed = ref(false)
+const unitWordFilterOptions: Array<{ value: UnitWordFilter; label: string }> = [
+  { value: 'all', label: '全部' },
+  { value: 'learning', label: '待学习' },
+  { value: 'review', label: '待复习' },
+  { value: 'mastered', label: '已掌握' }
+]
 
 let activeAudio: UniApp.InnerAudioContext | null = null
 let countdownTimer: ReturnType<typeof setInterval> | null = null
@@ -1503,22 +1677,26 @@ const rewardAccuracy = computed(() => {
   return Math.round((dictationReward.value.masteredCount / dictationReward.value.total) * 100)
 })
 
-const dictationRewardTitle = computed(() => {
-  if (!dictationReward.value) return ''
-  if (dictationReward.value.allCorrect) return '太厉害了！'
-  if (dictationReward.value.masteredCount > 0) return `掌握了 ${dictationReward.value.masteredCount} 个词`
-  return '已经记录生词'
-})
-
 const dictationRewardSubtitle = computed(() => {
   if (!dictationReward.value) return ''
-  if (dictationReward.value.allCorrect) {
-    return `本次听写全对，掌握了 ${dictationReward.value.masteredCount} 个单词。`
-  }
   if (dictationReward.value.forgottenCount > 0) {
-    return `${dictationReward.value.forgottenCount} 个词已放入生词本，下一轮专门巩固。`
+    return `${dictationReward.value.forgottenCount} 个词已经放进生词本，下次只练真正需要巩固的。`
   }
-  return '本次听写结果已同步到学习进度。'
+  return '本轮没有新增生词，今天的学习结果已经保存。'
+})
+
+const rewardUnitMeta = computed(() => {
+  if (!dictationReward.value) return ''
+  const unitName = `${selectedUnit.value?.bookName ?? ''} ${selectedUnit.value?.unitName ?? ''}`.trim()
+  return `${unitName || '当前单元'}　已完成 ${dictationReward.value.afterPercent}%`
+})
+
+const rewardNextStepMeta = computed(() => {
+  if (!dictationReward.value || dictationReward.value.forgottenCount <= 0) {
+    return '可以回到首页，也可以把本轮内容再听一遍。'
+  }
+  const minutes = Math.max(2, Math.ceil(dictationReward.value.forgottenCount / 6))
+  return `预计 ${minutes} 分钟，完成后再继续本单元。`
 })
 
 const displayedCheckupLimit = computed(() => {
@@ -1600,32 +1778,13 @@ const dictationReviewItems = computed(() => {
   })
 })
 
-const dictationReportText = computed(() => {
-  if (dictationSummary.value.wrong === 0) return '全部拼对，清单可用于复盘。'
-  if (dictationSummary.value.forgotten > 0) {
-    return `已标记 ${dictationSummary.value.forgotten} 个忘记，已加入生词本。`
-  }
-  return `有 ${dictationSummary.value.wrong} 个需要核对，已加入生词本。`
-})
+const dictationReportPendingCount = computed(() => (
+  dictationReviewItems.value.filter(item => item.isForgotten).length
+))
 
-const dictationPaperReportText = computed(() => {
-  if (dictationSummary.value.forgotten > 0) {
-    return `已标记 ${dictationSummary.value.forgotten} 个忘记，已加入生词本。`
-  }
-
-  return '按下方清单逐词核对。'
-})
-
-const dictationRecognitionReportText = computed(() => {
-  if (dictationSummary.value.forgotten === 0) return '全部认识，清单可用于复盘。'
-  return `已标记 ${dictationSummary.value.forgotten} 个不认识，已加入生词本。`
-})
-
-const dictationReportSummaryText = computed(() => {
-  if (dictationMode.value === 'paper') return dictationPaperReportText.value
-  if (dictationMode.value === 'recognition') return dictationRecognitionReportText.value
-  return dictationReportText.value
-})
+const dictationReportMasteredCount = computed(() => (
+  Math.max(0, dictationReviewItems.value.length - dictationReportPendingCount.value)
+))
 
 const dictationSetupMinutes = computed(() => {
   const seconds = targetDictationWords.value.length * dictationIntervalSeconds.value * dictationRepeatCount.value
@@ -1655,6 +1814,10 @@ const dictationModeTipText = computed(() => {
 
 const dictationPlayerInstruction = computed(() => {
   if (dictationMode.value === 'recognition') return '请想出这个单词的中文释义'
+  if (dictationMode.value === 'paper' && dictationPrompt.value === 'chinese') {
+    return '听清释义，在纸上写下英文单词'
+  }
+  if (dictationMode.value === 'paper') return '听清发音，在纸上写下英文单词'
   return '请写下这个单词'
 })
 
@@ -1670,12 +1833,6 @@ const dictationTransportStatus = computed(() => {
   if (dictationMode.value === 'recognition') return '点认识或不认识继续'
   if (isAutoPaused.value) return '已暂停'
   return `${remainingSeconds.value} 秒后自动进入下一个`
-})
-
-const dictationCountdownPercent = computed(() => {
-  const total = dictationPlan.value?.intervalSeconds ?? dictationIntervalSeconds.value
-  if (total <= 0) return 0
-  return Math.round((remainingSeconds.value / total) * 100)
 })
 
 const showBottomNav = computed(() => {
@@ -1724,6 +1881,103 @@ const sortedUnitWords = computed(() => {
   const unmastered = items.filter(item => !item.mastered)
   const mastered = items.filter(item => item.mastered)
   return [...mastered, ...unmastered]
+})
+
+const savedWeakWordIdSet = computed(() => new Set(savedWeakWords.value.map(word => word.id)))
+
+function isSavedWeakWord(wordId: string): boolean {
+  return savedWeakWordIdSet.value.has(wordId)
+}
+
+const filteredUnitWords = computed(() => {
+  let items = sortedUnitWords.value
+
+  if (unitWordFilter.value === 'learning') {
+    items = items.filter(item => !item.mastered && !isSavedWeakWord(item.word.id))
+  } else if (unitWordFilter.value === 'review') {
+    items = items.filter(item => isSavedWeakWord(item.word.id))
+  } else if (unitWordFilter.value === 'mastered') {
+    items = items.filter(item => item.mastered)
+  }
+
+  if (!unitWordAlphabetical.value) return items
+  return [...items].sort((left, right) => left.word.word.localeCompare(right.word.word, 'en'))
+})
+
+const HIGH_DIFFICULTY_THRESHOLD = 2
+
+const homeBookCoverSource = computed(() => {
+  const unit = selectedUnit.value
+  if (!unit) return ''
+  return `/static/textbook-covers/${unit.publisherId}-${unit.bookId}.jpg`
+})
+
+const homeBookCoverVisible = computed(() => Boolean(homeBookCoverSource.value) && !homeBookCoverFailed.value)
+
+const homeRecommendationPool = computed(() => {
+  if (savedWeakWords.value.length > 0) {
+    return savedWeakWords.value
+  }
+
+  const unmasteredDifficultWords = unitWords.value.filter(word => (
+    !isUnitWordMastered(word.id) && word.difficulty >= HIGH_DIFFICULTY_THRESHOLD
+  ))
+  if (unmasteredDifficultWords.length > 0) {
+    return unmasteredDifficultWords
+  }
+
+  const difficultWords = unitWords.value.filter(word => word.difficulty >= HIGH_DIFFICULTY_THRESHOLD)
+  return difficultWords.length > 0 ? difficultWords : unitWords.value
+})
+
+const homeRecommendedWord = computed(() => {
+  const words = homeRecommendationPool.value
+  if (words.length === 0) return null
+  return words.find(word => word.id === homeRecommendedWordId.value) ?? words[0]
+})
+
+function getWeakWordSourceLabel(wordId: string): string {
+  const source = savedWeakWordSources.value[wordId]
+  if (source === 'checkup') return '来自体检'
+  if (source === 'dictation') return '来自听写'
+  if (source === 'manual') return '手动加入'
+  return '待复习'
+}
+
+const courseSetupSelectionLabel = computed(() => {
+  const book = courseSetupBookOptions.value.find(item => item.id === courseSetupBookId.value)?.name
+  const publisher = courseSetupPublisherOptions.value.find(item => item.id === courseSetupPublisherId.value)?.name
+  const unit = courseSetupUnitOptions.value.find(item => item.id === courseSetupUnitId.value)?.name
+  return [book, publisher, unit].filter(Boolean).join(' · ')
+})
+
+function chooseRandomHomeRecommendedWord(avoidCurrent: boolean) {
+  const words = homeRecommendationPool.value
+  if (words.length === 0) {
+    homeRecommendedWordId.value = ''
+    return
+  }
+
+  const candidates = avoidCurrent
+    ? words.filter(word => word.id !== homeRecommendedWordId.value)
+    : words
+  const source = candidates.length > 0 ? candidates : words
+  const selected = source[Math.floor(Math.random() * source.length)]
+  homeRecommendedWordId.value = selected?.id ?? ''
+}
+
+function rotateHomeRecommendedWord() {
+  chooseRandomHomeRecommendedWord(true)
+}
+
+watch(
+  () => homeRecommendationPool.value.map(word => word.id).join('|'),
+  () => chooseRandomHomeRecommendedWord(false),
+  { immediate: true }
+)
+
+watch(homeBookCoverSource, () => {
+  homeBookCoverFailed.value = false
 })
 
 function onCheckupLimitInput(event: Event) {
@@ -2204,6 +2458,31 @@ function playWordDetailAudio(accent: Accent) {
   audio.play()
 }
 
+function playHomeRecommendedAudio() {
+  const entry = homeRecommendedWord.value
+  if (!entry) return
+
+  const accent: Accent = hasPlayableAudio(entry, 'uk') ? 'uk' : 'us'
+  if (!hasPlayableAudio(entry, accent)) {
+    uni.showToast({ title: '音频待生成', icon: 'none' })
+    return
+  }
+
+  const audio = ensureAudioContext(true)
+  audioRepeatsLeft = 1
+  audioErrorShouldToast = true
+  audio.stop()
+  audio.src = getAudioUrl(entry, accent)
+  audio.play()
+}
+
+function saveWordDetailToWeakbook() {
+  const entry = wordDetailEntry.value
+  if (!entry || isSavedWeakWord(entry.id)) return
+  saveWeakWord(entry.id)
+  uni.showToast({ title: '已加入生词本', icon: 'none' })
+}
+
 function openCheckupSetupPage() {
   openCheckupSetup()
   navigateToRoute('checkupSetup')
@@ -2219,11 +2498,29 @@ function confirmCourseSetupPage() {
   resetPractice()
 }
 
-function startSelectedWeakCheckupPage() {
-  startSelectedWeakCheckup()
-  if (screen.value === 'checkup') {
-    navigateToRoute('checkup')
+function confirmSelectedWeakWordsKnown() {
+  const count = selectedWeakWordCount.value
+  if (count === 0) return
+  if (count === 1) {
+    markSelectedWeakWordsKnownInSession()
+    return
   }
+
+  const content = allWeakWordsSelected.value
+    ? '确认把所有单词标记为认识？'
+    : `确认把 ${count} 个单词标记为认识？`
+
+  uni.showModal({
+    title: '标记认识',
+    content,
+    confirmText: '确认',
+    cancelText: '取消',
+    success: result => {
+      if (result.confirm) {
+        markSelectedWeakWordsKnownInSession()
+      }
+    }
+  })
 }
 
 function startReportWeakCheckupPage() {
@@ -2347,6 +2644,16 @@ function finishDictationRewardAndReturnHome() {
 function finishDictationRewardAndOpenWeakbook() {
   finishDictationRewardInSession()
   openWeakbook()
+}
+
+function restartDictationFromReward() {
+  if (dictationReward.value?.forgottenCount) {
+    startForgottenDictationPage()
+    return
+  }
+
+  finishDictationRewardInSession()
+  navigateBackToPrevious('dictationSetup')
 }
 
 function beginDictation() {
@@ -4913,22 +5220,44 @@ onBeforeUnmount(() => {
   opacity: 0.42;
 }
 
-.dictationSpeakerIcon {
+.dictationSpeakerMark {
   position: relative;
   z-index: 1;
   width: 28px;
-  height: 28px;
-  background: #1cb0f6;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z'/%3E%3C/svg%3E") center / contain no-repeat;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z'/%3E%3C/svg%3E") center / contain no-repeat;
+  height: 24px;
 }
 
-.dictationSpeakerButton.isSolo .dictationSpeakerIcon {
-  width: 32px;
-  height: 32px;
+.dictationSpeakerCore {
+  position: absolute;
+  top: 7px;
+  left: 1px;
+  width: 7px;
+  height: 10px;
+  border-radius: 999px 2px 2px 999px;
+  background: var(--info);
 }
 
-.dictationSpeakerButton.isPlaying .dictationSpeakerIcon {
+.dictationSpeakerWave {
+  position: absolute;
+  border-right: 4px solid var(--info);
+  border-radius: 0 999px 999px 0;
+}
+
+.dictationSpeakerWave.isInner {
+  top: 4px;
+  left: 7px;
+  width: 9px;
+  height: 16px;
+}
+
+.dictationSpeakerWave.isOuter {
+  top: 1px;
+  left: 12px;
+  width: 13px;
+  height: 22px;
+}
+
+.dictationSpeakerButton.isPlaying .dictationSpeakerMark {
   animation: dictationSpeakerIconPulse 0.95s ease-in-out infinite;
 }
 
@@ -9623,7 +9952,7 @@ onBeforeUnmount(() => {
 @media (prefers-reduced-motion: reduce) {
   .dictationSpeakerButton.isPlaying::before,
   .dictationSpeakerButton.isPlaying::after,
-  .dictationSpeakerButton.isPlaying .dictationSpeakerIcon,
+  .dictationSpeakerButton.isPlaying .dictationSpeakerMark,
   .audioButton.isPlaying .playIcon {
     animation: none;
   }
@@ -9975,5 +10304,3505 @@ onBeforeUnmount(() => {
   color: #98a39d;
   font-size: 14px;
   font-weight: 750;
+}
+
+/* V3 paper editorial UI */
+.screen {
+  color: var(--ink);
+  background: var(--page-bg);
+}
+
+.screen,
+.courseSetupScreen,
+.checkupSetupScreen,
+.dictationSetupScreen,
+.dictationWordScreen,
+.dictationPlayerScreen,
+.dictationRewardScreen,
+.unitWordScreen,
+.wordDetailScreen {
+  border-radius: 0;
+  background: var(--page-bg);
+}
+
+.pageChrome {
+  padding-bottom: 10px;
+  background: var(--page-bg);
+}
+
+.dictationNav,
+.wordDetailNav,
+.playerHeaderTop {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: var(--capsule-h, 32px);
+  min-height: var(--capsule-h, 32px);
+  margin: 0;
+  padding: 0;
+}
+
+.dictationNav .navBack,
+.wordDetailNav .navBack,
+.playerHeaderTop .navBack {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: var(--capsule-h, 32px);
+  height: var(--capsule-h, 32px);
+  margin: 0;
+  transform: translateY(-50%);
+}
+
+.chevronLeft {
+  width: 10px;
+  height: 10px;
+  border-width: 0 0 2px 2px;
+  border-style: solid;
+  border-color: var(--ink);
+  transform: rotate(45deg);
+}
+
+.navTitle,
+.playerHeaderTop .playerTitle,
+.wordDetailProgress {
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.sectionStack {
+  gap: 12px;
+}
+
+.homeScreen {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  gap: 10px;
+  padding-top: 0;
+}
+
+.homeHero {
+  display: block;
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.homeHeroMain {
+  display: block;
+}
+
+.homeHeroTitle {
+  display: flex;
+  align-items: center;
+  min-height: var(--capsule-h, 32px);
+  color: var(--ink);
+  font-size: 24px;
+  font-weight: 850;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.homeHeroSubtitle {
+  display: block;
+  max-width: 310px;
+  margin-top: 12px;
+  color: var(--ink-soft);
+  font-size: 15px;
+  font-weight: 650;
+  line-height: 1.55;
+}
+
+.homeUnitCard,
+.homeTodayCard,
+.homeDailyWord {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.homeUnitCard {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 14px;
+}
+
+.homeCourseMain {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.homeBookCover {
+  display: flex;
+  flex: 0 0 48px;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 48px;
+  height: 62px;
+  padding: 8px 7px;
+  border: 1px solid #b7c8c0;
+  border-radius: 5px 10px 10px 5px;
+  background: #e7eee9;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 850;
+  box-shadow: inset 4px 0 rgba(23, 107, 80, 0.12);
+}
+
+.homeBookCover.hasImage {
+  overflow: hidden;
+  padding: 0;
+  box-shadow: none;
+}
+
+.homeBookCoverImage,
+.homeBookCoverFallback {
+  width: 100%;
+  height: 100%;
+}
+
+.homeBookCoverImage {
+  display: block;
+}
+
+.homeBookCoverFallback {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.homeBookCoverEnglish {
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.homeCourseCopy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.homeUnitLabel {
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.homeUnitTitle {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 850;
+  line-height: 1.25;
+}
+
+.homeUnitSubtitle {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.homeSwitchArrow {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 28px;
+  font-weight: 400;
+}
+
+.homeProgressBlock {
+  margin-top: 12px;
+  padding-top: 11px;
+  border-top: 1px solid var(--line);
+}
+
+.homeProgressTop {
+  display: flex;
+  justify-content: space-between;
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.homeProgressTop text:last-child {
+  color: var(--accent);
+}
+
+.homeProgressTrack {
+  height: 5px;
+  margin-top: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e5e2d8;
+}
+
+.homeProgressFill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+}
+
+.homeProgressMeta {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.homeTodayCard {
+  flex: 0 0 auto;
+  padding: 11px 14px;
+}
+
+.homeTodayLabel {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.homeTodayStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 8px;
+}
+
+.homeTodayStats > view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-right: 1px solid var(--line);
+}
+
+.homeTodayStats > view:last-child {
+  border-right: 0;
+}
+
+.homeTodayNumber {
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.homeTodayText {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.homeDictationEntry {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: 68px;
+  margin: 0;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--accent);
+  box-shadow: 0 7px 16px rgba(23, 107, 80, 0.18);
+}
+
+.homeDictationEntry:active {
+  background: var(--accent-strong);
+  transform: translateY(1px);
+}
+
+.homeDictationIcon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 38px;
+  height: 32px;
+  margin-right: 13px;
+}
+
+.homeSoundWave {
+  display: block;
+  width: 5px;
+  margin-right: 4px;
+  border-radius: 999px;
+  background: #fff;
+}
+
+.homeSoundWave.one { height: 13px; }
+.homeSoundWave.two { height: 25px; }
+.homeSoundWave.three { height: 18px; }
+
+.homeDictationCopy {
+  display: flex;
+  flex-direction: column;
+}
+
+.homeDictationTitle {
+  color: #fffdf8;
+  font-size: 19px;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.dictationSetupScreen > .dictationStartButton,
+.checkupSetupScreen > .dictationStartButton {
+  margin-top: auto;
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: none;
+}
+
+.screen.isWeakbookScreen,
+.screen.isDictationPlayerScreen,
+.screen.isDictationWordScreen,
+.screen.isUnitWordScreen,
+.screen.isWordDetailScreen,
+.screen.isDictationReportScreen {
+  background: var(--page-bg);
+}
+
+.screen.isDictationPlayerScreen .countdownTrack {
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--line);
+  box-shadow: none;
+}
+
+.screen.isDictationPlayerScreen .countdownFill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  box-shadow: none;
+}
+
+.screen.isDictationPlayerScreen .transportButton,
+.screen.isDictationPlayerScreen .transportButton.isPrimary {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  width: auto;
+  height: auto;
+  min-height: 74px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.screen.isDictationPlayerScreen .transportButton .transportIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: 0 6px 14px rgba(23, 52, 44, 0.06);
+}
+
+.screen.isDictationPlayerScreen .transportButton.isPrimary .transportIcon {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: 0 7px 15px rgba(23, 107, 80, 0.16);
+}
+
+.screen.isDictationPlayerScreen .transportButton.isPrimary .pauseBar {
+  background: #fff;
+}
+
+.screen.isDictationPlayerScreen .transportLabel,
+.screen.isDictationPlayerScreen .transportButton.isPrimary .transportLabel {
+  margin-top: 7px;
+  color: var(--ink-soft);
+}
+
+.homeDictationSubtitle {
+  margin-top: 3px;
+  color: rgba(255, 253, 248, 0.78);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.homeDailyWord {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 158px;
+  padding: 14px;
+}
+
+.homeDailyTop,
+.homeDailyMain {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.homeDailyTop {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.homeDailySwap {
+  color: var(--info);
+}
+
+.homeDailyMain {
+  flex: 1 1 auto;
+  gap: 12px;
+  padding: 9px 0;
+}
+
+.homeDailyCopy {
+  min-width: 0;
+}
+
+.homeDailyWordRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.homeDailyEnglish,
+.unitWordEnglish,
+.weakWord,
+.wordPickWord,
+.wordDetailWord {
+  font-family: var(--font-word);
+}
+
+.homeDailyEnglish {
+  color: var(--ink);
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.homeDailyPhonetic {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.homeDailyMeaning {
+  display: block;
+  margin-top: 7px;
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.homeDailyExample {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: flex-start;
+  gap: 8px;
+  padding-top: 9px;
+  border-top: 1px solid var(--line);
+}
+
+.homeDailyExampleLabel {
+  flex: 0 0 auto;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+.homeDailyExampleText {
+  display: -webkit-box;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.homeDailySound {
+  display: flex;
+  flex: 0 0 40px;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #b8cdc4;
+  border-radius: 999px;
+  background: var(--accent-soft);
+}
+
+.courseSetupScreen {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.courseIntro {
+  flex: 0 0 auto;
+  padding: 17px 2px 12px;
+}
+
+.courseIntroTitle,
+.courseIntroText {
+  display: block;
+}
+
+.courseIntroTitle {
+  color: var(--ink);
+  font-size: 21px;
+  font-weight: 850;
+}
+
+.courseIntroText {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.coursePanel {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0;
+  overflow-y: auto;
+  background: transparent;
+}
+
+.courseSection {
+  margin-bottom: 14px;
+}
+
+.courseSectionTitle {
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.courseChip,
+.courseUnitChip {
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  box-shadow: none;
+}
+
+.courseChip.isActive,
+.courseUnitChip.isActive {
+  border: 1.5px solid var(--accent) !important;
+  border-bottom-width: 1.5px !important;
+  background: var(--accent-soft) !important;
+  color: var(--accent) !important;
+  box-shadow: none;
+}
+
+.courseSelectionNote {
+  display: block;
+  flex: 0 0 auto;
+  padding: 8px 2px 7px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 650;
+  text-align: center;
+}
+
+.courseConfirmButton,
+.dictationStartButton,
+.bottomButton,
+.rewardButton {
+  min-height: 52px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--accent);
+  color: #fffdf8;
+  box-shadow: none;
+}
+
+.courseConfirmButton:active,
+.dictationStartButton:active,
+.bottomButton:active,
+.rewardButton:active {
+  background: var(--accent-strong);
+  transform: translateY(1px);
+}
+
+.unitWordFilterTabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  padding: 8px 0 9px;
+}
+
+.unitWordFixedTools {
+  flex: 0 0 auto;
+  z-index: 20;
+  background: var(--page-bg);
+}
+
+.unitWordFilterTab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.unitWordFilterTab.isActive {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.unitWordCountLabel {
+  display: block;
+  padding: 0 0 9px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.unitWordScroll {
+  padding-top: 0;
+}
+
+.unitWordList {
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.unitWordRow,
+.unitWordRow.isMastered {
+  display: flex;
+  align-items: center;
+  min-height: 65px;
+  margin: 0;
+  padding: 6px 10px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.unitWordRow:last-child {
+  border-bottom: 0;
+}
+
+.unitWordIndex {
+  flex: 0 0 25px;
+  color: var(--muted-light);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.unitWordCopy {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-right: 8px;
+}
+
+.unitWordTitleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 3px 7px;
+  min-width: 0;
+}
+
+.unitWordEnglish {
+  max-width: 100%;
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.unitWordPhonetic {
+  max-width: 100%;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 550;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.unitWordMeaning {
+  display: block;
+  margin-top: 3px;
+  color: var(--ink-soft);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.unitWordQuickActions {
+  display: grid;
+  flex: 0 0 52px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+}
+
+.unitWordQuickButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 26px;
+  padding: 0 3px;
+  border: 1px solid var(--line-strong);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 750;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+.unitWordQuickButton.isMastery.isActive {
+  border-color: #b8d5c8;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.unitWordQuickButton.isWeakbook.isActive {
+  border-color: #efc3bd;
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.unitWordListTools {
+  display: block;
+  padding: 10px 0 4px;
+}
+
+.unitWordListTools > view {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.wordDetailScroll {
+  padding-top: 2px;
+}
+
+.wordDetailHeroCard,
+.wordDetailCard {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.wordDetailWord {
+  color: var(--ink);
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.wordDetailSectionBar {
+  background: var(--accent);
+}
+
+.wordDetailSectionTag {
+  background: var(--accent-soft);
+}
+
+.wordDetailSectionTagText,
+.wordDetailSectionTitle {
+  color: var(--ink);
+}
+
+.wordDetailFormLine,
+.wordDetailPhraseLine,
+.wordDetailMemoryLine {
+  border-color: var(--line);
+  background: var(--surface-soft);
+}
+
+.wordDetailFooter {
+  padding-top: 9px;
+  background: var(--page-bg);
+}
+
+.wordDetailMasteryActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.wordDetailMasteryButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.wordDetailMasteryButton.isMastered.isActive {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.wordDetailMasteryButton.isActiveWeak {
+  border-color: #d8aaa5;
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.wordDetailPrevButton {
+  border-color: var(--line-strong);
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.wordDetailNextButton {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: none;
+}
+
+.wordDetailPrevButton .wordDetailNavLabel {
+  color: var(--ink);
+}
+
+.dictationSetupScreen .dictationIntro {
+  margin-top: 18px;
+}
+
+.dictationSetupScreen .dictationIntroTitle {
+  color: var(--ink);
+  font-size: 25px;
+}
+
+.dictationSetupScreen .settingGroup {
+  border-color: var(--line);
+}
+
+.dictationSetupScreen .settingLabel {
+  color: var(--muted);
+}
+
+.dictationSetupScreen .pill {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-soft);
+  box-shadow: none;
+}
+
+.dictationSetupScreen .pill.isActive {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  box-shadow: none;
+}
+
+.dictationModeTip {
+  border-color: #c5d6cf;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.dictationSetupScreen .dictationContentCard,
+.wordPickerScopePanel,
+.quickPickPanel,
+.weakbookSummary,
+.dictationSummaryCard,
+.dictationReviewList,
+.rewardProgressCard {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.screen.isDictationWordScreen .wordPickerScopeChip,
+.screen.isDictationWordScreen .quickPickButton {
+  border-color: var(--line);
+  background: var(--surface-soft);
+  color: var(--ink-soft);
+}
+
+.screen.isDictationWordScreen .wordPickerScopeChip.isActive,
+.screen.isDictationWordScreen .wordPickerScopeChip.isIncluded.isActive,
+.screen.isDictationWordScreen .quickPickButton.isActive {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.screen.isDictationWordScreen .wordPickRow,
+.screen.isDictationWordScreen .wordPickRow.isSelected {
+  border-color: var(--line);
+  background: var(--surface);
+}
+
+.screen.isDictationWordScreen .wordPickRow.isSelected {
+  border-color: #9bbbad;
+  background: var(--accent-soft);
+}
+
+.screen.isDictationWordScreen .wordPickCheck,
+.screen.isWeakbookScreen .weakbookCheckDot {
+  border-color: var(--line-strong);
+  background: var(--surface);
+}
+
+.screen.isDictationWordScreen .wordPickRow.isSelected .wordPickCheck,
+.screen.isWeakbookScreen .weakbookWordRow.isSelected .weakbookCheckDot {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.screen.isWeakbookScreen .weakbookSummary {
+  border-radius: 16px;
+}
+
+.screen.isWeakbookScreen .weakbookQuickActions {
+  grid-template-columns: 1.15fr 1.15fr 1fr;
+}
+
+.screen.isWeakbookScreen .weakbookQuickAction {
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  box-shadow: none;
+}
+
+.screen.isWeakbookScreen .weakbookQuickAction.isPrimary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.screen.isWeakbookScreen .weakbookQuickAction.isSecondary {
+  border-color: var(--info);
+  background: var(--info-soft);
+  color: var(--info);
+}
+
+.screen.isWeakbookScreen .weakbookWordRow,
+.screen.isWeakbookScreen .weakbookWordRow.isSelected {
+  border-color: var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.screen.isWeakbookScreen .weakbookWordRow.isSelected {
+  border-color: #9bbbad;
+  background: var(--accent-soft);
+}
+
+.screen.isDictationPlayerScreen .playerStage {
+  justify-content: flex-start;
+  padding-top: 14px;
+}
+
+.screen.isDictationPlayerScreen .playerProgressMeta {
+  position: static;
+  display: block;
+  width: 100%;
+  margin: 5px 0 0;
+  text-align: center;
+}
+
+.screen.isDictationPlayerScreen .dictationAudioCard,
+.screen.isDictationPlayerScreen .dictationRecognitionWordCard {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      var(--surface) 0,
+      var(--surface) 31px,
+      rgba(45, 99, 135, 0.08) 32px
+    );
+  box-shadow: 0 12px 28px rgba(23, 52, 44, 0.07);
+}
+
+.screen.isDictationPlayerScreen .dictationAudioMeaning,
+.screen.isDictationPlayerScreen .dictationRecognitionWord {
+  color: var(--ink);
+}
+
+.screen.isDictationPlayerScreen .dictationSpeakerButton {
+  border-color: #b8cdc4;
+  background: var(--accent-soft);
+}
+
+.screen.isDictationPlayerScreen .forgotButton {
+  border-color: #d8aaa5;
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.screen.isDictationPlayerScreen .countdownFill,
+.screen.isDictationPlayerScreen .playerProgressFill {
+  background: var(--accent);
+}
+
+.screen.isDictationPlayerScreen .transportButton.isPrimary {
+  border-color: transparent;
+  background: transparent;
+}
+
+.dictationSummaryStats .summaryStat.isProblem,
+.dictationReviewRow.isForgotten,
+.reviewStatusButton.isForgotten {
+  border-color: #d8aaa5;
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.dictationReviewRow.isMastered,
+.reviewStatusButton.isMastered {
+  border-color: #9bbbad;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.secondaryButton,
+.rewardSecondaryButton {
+  border: 1px solid var(--info);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--info);
+  box-shadow: none;
+}
+
+.dictationRewardScreen {
+  min-height: 100%;
+}
+
+.rewardMedal {
+  width: 104px;
+  height: 104px;
+}
+
+.rewardHalo,
+.rewardRay,
+.rewardSparkle {
+  display: none;
+}
+
+.rewardMedalCore {
+  border: 1px solid #9bbbad;
+  background: var(--accent-soft);
+  box-shadow: none;
+}
+
+.rewardMedalCore::before {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgba(23, 107, 80, 0.28);
+  border-radius: 999px;
+}
+
+.rewardMedalCoreText {
+  color: var(--accent);
+}
+
+.rewardTitle {
+  color: var(--ink);
+}
+
+.rewardSubtitle,
+.rewardProgressMeta {
+  color: var(--muted);
+}
+
+.rewardProgressFill {
+  background: var(--accent);
+}
+
+.rewardStatGrid {
+  gap: 8px;
+}
+
+.rewardStatCard,
+.rewardStatCard.gold,
+.rewardStatCard.green,
+.rewardStatCard.blue {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.rewardStatHeader {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.rewardStatValue,
+.rewardStatSymbol {
+  color: var(--ink);
+}
+
+.screen.isWeakbookScreen .weakbookScroll {
+  padding: 0 0 18px;
+  background: transparent !important;
+}
+
+.screen.isWeakbookScreen .pageChrome,
+.screen.isWeakbookScreen .pageBodyScroll {
+  background: transparent !important;
+}
+
+.screen.isWeakbookScreen .weakbookContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.weakbookGuideBanner {
+  min-height: 126px;
+  margin: 12px 0 14px;
+  padding: 17px 18px 15px;
+  border: 1px solid var(--accent);
+  border-radius: 18px;
+  background: var(--accent);
+  box-shadow: 0 10px 22px rgba(23, 107, 80, 0.16);
+  box-sizing: border-box;
+}
+
+.weakbookGuideTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.weakbookCountBlock {
+  min-width: 0;
+}
+
+.weakbookGuideMeta {
+  display: block;
+  margin-top: 13px;
+  color: rgba(255, 253, 248, 0.76);
+  font-size: 12px;
+  line-height: 1.35;
+  font-weight: 650;
+}
+
+.weakbookContextAction.isDisabled {
+  pointer-events: none;
+  opacity: 0.42;
+}
+
+.weakbookCountLine {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.weakbookCountLabel,
+.weakbookCountUnit {
+  color: rgba(255, 253, 248, 0.8);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.weakbookCountNumber {
+  color: #fffdf8;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 38px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.screen.isWeakbookScreen .weakbookSelectToggle {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-width: 78px;
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 253, 248, 0.78);
+  border-radius: 12px;
+  background: #fffdf8;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 800;
+  box-sizing: border-box;
+}
+
+.screen.isWeakbookScreen .weakbookSelectToggle:active {
+  background: rgba(255, 253, 248, 0.9);
+  transform: translateY(1px) scale(0.99);
+}
+
+.weakbookContextActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 2px 0 10px;
+}
+
+.weakbookContextAction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 800;
+  box-sizing: border-box;
+}
+
+.weakbookContextAction.isPrimary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fffdf8;
+}
+
+.screen.isWeakbookScreen .weakbookWordList {
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.screen.isWeakbookScreen .weakbookWordRow,
+.screen.isWeakbookScreen .weakbookWordRow.isSelected {
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-height: 72px;
+  padding: 10px 76px 10px 10px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--surface);
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.screen.isWeakbookScreen .weakbookWordRow:last-child {
+  border-bottom: 0;
+}
+
+.screen.isWeakbookScreen .weakbookWordRow.isSelected {
+  background: var(--accent-soft);
+}
+
+.screen.isWeakbookScreen .weakbookSelectionHitArea {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  width: 94px;
+  padding-left: 10px;
+  box-sizing: border-box;
+}
+
+.screen.isWeakbookScreen .weakbookCheckDot {
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--line-strong);
+  border-radius: 7px;
+  background: var(--surface);
+}
+
+.screen.isWeakbookScreen .weakbookWordRow.isSelected .weakbookCheckDot {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.screen.isWeakbookScreen .weakbookWordCopy {
+  grid-column: 2;
+  min-width: 0;
+  min-height: 0;
+}
+
+.screen.isWeakbookScreen .weakbookWordRow .weakWord {
+  color: var(--ink);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 20px;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+.screen.isWeakbookScreen .weakbookWordRow .unitWordPhonetic {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.screen.isWeakbookScreen .weakbookWordRow .weakMeaning {
+  display: block;
+  margin-top: 5px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weakbookWordSource {
+  position: absolute;
+  right: 11px;
+  bottom: 10px;
+  color: var(--muted-light);
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 650;
+}
+
+.screen.isDictationPlayerScreen .dictationPlayerScreen {
+  box-sizing: border-box;
+  padding-bottom: calc(72px + env(safe-area-inset-bottom));
+}
+
+.screen.isDictationPlayerScreen .playerStage {
+  flex: 0 0 auto;
+  justify-content: flex-start;
+  margin-top: 0;
+  padding-top: 18px;
+  overflow: visible;
+}
+
+.screen.isDictationPlayerScreen .playerInstruction {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.screen.isDictationPlayerScreen .dictationAudioCard.isPaper {
+  position: relative;
+  justify-content: center;
+  gap: 18px;
+  width: 100%;
+  min-height: 240px;
+  margin-top: 14px;
+  padding: 48px 24px 28px;
+  overflow: hidden;
+  border: 1px solid rgba(45, 99, 135, 0.2);
+  border-radius: 7px 18px 18px 7px;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      var(--surface) 0,
+      var(--surface) 31px,
+      rgba(45, 99, 135, 0.08) 32px
+    );
+  box-shadow: 0 12px 28px rgba(23, 52, 44, 0.07);
+}
+
+.screen.isDictationPlayerScreen .dictationAudioCard.isPaper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 18px;
+  width: 1px;
+  background: rgba(213, 107, 96, 0.28);
+}
+
+.dictationPaperNumber {
+  position: absolute;
+  top: 18px;
+  left: 31px;
+  color: var(--info);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.screen.isDictationPlayerScreen .dictationAudioCard.isPaper .dictationAudioMeaning {
+  max-width: calc(100% - 18px);
+  color: var(--ink);
+  font-size: 27px;
+  line-height: 1.35;
+  font-weight: 800;
+}
+
+.screen.isDictationPlayerScreen .dictationAudioCard.isPaper .dictationSpeakerButton {
+  width: 58px;
+  height: 58px;
+  border: 1px solid rgba(45, 99, 135, 0.22);
+  background: var(--info-soft);
+  box-shadow: none;
+}
+
+.dictationReplayHint {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 650;
+}
+
+.screen.isDictationPlayerScreen .forgotButton {
+  min-width: 148px;
+  min-height: 42px;
+  margin-top: 14px;
+  padding: 0 16px;
+  border-radius: 11px;
+}
+
+.screen.isDictationPlayerScreen .autoNextText {
+  margin-top: 10px;
+}
+
+.screen.isDictationPlayerScreen .transportRow {
+  width: 100%;
+  margin-top: 18px;
+}
+
+.playerBottomInfo {
+  position: fixed;
+  right: 18px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  left: 18px;
+  z-index: 34;
+  text-align: center;
+  pointer-events: none;
+}
+
+.screen.isDictationPlayerScreen .playerBottomInfo .playerFootnote {
+  margin: 0;
+  color: var(--muted-light);
+  font-size: 11px;
+  line-height: 1.3;
+  font-weight: 650;
+}
+
+.screen.isDictationPlayerScreen .playerBottomInfo .exitDictationButton {
+  display: inline-flex;
+  margin-top: 10px;
+  padding: 4px 10px;
+  color: var(--danger);
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 800;
+  pointer-events: auto;
+}
+
+.screen.isDictationReportScreen .reportScreen,
+.screen.isDictationReportScreen .pageChrome,
+.screen.isDictationReportScreen .pageBodyScroll {
+  background: transparent !important;
+}
+
+.screen.isDictationReportScreen .dictationReportScroll {
+  padding: 0 0 calc(172px + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+.screen.isDictationReportScreen .dictationReportPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 8px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.screen.isDictationReportScreen .dictationSummaryCard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  min-height: 88px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.dictationSummaryKicker,
+.dictationSummaryTitle,
+.dictationSummaryDescription {
+  display: block;
+}
+
+.dictationSummaryKicker {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 650;
+}
+
+.dictationSummaryTitle {
+  margin-top: 5px;
+  color: var(--ink);
+  font-size: 18px;
+  line-height: 1.2;
+  font-weight: 850;
+}
+
+.dictationSummaryDescription {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.35;
+  font-weight: 600;
+}
+
+.screen.isDictationReportScreen .dictationSummaryStats {
+  display: grid;
+  grid-template-columns: repeat(2, 48px);
+  gap: 7px;
+}
+
+.screen.isDictationReportScreen .summaryStat {
+  min-height: 60px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--accent-soft);
+  box-shadow: none;
+}
+
+.screen.isDictationReportScreen .summaryStat.isProblem {
+  background: var(--danger-soft);
+}
+
+.screen.isDictationReportScreen .summaryStatValue {
+  color: var(--accent);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.screen.isDictationReportScreen .summaryStatLabel {
+  margin-top: 5px;
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.screen.isDictationReportScreen .summaryStat.isProblem .summaryStatValue,
+.screen.isDictationReportScreen .summaryStat.isProblem .summaryStatLabel {
+  color: var(--danger);
+}
+
+.dictationReportLegend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 28px;
+  padding: 0 3px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 650;
+}
+
+.screen.isDictationReportScreen .dictationReviewList {
+  display: block;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.screen.isDictationReportScreen .dictationReviewRow,
+.screen.isDictationReportScreen .dictationReviewRow.hasStatus,
+.screen.isDictationReportScreen .dictationReviewRow.isMastered,
+.screen.isDictationReportScreen .dictationReviewRow.isForgotten {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 62px;
+  gap: 8px;
+  align-items: center;
+  min-height: 66px;
+  margin: 0;
+  padding: 9px 10px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--surface);
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.screen.isDictationReportScreen .dictationReviewRow.isForgotten {
+  background: rgba(247, 231, 227, 0.42);
+}
+
+.screen.isDictationReportScreen .dictationReviewRow:last-child {
+  border-bottom: 0;
+}
+
+.screen.isDictationReportScreen .reviewIndex {
+  display: block;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: transparent;
+  color: var(--muted-light);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.screen.isDictationReportScreen .dictationReviewRow.isMastered .reviewIndex,
+.screen.isDictationReportScreen .dictationReviewRow.isForgotten .reviewIndex {
+  background: transparent;
+  color: var(--muted-light);
+}
+
+.screen.isDictationReportScreen .reviewCopy {
+  min-width: 0;
+}
+
+.screen.isDictationReportScreen .dictationReviewRow .weakWord,
+.screen.isDictationReportScreen .dictationReviewRow.isMastered .weakWord,
+.screen.isDictationReportScreen .dictationReviewRow.isForgotten .weakWord {
+  color: var(--ink);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+.screen.isDictationReportScreen .dictationReviewRow .unitWordPhonetic {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.screen.isDictationReportScreen .dictationReviewRow .weakMeaning,
+.screen.isDictationReportScreen .dictationReviewRow.isForgotten .weakMeaning {
+  display: block;
+  margin-top: 5px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.screen.isDictationReportScreen .reviewStatusButton,
+.screen.isDictationReportScreen .reviewStatusButton.isMastered,
+.screen.isDictationReportScreen .reviewStatusButton.isForgotten {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: end;
+  min-width: 58px;
+  height: 34px;
+  padding: 0 8px;
+  border: 1px solid #9bbbad;
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  box-shadow: none;
+  font-size: 11px;
+  font-weight: 800;
+  box-sizing: border-box;
+}
+
+.screen.isDictationReportScreen .reviewStatusButton.isForgotten {
+  border-color: #e7b6af;
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.screen.isDictationReportScreen .confirmResultHint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.35;
+  font-weight: 650;
+  text-align: center;
+}
+
+.screen.isDictationReportScreen .reportActions {
+  position: fixed;
+  right: 18px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  left: 18px;
+  z-index: 40;
+  display: grid;
+  gap: 8px;
+  width: auto;
+  max-width: none;
+  margin: 0;
+  padding: 22px 0 0;
+  background: linear-gradient(180deg, rgba(244, 241, 232, 0), var(--page-bg) 24%);
+  transform: none;
+  box-sizing: border-box;
+}
+
+.screen.isDictationReportScreen .reportActions .confirmResultButton {
+  height: 52px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--accent);
+  color: #fffdf8;
+  box-shadow: none;
+  font-size: 16px;
+  font-weight: 850;
+}
+
+.screen.isDictationReportScreen .reportSecondaryActions {
+  gap: 8px;
+}
+
+.screen.isDictationReportScreen .reportSecondaryActions .secondaryButton {
+  height: 44px;
+  border: 1px solid #b8c9d2;
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--info);
+  box-shadow: none;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.screen.isDictationRewardScreen .dictationRewardScreen {
+  align-items: stretch;
+  min-height: calc(100dvh - var(--screen-top, 0px));
+  padding: 8px 4px calc(162px + env(safe-area-inset-bottom));
+  background: transparent;
+  box-sizing: border-box;
+}
+
+.screen.isDictationRewardScreen .rewardContent {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.screen.isDictationRewardScreen .rewardStamp {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  width: 106px;
+  height: 106px;
+  border: 2px solid var(--accent);
+  border-radius: 999px;
+  background: rgba(255, 253, 248, 0.9);
+  box-shadow: inset 0 0 0 7px rgba(23, 107, 80, 0.08);
+  color: var(--accent);
+  box-sizing: border-box;
+}
+
+.screen.isDictationRewardScreen .rewardStampLabel,
+.screen.isDictationRewardScreen .rewardStampUnit {
+  display: block;
+  font-size: 11px;
+  line-height: 1.15;
+  font-weight: 800;
+}
+
+.screen.isDictationRewardScreen .rewardStampValue {
+  display: block;
+  margin: 2px 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 38px;
+  line-height: 0.95;
+  font-weight: 500;
+}
+
+.screen.isDictationRewardScreen .rewardOverline {
+  display: block;
+  margin-top: 18px;
+  color: var(--accent);
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: 800;
+  text-align: center;
+}
+
+.screen.isDictationRewardScreen .rewardMainTitle {
+  display: block;
+  margin-top: 10px;
+  color: var(--ink);
+  font-size: 30px;
+  line-height: 1.15;
+  font-weight: 900;
+  text-align: center;
+}
+
+.screen.isDictationRewardScreen .rewardCopy {
+  display: block;
+  margin: 12px auto 0;
+  max-width: 350px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 600;
+  text-align: center;
+}
+
+.screen.isDictationRewardScreen .rewardStatsStrip,
+.screen.isDictationRewardScreen .rewardUnitProgressCard,
+.screen.isDictationRewardScreen .rewardNextStepCard {
+  border: 1px solid #cad8d1;
+  background: var(--surface);
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.screen.isDictationRewardScreen .rewardStatsStrip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  overflow: hidden;
+  width: 100%;
+  min-height: 68px;
+  margin-top: 22px;
+  border-radius: 16px;
+}
+
+.screen.isDictationRewardScreen .rewardStatItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 10px 4px 8px;
+  box-sizing: border-box;
+}
+
+.screen.isDictationRewardScreen .rewardStatItem + .rewardStatItem {
+  border-left: 1px solid #cad8d1;
+}
+
+.screen.isDictationRewardScreen .rewardStatLabel {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 650;
+}
+
+.screen.isDictationRewardScreen .rewardStatNumberRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  margin-top: 5px;
+  color: var(--accent);
+}
+
+.screen.isDictationRewardScreen .rewardStatNumber {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 27px;
+  line-height: 1;
+  font-weight: 500;
+}
+
+.screen.isDictationRewardScreen .rewardStatSuffix {
+  margin-left: 2px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.screen.isDictationRewardScreen .rewardUnitProgressCard {
+  width: 100%;
+  margin-top: 14px;
+  padding: 14px 15px 13px;
+  border-radius: 16px;
+}
+
+.screen.isDictationRewardScreen .rewardProgressTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 650;
+}
+
+.screen.isDictationRewardScreen .rewardProgressCount {
+  color: var(--ink);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.screen.isDictationRewardScreen .rewardProgressTrack {
+  overflow: hidden;
+  height: 6px;
+  margin-top: 9px;
+  border-radius: 999px;
+  background: #dfe4de;
+}
+
+.screen.isDictationRewardScreen .rewardProgressFill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width 900ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.screen.isDictationRewardScreen .rewardProgressMeta {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+.screen.isDictationRewardScreen .rewardNextStepCard {
+  width: 100%;
+  margin-top: 14px;
+  padding: 14px 15px;
+  border-radius: 16px;
+}
+
+.screen.isDictationRewardScreen .rewardNextStepLabel {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 650;
+}
+
+.screen.isDictationRewardScreen .rewardNextStepRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 7px;
+}
+
+.screen.isDictationRewardScreen .rewardNextStepCopy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.screen.isDictationRewardScreen .rewardNextStepTitleRow {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.screen.isDictationRewardScreen .rewardNextStepAccent {
+  flex: 0 0 4px;
+  width: 4px;
+  height: 18px;
+  margin-right: 10px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.screen.isDictationRewardScreen .rewardNextStepTitle {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 850;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.screen.isDictationRewardScreen .rewardNextStepMeta {
+  display: block;
+  margin: 5px 0 0 14px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.35;
+  font-weight: 600;
+}
+
+.screen.isDictationRewardScreen .rewardWeakbookLink {
+  flex: 0 0 auto;
+  color: var(--info);
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+.screen.isDictationRewardScreen .rewardBottomActions {
+  position: fixed;
+  right: 22px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  left: 22px;
+  z-index: 40;
+  display: grid;
+  gap: 8px;
+  max-width: 430px;
+  margin: 0 auto;
+  padding-top: 22px;
+  background: linear-gradient(180deg, rgba(244, 241, 232, 0), var(--page-bg) 24%);
+  box-sizing: border-box;
+}
+
+.screen.isDictationRewardScreen .rewardPrimaryButton,
+.screen.isDictationRewardScreen .rewardSecondaryButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 52px;
+  border-radius: 14px;
+  box-shadow: none;
+  font-size: 17px;
+  line-height: 1;
+  font-weight: 850;
+  box-sizing: border-box;
+}
+
+.screen.isDictationRewardScreen .rewardPrimaryButton {
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fffdf8;
+}
+
+.screen.isDictationRewardScreen .rewardSecondaryButton {
+  border: 1px solid #c9d2cd;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+@media (max-height: 700px) {
+  .screen.isDictationRewardScreen .dictationRewardScreen {
+    padding-top: 2px;
+  }
+
+  .screen.isDictationRewardScreen .rewardStamp {
+    width: 88px;
+    height: 88px;
+  }
+
+  .screen.isDictationRewardScreen .rewardStampValue {
+    font-size: 31px;
+  }
+
+  .screen.isDictationRewardScreen .rewardOverline {
+    margin-top: 10px;
+  }
+
+  .screen.isDictationRewardScreen .rewardMainTitle {
+    margin-top: 7px;
+    font-size: 25px;
+  }
+
+  .screen.isDictationRewardScreen .rewardCopy {
+    margin-top: 7px;
+  }
+
+  .screen.isDictationRewardScreen .rewardStatsStrip {
+    min-height: 60px;
+    margin-top: 12px;
+  }
+
+  .screen.isDictationRewardScreen .rewardUnitProgressCard,
+  .screen.isDictationRewardScreen .rewardNextStepCard {
+    margin-top: 9px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .screen.isDictationPlayerScreen .playerStage {
+    padding-top: 10px;
+  }
+
+  .screen.isDictationPlayerScreen .dictationAudioCard.isPaper {
+    min-height: 196px;
+    margin-top: 10px;
+    padding-top: 40px;
+    padding-bottom: 20px;
+  }
+
+  .screen.isDictationPlayerScreen .dictationAudioCard.isPaper .dictationAudioMeaning {
+    font-size: 23px;
+  }
+
+  .screen.isDictationPlayerScreen .transportRow {
+    margin-top: 12px;
+  }
+
+  .homeHeroSubtitle {
+    margin-top: 7px;
+  }
+
+  .homeUnitCard {
+    padding: 11px 13px;
+  }
+
+  .homeBookCover {
+    height: 54px;
+  }
+
+  .homeTodayCard {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .homeDictationEntry {
+    min-height: 60px;
+  }
+
+  .homeDailyWord {
+    min-height: 132px;
+  }
+}
+
+.screen.isHomeScreen {
+  background: var(--page-bg);
+}
+
+.screen.isHomeScreen .homeScreen {
+  gap: 10px;
+  padding-top: 0;
+}
+
+.screen.isHomeScreen .homeDictationEntry {
+  display: flex;
+  flex: 0 0 68px;
+  width: 100%;
+  height: 68px;
+  min-height: 68px;
+  margin: 0;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--accent);
+  box-shadow: 0 7px 16px rgba(23, 107, 80, 0.18);
+}
+
+.screen.isHomeScreen .homeDictationIcon {
+  display: flex;
+  width: 38px;
+  height: 32px;
+  margin-right: 13px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.screen.isHomeScreen .homeDictationTitle {
+  color: #fffdf8;
+  font-size: 19px;
+  line-height: 1.2;
+}
+
+.screen.isUnitWordScreen .pageBodyScroll,
+.screen.isWordDetailScreen .pageBodyScroll,
+.screen.isDictationWordScreen .pageBodyScroll,
+.screen.isDictationReportScreen .pageBodyScroll {
+  background: var(--page-bg);
+}
+
+.screen.isUnitWordScreen .unitWordRow {
+  overflow: visible;
+}
+
+.screen.isUnitWordScreen .unitWordCopy {
+  min-width: 0;
+  overflow: visible;
+}
+
+.screen.isUnitWordScreen .unitWordTitleRow {
+  flex-wrap: wrap;
+  min-width: 0;
+  overflow: visible;
+}
+
+.screen.isUnitWordScreen .unitWordMetaRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 34px;
+  padding: 0 2px 8px;
+}
+
+.screen.isUnitWordScreen .unitWordCountLabel {
+  padding: 0;
+}
+
+.screen.isUnitWordScreen .unitWordMeaningToggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 28px;
+  padding-left: 10px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.screen.isUnitWordScreen .unitWordMeaningSwitch {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #e5e8e6;
+  transition: background-color 160ms ease, border-color 160ms ease;
+  box-sizing: border-box;
+}
+
+.screen.isUnitWordScreen .unitWordMeaningSwitchThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgba(23, 52, 44, 0.16);
+  transition: transform 160ms ease;
+}
+
+.screen.isUnitWordScreen .unitWordMeaningSwitch.isActive {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.screen.isUnitWordScreen .unitWordMeaningSwitch.isActive .unitWordMeaningSwitchThumb {
+  transform: translateX(14px);
+}
+
+.screen.isUnitWordScreen .unitWordRow.isMastered {
+  background: rgba(223, 232, 227, 0.62);
+}
+
+.screen.isUnitWordScreen .unitWordRow.isMastered .unitWordEnglish {
+  color: var(--muted);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.screen.isUnitWordScreen .unitWordRow.isMastered .unitWordPhonetic,
+.screen.isUnitWordScreen .unitWordRow.isMastered .unitWordMeaning {
+  color: var(--muted-light);
+}
+
+.screen.isUnitWordScreen .unitWordRow.isReview {
+  background: rgba(247, 231, 227, 0.58);
+}
+
+.screen.isUnitWordScreen .unitWordEnglish,
+.screen.isUnitWordScreen .unitWordPhonetic,
+.screen.isUnitWordScreen .unitWordMeaning {
+  min-width: 0;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+/* #ifdef H5 */
+.screen.isHomeScreen,
+.screen.isWeakbookScreen {
+  padding-bottom: calc(92px + env(safe-area-inset-bottom));
+}
+/* #endif */
+
+/*
+ * Full-page ownership: the outer route screen owns the viewport background.
+ * Inner screen containers stay transparent so short pages cannot expose an
+ * older gradient or host-page gray below their content.
+ */
+.screen,
+.screen.isSplitScreen,
+.screen.isHomeScreen,
+.screen.isCourseSetupScreen,
+.screen.isCheckupSetupScreen,
+.screen.isCheckupScreen,
+.screen.isSpellingScreen,
+.screen.isCheckupReportScreen,
+.screen.isDictationSetupScreen,
+.screen.isDictationWordScreen,
+.screen.isDictationPlayerScreen,
+.screen.isDictationReportScreen,
+.screen.isDictationRewardScreen,
+.screen.isWeakbookScreen,
+.screen.isUnitWordScreen,
+.screen.isWordDetailScreen {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--page-bg) !important;
+  background-color: var(--page-bg) !important;
+}
+
+.homeScreen,
+.courseSetupScreen,
+.checkupSetupScreen,
+.flowScreen,
+.reportScreen,
+.dictationSetupScreen,
+.dictationWordScreen,
+.dictationPlayerScreen,
+.dictationRewardScreen,
+.weakbookScreen,
+.unitWordScreen,
+.wordDetailScreen {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.screen.isCourseSetupScreen,
+.screen.isCheckupSetupScreen,
+.screen.isDictationSetupScreen,
+.screen.isDictationRewardScreen {
+  display: flex;
+  flex-direction: column;
+}
+
+.screen.isCourseSetupScreen > .courseSetupScreen,
+.screen.isCheckupSetupScreen > .checkupSetupScreen,
+.screen.isDictationSetupScreen > .dictationSetupScreen,
+.screen.isDictationRewardScreen > .dictationRewardScreen {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/*
+ * Paper UI must read as one continuous sheet. Historical mint header fills
+ * and the blue home label otherwise show through as disconnected color bars.
+ */
+.screen .pageChrome,
+.screen.isSplitScreen .pageChrome,
+.screen .pageChrome .dictationNav,
+.screen .pageChrome .wordDetailNav,
+.screen .pageChrome .playerHeader,
+.screen .pageChrome .playerHeaderTop {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.screen.isHomeScreen .homeUnitLabel {
+  align-self: flex-start;
+  padding: 0;
+  border-radius: 0;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Home vertical rhythm follows the approved compact editorial composition. */
+.screen.isHomeScreen .homeScreen {
+  gap: 12px;
+}
+
+.screen.isHomeScreen .homeHeroTitle {
+  min-height: var(--capsule-h, 32px);
+  font-size: 28px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.screen.isHomeScreen .homeHeroSubtitle {
+  max-width: none;
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.screen.isHomeScreen .homeHeroTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.screen.isHomeScreen .homeHeroTag {
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 800;
+}
+
+.screen.isHomeScreen .homeUnitCard {
+  padding: 15px;
+}
+
+.screen.isHomeScreen .homeCourseMain {
+  display: flex;
+  align-items: center;
+  min-height: 84px;
+}
+
+.screen.isHomeScreen .homeBookCover {
+  width: 64px;
+  height: 84px;
+  flex-basis: 64px;
+}
+
+.screen.isHomeScreen .homeCourseCopy {
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: center;
+  gap: 6px;
+  margin-left: 16px;
+}
+
+.screen.isHomeScreen .homeUnitLabel {
+  font-size: 11px;
+  line-height: 1.15;
+}
+
+.screen.isHomeScreen .homeUnitTitle {
+  margin-top: 0;
+  font-size: 18px;
+  line-height: 1.18;
+}
+
+.screen.isHomeScreen .homeUnitSubtitle {
+  margin-top: 0;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.screen.isHomeScreen .homeSwitchArrow {
+  flex: 0 0 22px;
+  width: 22px;
+  margin-left: 12px;
+  line-height: 1;
+  text-align: right;
+}
+
+.screen.isHomeScreen .homeCourseStats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.screen.isHomeScreen .homeCourseStat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 104px;
+  padding: 12px 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  background: transparent;
+  box-sizing: border-box;
+}
+
+.screen.isHomeScreen .homeCourseStatNumber {
+  color: var(--accent);
+  font-family: var(--font-word);
+  font-size: 36px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.screen.isHomeScreen .homeCourseStatLabel {
+  margin-top: 9px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.screen.isHomeScreen .homeProgressBlock {
+  margin-top: 12px;
+  padding-top: 12px;
+}
+
+.screen.isHomeScreen .homeTodayCard {
+  padding: 10px 14px;
+}
+
+.screen.isHomeScreen .homeTodayStats > view {
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: center;
+  gap: 5px;
+  min-height: 32px;
+}
+
+.screen.isHomeScreen .homeTodayNumber {
+  font-family: var(--font-word);
+  font-size: 27px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.screen.isHomeScreen .homeTodayText {
+  margin-top: 0;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.screen.isHomeScreen .homeProgressTop text:last-child,
+.screen.isHomeScreen .homeBookCoverEnglish {
+  font-family: var(--font-word);
+}
+
+.screen.isHomeScreen .homeDictationEntry {
+  flex-basis: 96px;
+  height: 96px;
+  min-height: 96px;
+  border-radius: 16px;
+}
+
+.screen.isHomeScreen .homeDictationIcon {
+  width: 48px;
+  height: 42px;
+  margin-right: 18px;
+}
+
+.screen.isHomeScreen .homeDictationTitle {
+  font-size: 22px;
+}
+
+.screen.isHomeScreen .homeDictationSubtitle {
+  font-size: 12px;
+}
+
+.screen.isHomeScreen .homeDailyWord {
+  flex: 0 0 154px;
+  min-height: 154px;
+  max-height: 154px;
+  padding: 11px 14px;
+}
+
+.screen.isHomeScreen .homeDailyMain {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 4px 0;
+}
+
+.screen.isHomeScreen .homeDailyEnglish {
+  font-size: 41px;
+  font-weight: 500;
+}
+
+.screen.isHomeScreen .homeDailySound {
+  flex-basis: 50px;
+  width: 50px;
+  height: 50px;
+  border-color: #aac6d7;
+  background: var(--info-soft);
+}
+
+.screen.isHomeScreen .homeDailySpeakerMark {
+  position: relative;
+  width: 28px;
+  height: 24px;
+}
+
+.screen.isHomeScreen .homeDailySpeakerCore {
+  position: absolute;
+  top: 7px;
+  left: 1px;
+  width: 7px;
+  height: 10px;
+  border-radius: 999px 2px 2px 999px;
+  background: var(--info);
+}
+
+.screen.isHomeScreen .homeDailySpeakerWave {
+  position: absolute;
+  border-right: 4px solid var(--info);
+  border-radius: 0 999px 999px 0;
+}
+
+.screen.isHomeScreen .homeDailySpeakerWave.isInner {
+  top: 4px;
+  left: 7px;
+  width: 9px;
+  height: 16px;
+}
+
+.screen.isHomeScreen .homeDailySpeakerWave.isOuter {
+  top: 1px;
+  left: 12px;
+  width: 13px;
+  height: 22px;
+}
+
+@media (max-height: 700px) {
+  .screen.isHomeScreen .homeScreen {
+    gap: 8px;
+  }
+
+  .screen.isHomeScreen .homeHeroTitle {
+    font-size: 24px;
+  }
+
+  .screen.isHomeScreen .homeHeroSubtitle {
+    margin-top: 6px;
+    font-size: 13px;
+  }
+
+  .screen.isHomeScreen .homeHeroTags {
+    gap: 6px;
+    margin-top: 7px;
+  }
+
+  .screen.isHomeScreen .homeHeroTag {
+    padding: 5px 9px;
+    font-size: 10px;
+  }
+
+  .screen.isHomeScreen .homeUnitCard {
+    padding: 10px 12px;
+  }
+
+  .screen.isHomeScreen .homeCourseMain {
+    min-height: 68px;
+  }
+
+  .screen.isHomeScreen .homeBookCover {
+    width: 52px;
+    height: 68px;
+    flex-basis: 52px;
+  }
+
+  .screen.isHomeScreen .homeCourseCopy {
+    gap: 4px;
+    margin-left: 12px;
+  }
+
+  .screen.isHomeScreen .homeSwitchArrow {
+    flex-basis: 18px;
+    width: 18px;
+    margin-left: 10px;
+  }
+
+  .screen.isHomeScreen .homeCourseStats {
+    gap: 8px;
+    margin-top: 9px;
+  }
+
+  .screen.isHomeScreen .homeCourseStat {
+    min-height: 88px;
+    padding: 10px 6px;
+  }
+
+  .screen.isHomeScreen .homeCourseStatNumber {
+    font-size: 30px;
+  }
+
+  .screen.isHomeScreen .homeCourseStatLabel {
+    margin-top: 7px;
+    font-size: 12px;
+  }
+
+  .screen.isHomeScreen .homeProgressBlock {
+    margin-top: 9px;
+    padding-top: 9px;
+  }
+
+  .screen.isHomeScreen .homeTodayCard {
+    padding: 7px 12px;
+  }
+
+  .screen.isHomeScreen .homeTodayStats {
+    margin-top: 5px;
+  }
+
+  .screen.isHomeScreen .homeDictationEntry {
+    flex-basis: 82px;
+    height: 82px;
+    min-height: 82px;
+  }
+
+  .screen.isHomeScreen .homeDailyWord {
+    flex-basis: 142px;
+    min-height: 142px;
+    max-height: 142px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .screen.isHomeScreen .homeDailyMain {
+    padding: 3px 0;
+  }
+
+  .screen.isHomeScreen .homeDailyEnglish {
+    font-size: 41px;
+  }
+
+  .screen.isHomeScreen .homeDailyMeaning {
+    margin-top: 3px;
+  }
+
+}
+
+/* Latest paper-editorial alignment: dictation setup, picker and player. */
+.screen.isDictationSetupScreen .dictationSetupScreen {
+  padding-bottom: calc(92px + env(safe-area-inset-bottom));
+}
+
+.screen.isDictationSetupScreen .dictationIntro {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.screen.isDictationSetupScreen .dictationIntroMark,
+.screen.isDictationWordScreen .wordPickerHeadingMark {
+  flex: 0 0 4px;
+  width: 4px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.screen.isDictationSetupScreen .dictationIntroMark {
+  height: 22px;
+  margin-top: 3px;
+}
+
+.screen.isDictationSetupScreen .dictationIntroCopy,
+.screen.isDictationSetupScreen .dictationIntroTitle,
+.screen.isDictationSetupScreen .dictationIntroText {
+  display: block;
+}
+
+.screen.isDictationSetupScreen .dictationIntroTitle {
+  font-size: 25px;
+  line-height: 1.12;
+  font-weight: 850;
+}
+
+.screen.isDictationSetupScreen .dictationIntroText {
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 650;
+}
+
+.screen.isDictationSetupScreen .resumeDictationButton {
+  min-height: 58px;
+  margin-top: 13px;
+  padding: 11px 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: none;
+}
+
+.screen.isDictationSetupScreen .resumeDictationTitle {
+  font-size: 15px;
+}
+
+.screen.isDictationSetupScreen .resumeDictationArrow {
+  color: var(--accent);
+}
+
+.screen.isDictationSetupScreen .settingGroup {
+  grid-template-columns: 74px minmax(0, 1fr);
+  gap: 10px;
+  margin-top: 13px;
+}
+
+.screen.isDictationSetupScreen .pill {
+  min-width: 64px;
+  height: 38px;
+  padding: 0 14px;
+  font-size: 14px;
+}
+
+.screen.isDictationSetupScreen .dictationModeTip {
+  min-height: 46px;
+  margin-top: 14px;
+  padding: 11px 14px;
+  border: 1px solid #c5d6cf;
+  border-radius: 14px;
+  background: var(--accent-soft);
+  box-sizing: border-box;
+}
+
+.screen.isDictationSetupScreen .dictationContentCard {
+  min-height: 90px;
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 17px;
+}
+
+.screen.isDictationSetupScreen .dictationSetupScreen > .dictationStartButton,
+.screen.isDictationWordScreen .wordPickerConfirm {
+  position: fixed;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  z-index: 30;
+  height: 58px;
+  border-radius: 16px;
+  background: var(--accent);
+  color: #fffdf8;
+  box-shadow: none;
+}
+
+.screen.isDictationSetupScreen .dictationSetupScreen > .dictationStartButton {
+  left: 50%;
+  width: calc(100% - 40px);
+  max-width: 382px;
+  transform: translateX(-50%);
+}
+
+.screen.isDictationWordScreen {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.screen.isDictationWordScreen > .dictationWordScreen {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  height: 0;
+  min-height: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+}
+
+.screen.isDictationWordScreen .wordPickerFixedArea {
+  flex: 0 0 auto;
+}
+
+.screen.isDictationWordScreen .wordPickerListScroll {
+  flex: 1 1 0;
+  height: 0;
+  min-height: 0;
+  box-sizing: border-box;
+  padding-bottom: 0;
+}
+
+.screen.isDictationWordScreen .wordPickerScrollContent {
+  box-sizing: border-box;
+  min-height: 100%;
+  padding-bottom: calc(94px + env(safe-area-inset-bottom));
+}
+
+.screen.isDictationWordScreen .wordPickerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 70px;
+  margin-top: 12px;
+}
+
+.screen.isDictationWordScreen .wordPickerHeadingCopy {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.screen.isDictationWordScreen .wordPickerHeadingMark {
+  height: 28px;
+}
+
+.screen.isDictationWordScreen .wordPickerTitle,
+.screen.isDictationWordScreen .wordPickerUnit,
+.screen.isDictationWordScreen .wordPickerCountValue,
+.screen.isDictationWordScreen .wordPickerCountTotal {
+  display: block;
+}
+
+.screen.isDictationWordScreen .wordPickerTitle {
+  color: var(--ink);
+  font-size: 24px;
+  line-height: 1.1;
+  font-weight: 850;
+}
+
+.screen.isDictationWordScreen .wordPickerUnit {
+  max-width: 235px;
+  margin-top: 6px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.screen.isDictationWordScreen .wordPickerCount {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: baseline;
+  gap: 4px;
+  color: var(--info);
+}
+
+.screen.isDictationWordScreen .wordPickerCountValue {
+  font-family: var(--font-word);
+  font-size: 34px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.screen.isDictationWordScreen .wordPickerCountTotal {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.screen.isDictationWordScreen .wordPickerToolbar {
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.screen.isDictationWordScreen .wordPickerScopePanel,
+.screen.isDictationWordScreen .quickPickPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: transparent;
+}
+
+.screen.isDictationWordScreen .wordPickerScopeOptions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+
+.screen.isDictationWordScreen .wordPickerScopeChip {
+  width: auto;
+  height: 38px;
+  max-width: none;
+}
+
+.screen.isDictationWordScreen .quickPickGroup {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.screen.isDictationWordScreen .quickPickButton {
+  width: auto;
+  min-width: 0;
+  height: 38px;
+  padding: 0 8px;
+}
+
+.screen.isDictationWordScreen .wordPickerList {
+  display: block;
+  margin-top: 12px;
+  padding-bottom: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  background: var(--surface);
+}
+
+.screen.isDictationWordScreen .wordPickRow,
+.screen.isDictationWordScreen .wordPickRow.isSelected {
+  min-height: 74px;
+  padding: 10px 13px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--surface);
+}
+
+.screen.isDictationWordScreen .wordPickRow:last-child {
+  border-bottom: 0;
+}
+
+.screen.isDictationWordScreen .wordPickRow.isSelected {
+  background: var(--accent-soft);
+}
+
+.screen.isDictationWordScreen .wordPickCheck {
+  flex-basis: 26px;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+}
+
+.screen.isDictationWordScreen .wordPickRow.isSelected .wordPickCheck {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.screen.isDictationWordScreen .wordPickWord {
+  max-width: none;
+  color: var(--ink);
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.screen.isDictationWordScreen .wordPickMeaning {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.screen.isDictationWordScreen .wordPickKnownBadge {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+}
+
+.screen.isDictationWordScreen .wordPickerConfirm {
+  right: 18px;
+  bottom: calc(14px + env(safe-area-inset-bottom));
+  left: 18px;
+  z-index: 40;
+  width: auto;
+  box-shadow: 0 12px 28px rgba(23, 107, 80, 0.2);
+}
+
+.screen.isDictationWordScreen .wordPickerConfirm:active {
+  transform: translateY(2px) scale(0.995);
+  box-shadow: 0 7px 18px rgba(23, 107, 80, 0.16);
+}
+
+.screen.isDictationPlayerScreen .dictationPlayerScreen.isRecognitionMode .playerStage {
+  margin-top: 38px;
+}
+
+.screen.isDictationPlayerScreen .dictationPlayerScreen.isRecognitionMode .playerInstruction {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.screen.isDictationPlayerScreen .dictationPlayerScreen.isRecognitionMode .dictationRecognitionWordCard {
+  position: relative;
+  justify-content: center;
+  gap: 20px;
+  min-height: 232px;
+  margin-top: 18px;
+  padding: 30px 22px 24px;
+  overflow: hidden;
+  border: 1px solid rgba(45, 99, 135, 0.2);
+  border-radius: 17px;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      var(--surface) 0,
+      var(--surface) 34px,
+      rgba(45, 99, 135, 0.08) 35px
+    );
+  box-shadow: 0 12px 28px rgba(23, 52, 44, 0.07);
+}
+
+.screen.isDictationPlayerScreen .dictationPlayerScreen.isRecognitionMode .dictationRecognitionWord {
+  color: var(--ink);
+  font-family: var(--font-word);
+  font-size: 42px;
+  line-height: 1.05;
+  font-weight: 600;
+}
+
+.screen.isDictationPlayerScreen .dictationPlayerScreen.isRecognitionMode .dictationRecognitionEyeButton {
+  width: 32px;
+  height: 32px;
+  background: var(--accent-soft);
+}
+
+.screen.isDictationPlayerScreen .dictationPlayerScreen.isRecognitionMode .dictationRecognitionEyeIcon {
+  background: var(--accent);
+}
+
+.screen.isDictationPlayerScreen .dictationPlayerScreen.isRecognitionMode .dictationRecognitionPhonetic {
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.screen.isDictationPlayerScreen .dictationPlayerScreen.isRecognitionMode .dictationSpeakerButton {
+  width: 58px;
+  height: 58px;
+  border: 1px solid rgba(45, 99, 135, 0.22);
+  background: var(--info-soft);
+  box-shadow: none;
+}
+
+.screen.isDictationPlayerScreen .dictationPlayerScreen.isRecognitionMode .spokenPrompt {
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 650;
+}
+
+.screen.isDictationPlayerScreen .dictationPlayerScreen.isRecognitionMode .dictationRecognitionPanel {
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.screen.isDictationPlayerScreen .dictationPlayerScreen.isRecognitionMode .dictationRecognitionButton {
+  height: 54px;
+  border-radius: 16px;
+}
+
+.screen.isDictationPlayerScreen .dictationPlayerScreen.isRecognitionMode .dictationRecognitionButton.isKnown {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: none;
+  color: #fffdf8;
+}
+
+.screen.isDictationPlayerScreen .dictationPlayerScreen.isRecognitionMode .dictationRecognitionButton.isUnknown {
+  border-color: var(--line-strong);
+  background: var(--surface);
+  box-shadow: none;
+  color: var(--ink-soft);
+}
+
+@media (max-height: 700px) {
+  .screen.isDictationSetupScreen .dictationIntro {
+    margin-top: 8px;
+  }
+
+  .screen.isDictationSetupScreen .resumeDictationButton {
+    min-height: 50px;
+    margin-top: 8px;
+    padding: 8px 12px;
+  }
+
+  .screen.isDictationSetupScreen .settingGroup {
+    margin-top: 9px;
+  }
+
+  .screen.isDictationSetupScreen .pill {
+    height: 34px;
+  }
+
+  .screen.isDictationSetupScreen .dictationModeTip,
+  .screen.isDictationSetupScreen .dictationContentCard {
+    margin-top: 9px;
+  }
+
+  .screen.isDictationPlayerScreen .dictationPlayerScreen.isRecognitionMode .playerStage {
+    margin-top: 22px;
+  }
+
+  .screen.isDictationPlayerScreen .dictationPlayerScreen.isRecognitionMode .dictationRecognitionWordCard {
+    min-height: 198px;
+    margin-top: 12px;
+    padding-top: 22px;
+    padding-bottom: 18px;
+  }
+
+  .screen.isDictationPlayerScreen .dictationPlayerScreen.isRecognitionMode .dictationRecognitionPanel {
+    margin-top: 14px;
+  }
+}
+
+/* Dictation player polish: one audio language, quieter exit and adaptive paper area. */
+.screen.isDictationPlayerScreen .dictationPlayerScreen {
+  padding-bottom: calc(66px + env(safe-area-inset-bottom));
+}
+
+.screen.isDictationPlayerScreen .playerStage {
+  padding-bottom: 72px;
+  box-sizing: border-box;
+}
+
+.screen.isDictationPlayerScreen .dictationAudioCard.isPaper {
+  flex: 0 0 auto;
+  min-height: 320px;
+  max-height: none;
+}
+
+.screen.isDictationPlayerScreen .dictationSpeakerButton,
+.screen.isDictationPlayerScreen .dictationAudioCard.isPaper .dictationSpeakerButton,
+.screen.isDictationPlayerScreen .dictationPlayerScreen.isRecognitionMode .dictationSpeakerButton {
+  flex: 0 0 58px;
+  min-width: 58px;
+  min-height: 58px;
+  border: 1px solid #aac6d7;
+  background: var(--info-soft);
+  box-shadow: none;
+}
+
+.screen.isDictationPlayerScreen .dictationSpeakerButton.isSolo {
+  flex-basis: 66px;
+  min-width: 66px;
+  min-height: 66px;
+}
+
+.screen.isDictationPlayerScreen .dictationSpeakerButton.isPlaying {
+  border-color: var(--info);
+  background: #dcebf3;
+  box-shadow: inset 0 0 0 2px rgba(45, 99, 135, 0.08);
+}
+
+.screen.isDictationPlayerScreen .dictationSpeakerButton.isPlaying::before,
+.screen.isDictationPlayerScreen .dictationSpeakerButton.isPlaying::after {
+  border-color: rgba(45, 99, 135, 0.18);
+}
+
+.screen.isDictationPlayerScreen .playerBottomInfo .exitDictationButton {
+  margin-top: 8px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.screen.isDictationPlayerScreen .playerBottomInfo .exitDictationButton:active {
+  background: rgba(23, 107, 80, 0.06);
+  color: var(--ink-soft);
+}
+
+@media (max-height: 700px) {
+  .screen.isDictationPlayerScreen .playerStage {
+    padding-bottom: 64px;
+  }
+
+  .screen.isDictationPlayerScreen .dictationAudioCard.isPaper {
+    min-height: 260px;
+    max-height: none;
+  }
+}
+
+/* Reward page balance and one-shot celebration for newly mastered words. */
+.screen.isDictationRewardScreen .dictationRewardScreen {
+  padding-top: 58px;
+}
+
+.screen.isDictationRewardScreen .rewardStamp {
+  width: 112px;
+  height: 112px;
+}
+
+.screen.isDictationRewardScreen .rewardStampValue {
+  margin: 6px 0 8px;
+  font-size: 40px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.screen.isDictationRewardScreen .rewardStatsStrip {
+  min-height: 86px;
+  margin-top: 24px;
+}
+
+.screen.isDictationRewardScreen .rewardStatItem {
+  padding: 13px 5px 11px;
+}
+
+.screen.isDictationRewardScreen .rewardStatLabel {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.screen.isDictationRewardScreen .rewardStatNumberRow {
+  margin-top: 7px;
+}
+
+.screen.isDictationRewardScreen .rewardStatNumber {
+  font-size: 34px;
+}
+
+.screen.isDictationRewardScreen .rewardStatSuffix {
+  margin-left: 3px;
+  font-size: 11px;
+}
+
+.rewardConfettiLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.rewardConfettiLayer::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(23, 107, 80, 0.45);
+  border-radius: 999px;
+  content: '';
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.2);
+  animation: rewardBurstRing 720ms cubic-bezier(0.18, 0.78, 0.32, 1) both;
+}
+
+.rewardConfettiPiece {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 7px;
+  height: 16px;
+  opacity: 0;
+  transform: translate3d(0, 0, 0) scale(0.3) rotate(0deg);
+  animation-name: rewardConfettiBurst;
+  animation-timing-function: cubic-bezier(0.18, 0.78, 0.32, 1);
+  animation-fill-mode: both;
+  will-change: transform, opacity;
+}
+
+.rewardConfettiPiece.isRound {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+}
+
+.rewardConfettiPiece.isBar {
+  border-radius: 2px;
+}
+
+.rewardConfettiPiece.toneAccent {
+  background: var(--accent);
+}
+
+.rewardConfettiPiece.toneInfo {
+  background: var(--info);
+}
+
+.rewardConfettiPiece.toneGold {
+  background: #d8ad4a;
+}
+
+.rewardConfettiPiece.toneCoral {
+  background: #d98273;
+}
+
+.rewardConfettiPiece.toneMint {
+  background: #79ad95;
+}
+
+@keyframes rewardConfettiBurst {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.3) rotate(0deg);
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  68% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--burst-x), var(--burst-y), 0) scale(1) rotate(540deg);
+  }
+}
+
+@keyframes rewardBurstRing {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.2);
+  }
+
+  20% {
+    opacity: 0.8;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(8);
+  }
+}
+
+@media (max-height: 700px) {
+  .screen.isDictationRewardScreen .dictationRewardScreen {
+    padding-top: 24px;
+  }
+
+  .screen.isDictationRewardScreen .rewardStatsStrip {
+    min-height: 72px;
+    margin-top: 14px;
+  }
+
+  .screen.isDictationRewardScreen .rewardStatItem {
+    padding-top: 9px;
+    padding-bottom: 8px;
+  }
+
+  .screen.isDictationRewardScreen .rewardStatNumber {
+    font-size: 30px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rewardConfettiLayer {
+    display: none;
+  }
 }
 </style>

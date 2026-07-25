@@ -4,8 +4,8 @@ import puppeteer from 'puppeteer'
 
 const OUT_DIR = path.resolve('src/static/tabbar')
 const SIZE = 81
-const INACTIVE = '#8E8E93'
-const ACTIVE = '#1CB0F6'
+const INACTIVE = '#718078'
+const ACTIVE = '#176B50'
 
 const icons = {
   home: {

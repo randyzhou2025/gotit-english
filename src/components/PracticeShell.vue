@@ -117,8 +117,8 @@ onBeforeMount(async () => {
   min-height: 100dvh;
   margin: 0 auto;
   padding: calc(16px + env(safe-area-inset-top)) 18px calc(26px + env(safe-area-inset-bottom));
-  background: linear-gradient(180deg, #d4efe2 0%, #e8f5ee 22%, #f3f4f6 48%, #f3f4f6 100%) no-repeat;
-  background-color: #f3f4f6;
+  background: var(--page-bg);
+  background-color: var(--page-bg);
 }
 
 /* #ifdef MP-WEIXIN */
@@ -147,7 +147,7 @@ onBeforeMount(async () => {
   z-index: 0;
   margin: -16px -18px 0;
   padding: 22px 22px 46px;
-  background: linear-gradient(150deg, #58cc02 0%, #34c2f2 100%);
+  background: transparent;
 }
 
 /* #ifdef MP-WEIXIN */
@@ -171,7 +171,7 @@ onBeforeMount(async () => {
 /* #endif */
 
 .homeHeroTitle {
-  color: #fff;
+  color: var(--ink);
   font-size: 32px;
   font-weight: 900;
   line-height: 1.08;
@@ -179,7 +179,7 @@ onBeforeMount(async () => {
 
 .homeHeroSubtitle {
   margin-top: 8px;
-  color: rgba(255, 255, 255, 0.92);
+  color: var(--ink-soft);
   font-size: 14px;
   font-weight: 700;
   line-height: 1.45;
@@ -195,8 +195,8 @@ onBeforeMount(async () => {
 .homeHeroTag {
   padding: 6px 10px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.18);
-  color: #fff;
+  background: var(--accent-soft);
+  color: var(--accent);
   font-size: 12px;
   font-weight: 800;
 }

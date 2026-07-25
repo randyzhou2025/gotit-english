@@ -70,9 +70,9 @@ function goProfile() {
   left: 0;
   z-index: 20;
   padding: 8px 18px calc(8px + env(safe-area-inset-bottom));
-  border-top: 1px solid #edf2f4;
-  background: rgba(255, 255, 255, 0.97);
-  box-shadow: 0 -10px 28px rgba(30, 58, 78, 0.08);
+  border-top: 1px solid #ddd9ce;
+  background: rgba(255, 253, 248, 0.97);
+  box-shadow: 0 -10px 28px rgba(23, 52, 44, 0.07);
   backdrop-filter: blur(16px);
 }
 
@@ -96,7 +96,7 @@ function goProfile() {
 }
 
 .bottomNavItem.isActive {
-  background: rgba(28, 176, 246, 0.08);
+  background: #e4efe9;
 }
 
 .bottomNavIconWrap {
@@ -121,7 +121,7 @@ function goProfile() {
 }
 
 .bottomNavItem.isActive .bottomNavLabel {
-  color: #1cb0f6;
+  color: #176b50;
   font-weight: 950;
 }
 
@@ -132,7 +132,7 @@ function goProfile() {
   min-width: 18px;
   padding: 1px 5px;
   border-radius: 999px;
-  background: #ff4b4b;
+  background: #a64a43;
   color: #fff;
   font-size: 10px;
   font-weight: 900;

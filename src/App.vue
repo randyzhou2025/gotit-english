@@ -65,17 +65,17 @@ button {
 
 /* #ifdef H5 */
 uni-tabbar {
-  --tabbar-blue: #1cb0f6;
-  --tabbar-muted: #8a9298;
-  --tabbar-line: #edf2f4;
+  --tabbar-blue: #176b50;
+  --tabbar-muted: #718078;
+  --tabbar-line: #ddd9ce;
 }
 
 uni-tabbar .uni-tabbar {
   min-height: 72px !important;
   padding: 8px 18px calc(8px + env(safe-area-inset-bottom)) !important;
   border-top: 1px solid var(--tabbar-line) !important;
-  background: rgba(255, 255, 255, 0.97) !important;
-  box-shadow: 0 -10px 28px rgba(30, 58, 78, 0.08);
+  background: rgba(255, 253, 248, 0.97) !important;
+  box-shadow: 0 -10px 28px rgba(23, 52, 44, 0.07);
   backdrop-filter: blur(16px);
 }
 
@@ -115,9 +115,9 @@ uni-tabbar .uni-tabbar__label {
 }
 
 @supports selector(:has(*)) {
-  uni-tabbar .uni-tabbar__item:has(.uni-tabbar__label[style*="28, 176, 246"]) .uni-tabbar__label,
-  uni-tabbar .uni-tabbar__item:has(.uni-tabbar__label[style*="28,176,246"]) .uni-tabbar__label,
-  uni-tabbar .uni-tabbar__item:has(.uni-tabbar__label[style*="#1cb0f6"]) .uni-tabbar__label {
+  uni-tabbar .uni-tabbar__item:has(.uni-tabbar__label[style*="23, 107, 80"]) .uni-tabbar__label,
+  uni-tabbar .uni-tabbar__item:has(.uni-tabbar__label[style*="23,107,80"]) .uni-tabbar__label,
+  uni-tabbar .uni-tabbar__item:has(.uni-tabbar__label[style*="#176b50"]) .uni-tabbar__label {
     color: var(--tabbar-blue) !important;
     font-weight: 950;
   }

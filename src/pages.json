@@ -122,8 +122,8 @@
   ],
   "tabBar": {
     "color": "#8e8e93",
-    "selectedColor": "#1cb0f6",
-    "backgroundColor": "#ffffff",
+    "selectedColor": "#176b50",
+    "backgroundColor": "#fffdf8",
     "borderStyle": "white",
     "list": [
       {
@@ -147,9 +147,9 @@
     ]
   },
   "globalStyle": {
-    "backgroundColor": "#f3f4f6",
+    "backgroundColor": "#f4f1e8",
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "课本单词通",
-    "navigationBarBackgroundColor": "#f3f4f6"
+    "navigationBarBackgroundColor": "#f4f1e8"
   }
 }

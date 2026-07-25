@@ -30,11 +30,11 @@ onBeforeMount(async () => {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: #f3f4f6;
+  background: var(--page-bg);
 }
 
 .bootText {
-  color: #777;
+  color: var(--muted);
   font-size: 14px;
   font-weight: 700;
 }

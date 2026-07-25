@@ -70,11 +70,12 @@
             </view>
             <text class="learnLabel">连续学习</text>
           </view>
-          <view class="learnItem" @tap="openCourseSetup">
-            <view class="learnIcon learnIconPink">
-              <view class="glyphBook" />
+          <view class="learnItem learnItemStat">
+            <view class="learnIcon learnIconPink learnIconStat">
+              <text class="learnIconValue">{{ dashboard?.totalStudyDays ?? 0 }}</text>
+              <text class="learnIconUnit">天</text>
             </view>
-            <text class="learnLabel">切换教材</text>
+            <text class="learnLabel">累计学习</text>
           </view>
         </view>
         <text class="statsSummary">
@@ -85,17 +86,11 @@
       <view class="sectionCard">
         <text class="sectionTitle">工具和服务</text>
         <view class="toolGrid">
-          <view class="toolItem" @tap="openFeedback">
+          <view class="toolItem" @tap="openCourseSetup">
             <view class="toolIcon">
-              <view class="toolGlyph toolGlyphFeedback" />
+              <view class="toolGlyph toolGlyphCourse" />
             </view>
-            <text class="toolLabel">意见反馈</text>
-          </view>
-          <view v-if="customerServiceEnabled" class="toolItem" @tap="openCustomerService">
-            <view class="toolIcon">
-              <view class="toolGlyph toolGlyphService" />
-            </view>
-            <text class="toolLabel">联系客服</text>
+            <text class="toolLabel">切换教材</text>
           </view>
           <view v-if="apiEnabled" class="toolItem" @tap="syncProgress">
             <view class="toolIcon">
@@ -109,11 +104,17 @@
             </view>
             <text class="toolLabel">开始练习</text>
           </view>
-          <view class="toolItem" @tap="openCourseSetup">
+          <view class="toolItem" @tap="openFeedback">
             <view class="toolIcon">
-              <view class="toolGlyph toolGlyphCourse" />
+              <view class="toolGlyph toolGlyphFeedback" />
             </view>
-            <text class="toolLabel">切换教材</text>
+            <text class="toolLabel">意见反馈</text>
+          </view>
+          <view v-if="customerServiceEnabled" class="toolItem" @tap="openCustomerService">
+            <view class="toolIcon">
+              <view class="toolGlyph toolGlyphService" />
+            </view>
+            <text class="toolLabel">联系客服</text>
           </view>
         </view>
       </view>
@@ -171,6 +172,7 @@ import {
 } from '@/core/userSession'
 
 const miniProgramCapsuleTop = ref(44)
+const miniProgramCapsuleHeight = ref(32)
 const user = ref(getCachedUser())
 const dashboard = ref<DashboardSnapshot | null>(getCachedDashboard())
 const icpNumber = ref('')
@@ -217,7 +219,7 @@ async function cacheAvatarForDisplay(url: string) {
   if (!/^https?:\/\//.test(url)) return
 
   try {
-    const result = await new Promise<UniApp.DownloadFileSuccessCallbackResult>((resolve, reject) => {
+    const result = await new Promise<{ statusCode?: number; tempFilePath?: string }>((resolve, reject) => {
       uni.downloadFile({ url, success: resolve, fail: reject })
     })
     if ((result.statusCode ?? 0) >= 200 && (result.statusCode ?? 0) < 300 && result.tempFilePath) {
@@ -230,7 +232,9 @@ async function cacheAvatarForDisplay(url: string) {
 
 const screenStyle = computed(() => {
   // #ifdef MP-WEIXIN
-  return `padding-top: ${miniProgramCapsuleTop.value}px; --capsule-top: ${miniProgramCapsuleTop.value}px;`
+  return `padding-top: ${miniProgramCapsuleTop.value}px;`
+    + ` --capsule-top: ${miniProgramCapsuleTop.value}px;`
+    + ` --capsule-h: ${miniProgramCapsuleHeight.value}px;`
   // #endif
   return ''
 })
@@ -240,6 +244,7 @@ function updateMiniProgramNavInset() {
     const menuButton = uni.getMenuButtonBoundingClientRect?.()
     if (menuButton && menuButton.top > 0) {
       miniProgramCapsuleTop.value = menuButton.top
+      miniProgramCapsuleHeight.value = menuButton.height || 32
     }
   } catch {
     // ignore
@@ -994,5 +999,173 @@ onShow(() => {
   color: #2bb8a9;
   font-size: 15px;
   font-weight: 900;
+}
+
+/* V3 paper editorial UI */
+.screen {
+  color: var(--ink);
+  background: var(--page-bg);
+}
+
+.pageChrome {
+  padding-bottom: 10px;
+  background: var(--page-bg);
+}
+
+.profileNav {
+  height: var(--capsule-h, 32px);
+  min-height: var(--capsule-h, 32px);
+}
+
+.navTitle {
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.profileScroll {
+  padding-top: 6px;
+}
+
+.userRow {
+  margin-bottom: 12px;
+  padding: 4px 2px;
+}
+
+.avatarButton {
+  width: 60px;
+  height: 60px;
+  border: 2px solid var(--surface);
+  background: var(--accent-soft);
+  box-shadow: 0 7px 16px rgba(23, 52, 44, 0.08);
+}
+
+.avatarImage {
+  width: 60px;
+  height: 60px;
+}
+
+.nicknameText,
+.nicknameInput {
+  color: var(--ink);
+}
+
+.userIdText,
+.userSubline {
+  color: var(--muted);
+}
+
+.promoBanner {
+  margin-bottom: 12px;
+  border: 1px solid #2c7961;
+  border-radius: 16px;
+  background: var(--accent);
+  box-shadow: 0 9px 20px rgba(23, 107, 80, 0.15);
+}
+
+.promoAction {
+  color: var(--accent);
+}
+
+.promoArrow {
+  border-color: var(--accent);
+}
+
+.sectionCard {
+  margin-bottom: 12px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.sectionTitle,
+.learnIconValue {
+  color: var(--ink);
+}
+
+.learnIconBlue {
+  background: var(--info-soft);
+}
+
+.learnIconGreen {
+  background: var(--accent-soft);
+}
+
+.learnIconOrange {
+  background: #faeee2;
+}
+
+.learnIconPink {
+  background: #efeae0;
+}
+
+.glyphFolder {
+  background: var(--info);
+}
+
+.glyphFolder::before {
+  background: var(--info);
+}
+
+.glyphFolder::after {
+  box-shadow: inset 0 0 0 1.5px var(--info);
+}
+
+.learnLabel,
+.toolLabel {
+  color: var(--ink-soft);
+}
+
+.learnBadge {
+  background: var(--danger);
+}
+
+.statsSummary {
+  border-color: var(--line);
+  color: var(--muted);
+}
+
+.toolGrid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.toolIcon {
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
+}
+
+.toolGlyphFeedback,
+.toolGlyphService,
+.toolGlyphCourse {
+  border-color: var(--ink-soft);
+}
+
+.toolGlyphFeedback::after,
+.toolGlyphCourse::before {
+  background: var(--ink-soft);
+  box-shadow: 0 4px 0 var(--ink-soft), 0 8px 0 var(--ink-soft);
+}
+
+.toolGlyphSync {
+  border-left-color: var(--ink-soft);
+  border-bottom-color: var(--ink-soft);
+}
+
+.toolGlyphSync::after {
+  border-left-color: var(--ink-soft);
+}
+
+.serviceMask {
+  background: rgba(23, 52, 44, 0.46);
+}
+
+.servicePanel {
+  background: var(--surface);
+}
+
+.serviceClose {
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 </style>

@@ -18,9 +18,9 @@ onLoad(() => {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  color: #777;
+  color: var(--muted);
   font-size: 14px;
   font-weight: 700;
-  background: #f3f4f6;
+  background: var(--page-bg);
 }
 </style>

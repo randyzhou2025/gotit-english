@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { submitFeedback, type FeedbackCategory } from '@/core/userSession'
 
 const categories: Array<{ id: FeedbackCategory; label: string }> = [
@@ -53,13 +53,19 @@ const selectedCategory = ref<FeedbackCategory>('bug')
 const content = ref('')
 const submitting = ref(false)
 const miniProgramCapsuleTop = ref(44)
+const miniProgramCapsuleHeight = ref(32)
 
-const screenStyle = `padding-top: ${miniProgramCapsuleTop.value}px; --capsule-top: ${miniProgramCapsuleTop.value}px;`
+const screenStyle = computed(() => (
+  `padding-top: ${miniProgramCapsuleTop.value}px;`
+  + ` --capsule-top: ${miniProgramCapsuleTop.value}px;`
+  + ` --capsule-h: ${miniProgramCapsuleHeight.value}px;`
+))
 
 try {
   const menuButton = uni.getMenuButtonBoundingClientRect?.()
   if (menuButton && menuButton.top > 0) {
     miniProgramCapsuleTop.value = menuButton.top
+    miniProgramCapsuleHeight.value = menuButton.height || 32
   }
 } catch {
   // ignore
@@ -108,52 +114,58 @@ async function submit() {
   box-sizing: border-box;
   min-height: 100vh;
   padding: calc(16px + env(safe-area-inset-top)) 18px calc(26px + env(safe-area-inset-bottom));
-  background: #f3f4f6;
+  background: var(--page-bg);
 }
 
 .feedbackNav {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  height: var(--capsule-h, 32px);
+  min-height: var(--capsule-h, 32px);
   margin-bottom: 18px;
 }
 
 .navBack {
+  position: absolute;
+  top: 50%;
+  left: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
-  background: #fff;
+  width: var(--capsule-h, 32px);
+  height: var(--capsule-h, 32px);
+  background: transparent;
+  transform: translateY(-50%);
 }
 
 .chevronLeft {
   width: 10px;
   height: 10px;
-  border-bottom: 2px solid #3c3c3c;
-  border-left: 2px solid #3c3c3c;
+  border-bottom: 2px solid var(--ink);
+  border-left: 2px solid var(--ink);
   transform: rotate(45deg) translateX(2px);
 }
 
 .navTitle {
-  color: #3c3c3c;
-  font-size: 20px;
-  font-weight: 900;
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 800;
 }
 
 .feedbackBody {
   box-sizing: border-box;
   padding: 18px;
-  border: 2px solid #e5e5e5;
-  border-radius: 20px;
-  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
 }
 
 .sectionLabel {
   display: block;
   margin-bottom: 10px;
-  color: #3c3c3c;
+  color: var(--ink);
   font-size: 15px;
   font-weight: 900;
 }
@@ -167,17 +179,17 @@ async function submit() {
 
 .categoryChip {
   padding: 8px 12px;
-  border: 2px solid #e5e5e5;
+  border: 1px solid var(--line);
   border-radius: 999px;
-  color: #777;
+  color: var(--muted);
   font-size: 13px;
   font-weight: 800;
 }
 
 .categoryChip.isActive {
-  border-color: #1cb0f6;
-  background: #ddf4ff;
-  color: #1cb0f6;
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 .feedbackTextarea {
@@ -187,10 +199,10 @@ async function submit() {
   max-width: 100%;
   min-height: 160px;
   padding: 14px;
-  border: 2px solid #e5e5e5;
+  border: 1px solid var(--line);
   border-radius: 16px;
-  background: #f7f7f7;
-  color: #3c3c3c;
+  background: var(--surface-soft);
+  color: var(--ink);
   font-size: 14px;
   line-height: 1.6;
 }
@@ -211,7 +223,7 @@ async function submit() {
   margin-top: 18px;
   padding: 14px;
   border-radius: 16px;
-  background: #1cb0f6;
+  background: var(--accent);
   color: #fff;
   font-size: 16px;
   font-weight: 900;
