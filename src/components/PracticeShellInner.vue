@@ -1186,31 +1186,32 @@
         </view>
       </view>
 
+      <view class="dictationReportTop">
+        <view class="dictationSummaryCard">
+          <view class="dictationSummaryCopy">
+            <text class="dictationSummaryKicker">本次听写</text>
+            <text class="dictationSummaryTitle">{{ dictationSummary.total }} 个词已完成</text>
+            <text class="dictationSummaryDescription">逐个核对纸上的答案，再确认结果。</text>
+          </view>
+          <view class="dictationSummaryStats">
+            <view class="summaryStat isMastered">
+              <text class="summaryStatValue">{{ dictationReportMasteredCount }}</text>
+              <text class="summaryStatLabel">掌握</text>
+            </view>
+            <view class="summaryStat isProblem">
+              <text class="summaryStatValue">{{ dictationReportPendingCount }}</text>
+              <text class="summaryStatLabel">待巩固</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="dictationReportLegend">
+          <text>点击单词右侧按钮可切换掌握情况</text>
+        </view>
+      </view>
+
       <scroll-view scroll-y class="pageBodyScroll dictationReportScroll" :show-scrollbar="false">
-        <view class="dictationReportPanel">
-          <view class="dictationSummaryCard">
-            <view class="dictationSummaryCopy">
-              <text class="dictationSummaryKicker">本次听写</text>
-              <text class="dictationSummaryTitle">{{ dictationSummary.total }} 个词已完成</text>
-              <text class="dictationSummaryDescription">逐个核对纸上的答案，再确认结果。</text>
-            </view>
-            <view class="dictationSummaryStats">
-              <view class="summaryStat isMastered">
-                <text class="summaryStatValue">{{ dictationReportMasteredCount }}</text>
-                <text class="summaryStatLabel">掌握</text>
-              </view>
-              <view class="summaryStat isProblem">
-                <text class="summaryStatValue">{{ dictationReportPendingCount }}</text>
-                <text class="summaryStatLabel">待巩固</text>
-              </view>
-            </view>
-          </view>
-
-          <view class="dictationReportLegend">
-            <text>点击右侧可切换结果</text>
-            <text>{{ dictationSummary.total }} 词</text>
-          </view>
-
+        <view class="dictationReportScrollContent">
           <view class="dictationReviewList">
             <view
               v-for="item in dictationReviewItems"
@@ -1233,21 +1234,21 @@
               </view>
             </view>
           </view>
-
-          <text class="confirmResultHint">待巩固的词会留在生词本，之后可再听一轮。</text>
         </view>
       </scroll-view>
 
-      <view class="actionStack reportActions">
-        <view :class="['bottomButton confirmResultButton', dictationResultConfirmed && 'isDisabled']" @tap="confirmDictationResultPage">
-          <text>{{ dictationResultConfirmed ? '已确认听写结果' : '确认听写结果' }}</text>
-        </view>
-        <view class="reportSecondaryActions">
-          <view :class="['secondaryButton', dictationReportPendingCount === 0 && 'isDisabled']" @tap="startForgottenDictationPage">
-            <text>生词再听一轮</text>
+      <view class="dictationReportDock">
+        <view class="actionStack reportActions">
+          <view :class="['bottomButton confirmResultButton', dictationResultConfirmed && 'isDisabled']" @tap="confirmDictationResultPage">
+            <text>{{ dictationResultConfirmed ? '已确认听写结果' : '确认听写结果' }}</text>
           </view>
-          <view class="secondaryButton" @tap="openWeakbook">
-            <text>查看生词本</text>
+          <view class="reportSecondaryActions">
+            <view :class="['secondaryButton', dictationReportPendingCount === 0 && 'isDisabled']" @tap="startForgottenDictationPage">
+              <text>生词再听一轮</text>
+            </view>
+            <view class="secondaryButton" @tap="openWeakbook">
+              <text>查看生词本</text>
+            </view>
           </view>
         </view>
       </view>
@@ -11866,20 +11867,60 @@ onBeforeUnmount(() => {
   background: transparent !important;
 }
 
-.screen.isDictationReportScreen .dictationReportScroll {
-  padding: 0 0 calc(172px + env(safe-area-inset-bottom));
+.screen.isDictationReportScreen {
+  display: flex;
+  flex-direction: column;
   box-sizing: border-box;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  padding-bottom: 0 !important;
+  overflow: hidden;
 }
 
-.screen.isDictationReportScreen .dictationReportPanel {
+.screen.isDictationReportScreen > .reportScreen.isSplitLayout {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  height: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.screen.isDictationReportScreen .dictationReportTop {
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin: 8px 0 0;
+  padding: 0 16px 10px;
+  box-sizing: border-box;
+}
+
+.screen.isDictationReportScreen .dictationReportScroll {
+  flex: 1 1 0;
+  height: 0;
+  min-height: 0;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+.screen.isDictationReportScreen .dictationReportScrollContent {
+  box-sizing: border-box;
+  min-height: 100%;
+  padding-bottom: calc(118px + env(safe-area-inset-bottom));
+}
+
+.screen.isDictationReportScreen .dictationReportDock {
+  position: fixed;
+  right: 16px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  left: 16px;
+  z-index: 40;
+  display: grid;
+  gap: 8px;
   padding: 0;
-  border: 0;
-  border-radius: 0;
   background: transparent;
+  box-sizing: border-box;
 }
 
 .screen.isDictationReportScreen .dictationSummaryCard {
@@ -11976,11 +12017,13 @@ onBeforeUnmount(() => {
 
 .screen.isDictationReportScreen .dictationReviewList {
   display: block;
+  min-height: 100%;
   overflow: hidden;
   padding: 0;
   border: 1px solid var(--line);
   border-radius: 16px;
   background: var(--surface);
+  box-sizing: border-box;
 }
 
 .screen.isDictationReportScreen .dictationReviewRow,
@@ -12096,18 +12139,14 @@ onBeforeUnmount(() => {
 }
 
 .screen.isDictationReportScreen .reportActions {
-  position: fixed;
-  right: 18px;
-  bottom: calc(12px + env(safe-area-inset-bottom));
-  left: 18px;
-  z-index: 40;
+  position: static;
   display: grid;
   gap: 8px;
-  width: auto;
+  width: 100%;
   max-width: none;
   margin: 0;
-  padding: 22px 0 0;
-  background: linear-gradient(180deg, rgba(244, 241, 232, 0), var(--page-bg) 24%);
+  padding: 0;
+  background: transparent;
   transform: none;
   box-sizing: border-box;
 }
