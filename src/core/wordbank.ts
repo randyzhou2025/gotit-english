@@ -14,6 +14,19 @@ export function isPhraseEntry(word: string): boolean {
   return /\s/.test(word.trim())
 }
 
+/** Strip leading irregular-verb notes like （forgave, forgiven） from textbook meanings. */
+export function stripLeadingIrregularVerbNote(meaning: string): string {
+  let result = meaning.trim()
+
+  while (true) {
+    const match = result.match(/^[（(][^）)]*,[^）)]*[a-zA-Z][^）)]*[）)]/)
+    if (!match) break
+    result = result.slice(match[0].length).trim()
+  }
+
+  return result
+}
+
 export function getWordbank(): WordEntry[] {
   throw new Error('getWordbank() is sync-only legacy API. Call ensureWordbankLoaded() first.')
 }

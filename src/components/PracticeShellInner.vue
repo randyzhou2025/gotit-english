@@ -1053,11 +1053,12 @@
             :class="['dictationSpeakerButton', isAudioPlaying && 'isPlaying', !dictationAudioReady && 'isMissing']"
             @tap.stop="repeatCurrentDictation"
           >
-            <view class="dictationSpeakerMark">
-              <view class="dictationSpeakerCore" />
-              <view class="dictationSpeakerWave isInner" />
-              <view class="dictationSpeakerWave isOuter" />
-            </view>
+            <image
+              class="dictationSpeakerIcon"
+              src="/static/icons/dictation-speaker.png"
+              mode="aspectFit"
+              aria-hidden="true"
+            />
           </view>
         </view>
         <view v-if="!isDictationRecognitionMode" :class="['dictationAudioCard', dictationMode === 'paper' && 'isPaper']">
@@ -1069,11 +1070,12 @@
             :class="['dictationSpeakerButton', dictationPrompt === 'english' && 'isSolo', isAudioPlaying && 'isPlaying', !dictationAudioReady && 'isMissing']"
             @tap.stop="repeatCurrentDictation"
           >
-            <view class="dictationSpeakerMark">
-              <view class="dictationSpeakerCore" />
-              <view class="dictationSpeakerWave isInner" />
-              <view class="dictationSpeakerWave isOuter" />
-            </view>
+            <image
+              class="dictationSpeakerIcon"
+              src="/static/icons/dictation-speaker.png"
+              mode="aspectFit"
+              aria-hidden="true"
+            />
           </view>
           <text v-if="dictationMode === 'paper'" class="dictationReplayHint">点一下再听一遍</text>
         </view>
@@ -5181,11 +5183,12 @@ onBeforeUnmount(() => {
   justify-content: center;
   width: 58px;
   height: 58px;
+  border: 1px solid rgba(23, 107, 80, 0.16);
   border-radius: 999px;
-  background: #fff;
+  background: var(--accent-soft);
   box-shadow:
-    0 6px 18px rgba(28, 176, 246, 0.1),
-    inset 0 0 0 1px rgba(28, 176, 246, 0.08);
+    0 6px 18px rgba(23, 107, 80, 0.12),
+    inset 0 0 0 1px rgba(23, 107, 80, 0.06);
   box-sizing: border-box;
 }
 
@@ -5195,10 +5198,10 @@ onBeforeUnmount(() => {
 }
 
 .dictationSpeakerButton.isPlaying {
-  background: #f3faff;
+  background: #dceee6;
   box-shadow:
-    0 8px 22px rgba(28, 176, 246, 0.16),
-    inset 0 0 0 1px rgba(28, 176, 246, 0.14);
+    0 8px 22px rgba(23, 107, 80, 0.16),
+    inset 0 0 0 1px rgba(23, 107, 80, 0.14);
 }
 
 .dictationSpeakerButton.isPlaying::before,
@@ -5206,7 +5209,7 @@ onBeforeUnmount(() => {
   content: '';
   position: absolute;
   inset: -4px;
-  border: 1px solid rgba(28, 176, 246, 0.16);
+  border: 1px solid rgba(23, 107, 80, 0.18);
   border-radius: 999px;
   pointer-events: none;
 }
@@ -5223,44 +5226,17 @@ onBeforeUnmount(() => {
   opacity: 0.42;
 }
 
-.dictationSpeakerMark {
-  position: relative;
-  z-index: 1;
+.dictationSpeakerIcon {
   width: 28px;
-  height: 24px;
+  height: 28px;
 }
 
-.dictationSpeakerCore {
-  position: absolute;
-  top: 7px;
-  left: 1px;
-  width: 7px;
-  height: 10px;
-  border-radius: 999px 2px 2px 999px;
-  background: var(--info);
+.dictationSpeakerButton.isSolo .dictationSpeakerIcon {
+  width: 32px;
+  height: 32px;
 }
 
-.dictationSpeakerWave {
-  position: absolute;
-  border-right: 4px solid var(--info);
-  border-radius: 0 999px 999px 0;
-}
-
-.dictationSpeakerWave.isInner {
-  top: 4px;
-  left: 7px;
-  width: 9px;
-  height: 16px;
-}
-
-.dictationSpeakerWave.isOuter {
-  top: 1px;
-  left: 12px;
-  width: 13px;
-  height: 22px;
-}
-
-.dictationSpeakerButton.isPlaying .dictationSpeakerMark {
+.dictationSpeakerButton.isPlaying .dictationSpeakerIcon {
   animation: dictationSpeakerIconPulse 0.95s ease-in-out infinite;
 }
 
@@ -9705,17 +9681,19 @@ onBeforeUnmount(() => {
 }
 
 .screen.isDictationPlayerScreen .dictationSpeakerButton {
-  background: #fff;
+  border-color: rgba(23, 107, 80, 0.16);
+  background: var(--accent-soft);
   box-shadow:
-    0 6px 18px rgba(28, 176, 246, 0.1),
-    inset 0 0 0 1px rgba(28, 176, 246, 0.08);
+    0 6px 18px rgba(23, 107, 80, 0.12),
+    inset 0 0 0 1px rgba(23, 107, 80, 0.06);
 }
 
 .screen.isDictationPlayerScreen .dictationSpeakerButton.isPlaying {
-  background: #f3faff;
+  border-color: rgba(23, 107, 80, 0.24);
+  background: #dceee6;
   box-shadow:
-    0 8px 22px rgba(28, 176, 246, 0.16),
-    inset 0 0 0 1px rgba(28, 176, 246, 0.14);
+    0 8px 22px rgba(23, 107, 80, 0.16),
+    inset 0 0 0 1px rgba(23, 107, 80, 0.14);
 }
 
 .screen.isDictationPlayerScreen .dictationRecognitionWordCard ~ .spokenPrompt {
@@ -9959,7 +9937,7 @@ onBeforeUnmount(() => {
 @media (prefers-reduced-motion: reduce) {
   .dictationSpeakerButton.isPlaying::before,
   .dictationSpeakerButton.isPlaying::after,
-  .dictationSpeakerButton.isPlaying .dictationSpeakerMark,
+  .dictationSpeakerButton.isPlaying .dictationSpeakerIcon,
   .audioButton.isPlaying .playIcon {
     animation: none;
   }
@@ -11803,8 +11781,8 @@ onBeforeUnmount(() => {
 .screen.isDictationPlayerScreen .dictationAudioCard.isPaper .dictationSpeakerButton {
   width: 58px;
   height: 58px;
-  border: 1px solid rgba(45, 99, 135, 0.22);
-  background: var(--info-soft);
+  border: 1px solid rgba(23, 107, 80, 0.18);
+  background: var(--accent-soft);
   box-shadow: none;
 }
 
@@ -12907,10 +12885,11 @@ onBeforeUnmount(() => {
 
 .screen.isHomeScreen .homeCourseStatNumber {
   color: var(--accent);
-  font-family: var(--font-word);
+  font-family: var(--font-sans);
   font-size: 36px;
   line-height: 1;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .screen.isHomeScreen .homeCourseStatLabel {
@@ -12939,10 +12918,11 @@ onBeforeUnmount(() => {
 }
 
 .screen.isHomeScreen .homeTodayNumber {
-  font-family: var(--font-word);
+  font-family: var(--font-sans);
   font-size: 27px;
   line-height: 1;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .screen.isHomeScreen .homeTodayText {
@@ -12951,9 +12931,18 @@ onBeforeUnmount(() => {
   line-height: 1;
 }
 
-.screen.isHomeScreen .homeProgressTop text:last-child,
+.screen.isHomeScreen .homeProgressTop text:last-child {
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+
 .screen.isHomeScreen .homeBookCoverEnglish {
   font-family: var(--font-word);
+}
+
+.screen.isHomeScreen .homeProgressMeta {
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
 }
 
 .screen.isHomeScreen .homeDictationEntry {
@@ -13537,8 +13526,8 @@ onBeforeUnmount(() => {
 .screen.isDictationPlayerScreen .dictationPlayerScreen.isRecognitionMode .dictationSpeakerButton {
   width: 58px;
   height: 58px;
-  border: 1px solid rgba(45, 99, 135, 0.22);
-  background: var(--info-soft);
+  border: 1px solid rgba(23, 107, 80, 0.18);
+  background: var(--accent-soft);
   box-shadow: none;
 }
 
@@ -13636,8 +13625,8 @@ onBeforeUnmount(() => {
   flex: 0 0 58px;
   min-width: 58px;
   min-height: 58px;
-  border: 1px solid #aac6d7;
-  background: var(--info-soft);
+  border: 1px solid rgba(23, 107, 80, 0.18);
+  background: var(--accent-soft);
   box-shadow: none;
 }
 
@@ -13648,14 +13637,14 @@ onBeforeUnmount(() => {
 }
 
 .screen.isDictationPlayerScreen .dictationSpeakerButton.isPlaying {
-  border-color: var(--info);
-  background: #dcebf3;
-  box-shadow: inset 0 0 0 2px rgba(45, 99, 135, 0.08);
+  border-color: var(--accent);
+  background: #dceee6;
+  box-shadow: inset 0 0 0 2px rgba(23, 107, 80, 0.08);
 }
 
 .screen.isDictationPlayerScreen .dictationSpeakerButton.isPlaying::before,
 .screen.isDictationPlayerScreen .dictationSpeakerButton.isPlaying::after {
-  border-color: rgba(45, 99, 135, 0.18);
+  border-color: rgba(23, 107, 80, 0.18);
 }
 
 .screen.isDictationPlayerScreen .playerBottomInfo .exitDictationButton {

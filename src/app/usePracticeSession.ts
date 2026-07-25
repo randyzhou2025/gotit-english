@@ -1002,7 +1002,7 @@ export function createPracticeSession(words: WordEntry[]) {
   function openWeakbook() {
     const availableIds = savedWeakWords.value.map(word => word.id)
     if (!weakbookSelectionInitialized.value) {
-      selectedWeakWordIds.value = availableIds
+      selectedWeakWordIds.value = []
       weakbookSelectionInitialized.value = true
     } else {
       const availableIdSet = new Set(availableIds)

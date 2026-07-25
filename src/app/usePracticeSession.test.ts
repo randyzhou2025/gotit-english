@@ -92,6 +92,7 @@ describe('practice session dictation navigation', () => {
 
     const session = await openSession()
     session.openWeakbook()
+    expect(session.selectedWeakWordIds.value).toEqual([])
     session.toggleWeakWordSelection(weakWordIds[1]!)
 
     const selectionBeforeDetail = [...session.selectedWeakWordIds.value]

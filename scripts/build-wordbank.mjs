@@ -88,7 +88,7 @@ function buildWordTuple(row, columns, rowNumber, word, slug) {
     word,
     cell(row, columns, '音标'),
     cell(row, columns, '词性'),
-    cell(row, columns, '释义'),
+    stripLeadingIrregularVerbNote(cell(row, columns, '释义')),
     computeDifficulty(word),
     slug,
     rowNumber,
@@ -135,6 +135,18 @@ function buildShjExampleLookup() {
 
 function clean(value) {
   return String(value ?? '').trim()
+}
+
+function stripLeadingIrregularVerbNote(meaning) {
+  let result = clean(meaning)
+
+  while (true) {
+    const match = result.match(/^[（(][^）)]*,[^）)]*[a-zA-Z][^）)]*[）)]/)
+    if (!match) break
+    result = result.slice(match[0].length).trim()
+  }
+
+  return result
 }
 
 function isPhraseEntry(word) {

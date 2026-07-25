@@ -64,10 +64,9 @@ describe('practice shell full-page layout', () => {
   it('uses the approved paper dictation hierarchy and copy', () => {
     expect(source).toContain('class="dictationPaperNumber"')
     expect(source).toContain('class="dictationReplayHint"')
-    expect(source).toContain('class="dictationSpeakerMark"')
-    expect(source).toContain('class="dictationSpeakerWave isInner"')
-    expect(source).toContain('class="dictationSpeakerWave isOuter"')
-    expect(source).not.toContain('class="dictationSpeakerIcon"')
+    expect(source).toContain('class="dictationSpeakerIcon"')
+    expect(source).toContain('src="/static/icons/dictation-speaker.png"')
+    expect(source).not.toContain('class="dictationSpeakerMark"')
     expect(source).toContain('点一下再听一遍')
     expect(source).toContain('这个词没想起来')
     expect(source).toContain('<text class="transportLabel">下一词</text>')
