@@ -816,7 +816,7 @@
         <view class="dictationIntroMark" />
         <view class="dictationIntroCopy">
           <text class="dictationIntroTitle">设置听写方式</text>
-          <text class="dictationIntroText">手机负责报词，你只管写。</text>
+          <text class="dictationIntroText">选择纸笔默写，或者在线输入</text>
         </view>
       </view>
 

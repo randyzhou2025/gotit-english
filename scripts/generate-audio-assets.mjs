@@ -34,6 +34,10 @@ const variants = (process.env.AUDIO_VARIANTS || 'uk,us,zh')
   .map(value => value.trim())
   .filter(Boolean)
 const mergeManifest = process.env.AUDIO_MERGE_MANIFEST === '1'
+const publisherIds = (process.env.AUDIO_PUBLISHER_IDS || '')
+  .split(',')
+  .map(value => value.trim())
+  .filter(Boolean)
 
 const variantConfig = {
   uk: { voice: voiceUk, text: entry => entry.word },
@@ -158,6 +162,7 @@ function flattenWords(raw) {
   const entries = []
 
   for (const block of getPublisherBlocks(raw)) {
+    if (publisherIds.length > 0 && !publisherIds.includes(block.publisher.id)) continue
     for (const book of block.books) {
       for (const unit of book.units) {
         const segment = unitSegment(unit)
@@ -263,11 +268,15 @@ async function main() {
 
   await runPool(words, async (entry, index) => {
     await ensureAudioSet(entry)
+    const previous = previousManifest?.items?.[entry.cdnKey]
+    const nextItem = {
+      ukUrl: variants.includes('uk') ? audioUrl(entry.cdnKey, 'uk') : (previous?.ukUrl ?? ''),
+      usUrl: variants.includes('us') ? audioUrl(entry.cdnKey, 'us') : (previous?.usUrl ?? ''),
+      zhUrl: variants.includes('zh') ? audioUrl(entry.cdnKey, 'zh') : (previous?.zhUrl ?? '')
+    }
     items[entry.cdnKey] = {
-      status: variants.every(variant => Boolean(audioUrl(entry.cdnKey, variant))) ? 'ready' : 'pending',
-      ukUrl: variants.includes('uk') ? audioUrl(entry.cdnKey, 'uk') : '',
-      usUrl: variants.includes('us') ? audioUrl(entry.cdnKey, 'us') : '',
-      zhUrl: variants.includes('zh') ? audioUrl(entry.cdnKey, 'zh') : ''
+      ...nextItem,
+      status: variants.every(variant => Boolean(nextItem[`${variant}Url`])) ? 'ready' : 'pending'
     }
 
     if ((index + 1) % 25 === 0 || index + 1 === words.length) {

@@ -59,6 +59,16 @@ const yljJuniorBookMeta = [
   ['译林版初中英语九年级下册_词汇表.xlsx', '九年级下册', 'grade-9-2']
 ]
 
+const shjxJuniorDir = path.join('初中课本', '沪教版(上海新版)')
+const shjxJuniorBookMeta = [
+  ['沪教版（上海新版）初中英语六年级上册_词汇表.xlsx', '六年级上册', 'grade-6-1'],
+  ['沪教版（上海新版）初中英语六年级下册_词汇表.xlsx', '六年级下册', 'grade-6-2'],
+  ['沪教版（上海新版）初中英语七年级上册_词汇表.xlsx', '七年级上册', 'grade-7-1'],
+  ['沪教版（上海新版）初中英语七年级下册_词汇表.xlsx', '七年级下册', 'grade-7-2'],
+  ['沪教版（上海新版）初中英语八年级上册_词汇表.xlsx', '八年级上册', 'grade-8-1'],
+  ['沪教版（上海新版）初中英语八年级下册_词汇表.xlsx', '八年级下册', 'grade-8-2']
+]
+
 const swjSourceFile = '沪外教高中英语教材_全7册词汇扩展版.xlsx'
 const rjSourceFile = '人教版高中英语教材_全7册词汇扩展版.xlsx'
 const shjSourceFile = '沪教版高中英语教材_全7册词汇扩展版.xlsx'
@@ -440,6 +450,14 @@ function buildYljJuniorPublisher() {
   }
 }
 
+function buildShjxJuniorPublisher() {
+  return {
+    publisher: { id: 'shjx', name: '沪教版(上海新版)' },
+    sourceWorkbook: shjxJuniorDir,
+    books: buildJuniorBooksFromDir(shjxJuniorDir, shjxJuniorBookMeta, parseNumericUnit)
+  }
+}
+
 function buildRjPublisher() {
   const sourcePath = path.join(root, 'doc', rjSourceFile)
   if (!fs.existsSync(sourcePath)) {
@@ -550,7 +568,8 @@ const publishers = [
   buildSwjPublisher(),
   buildRjPublisher(),
   buildKpJuniorPublisher(),
-  buildYljJuniorPublisher()
+  buildYljJuniorPublisher(),
+  buildShjxJuniorPublisher()
 ]
 
 const manifestPath = path.join(root, 'src', 'data', 'wordbank.manifest.json')

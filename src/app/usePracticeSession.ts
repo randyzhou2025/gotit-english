@@ -201,7 +201,7 @@ function sampleWords<T>(items: T[], count: number): T[] {
 }
 
 function inferSchoolStage(unit: UnitGroup): SchoolStage {
-  return /初中|七年级|八年级|九年级/.test(unit.bookName) ? '初中' : '高中'
+  return /初中|六年级|七年级|八年级|九年级/.test(unit.bookName) ? '初中' : '高中'
 }
 
 function inferJuniorGrade(unit: UnitGroup): string {
