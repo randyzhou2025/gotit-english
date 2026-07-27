@@ -115,7 +115,7 @@ describe('practice shell full-page layout', () => {
 
   it('keeps the resume function while aligning dictation setup with the latest design system', () => {
     expect(source).toContain('class="dictationIntroMark"')
-    expect(source).toContain('手机负责报词，你只管写。')
+    expect(source).toContain('选择纸笔默写，或者在线输入')
     expect(source).toContain('v-if="dictationInProgress" class="resumeDictationButton"')
     expect(source).toContain('.screen.isDictationSetupScreen .resumeDictationButton')
   })

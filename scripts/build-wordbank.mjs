@@ -69,6 +69,14 @@ const shjxJuniorBookMeta = [
   ['沪教版（上海新版）初中英语八年级下册_词汇表.xlsx', '八年级下册', 'grade-8-2']
 ]
 
+const wyxJuniorDir = path.join('初中课本', '外研社版（新版）')
+const wyxJuniorBookMeta = [
+  ['外研社版（新版）初中英语七年级上册_词汇表.xlsx', '七年级上册', 'grade-7-1'],
+  ['外研社版(新版)初中英语七年级下册_词汇表.xlsx', '七年级下册', 'grade-7-2'],
+  ['外研社版(新版)初中英语八年级上册_词汇表.xlsx', '八年级上册', 'grade-8-1'],
+  ['外研社版(新版)初中英语八年级下册_词汇表.xlsx', '八年级下册', 'grade-8-2']
+]
+
 const swjSourceFile = '沪外教高中英语教材_全7册词汇扩展版.xlsx'
 const rjSourceFile = '人教版高中英语教材_全7册词汇扩展版.xlsx'
 const shjSourceFile = '沪教版高中英语教材_全7册词汇扩展版.xlsx'
@@ -238,6 +246,30 @@ function parseNumericUnit(rawUnit) {
   }
 }
 
+function parseWyxUnit(rawUnit) {
+  const unitLabel = clean(rawUnit)
+  if (/^starter$/i.test(unitLabel)) {
+    return {
+      number: 0,
+      key: 'starter',
+      label: 'Starter'
+    }
+  }
+
+  return parseNumericUnit(unitLabel)
+}
+
+function findJuniorHeaderRowIndex(rows) {
+  for (let index = 0; index < Math.min(rows.length, 8); index += 1) {
+    const columns = buildColumnIndex(rows[index] ?? [])
+    if (columns['单元'] != null && columns['英文'] != null && columns['释义'] != null) {
+      return index
+    }
+  }
+
+  throw new Error('Could not find header row with 单元/英文/释义 columns')
+}
+
 function unitSortKey(unit) {
   return unit.number
 }
@@ -380,16 +412,17 @@ function buildJuniorBooksFromDir(relativeDir, bookMeta, parseUnit) {
     }
 
     const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' })
-    const columns = buildColumnIndex(rows[2] ?? [])
+    const headerRowIndex = findJuniorHeaderRowIndex(rows)
+    const columns = buildColumnIndex(rows[headerRowIndex] ?? [])
     const units = []
 
-    for (const [rowIndex, row] of rows.slice(3).entries()) {
+    for (const [rowIndex, row] of rows.slice(headerRowIndex + 1).entries()) {
       const word = cell(row, columns, '英文')
       const meaning = cell(row, columns, '释义')
       if (!word && !meaning) continue
 
       if (!word || !meaning) {
-        throw new Error(`${bookName} row ${rowIndex + 4} has incomplete word data`)
+        throw new Error(`${bookName} row ${headerRowIndex + rowIndex + 2} has incomplete word data`)
       }
       if (isPhraseEntry(word)) continue
 
@@ -398,7 +431,7 @@ function buildJuniorBooksFromDir(relativeDir, bookMeta, parseUnit) {
       targetUnit.words.push(buildWordTuple(
         row,
         columns,
-        rowIndex + 4,
+        headerRowIndex + rowIndex + 2,
         word,
         slugify(normalizeWordForSlug(word))
       ))
@@ -455,6 +488,14 @@ function buildShjxJuniorPublisher() {
     publisher: { id: 'shjx', name: '沪教版(上海新版)' },
     sourceWorkbook: shjxJuniorDir,
     books: buildJuniorBooksFromDir(shjxJuniorDir, shjxJuniorBookMeta, parseNumericUnit)
+  }
+}
+
+function buildWyxJuniorPublisher() {
+  return {
+    publisher: { id: 'wyx', name: '外研社版(新版)' },
+    sourceWorkbook: wyxJuniorDir,
+    books: buildJuniorBooksFromDir(wyxJuniorDir, wyxJuniorBookMeta, parseWyxUnit)
   }
 }
 
@@ -569,7 +610,8 @@ const publishers = [
   buildRjPublisher(),
   buildKpJuniorPublisher(),
   buildYljJuniorPublisher(),
-  buildShjxJuniorPublisher()
+  buildShjxJuniorPublisher(),
+  buildWyxJuniorPublisher()
 ]
 
 const manifestPath = path.join(root, 'src', 'data', 'wordbank.manifest.json')

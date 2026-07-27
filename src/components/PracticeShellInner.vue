@@ -73,7 +73,13 @@
               :style="courseSetupPublisherId === publisher.id ? courseChipActiveStyle : undefined"
               @tap="setCourseSetupPublisher(publisher.id)"
             >
-              <text>{{ publisher.name }}</text>
+              <view class="courseChipPublisherLabel">
+                <text
+                  v-for="(line, lineIndex) in publisherChipLines(publisher.name)"
+                  :key="lineIndex"
+                  :class="lineIndex > 0 ? 'courseChipPublisherSuffix' : 'courseChipPublisherMain'"
+                >{{ line }}</text>
+              </view>
             </view>
           </view>
           <view v-else class="courseUnavailable">
@@ -1556,6 +1562,12 @@ const courseChipActiveStyle = {
   color: '#1cb0f6',
   fontWeight: '900'
 } as const
+
+function publisherChipLines(name: string): string[] {
+  const parenIndex = name.indexOf('(')
+  if (parenIndex <= 0) return [name]
+  return [name.slice(0, parenIndex), name.slice(parenIndex)]
+}
 
 const wordDetailPlayingAccent = ref<Accent | null>(null)
 type UnitWordFilter = 'all' | 'learning' | 'review' | 'mastered'
@@ -4381,6 +4393,23 @@ onBeforeUnmount(() => {
   gap: 3px;
   min-height: 52px;
   padding: 7px 10px;
+}
+
+.courseChipPublisherLabel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.courseChipPublisherMain {
+  line-height: 1.15;
+}
+
+.courseChipPublisherSuffix {
+  white-space: nowrap;
+  font-size: 12px;
+  line-height: 1.1;
 }
 
 .courseChipLabel {
