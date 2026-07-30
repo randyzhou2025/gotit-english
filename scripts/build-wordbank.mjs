@@ -81,6 +81,9 @@ const swjSourceFile = '沪外教高中英语教材_全7册词汇扩展版.xlsx'
 const rjSourceFile = '人教版高中英语教材_全7册词汇扩展版.xlsx'
 const shjSourceFile = '沪教版高中英语教材_全7册词汇扩展版.xlsx'
 const shjExampleFallbackFile = '沪教版高中英语教材_Words_by_unit汇总_终版_增加经典例句及翻译.xlsx'
+const bsdSourceFile = path.join('高中课本', '北师大版高中英语全7册_词汇表.xlsx')
+const yljSourceFile = path.join('高中课本', '译林版高中英语全7册_词汇表.xlsx')
+const wySourceFile = path.join('高中课本', '外研社版高中英语全7册_词汇表.xlsx')
 
 function buildColumnIndex(headerRow) {
   const columns = {}
@@ -475,12 +478,8 @@ function buildKpJuniorPublisher() {
   }
 }
 
-function buildYljJuniorPublisher() {
-  return {
-    publisher: { id: 'ylj', name: '译林版' },
-    sourceWorkbook: yljJuniorDir,
-    books: buildJuniorBooksFromDir(yljJuniorDir, yljJuniorBookMeta, parseNumericUnit)
-  }
+function buildYljJuniorBooks() {
+  return buildJuniorBooksFromDir(yljJuniorDir, yljJuniorBookMeta, parseNumericUnit)
 }
 
 function buildShjxJuniorPublisher() {
@@ -496,6 +495,88 @@ function buildWyxJuniorPublisher() {
     publisher: { id: 'wyx', name: '外研社版(新版)' },
     sourceWorkbook: wyxJuniorDir,
     books: buildJuniorBooksFromDir(wyxJuniorDir, wyxJuniorBookMeta, parseWyxUnit)
+  }
+}
+
+function buildHighSchoolBooks(sourceFile) {
+  const sourcePath = path.join(root, 'doc', sourceFile)
+  if (!fs.existsSync(sourcePath)) {
+    throw new Error(`Missing source workbook: ${sourcePath}`)
+  }
+
+  const workbook = XLSX.readFile(sourcePath)
+  const books = []
+
+  for (const [bookIndex, [sheetName, bookId]] of bookIds.entries()) {
+    const sheet = workbook.Sheets[sheetName]
+    if (!sheet) {
+      throw new Error(`Missing sheet: ${sheetName}`)
+    }
+
+    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' })
+    const headerRowIndex = findJuniorHeaderRowIndex(rows)
+    const columns = buildColumnIndex(rows[headerRowIndex] ?? [])
+    const units = []
+
+    for (const [rowIndex, row] of rows.slice(headerRowIndex + 1).entries()) {
+      const word = cell(row, columns, '英文')
+      const meaning = cell(row, columns, '释义')
+      if (!word && !meaning) continue
+
+      if (!word || !meaning) {
+        throw new Error(`${sheetName} row ${headerRowIndex + rowIndex + 2} has incomplete word data`)
+      }
+      if (isPhraseEntry(word)) continue
+
+      const unitMeta = parseNumericUnit(row[columns['单元'] ?? 0])
+      const targetUnit = upsertUnit(units, unitMeta)
+      targetUnit.words.push(buildWordTuple(
+        row,
+        columns,
+        headerRowIndex + rowIndex + 2,
+        word,
+        slugify(normalizeWordForSlug(word))
+      ))
+    }
+
+    books.push({
+      id: bookId,
+      name: sheetName,
+      order: bookIndex + 1,
+      units: units.sort((a, b) => unitSortKey(a) - unitSortKey(b))
+    })
+  }
+
+  return books
+}
+
+function buildBsdPublisher() {
+  return {
+    publisher: { id: 'bsd', name: '北师大版' },
+    sourceWorkbook: path.basename(bsdSourceFile),
+    books: buildHighSchoolBooks(bsdSourceFile)
+  }
+}
+
+function buildYljPublisher() {
+  const books = buildHighSchoolBooks(yljSourceFile)
+  books.push(...buildYljJuniorBooks().map((book, index) => ({
+    ...book,
+    order: bookIds.length + index + 1
+  })))
+
+  return {
+    publisher: { id: 'ylj', name: '译林版' },
+    sourceWorkbook: path.basename(yljSourceFile),
+    books
+  }
+}
+
+function buildWyPublisher() {
+  return {
+    publisher: { id: 'wy', name: '外研社版' },
+    sourceWorkbook: path.basename(wySourceFile),
+    books: buildHighSchoolBooks(wySourceFile)
   }
 }
 
@@ -608,8 +689,10 @@ const publishers = [
   buildShjPublisher(),
   buildSwjPublisher(),
   buildRjPublisher(),
+  buildBsdPublisher(),
   buildKpJuniorPublisher(),
-  buildYljJuniorPublisher(),
+  buildYljPublisher(),
+  buildWyPublisher(),
   buildShjxJuniorPublisher(),
   buildWyxJuniorPublisher()
 ]

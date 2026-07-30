@@ -6,7 +6,7 @@
     "format": "JPEG",
     "quality": 88
   },
-  "count": 38,
+  "count": 52,
   "records": [
     {
       "publisherId": "shj",
@@ -267,6 +267,62 @@
     {
       "publisherId": "ylj",
       "publisherName": "译林版",
+      "bookId": "required-1",
+      "bookName": "必修第一册",
+      "file": "ylj-required-1.jpg",
+      "catalogFile": "senior-ylj-required-1.jpg"
+    },
+    {
+      "publisherId": "ylj",
+      "publisherName": "译林版",
+      "bookId": "required-2",
+      "bookName": "必修第二册",
+      "file": "ylj-required-2.jpg",
+      "catalogFile": "senior-ylj-required-2.jpg"
+    },
+    {
+      "publisherId": "ylj",
+      "publisherName": "译林版",
+      "bookId": "required-3",
+      "bookName": "必修第三册",
+      "file": "ylj-required-3.jpg",
+      "catalogFile": "senior-ylj-required-3.jpg"
+    },
+    {
+      "publisherId": "ylj",
+      "publisherName": "译林版",
+      "bookId": "selective-required-1",
+      "bookName": "选择性必修第一册",
+      "file": "ylj-selective-required-1.jpg",
+      "catalogFile": "senior-ylj-selective-required-1.jpg"
+    },
+    {
+      "publisherId": "ylj",
+      "publisherName": "译林版",
+      "bookId": "selective-required-2",
+      "bookName": "选择性必修第二册",
+      "file": "ylj-selective-required-2.jpg",
+      "catalogFile": "senior-ylj-selective-required-2.jpg"
+    },
+    {
+      "publisherId": "ylj",
+      "publisherName": "译林版",
+      "bookId": "selective-required-3",
+      "bookName": "选择性必修第三册",
+      "file": "ylj-selective-required-3.jpg",
+      "catalogFile": "senior-ylj-selective-required-3.jpg"
+    },
+    {
+      "publisherId": "ylj",
+      "publisherName": "译林版",
+      "bookId": "selective-required-4",
+      "bookName": "选择性必修第四册",
+      "file": "ylj-selective-required-4.jpg",
+      "catalogFile": "senior-ylj-selective-required-4.jpg"
+    },
+    {
+      "publisherId": "ylj",
+      "publisherName": "译林版",
       "bookId": "grade-7-1",
       "bookName": "七年级上册",
       "file": "ylj-grade-7-1.jpg",
@@ -311,6 +367,62 @@
       "bookName": "九年级下册",
       "file": "ylj-grade-9-2.jpg",
       "catalogFile": "junior-ylj-grade-9-2.jpg"
+    },
+    {
+      "publisherId": "wy",
+      "publisherName": "外研社版",
+      "bookId": "required-1",
+      "bookName": "必修第一册",
+      "file": "wy-required-1.jpg",
+      "catalogFile": "senior-wy-required-1.jpg"
+    },
+    {
+      "publisherId": "wy",
+      "publisherName": "外研社版",
+      "bookId": "required-2",
+      "bookName": "必修第二册",
+      "file": "wy-required-2.jpg",
+      "catalogFile": "senior-wy-required-2.jpg"
+    },
+    {
+      "publisherId": "wy",
+      "publisherName": "外研社版",
+      "bookId": "required-3",
+      "bookName": "必修第三册",
+      "file": "wy-required-3.jpg",
+      "catalogFile": "senior-wy-required-3.jpg"
+    },
+    {
+      "publisherId": "wy",
+      "publisherName": "外研社版",
+      "bookId": "selective-required-1",
+      "bookName": "选择性必修第一册",
+      "file": "wy-selective-required-1.jpg",
+      "catalogFile": "senior-wy-selective-required-1.jpg"
+    },
+    {
+      "publisherId": "wy",
+      "publisherName": "外研社版",
+      "bookId": "selective-required-2",
+      "bookName": "选择性必修第二册",
+      "file": "wy-selective-required-2.jpg",
+      "catalogFile": "senior-wy-selective-required-2.jpg"
+    },
+    {
+      "publisherId": "wy",
+      "publisherName": "外研社版",
+      "bookId": "selective-required-3",
+      "bookName": "选择性必修第三册",
+      "file": "wy-selective-required-3.jpg",
+      "catalogFile": "senior-wy-selective-required-3.jpg"
+    },
+    {
+      "publisherId": "wy",
+      "publisherName": "外研社版",
+      "bookId": "selective-required-4",
+      "bookName": "选择性必修第四册",
+      "file": "wy-selective-required-4.jpg",
+      "catalogFile": "senior-wy-selective-required-4.jpg"
     }
   ]
 }
