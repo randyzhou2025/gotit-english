@@ -1,0 +1,54 @@
+# Add directories or file patterns to ignore during indexing (e.g. foo/ or *.csv)
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+unpackage/
+
+# Generated assets (regenerate via pnpm audio:generate)
+generated/
+
+# Local backups & QA screenshots
+backup/
+.tmp/
+.tmp-*/
+tmp/
+.codex-tmp/
+design-preview/
+assets/
+
+# Local doc assets (wordbank xlsx, product docs, QA screenshots)
+doc/
+
+# IDE / editor
+.hbuilderx/
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+!.env.production
+*.local
+
+# Logs & caches
+*.log
+npm-debug.log*
+pnpm-debug.log*
+coverage/
+.vite/
+
+# GotIt API server
+server/node_modules/
+server/dist/
+server/data/
+server/drizzle/

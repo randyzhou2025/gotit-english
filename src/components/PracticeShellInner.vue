@@ -196,15 +196,27 @@
         </view>
       </view>
 
-      <view class="homeDictationEntry" hover-class="none" @tap="openDictationSetupPage">
-        <view class="homeDictationIcon">
-          <view class="homeSoundWave one" />
-          <view class="homeSoundWave two" />
-          <view class="homeSoundWave three" />
+      <view class="homePrimaryActions">
+        <view class="homeDictationEntry" hover-class="none" @tap="openDictationSetupPage">
+          <view class="homeDictationIcon">
+            <view class="homeSoundWave one" />
+            <view class="homeSoundWave two" />
+            <view class="homeSoundWave three" />
+          </view>
+          <view class="homeDictationCopy">
+            <text class="homeDictationTitle">开始自动听写</text>
+            <text class="homeDictationSubtitle">放下屏幕，拿起纸笔</text>
+          </view>
         </view>
-        <view class="homeDictationCopy">
-          <text class="homeDictationTitle">开始自动听写</text>
-          <text class="homeDictationSubtitle">放下屏幕，拿起纸笔</text>
+        <view class="homeExportEntry" hover-class="none" @tap="openWordlistExportPage">
+          <view class="homeExportIcon">
+            <view class="homeExportSheet">
+              <view class="homeExportLine one" />
+              <view class="homeExportLine two" />
+              <view class="homeExportArrow" />
+            </view>
+          </view>
+          <text class="homeExportTitle">导出词表</text>
         </view>
       </view>
 
@@ -2514,6 +2526,12 @@ function openCheckupSetupPage() {
 function openDictationSetupPage() {
   openDictationSetupScreen({ scrollToTop: false })
   navigateToRoute('dictationSetup')
+}
+
+function openWordlistExportPage() {
+  uni.navigateTo({
+    url: '/pages/export-wordlist/index'
+  })
 }
 
 function confirmCourseSetupPage() {
@@ -13958,6 +13976,137 @@ onBeforeUnmount(() => {
   .rewardStampWrap.hasAura .rewardStamp,
   .rewardStampAura {
     animation: none !important;
+  }
+}
+
+.homePrimaryActions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+}
+
+.screen.isHomeScreen .homePrimaryActions .homeDictationEntry {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+}
+
+.homeExportEntry {
+  box-sizing: border-box;
+  display: flex;
+  flex: 0 0 88px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 96px;
+  min-height: 96px;
+  padding: 10px 6px;
+  border: 1.5px solid var(--accent);
+  border-radius: 16px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  box-shadow: 0 7px 16px rgba(23, 107, 80, 0.08);
+}
+
+.homeExportEntry:active {
+  background: #d6e8de;
+  transform: translateY(1px);
+}
+
+.homeExportIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+}
+
+.homeExportSheet {
+  position: relative;
+  width: 24px;
+  height: 29px;
+  border: 2px solid var(--accent);
+  border-radius: 3px;
+}
+
+.homeExportLine {
+  position: absolute;
+  left: 4px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.homeExportLine.one {
+  top: 6px;
+  width: 12px;
+}
+
+.homeExportLine.two {
+  top: 11px;
+  width: 8px;
+}
+
+.homeExportArrow {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid var(--accent);
+  border-bottom: 2px solid var(--accent);
+}
+
+.homeExportArrow::before {
+  position: absolute;
+  right: 2px;
+  bottom: 0;
+  width: 2px;
+  height: 11px;
+  border-radius: 999px;
+  background: var(--accent);
+  content: '';
+  transform: rotate(45deg);
+  transform-origin: bottom center;
+}
+
+.homeExportTitle {
+  margin-top: 7px;
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+@media (max-height: 700px) {
+  .homeExportEntry {
+    height: 82px;
+    min-height: 82px;
+  }
+
+  .homeExportIcon {
+    width: 30px;
+    height: 30px;
+    transform: scale(0.9);
+  }
+
+  .homeExportTitle {
+    margin-top: 4px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .homePrimaryActions {
+    gap: 8px;
+  }
+
+  .homeExportEntry {
+    flex-basis: 80px;
+    width: 80px;
   }
 }
 </style>

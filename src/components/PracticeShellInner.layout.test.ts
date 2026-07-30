@@ -201,6 +201,19 @@ describe('practice shell full-page layout', () => {
     expect(source).not.toContain('今日听写建议')
   })
 
+  it('aligns the export shortcut with the dictation button and uses a light green fill', () => {
+    const exportButtonStart = source.indexOf('.homeExportEntry {')
+    const exportButtonEnd = source.indexOf('\n}', exportButtonStart)
+    const exportButtonStyles = source.slice(exportButtonStart, exportButtonEnd)
+
+    expect(exportButtonStyles).toContain('box-sizing: border-box;')
+    expect(exportButtonStyles).toContain('height: 96px;')
+    expect(exportButtonStyles).toContain('min-height: 96px;')
+    expect(exportButtonStyles).toContain('background: var(--accent-soft);')
+    expect(source).toContain('.screen.isHomeScreen .homeDictationEntry')
+    expect(source).toContain('height: 96px;')
+  })
+
   it('lets compact home screens scroll clear of the fixed bottom navigation', () => {
     expect(source).toContain('.screen.isHomeScreen.hasBottomNav')
     expect(source).toContain('height: auto;')
