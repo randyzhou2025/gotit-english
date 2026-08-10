@@ -12,6 +12,22 @@ export interface UserProfile {
   createdAt: string
 }
 
+const DEFAULT_NICKNAME_PATTERN = /^课本单词通_[a-z0-9]{5}$/
+
+export function isDefaultGeneratedNickname(nickname: string | undefined | null): boolean {
+  if (!nickname || nickname === '课本单词通') return true
+  return DEFAULT_NICKNAME_PATTERN.test(nickname)
+}
+
+export function hasCustomAvatar(avatarUrl: string | undefined | null): boolean {
+  return Boolean(avatarUrl?.trim())
+}
+
+export function shouldShowProfileEditHint(profile: UserProfile | null | undefined): boolean {
+  if (!profile) return true
+  return isDefaultGeneratedNickname(profile.nickname) && !hasCustomAvatar(profile.avatarUrl)
+}
+
 export interface DashboardSnapshot {
   todayWords: number
   todayMinutes: number

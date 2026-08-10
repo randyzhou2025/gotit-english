@@ -39,7 +39,10 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useWeappShare } from '@/app/useWeappShare'
 import { submitFeedback, type FeedbackCategory } from '@/core/userSession'
+
+useWeappShare()
 
 const categories: Array<{ id: FeedbackCategory; label: string }> = [
   { id: 'bug', label: '错误反馈' },
@@ -233,3 +236,10 @@ async function submit() {
   opacity: 0.6;
 }
 </style>
+
+<script lang="ts">
+export default {
+  onShareAppMessage() {},
+  onShareTimeline() {}
+}
+</script>

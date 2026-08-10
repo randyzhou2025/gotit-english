@@ -102,6 +102,7 @@ import {
   isPracticeSessionReady,
   usePracticeSession
 } from '@/app/usePracticeSession'
+import { useWeappShare } from '@/app/useWeappShare'
 import type { WordEntry } from '@/core/types'
 import {
   buildJpegPdf,
@@ -110,6 +111,8 @@ import {
   type JpegPdfPage,
   type WordlistExportMode
 } from '@/core/wordlistExport'
+
+useWeappShare()
 
 const CANVAS_ID = 'wordlistExportCanvas'
 const CANVAS_WIDTH = 1240
@@ -856,3 +859,10 @@ onMounted(() => {
   pointer-events: none;
 }
 </style>
+
+<script lang="ts">
+export default {
+  onShareAppMessage() {},
+  onShareTimeline() {}
+}
+</script>

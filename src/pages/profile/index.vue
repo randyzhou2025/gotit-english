@@ -8,7 +8,10 @@
 <script setup lang="ts">
 import { onBeforeMount, ref } from 'vue'
 import { ensurePracticeSessionReady, isPracticeSessionReady } from '@/app/usePracticeSession'
+import { useWeappShare } from '@/app/useWeappShare'
 import ProfileScreen from '@/components/ProfileScreen.vue'
+
+useWeappShare()
 
 const ready = ref(isPracticeSessionReady())
 
@@ -39,3 +42,10 @@ onBeforeMount(async () => {
   font-weight: 700;
 }
 </style>
+
+<script lang="ts">
+export default {
+  onShareAppMessage() {},
+  onShareTimeline() {}
+}
+</script>

@@ -29,7 +29,7 @@
             <text class="userIdText">ID: {{ displayUserId }}</text>
             <view class="copyIcon" />
           </view>
-          <text v-else class="userSubline">点击头像或昵称可修改</text>
+          <text v-if="showProfileEditHint" class="userSubline">点击头像或昵称可修改</text>
         </view>
       </view>
 
@@ -193,6 +193,7 @@ import {
   getAuthToken,
   getCachedUser,
   isApiEnabled,
+  shouldShowProfileEditHint,
   type DashboardSnapshot,
   updateUserProfile,
   uploadAvatar
@@ -258,6 +259,8 @@ const displayUserId = computed(() => {
   if (!Number.isFinite(ts)) return ''
   return String(ts).slice(-9)
 })
+
+const showProfileEditHint = computed(() => shouldShowProfileEditHint(user.value))
 
 function isLocalAvatarPath(url: string): boolean {
   return url.startsWith('wxfile://')

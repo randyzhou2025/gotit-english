@@ -157,6 +157,8 @@
     "backgroundColor": "#f4f1e8",
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "课本单词通",
-    "navigationBarBackgroundColor": "#f4f1e8"
+    "navigationBarBackgroundColor": "#f4f1e8",
+    "enableShareAppMessage": true,
+    "enableShareTimeline": true
   }
 }
