@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  ensureWordbankFullyLoaded,
   ensureWordbankLoaded,
   expandPublisherBlock,
   refreshWordbankIfUpdated,
@@ -89,27 +90,30 @@ describe('wordbankLoader manifest resolution', () => {
     expect(fetchMock.mock.calls[0]?.[0]).toMatch(/manifest\.json\?_=\d+/)
   })
 
-  it('falls back to cached manifest when CDN is unavailable', async () => {
+  it('prefers cached manifest on cold start and refreshes in background', async () => {
     const cachedManifest = {
       version: 'cached:42',
       publishers: [{ publisher: { id: 'cached', name: 'Cached' }, sourceWorkbook: '', books: [] }]
     }
+    const cachedBlock = {
+      publisher: { id: 'cached', name: 'Cached' },
+      sourceWorkbook: '',
+      books: []
+    }
 
     storage.set('gotit:wordbank:manifest', JSON.stringify(cachedManifest))
-    fetchMock.mockRejectedValueOnce(new Error('offline'))
-
+    storage.set('gotit:wordbank:publisher-version:cached', 'cached:42')
+    storage.set('gotit:wordbank:data:cached', JSON.stringify(cachedBlock))
+    storage.set('gotit:wordbank:publisher-ids', JSON.stringify(['cached']))
     fetchMock.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({
-        publisher: { id: 'cached', name: 'Cached' },
-        sourceWorkbook: '',
-        books: []
-      })
+      json: async () => cachedManifest
     })
 
     await ensureWordbankLoaded()
 
     expect(storage.get('gotit:wordbank:version')).toBe('cached:42')
+    expect(fetchMock.mock.calls.some(call => String(call[0]).includes('manifest.json'))).toBe(true)
   })
 
   it('re-fetches only publishers whose version token changed', async () => {
@@ -146,10 +150,9 @@ describe('wordbankLoader manifest resolution', () => {
       })
     })
 
-    await ensureWordbankLoaded()
+    await ensureWordbankFullyLoaded()
 
-    expect(fetchMock).toHaveBeenCalledTimes(2)
-    expect(fetchMock.mock.calls[1]?.[0]).toMatch(/b\.json\?v=2/)
+    expect(fetchMock.mock.calls.some(call => String(call[0]).includes('b.json?v=2'))).toBe(true)
     expect(JSON.parse(String(storage.get('gotit:wordbank:data:b'))).publisher.name).toBe('Fresh B')
     expect(JSON.parse(String(storage.get('gotit:wordbank:data:a'))).publisher.name).toBe('A')
   })
@@ -200,7 +203,8 @@ describe('wordbankLoader manifest resolution', () => {
 
     expect(updated).toBe(true)
     expect(storage.get('gotit:wordbank:version')).toBe('a:1|b:2')
-    expect(fetchMock.mock.calls[fetchMock.mock.calls.length - 1]?.[0]).toMatch(/b\.json\?v=2/)
+    await ensureWordbankFullyLoaded()
+    expect(fetchMock.mock.calls.some(call => String(call[0]).includes('b.json?v=2'))).toBe(true)
   })
 
   it('skips refresh when remote manifest version is unchanged', async () => {

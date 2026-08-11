@@ -64,10 +64,25 @@ const WORDBANK_PUBLISHER_VERSION_PREFIX = 'gotit:wordbank:publisher-version:'
 const WORDBANK_VERSION_KEY = 'gotit:wordbank:version'
 const WORDBANK_MANIFEST_KEY = 'gotit:wordbank:manifest'
 const WORDBANK_PUBLISHER_IDS_KEY = 'gotit:wordbank:publisher-ids'
+const SELECTED_UNIT_ID_KEY = 'gotit:selectedUnitId'
+const SAVED_WEAK_WORD_IDS_KEY = 'gotit:savedWeakWordIds'
+const MASTERED_WORD_IDS_KEY = 'gotit:masteredWordIds'
 const LOCAL_WORDBANK_BASE_PATH = '/generated/wordbank'
+const BACKGROUND_LOAD_YIELD_MS = 48
 
 const bundledManifest = bundledWordbankManifest as WordbankManifest
 const wordbankCdnBaseUrl = resolveWordbankCdnBaseUrl()
+
+type WordbankExpansionListener = (words: WordEntry[]) => void
+
+let resolvedManifest: WordbankManifest | null = null
+let cachedWords: WordEntry[] | null = null
+let loadedPublisherIds = new Set<string>()
+let loadPromise: Promise<WordEntry[]> | null = null
+let fullLoadPromise: Promise<WordEntry[]> | null = null
+let refreshInFlight: Promise<boolean> | null = null
+let expansionListener: WordbankExpansionListener | null = null
+let manifestRefreshInFlight: Promise<void> | null = null
 
 function resolveWordbankCdnBaseUrl(): string {
   const explicit = String(import.meta.env.VITE_WORDBANK_CDN_BASE_URL || '').replace(/\/+$/, '')
@@ -188,6 +203,16 @@ function removeStorage(key: string) {
   }
 }
 
+function readStringArrayStorage(key: string): string[] {
+  try {
+    const saved = getRuntime()?.getStorageSync?.(key)
+    if (!Array.isArray(saved)) return []
+    return saved.filter((value): value is string => typeof value === 'string' && value.length > 0)
+  } catch {
+    return []
+  }
+}
+
 function resolveWordbankBasePath(): string {
   return wordbankCdnBaseUrl || LOCAL_WORDBANK_BASE_PATH
 }
@@ -222,6 +247,11 @@ function isWordbankManifest(value: unknown): value is WordbankManifest {
   return typeof candidate.version === 'string'
     && Array.isArray(candidate.publishers)
     && candidate.publishers.every(entry => typeof entry.publisher?.id === 'string')
+}
+
+function publisherIdFromScopedId(value: string): string {
+  const end = value.indexOf(':')
+  return end > 0 ? value.slice(0, end) : ''
 }
 
 interface RequestJsonOptions {
@@ -275,6 +305,10 @@ function cacheManifest(manifest: WordbankManifest) {
   writeStorage(WORDBANK_VERSION_KEY, manifest.version)
 }
 
+function resolveManifestFast(): WordbankManifest {
+  return readCachedManifest() ?? bundledManifest
+}
+
 async function fetchRemoteManifest(): Promise<WordbankManifest | null> {
   try {
     const payload = await requestJson(resolveManifestUrl(true), { bustCache: true })
@@ -285,15 +319,30 @@ async function fetchRemoteManifest(): Promise<WordbankManifest | null> {
   }
 }
 
+function refreshManifestInBackground(current: WordbankManifest) {
+  if (manifestRefreshInFlight) return
+
+  manifestRefreshInFlight = (async () => {
+    const remote = await fetchRemoteManifest()
+    if (!remote || remote.version === current.version) return
+    cacheManifest(remote)
+  })().finally(() => {
+    manifestRefreshInFlight = null
+  })
+}
+
 async function resolveManifest(): Promise<WordbankManifest> {
+  const cached = readCachedManifest()
+  if (cached) {
+    refreshManifestInBackground(cached)
+    return cached
+  }
+
   const remote = await fetchRemoteManifest()
   if (remote) {
     cacheManifest(remote)
     return remote
   }
-
-  const cached = readCachedManifest()
-  if (cached) return cached
 
   return bundledManifest
 }
@@ -330,6 +379,40 @@ function syncPublisherCaches(manifest: WordbankManifest) {
   )
 }
 
+function manifestPublisherIds(manifest: WordbankManifest): string[] {
+  return manifest.publishers.map(entry => entry.publisher.id)
+}
+
+function collectPriorityPublisherIds(manifest: WordbankManifest): string[] {
+  const ids = new Set<string>()
+  const knownIds = new Set(manifestPublisherIds(manifest))
+
+  const selectedUnitId = readStorage(SELECTED_UNIT_ID_KEY)
+  if (selectedUnitId) {
+    const publisherId = publisherIdFromScopedId(selectedUnitId)
+    if (knownIds.has(publisherId)) ids.add(publisherId)
+  }
+
+  for (const wordId of [
+    ...readStringArrayStorage(SAVED_WEAK_WORD_IDS_KEY),
+    ...readStringArrayStorage(MASTERED_WORD_IDS_KEY)
+  ]) {
+    const publisherId = publisherIdFromScopedId(wordId)
+    if (knownIds.has(publisherId)) ids.add(publisherId)
+  }
+
+  if (ids.size === 0) {
+    const fallback = manifest.publishers[0]?.publisher.id
+    if (fallback) ids.add(fallback)
+  }
+
+  return [...ids]
+}
+
+function remainingPublisherIds(manifest: WordbankManifest, loaded: Set<string>): string[] {
+  return manifestPublisherIds(manifest).filter(publisherId => !loaded.has(publisherId))
+}
+
 async function readCachedPublisherBlock(
   publisherId: string,
   publisherToken: string
@@ -350,6 +433,17 @@ async function readCachedPublisherBlock(
   }
 }
 
+function readStalePublisherBlock(publisherId: string): CompactPublisherBlock | null {
+  const cached = readStorage(`${WORDBANK_CACHE_PREFIX}${publisherId}`)
+  if (!cached) return null
+
+  try {
+    return JSON.parse(cached) as CompactPublisherBlock
+  } catch {
+    return null
+  }
+}
+
 function cachePublisherBlock(
   publisherId: string,
   publisherToken: string,
@@ -366,22 +460,95 @@ async function loadPublisherBlock(
   const cached = await readCachedPublisherBlock(publisherId, publisherToken)
   if (cached) return cached
 
-  const url = resolvePublisherUrl(publisherId, publisherToken)
-  const payload = await requestJson(url)
-  const block = payload as CompactPublisherBlock
-  cachePublisherBlock(publisherId, publisherToken, block)
-  return block
+  try {
+    const url = resolvePublisherUrl(publisherId, publisherToken)
+    const payload = await requestJson(url)
+    const block = payload as CompactPublisherBlock
+    cachePublisherBlock(publisherId, publisherToken, block)
+    return block
+  } catch {
+    const stale = readStalePublisherBlock(publisherId)
+    if (stale) return stale
+    throw new Error(`Failed to load publisher ${publisherId}`)
+  }
 }
 
-let resolvedManifest: WordbankManifest | null = null
-let cachedWords: WordEntry[] | null = null
-let loadPromise: Promise<WordEntry[]> | null = null
-let refreshInFlight: Promise<boolean> | null = null
+async function loadPublisherBlocksForIds(
+  manifest: WordbankManifest,
+  publisherIds: string[]
+): Promise<{ words: WordEntry[], loadedIds: string[] }> {
+  if (publisherIds.length === 0) {
+    return { words: [], loadedIds: [] }
+  }
+
+  const idSet = new Set(publisherIds)
+  const entries = manifest.publishers.filter(entry => idSet.has(entry.publisher.id))
+  const blocks = await Promise.all(
+    entries.map(entry => {
+      const publisherId = entry.publisher.id
+      const publisherToken = publisherVersionToken(manifest.version, publisherId)
+      return loadPublisherBlock(publisherId, publisherToken)
+    })
+  )
+
+  return {
+    words: blocks.flatMap(expandPublisherBlock),
+    loadedIds: blocks.map(block => block.publisher.id)
+  }
+}
+
+function mergeLoadedWords(existing: WordEntry[], incoming: WordEntry[]): WordEntry[] {
+  if (incoming.length === 0) return existing
+  if (existing.length === 0) return incoming
+
+  const seen = new Set(existing.map(word => word.id))
+  const merged = [...existing]
+  for (const word of incoming) {
+    if (seen.has(word.id)) continue
+    seen.add(word.id)
+    merged.push(word)
+  }
+  return merged
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+function notifyWordbankExpanded(words: WordEntry[]) {
+  expansionListener?.(words)
+}
+
+function scheduleRemainingPublisherLoad(manifest: WordbankManifest) {
+  const pendingIds = remainingPublisherIds(manifest, loadedPublisherIds)
+  if (pendingIds.length === 0) return
+  if (fullLoadPromise) return
+
+  fullLoadPromise = (async () => {
+    await delay(BACKGROUND_LOAD_YIELD_MS)
+
+    const { words, loadedIds } = await loadPublisherBlocksForIds(manifest, pendingIds)
+    for (const publisherId of loadedIds) {
+      loadedPublisherIds.add(publisherId)
+    }
+
+    if (words.length > 0 && cachedWords) {
+      cachedWords = mergeLoadedWords(cachedWords, words)
+      notifyWordbankExpanded(cachedWords)
+    }
+
+    return cachedWords ?? words
+  })().finally(() => {
+    fullLoadPromise = null
+  })
+}
 
 function clearWordbankMemoryCache() {
   resolvedManifest = null
   cachedWords = null
+  loadedPublisherIds = new Set()
   loadPromise = null
+  fullLoadPromise = null
 }
 
 function activeWordbankVersion(): string {
@@ -391,12 +558,28 @@ function activeWordbankVersion(): string {
 }
 
 export function getWordbankManifest(): WordbankManifest {
-  return resolvedManifest ?? bundledManifest
+  return resolvedManifest ?? resolveManifestFast()
+}
+
+export function getLoadedWordCount(): number {
+  return cachedWords?.length ?? 0
+}
+
+export function isWordbankFullyLoaded(): boolean {
+  const manifest = resolvedManifest ?? resolveManifestFast()
+  if (manifest.publishers.length === 0) return true
+  return remainingPublisherIds(manifest, loadedPublisherIds).length === 0
+}
+
+export function onWordbankExpanded(listener: WordbankExpansionListener) {
+  expansionListener = listener
 }
 
 export function resetWordbankCacheForTests() {
   clearWordbankMemoryCache()
   refreshInFlight = null
+  manifestRefreshInFlight = null
+  expansionListener = null
   removeStorage(WORDBANK_VERSION_KEY)
   removeStorage(WORDBANK_MANIFEST_KEY)
   removeStorage(WORDBANK_PUBLISHER_IDS_KEY)
@@ -416,20 +599,37 @@ export async function ensureWordbankLoaded(): Promise<WordEntry[]> {
       resolvedManifest = manifest
       syncPublisherCaches(manifest)
 
-      const blocks = await Promise.all(
-        manifest.publishers.map(entry => {
-          const publisherId = entry.publisher.id
-          const publisherToken = publisherVersionToken(manifest.version, publisherId)
-          return loadPublisherBlock(publisherId, publisherToken)
-        })
-      )
+      const priorityIds = collectPriorityPublisherIds(manifest)
+      const { words, loadedIds } = await loadPublisherBlocksForIds(manifest, priorityIds)
+      for (const publisherId of loadedIds) {
+        loadedPublisherIds.add(publisherId)
+      }
 
-      cachedWords = blocks.flatMap(expandPublisherBlock)
+      cachedWords = words
       writeStorage(WORDBANK_VERSION_KEY, manifest.version)
+      scheduleRemainingPublisherLoad(manifest)
       return cachedWords
     })()
   }
   return loadPromise
+}
+
+export async function ensureWordbankFullyLoaded(): Promise<WordEntry[]> {
+  await ensureWordbankLoaded()
+  if (isWordbankFullyLoaded()) return cachedWords ?? []
+
+  let pending = fullLoadPromise
+  if (!pending) {
+    const manifest = resolvedManifest ?? await resolveManifest()
+    scheduleRemainingPublisherLoad(manifest)
+    pending = fullLoadPromise
+  }
+
+  if (pending) {
+    await pending.catch(() => undefined)
+  }
+
+  return cachedWords ?? []
 }
 
 async function refreshWordbankIfUpdatedInternal(): Promise<boolean> {

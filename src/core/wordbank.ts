@@ -2,9 +2,13 @@ import type { UnitGroup, WordEntry } from './types'
 import { ensureWordbankLoaded, expandPublisherBlock, getWordbankManifest } from './wordbankLoader'
 
 export {
+  ensureWordbankFullyLoaded,
   ensureWordbankLoaded,
   expandPublisherBlock,
+  getLoadedWordCount,
   getWordbankManifest,
+  isWordbankFullyLoaded,
+  onWordbankExpanded,
   refreshWordbankIfUpdated,
   resetWordbankCacheForTests
 } from './wordbankLoader'

@@ -5,6 +5,7 @@ import {
   writeLocalProgressSnapshot
 } from '@/core/progressMerge'
 import { flushProgressUpload, markProgressDirty, scheduleProgressUpload } from '@/core/progressSync'
+import { flushCloudSyncOnForeground } from '@/core/cloudSyncPolicy'
 import { queueStudyWordIds, setCachedDashboard } from '@/core/studyStats'
 import { ensureUserSession, markProgressUpdatedAt } from '@/core/userSession'
 import { getDictationAudioUrl, getDictationPromptLabel, hasPlayableDictationAudio } from '@/core/audio'
@@ -30,12 +31,15 @@ import type {
   WordEntry
 } from '@/core/types'
 import {
+  ensureWordbankFullyLoaded,
   ensureWordbankLoaded,
   findUnit,
   getDefaultUnit,
+  getLoadedWordCount,
   getUnitLabel,
   getWeakWords,
   groupUnits,
+  onWordbankExpanded,
   refreshWordbankIfUpdated,
   resetWordbankCacheForTests
 } from '@/core/wordbank'
@@ -769,6 +773,7 @@ export function createPracticeSession(words: WordEntry[]) {
   }
 
   function openCourseSetup() {
+    void expandPracticeSessionWordbankIfNeeded()
     syncCourseSetupDraftFromUnit(selectedUnit.value)
     screen.value = 'courseSetup'
     scrollToTop()
@@ -1000,6 +1005,7 @@ export function createPracticeSession(words: WordEntry[]) {
   }
 
   function openWeakbook() {
+    void expandPracticeSessionWordbankIfNeeded()
     const availableIds = savedWeakWords.value.map(word => word.id)
     if (!weakbookSelectionInitialized.value) {
       selectedWeakWordIds.value = []
@@ -1666,6 +1672,36 @@ let sessionRefreshInFlight: Promise<boolean> | null = null
 
 export const practiceSessionGeneration = ref(0)
 
+const STARTUP_WORDBANK_REFRESH_DELAY_MS = 3000
+const STARTUP_CLOUD_SYNC_DELAY_MS = 1500
+
+export async function expandPracticeSessionWordbankIfNeeded(): Promise<void> {
+  const beforeCount = getLoadedWordCount()
+  await ensureWordbankFullyLoaded()
+  if (getLoadedWordCount() <= beforeCount) return
+
+  resetPracticeSessionState()
+  await ensurePracticeSessionReady()
+  practiceSessionGeneration.value += 1
+}
+
+export function scheduleDeferredStartupSync() {
+  setTimeout(() => {
+    void flushCloudSyncOnForeground()
+  }, STARTUP_CLOUD_SYNC_DELAY_MS)
+
+  setTimeout(() => {
+    void refreshPracticeSessionIfWordbankUpdated()
+  }, STARTUP_WORDBANK_REFRESH_DELAY_MS)
+}
+
+onWordbankExpanded(() => {
+  if (!practiceSession) return
+  if (readLocalProgressSnapshot().courseSetupCompleted) return
+
+  void expandPracticeSessionWordbankIfNeeded()
+})
+
 export function resetPracticeSessionState() {
   practiceSession = null
   sessionInitPromise = null
@@ -1680,20 +1716,19 @@ export async function ensurePracticeSessionReady(): Promise<PracticeSession> {
   if (practiceSession) return practiceSession
   if (!sessionInitPromise) {
     sessionInitPromise = (async () => {
-      const [sessionPayload, words] = await Promise.all([
-        ensureUserSession(),
-        ensureWordbankLoaded()
-      ])
+      const words = await ensureWordbankLoaded()
+      practiceSession = createPracticeSession(words)
 
-      if (sessionPayload) {
+      void ensureUserSession().then((sessionPayload) => {
+        if (!sessionPayload) return
+
         const merged = mergeProgress(readLocalProgressSnapshot(), sessionPayload.progress)
         writeLocalProgressSnapshot(merged)
         markProgressUpdatedAt(merged.updatedAt)
         setCachedDashboard(sessionPayload.dashboard)
         scheduleProgressUpload(merged, 300)
-      }
+      })
 
-      practiceSession = createPracticeSession(words)
       return practiceSession
     })()
   }

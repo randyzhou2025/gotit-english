@@ -89,6 +89,10 @@ onBeforeMount(async () => {
     ready.value = true
   } catch (error) {
     console.error('[PracticeShell] session bootstrap failed', error)
+    if (isPracticeSessionReady()) {
+      ready.value = true
+      return
+    }
     uni.showToast({ title: '词库加载失败，请检查网络', icon: 'none' })
   }
 })

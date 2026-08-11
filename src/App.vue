@@ -8,9 +8,9 @@
 import { onLaunch, onHide, onShow } from '@dcloudio/uni-app'
 import {
   ensurePracticeSessionReady,
-  refreshPracticeSessionIfWordbankUpdated
+  scheduleDeferredStartupSync
 } from '@/app/usePracticeSession'
-import { flushCloudSyncOnBackground, flushCloudSyncOnForeground } from '@/core/cloudSyncPolicy'
+import { flushCloudSyncOnBackground } from '@/core/cloudSyncPolicy'
 import {
   startStudyDurationPing,
   stopStudyDurationPing
@@ -22,8 +22,7 @@ onLaunch(() => {
 
 onShow(() => {
   startStudyDurationPing()
-  void refreshPracticeSessionIfWordbankUpdated()
-  flushCloudSyncOnForeground()
+  scheduleDeferredStartupSync()
 })
 
 onHide(() => {

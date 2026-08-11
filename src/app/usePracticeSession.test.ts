@@ -5,7 +5,7 @@ import {
   resetPracticeSessionForTests,
   resetPracticeSessionState
 } from './usePracticeSession'
-import { ensureWordbankLoaded, resetWordbankCacheForTests } from '@/core/wordbank'
+import { ensureWordbankFullyLoaded, resetWordbankCacheForTests } from '@/core/wordbank'
 import { seedWordbankTestCache } from '@/test/wordbankTestCache'
 
 describe('practice session dictation navigation', () => {
@@ -24,7 +24,7 @@ describe('practice session dictation navigation', () => {
     resetPracticeSessionForTests()
     resetWordbankCacheForTests()
     seedWordbankTestCache(storage)
-    await ensureWordbankLoaded()
+    await ensureWordbankFullyLoaded()
   })
 
   async function openSession() {
@@ -180,7 +180,7 @@ describe('practice session dictation navigation', () => {
   })
 
   it('builds a practice session from loaded words', async () => {
-    const words = await ensureWordbankLoaded()
+    const words = await ensureWordbankFullyLoaded()
     const session = createPracticeSession(words)
     expect(session.units.length).toBeGreaterThan(0)
     expect(session.unitWords.value.length).toBeGreaterThan(0)
