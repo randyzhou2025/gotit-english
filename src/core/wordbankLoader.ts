@@ -565,6 +565,10 @@ export function getLoadedWordCount(): number {
   return cachedWords?.length ?? 0
 }
 
+export function isPublisherLoaded(publisherId: string): boolean {
+  return cachedWords !== null && loadedPublisherIds.has(publisherId)
+}
+
 export function isWordbankFullyLoaded(): boolean {
   const manifest = resolvedManifest ?? resolveManifestFast()
   if (manifest.publishers.length === 0) return true
@@ -591,8 +595,38 @@ export function resetWordbankCacheForTests() {
   }
 }
 
+export async function ensureManifestReady(): Promise<WordbankManifest> {
+  if (resolvedManifest) return resolvedManifest
+
+  const manifest = await resolveManifest()
+  resolvedManifest = manifest
+  syncPublisherCaches(manifest)
+  return manifest
+}
+
+export async function ensurePublisherLoaded(publisherId: string): Promise<WordEntry[]> {
+  const manifest = await ensureManifestReady()
+  if (loadedPublisherIds.has(publisherId) && cachedWords) {
+    return cachedWords.filter(word => word.publisherId === publisherId)
+  }
+
+  const { words, loadedIds } = await loadPublisherBlocksForIds(manifest, [publisherId])
+  for (const id of loadedIds) {
+    loadedPublisherIds.add(id)
+  }
+
+  cachedWords = mergeLoadedWords(cachedWords ?? [], words)
+  writeStorage(WORDBANK_VERSION_KEY, manifest.version)
+
+  if (!loadPromise) {
+    loadPromise = Promise.resolve(cachedWords)
+  }
+
+  return words
+}
+
 export async function ensureWordbankLoaded(): Promise<WordEntry[]> {
-  if (cachedWords) return cachedWords
+  if (cachedWords !== null) return cachedWords
   if (!loadPromise) {
     loadPromise = (async () => {
       const manifest = await resolveManifest()

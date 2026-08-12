@@ -31,6 +31,18 @@ import type {
   WordEntry
 } from '@/core/types'
 import {
+  buildCourseSetupBookOptions,
+  buildCourseSetupPublisherOptions,
+  buildCourseSetupUnitOptions,
+  inferJuniorGradeFromBookName,
+  inferSchoolStageFromBookName,
+  isUnitIdInCatalog,
+  lookupUnitInCatalog,
+  type SchoolStage as CatalogSchoolStage
+} from '@/core/courseSetupCatalog'
+import {
+  ensureManifestReady,
+  ensurePublisherLoaded,
   ensureWordbankFullyLoaded,
   ensureWordbankLoaded,
   findUnit,
@@ -38,7 +50,9 @@ import {
   getLoadedWordCount,
   getUnitLabel,
   getWeakWords,
+  getWordbankManifest,
   groupUnits,
+  isPublisherLoaded,
   onWordbankExpanded,
   refreshWordbankIfUpdated,
   resetWordbankCacheForTests
@@ -344,8 +358,12 @@ export function createPracticeSession(words: WordEntry[]) {
   const initialUnit = findUnit(units, savedUnitId) ?? defaultUnit
   const initiallyCompletedCourseSetup = loadCourseSetupCompleted(savedUnitId)
   const unfinishedDictation = loadUnfinishedDictation()
+  const resumeScreen = pendingScreenAfterRemount
+  pendingScreenAfterRemount = null
 
-  const screen = ref<AppScreen>(initiallyCompletedCourseSetup ? 'home' : 'courseSetup')
+  const screen = ref<AppScreen>(
+    resumeScreen ?? (initiallyCompletedCourseSetup ? 'home' : 'courseSetup')
+  )
   const selectedUnitId = ref(initialUnit?.unitId ?? '')
   const courseSetupCompleted = ref(initiallyCompletedCourseSetup)
   const courseSetupStage = ref<SchoolStage>(initialUnit ? inferSchoolStage(initialUnit) : '高中')
@@ -431,32 +449,26 @@ export function createPracticeSession(words: WordEntry[]) {
   const selectedUnitQuickIndex = computed(() => Math.max(0, unitQuickOptions.value.indexOf(selectedUnit.value?.unitName ?? '')))
   const courseSetupStageOptions = computed(() => SCHOOL_STAGE_OPTIONS)
   const courseSetupGradeOptions = computed(() => JUNIOR_GRADE_OPTIONS)
-  const courseSetupStageUnits = computed(() => {
-    if (courseSetupStage.value === '初中') {
-      if (!courseSetupGrade.value) return []
-      return units.filter(unit => inferSchoolStage(unit) === '初中' && unit.bookName.includes(courseSetupGrade.value))
-    }
-
-    return units.filter(unit => inferSchoolStage(unit) === '高中')
-  })
-  const courseSetupPublisherOptions = computed(() => toCourseOptions(
-    courseSetupStageUnits.value,
-    unit => unit.publisherId,
-    unit => unit.publisherName
+  const courseSetupPublisherOptions = computed(() => buildCourseSetupPublisherOptions(
+    getWordbankManifest(),
+    courseSetupStage.value,
+    courseSetupGrade.value
   ))
-  const courseSetupBookOptions = computed(() => toBookCourseOptions(
-    courseSetupStageUnits.value.filter(unit => unit.publisherId === courseSetupPublisherId.value),
+  const courseSetupBookOptions = computed(() => buildCourseSetupBookOptions(
+    getWordbankManifest(),
+    courseSetupStage.value,
+    courseSetupGrade.value,
+    courseSetupPublisherId.value,
     masteredWordIdSet.value
   ))
-  const courseSetupUnitOptions = computed(() => courseSetupStageUnits.value
-    .filter(unit => unit.publisherId === courseSetupPublisherId.value && unit.bookId === courseSetupBookId.value)
-    .sort((a, b) => a.unitNumber - b.unitNumber)
-    .map(unit => ({
-      id: unit.unitId,
-      name: unit.unitName,
-      count: unit.words.length,
-      masteryPercent: computeMasteryPercent(unit.words.map(word => word.id), masteredWordIdSet.value)
-    })))
+  const courseSetupUnitOptions = computed(() => buildCourseSetupUnitOptions(
+    getWordbankManifest(),
+    courseSetupStage.value,
+    courseSetupGrade.value,
+    courseSetupPublisherId.value,
+    courseSetupBookId.value,
+    masteredWordIdSet.value
+  ))
   const courseSetupActivePublisherId = computed(() => {
     const explicit = courseSetupPublisherId.value
     if (explicit && courseSetupPublisherOptions.value.some(option => option.id === explicit)) {
@@ -666,6 +678,19 @@ export function createPracticeSession(words: WordEntry[]) {
     courseSetupUnitId.value = unitId
   }
 
+  function syncCourseSetupDraftFromManifestUnit(unitId: string) {
+    if (!unitId || !isUnitIdInCatalog(getWordbankManifest(), unitId)) return
+
+    const meta = lookupUnitInCatalog(getWordbankManifest(), unitId)
+    if (!meta) return
+
+    courseSetupStage.value = inferSchoolStageFromBookName(meta.bookName)
+    courseSetupGrade.value = courseSetupStage.value === '初中'
+      ? inferJuniorGradeFromBookName(meta.bookName)
+      : ''
+    syncCourseSetupSelectionFromUnitId(unitId)
+  }
+
   function syncCourseSetupDraftFromUnit(unit: UnitGroup | undefined) {
     if (!unit) return
 
@@ -674,21 +699,39 @@ export function createPracticeSession(words: WordEntry[]) {
     syncCourseSetupSelectionFromUnitId(unit.unitId)
   }
 
-  function setCourseDraftToFirstUnit(stage: SchoolStage) {
-    const next = courseSetupStageUnits.value.find(unit => inferSchoolStage(unit) === stage)
-    if (!next) {
+  function setCourseDraftToFirstUnit(stage: CatalogSchoolStage) {
+    const grade = stage === '初中' ? courseSetupGrade.value : ''
+    const publishers = buildCourseSetupPublisherOptions(getWordbankManifest(), stage, grade)
+    if (publishers.length === 0) {
       courseSetupPublisherId.value = ''
       courseSetupBookId.value = ''
       courseSetupUnitId.value = ''
       return
     }
 
-    syncCourseSetupSelectionFromUnitId(next.unitId)
+    courseSetupPublisherId.value = publishers[0]!.id
+    const books = buildCourseSetupBookOptions(
+      getWordbankManifest(),
+      stage,
+      grade,
+      courseSetupPublisherId.value,
+      masteredWordIdSet.value
+    )
+    courseSetupBookId.value = books[0]?.id ?? ''
+    const unitOptions = buildCourseSetupUnitOptions(
+      getWordbankManifest(),
+      stage,
+      grade,
+      courseSetupPublisherId.value,
+      courseSetupBookId.value,
+      masteredWordIdSet.value
+    )
+    courseSetupUnitId.value = unitOptions[0]?.id ?? ''
   }
 
   function defaultJuniorGrade(): string {
     return JUNIOR_GRADE_OPTIONS.find(grade => (
-      units.some(unit => inferSchoolStage(unit) === '初中' && unit.bookName.includes(grade))
+      buildCourseSetupPublisherOptions(getWordbankManifest(), '初中', grade).length > 0
     )) ?? JUNIOR_GRADE_OPTIONS[1] ?? '七年级'
   }
 
@@ -707,20 +750,9 @@ export function createPracticeSession(words: WordEntry[]) {
     courseSetupStage.value = '初中'
 
     const draft = lastJuniorCourseSetupDraft.value
-    const draftUnit = draft.unitId ? findUnit(units, draft.unitId) : undefined
-
-    if (draft.grade && draftUnit && inferSchoolStage(draftUnit) === '初中') {
+    if (draft.grade && draft.unitId && isUnitIdInCatalog(getWordbankManifest(), draft.unitId)) {
       courseSetupGrade.value = draft.grade
-      syncCourseSetupSelectionFromUnitId(draft.unitId)
-      return
-    }
-
-    const fallbackUnit = units.find(unit => (
-      inferSchoolStage(unit) === '初中' && unit.bookName.includes(defaultJuniorGrade())
-    )) ?? units.find(unit => inferSchoolStage(unit) === '初中')
-
-    if (fallbackUnit) {
-      syncCourseSetupDraftFromUnit(fallbackUnit)
+      syncCourseSetupDraftFromManifestUnit(draft.unitId)
       return
     }
 
@@ -749,23 +781,37 @@ export function createPracticeSession(words: WordEntry[]) {
   }
 
   function setCourseSetupPublisher(publisherId: string) {
-    const next = courseSetupStageUnits.value.find(unit => unit.publisherId === publisherId)
-    if (next) {
-      syncCourseSetupSelectionFromUnitId(next.unitId)
-      return
-    }
-
     courseSetupPublisherId.value = publisherId
-    courseSetupBookId.value = ''
-    courseSetupUnitId.value = ''
+    const books = buildCourseSetupBookOptions(
+      getWordbankManifest(),
+      courseSetupStage.value,
+      courseSetupGrade.value,
+      publisherId,
+      masteredWordIdSet.value
+    )
+    courseSetupBookId.value = books[0]?.id ?? ''
+    const unitOptions = buildCourseSetupUnitOptions(
+      getWordbankManifest(),
+      courseSetupStage.value,
+      courseSetupGrade.value,
+      publisherId,
+      courseSetupBookId.value,
+      masteredWordIdSet.value
+    )
+    courseSetupUnitId.value = unitOptions[0]?.id ?? ''
   }
 
   function setCourseSetupBook(bookId: string) {
     courseSetupBookId.value = bookId
-    const next = courseSetupStageUnits.value.find(unit => {
-      return unit.publisherId === courseSetupPublisherId.value && unit.bookId === bookId
-    })
-    courseSetupUnitId.value = next?.unitId ?? ''
+    const unitOptions = buildCourseSetupUnitOptions(
+      getWordbankManifest(),
+      courseSetupStage.value,
+      courseSetupGrade.value,
+      courseSetupPublisherId.value,
+      bookId,
+      masteredWordIdSet.value
+    )
+    courseSetupUnitId.value = unitOptions[0]?.id ?? ''
   }
 
   function setCourseSetupUnit(unitId: string) {
@@ -773,25 +819,23 @@ export function createPracticeSession(words: WordEntry[]) {
   }
 
   function openCourseSetup() {
-    void expandPracticeSessionWordbankIfNeeded()
-    syncCourseSetupDraftFromUnit(selectedUnit.value)
+    prepareCourseSetupScreen()
+  }
+
+  function prepareCourseSetupScreen() {
+    if (selectedUnit.value) {
+      syncCourseSetupDraftFromUnit(selectedUnit.value)
+    } else if (selectedUnitId.value) {
+      syncCourseSetupDraftFromManifestUnit(selectedUnitId.value)
+    } else if (!courseSetupUnitId.value) {
+      setCourseDraftToFirstUnit(courseSetupStage.value)
+    }
     screen.value = 'courseSetup'
     scrollToTop()
   }
 
   function confirmCourseSetup() {
-    const next = findUnit(units, courseSetupUnitId.value)
-    if (!next) {
-      uni.showToast({
-        title: '当前词库暂未上线',
-        icon: 'none'
-      })
-      return
-    }
-
-    courseSetupCompleted.value = true
-    saveCourseSetupCompleted()
-    setSelectedUnit(next)
+    void confirmCourseSetupAndEnter()
   }
 
   function setSelectedUnitByIndex(index: number) {
@@ -1513,6 +1557,12 @@ export function createPracticeSession(words: WordEntry[]) {
     scrollToTop()
   }
 
+  if (resumeScreen === 'courseSetup') {
+    prepareCourseSetupScreen()
+  } else if (!initiallyCompletedCourseSetup && !courseSetupUnitId.value) {
+    setCourseDraftToFirstUnit(courseSetupStage.value)
+  }
+
   return {
     activeWords,
     checkupAnswers,
@@ -1582,6 +1632,7 @@ export function createPracticeSession(words: WordEntry[]) {
     openDictationWordPicker,
     openCheckupSetup,
     openCourseSetup,
+    prepareCourseSetupScreen,
     openSelectedWeakDictationSetup,
     openUnitWords,
     openWordDetail,
@@ -1617,6 +1668,7 @@ export function createPracticeSession(words: WordEntry[]) {
     bookOptions,
     savedWeakWords,
     savedWeakWordSources,
+    setSelectedUnit,
     setSelectedBookByIndex,
     setCheckupLimit,
     setCourseSetupBook,
@@ -1669,11 +1721,33 @@ type PracticeSession = ReturnType<typeof createPracticeSession>
 let practiceSession: PracticeSession | null = null
 let sessionInitPromise: Promise<PracticeSession> | null = null
 let sessionRefreshInFlight: Promise<boolean> | null = null
+let pendingScreenAfterRemount: AppScreen | null = null
 
 export const practiceSessionGeneration = ref(0)
 
 const STARTUP_WORDBANK_REFRESH_DELAY_MS = 3000
 const STARTUP_CLOUD_SYNC_DELAY_MS = 1500
+
+function attachPracticeSessionCloudSync() {
+  void ensureUserSession().then((sessionPayload) => {
+    if (!sessionPayload) return
+
+    const merged = mergeProgress(readLocalProgressSnapshot(), sessionPayload.progress)
+    writeLocalProgressSnapshot(merged)
+    markProgressUpdatedAt(merged.updatedAt)
+    setCachedDashboard(sessionPayload.dashboard)
+    scheduleProgressUpload(merged, 300)
+  })
+}
+
+function remountPracticeSessionWithWords(words: WordEntry[]): PracticeSession {
+  resetPracticeSessionState()
+  practiceSession = createPracticeSession(words)
+  sessionInitPromise = Promise.resolve(practiceSession)
+  attachPracticeSessionCloudSync()
+  practiceSessionGeneration.value += 1
+  return practiceSession
+}
 
 export async function expandPracticeSessionWordbankIfNeeded(): Promise<void> {
   const beforeCount = getLoadedWordCount()
@@ -1698,13 +1772,65 @@ export function scheduleDeferredStartupSync() {
 onWordbankExpanded(() => {
   if (!practiceSession) return
   if (readLocalProgressSnapshot().courseSetupCompleted) return
+  if (practiceSession.screen.value === 'courseSetup') return
 
   void expandPracticeSessionWordbankIfNeeded()
 })
 
+export async function confirmCourseSetupAndEnter(): Promise<boolean> {
+  const session = practiceSession
+  if (!session?.courseSetupCanConfirm.value) return false
+
+  const unitId = session.courseSetupUnitId.value
+  const publisherId = publisherIdFromUnitId(unitId)
+  if (!publisherId || !isUnitIdInCatalog(getWordbankManifest(), unitId)) {
+    uni.showToast({ title: '当前词库暂未上线', icon: 'none' })
+    return false
+  }
+
+  // An already-expanded publisher resolves synchronously, so the popup would only
+  // add its own fade animation to an otherwise instant switch.
+  const showsLoading = !isPublisherLoaded(publisherId)
+  if (showsLoading) {
+    uni.showLoading({ title: '加载词库中', mask: true })
+  }
+
+  let words: WordEntry[]
+  try {
+    await ensurePublisherLoaded(publisherId)
+    words = await ensureWordbankLoaded()
+  } catch (error) {
+    // hideLoading must run before showToast: both share one native popup slot,
+    // so hiding afterwards would immediately dismiss the message.
+    if (showsLoading) uni.hideLoading()
+    console.warn('[usePracticeSession] wordbank download failed', publisherId, error)
+    uni.showToast({ title: '词库下载失败，请检查网络', icon: 'none' })
+    return false
+  }
+
+  const unit = findUnit(groupUnits(words), unitId)
+  if (showsLoading) uni.hideLoading()
+
+  if (!unit) {
+    console.warn('[usePracticeSession] unit missing after load', unitId, words.length)
+    uni.showToast({ title: '该单元暂未上线', icon: 'none' })
+    return false
+  }
+
+  saveSelectedUnitId(unitId)
+  saveCourseSetupCompleted()
+
+  const nextSession = remountPracticeSessionWithWords(words)
+  nextSession.courseSetupCompleted.value = true
+  nextSession.setSelectedUnit(unit)
+  nextSession.screen.value = 'home'
+  return true
+}
+
 export function resetPracticeSessionState() {
   practiceSession = null
   sessionInitPromise = null
+  pendingScreenAfterRemount = null
 }
 
 export function resetPracticeSessionForTests() {
@@ -1716,18 +1842,17 @@ export async function ensurePracticeSessionReady(): Promise<PracticeSession> {
   if (practiceSession) return practiceSession
   if (!sessionInitPromise) {
     sessionInitPromise = (async () => {
-      const words = await ensureWordbankLoaded()
+      const progress = readLocalProgressSnapshot()
+      let words: WordEntry[] = []
+      if (progress.courseSetupCompleted) {
+        words = await ensureWordbankLoaded()
+      } else {
+        await ensureManifestReady()
+      }
+
       practiceSession = createPracticeSession(words)
 
-      void ensureUserSession().then((sessionPayload) => {
-        if (!sessionPayload) return
-
-        const merged = mergeProgress(readLocalProgressSnapshot(), sessionPayload.progress)
-        writeLocalProgressSnapshot(merged)
-        markProgressUpdatedAt(merged.updatedAt)
-        setCachedDashboard(sessionPayload.dashboard)
-        scheduleProgressUpload(merged, 300)
-      })
+      attachPracticeSessionCloudSync()
 
       return practiceSession
     })()

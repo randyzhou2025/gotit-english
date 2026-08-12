@@ -1384,7 +1384,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { onHide, onShow } from '@dcloudio/uni-app'
-import { usePracticeSession, type AppScreen } from '@/app/usePracticeSession'
+import { confirmCourseSetupAndEnter, usePracticeSession, type AppScreen } from '@/app/usePracticeSession'
 import TabBottomNav from '@/components/TabBottomNav.vue'
 import { getAudioUrl, hasPlayableAudio } from '@/core/audio'
 import { buildTextbookCoverUrl } from '@/core/textbookCover'
@@ -1448,7 +1448,6 @@ const {
   clearWeakWordSelection,
   confirmDictationWordSelection,
   confirmDictationResult,
-  confirmCourseSetup,
   courseSetupBookId,
   courseSetupBookOptions,
   courseSetupCanConfirm,
@@ -2534,9 +2533,16 @@ function openWordlistExportPage() {
   })
 }
 
-function confirmCourseSetupPage() {
-  confirmCourseSetup()
-  resetPractice()
+async function confirmCourseSetupPage() {
+  if (!courseSetupCanConfirm.value) return
+
+  const entered = await confirmCourseSetupAndEnter()
+  if (!entered) return
+
+  // The course screen can be hosted either by the home tab root (first-time setup)
+  // or by /pages/course/index (switching textbooks). reLaunch lands on the home tab
+  // from both without depending on the current page stack.
+  uni.reLaunch({ url: '/pages/index/index' })
 }
 
 function confirmSelectedWeakWordsKnown() {
@@ -4282,7 +4288,7 @@ onBeforeUnmount(() => {
 .checkupSetupScreen,
 .dictationSetupScreen,
 .courseSetupScreen {
-  padding-bottom: calc(92px + env(safe-area-inset-bottom));
+  padding-bottom: calc(148px + env(safe-area-inset-bottom));
 }
 
 .courseSetupScreen {
