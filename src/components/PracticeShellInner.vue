@@ -2539,21 +2539,13 @@ async function confirmCourseSetupPage() {
   const entered = await confirmCourseSetupAndEnter()
   if (!entered) return
 
-  // Switching textbooks pushes /pages/course/index on top of the home tab, so the
-  // home page is still alive underneath and popping back avoids rebuilding it.
-  if (props.routeScreen === 'courseSetup') {
-    uni.navigateBack({
-      fail: () => {
-        uni.reLaunch({ url: '/pages/index/index' })
-      }
-    })
-    return
-  }
+  // First-time setup renders inside the home page itself, so flipping
+  // courseSetupCompleted already reveals the home screen with nothing to pop.
+  if (!props.routeScreen) return
 
-  // First-time setup is hosted by the home tab root itself, where there is no page
-  // to pop. reLaunch costs a rebuild but runs once per user and cannot get stuck on
-  // the course screen.
-  uni.reLaunch({ url: '/pages/index/index' })
+  uni.navigateBack({
+    fail: () => uni.reLaunch({ url: '/pages/index/index' })
+  })
 }
 
 function confirmSelectedWeakWordsKnown() {

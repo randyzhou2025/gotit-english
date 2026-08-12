@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue'
+import { computed, ref, shallowRef } from 'vue'
 import {
   mergeProgress,
   readLocalProgressSnapshot,
@@ -351,11 +351,14 @@ function triggerHapticFeedback(strength: HapticStrength = 'medium') {
   }
 }
 
-export function createPracticeSession(words: WordEntry[]) {
-  const units = groupUnits(words)
-  const defaultUnit = getDefaultUnit(units)
+export function createPracticeSession(initialWords: WordEntry[]) {
+  // Kept mutable so a publisher loaded later can be adopted in place. Recreating the
+  // session instead would force every mounted shell to remount, which is timing
+  // sensitive across pages.
+  const loadedWords = shallowRef(initialWords)
+  const units = shallowRef(groupUnits(initialWords))
   const savedUnitId = loadSavedUnitId()
-  const initialUnit = findUnit(units, savedUnitId) ?? defaultUnit
+  const initialUnit = findUnit(units.value, savedUnitId) ?? getDefaultUnit(units.value)
   const initiallyCompletedCourseSetup = loadCourseSetupCompleted(savedUnitId)
   const unfinishedDictation = loadUnfinishedDictation()
   const resumeScreen = pendingScreenAfterRemount
@@ -421,24 +424,24 @@ export function createPracticeSession(words: WordEntry[]) {
   const dictationResultConfirmed = ref(false)
   const dictationReward = ref<DictationRewardState | null>(null)
 
-  const selectedUnit = computed<UnitGroup | undefined>(() => findUnit(units, selectedUnitId.value))
+  const selectedUnit = computed<UnitGroup | undefined>(() => findUnit(units.value, selectedUnitId.value))
   const currentSchoolStage = computed(() => selectedUnit.value ? inferSchoolStage(selectedUnit.value) : '高中')
   const selectedUnitIndex = computed(() => {
-    const index = units.findIndex(unit => unit.unitId === selectedUnitId.value)
+    const index = units.value.findIndex(unit => unit.unitId === selectedUnitId.value)
     return index < 0 ? 0 : index
   })
   const schoolStageOptions = computed(() => SCHOOL_STAGE_OPTIONS)
   const selectedSchoolStageIndex = computed(() => Math.max(0, schoolStageOptions.value.indexOf(currentSchoolStage.value)))
-  const publisherOptions = computed(() => uniqueValues(units
+  const publisherOptions = computed(() => uniqueValues(units.value
     .filter(unit => inferSchoolStage(unit) === currentSchoolStage.value)
     .map(unit => unit.publisherName)))
   const selectedPublisherIndex = computed(() => Math.max(0, publisherOptions.value.indexOf(selectedUnit.value?.publisherName ?? '')))
-  const bookOptions = computed(() => uniqueValues(units
+  const bookOptions = computed(() => uniqueValues(units.value
     .filter(unit => inferSchoolStage(unit) === currentSchoolStage.value && unit.publisherId === selectedUnit.value?.publisherId)
     .sort((a, b) => a.bookOrder - b.bookOrder)
     .map(unit => unit.bookName)))
   const selectedBookIndex = computed(() => Math.max(0, bookOptions.value.indexOf(selectedUnit.value?.bookName ?? '')))
-  const unitQuickOptions = computed(() => units
+  const unitQuickOptions = computed(() => units.value
     .filter(unit => {
       return inferSchoolStage(unit) === currentSchoolStage.value
         && unit.publisherId === selectedUnit.value?.publisherId
@@ -540,8 +543,8 @@ export function createPracticeSession(words: WordEntry[]) {
     return Array.from(new Set(options))
   })
   const unitLabel = computed(() => selectedUnit.value ? getUnitLabel(selectedUnit.value) : '请选择 Unit')
-  const unitOptions = computed(() => units.map(unit => getUnitLabel(unit)))
-  const wordLookup = computed(() => new Map(words.map(word => [word.id, word])))
+  const unitOptions = computed(() => units.value.map(unit => getUnitLabel(unit)))
+  const wordLookup = computed(() => new Map(loadedWords.value.map(word => [word.id, word])))
 
   const currentCheckupQuestion = computed(() => checkupQuestions.value[checkupIndex.value])
   const checkupProgressLabel = computed(() => {
@@ -839,7 +842,7 @@ export function createPracticeSession(words: WordEntry[]) {
   }
 
   function setSelectedUnitByIndex(index: number) {
-    const next = units[index]
+    const next = units.value[index]
     if (!next) return
     selectedUnitId.value = next.unitId
     saveSelectedUnitId(next.unitId)
@@ -857,21 +860,30 @@ export function createPracticeSession(words: WordEntry[]) {
     resetPractice()
   }
 
+  /** Swap in a wider wordbank without rebuilding the session. */
+  function adoptWords(nextWords: WordEntry[]) {
+    loadedWords.value = nextWords
+    units.value = groupUnits(nextWords)
+
+    if (findUnit(units.value, selectedUnitId.value)) return
+    selectedUnitId.value = getDefaultUnit(units.value)?.unitId ?? ''
+  }
+
   function setSelectedSchoolStageByIndex(index: number) {
     const stage = schoolStageOptions.value[index]
-    const next = units.find(unit => inferSchoolStage(unit) === stage)
+    const next = units.value.find(unit => inferSchoolStage(unit) === stage)
     setSelectedUnit(next)
   }
 
   function setSelectedPublisherByIndex(index: number) {
     const publisherName = publisherOptions.value[index]
-    const next = units.find(unit => inferSchoolStage(unit) === currentSchoolStage.value && unit.publisherName === publisherName)
+    const next = units.value.find(unit => inferSchoolStage(unit) === currentSchoolStage.value && unit.publisherName === publisherName)
     setSelectedUnit(next)
   }
 
   function setSelectedBookByIndex(index: number) {
     const bookName = bookOptions.value[index]
-    const next = units.find(unit => {
+    const next = units.value.find(unit => {
       return inferSchoolStage(unit) === currentSchoolStage.value
         && unit.publisherId === selectedUnit.value?.publisherId
         && unit.bookName === bookName
@@ -880,7 +892,7 @@ export function createPracticeSession(words: WordEntry[]) {
   }
 
   function setSelectedUnitQuickByIndex(index: number) {
-    const next = units
+    const next = units.value
       .filter(unit => {
         return inferSchoolStage(unit) === currentSchoolStage.value
           && unit.publisherId === selectedUnit.value?.publisherId
@@ -1565,6 +1577,7 @@ export function createPracticeSession(words: WordEntry[]) {
 
   return {
     activeWords,
+    adoptWords,
     checkupAnswers,
     checkupIndex,
     checkupLimit,
@@ -1723,7 +1736,6 @@ let sessionInitPromise: Promise<PracticeSession> | null = null
 let sessionRefreshInFlight: Promise<boolean> | null = null
 let pendingScreenAfterRemount: AppScreen | null = null
 
-export const practiceSessionGeneration = ref(0)
 
 const STARTUP_WORDBANK_REFRESH_DELAY_MS = 3000
 const STARTUP_CLOUD_SYNC_DELAY_MS = 1500
@@ -1740,23 +1752,13 @@ function attachPracticeSessionCloudSync() {
   })
 }
 
-function remountPracticeSessionWithWords(words: WordEntry[]): PracticeSession {
-  resetPracticeSessionState()
-  practiceSession = createPracticeSession(words)
-  sessionInitPromise = Promise.resolve(practiceSession)
-  attachPracticeSessionCloudSync()
-  practiceSessionGeneration.value += 1
-  return practiceSession
-}
-
 export async function expandPracticeSessionWordbankIfNeeded(): Promise<void> {
   const beforeCount = getLoadedWordCount()
-  await ensureWordbankFullyLoaded()
+  const words = await ensureWordbankFullyLoaded()
   if (getLoadedWordCount() <= beforeCount) return
 
-  resetPracticeSessionState()
-  await ensurePracticeSessionReady()
-  practiceSessionGeneration.value += 1
+  const session = practiceSession ?? await ensurePracticeSessionReady()
+  session.adoptWords(words)
 }
 
 export function scheduleDeferredStartupSync() {
@@ -1819,11 +1821,14 @@ export async function confirmCourseSetupAndEnter(): Promise<boolean> {
 
   saveSelectedUnitId(unitId)
   saveCourseSetupCompleted()
+  // markProgressDirty only persists the timestamp after a debounce, so stamp it now:
+  // a boot snapshot landing later must not look newer than this choice.
+  markProgressUpdatedAt(new Date().toISOString())
 
-  const nextSession = remountPracticeSessionWithWords(words)
-  nextSession.courseSetupCompleted.value = true
-  nextSession.setSelectedUnit(unit)
-  nextSession.screen.value = 'home'
+  session.adoptWords(words)
+  session.courseSetupCompleted.value = true
+  session.setSelectedUnit(unit)
+  session.screen.value = 'home'
   return true
 }
 
@@ -1874,9 +1879,8 @@ export function refreshPracticeSessionIfWordbankUpdated(): Promise<boolean> {
       const updated = await refreshWordbankIfUpdated()
       if (!updated) return false
 
-      resetPracticeSessionState()
-      await ensurePracticeSessionReady()
-      practiceSessionGeneration.value += 1
+      const session = practiceSession ?? await ensurePracticeSessionReady()
+      session.adoptWords(await ensureWordbankLoaded())
       return true
     })().finally(() => {
       sessionRefreshInFlight = null

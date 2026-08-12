@@ -185,7 +185,7 @@ describe('practice session dictation navigation', () => {
   it('builds a practice session from loaded words', async () => {
     const words = await ensureWordbankFullyLoaded()
     const session = createPracticeSession(words)
-    expect(session.units.length).toBeGreaterThan(0)
+    expect(session.units.value.length).toBeGreaterThan(0)
     expect(session.unitWords.value.length).toBeGreaterThan(0)
   })
 
@@ -251,7 +251,7 @@ describe('practice session dictation navigation', () => {
 
   it('syncs publisher selection from the chosen unit id', async () => {
     const session = await openSession()
-    const rjUnit = session.units.find(unit => unit.publisherId === 'rj' && unit.unitName === 'Welcome Unit')
+    const rjUnit = session.units.value.find(unit => unit.publisherId === 'rj' && unit.unitName === 'Welcome Unit')
     if (!rjUnit) return
 
     session.openCourseSetup()
@@ -288,7 +288,7 @@ describe('confirmCourseSetupAndEnter', () => {
 
   it('loads the selected publisher and enters home for a new user', async () => {
     const session = await ensurePracticeSessionReady()
-    expect(session.units.length).toBe(0)
+    expect(session.units.value.length).toBe(0)
 
     session.setCourseSetupStage('高中')
     session.setCourseSetupPublisher('rj')
@@ -302,9 +302,71 @@ describe('confirmCourseSetupAndEnter', () => {
     const next = await ensurePracticeSessionReady()
     expect(next.screen.value).toBe('home')
     expect(next.selectedUnit.value?.unitId).toBe(unitId)
-    expect(next.units.length).toBeGreaterThan(0)
+    expect(next.units.value.length).toBeGreaterThan(0)
     expect(storage.get('gotit:courseSetupCompleted')).toBe(true)
     expect(storage.get('gotit:selectedUnitId')).toBe(unitId)
+  })
+
+  it('stamps progress updatedAt so a stale cloud snapshot cannot revert the choice', async () => {
+    const staleStamp = '2020-01-01T00:00:00.000Z'
+    storage.set('gotit:progress:updatedAt', staleStamp)
+
+    const session = await ensurePracticeSessionReady()
+    session.setCourseSetupStage('高中')
+    session.setCourseSetupPublisher('rj')
+    const unitId = session.courseSetupUnitOptions.value[0]!.id
+    session.setCourseSetupUnit(unitId)
+
+    expect(await confirmCourseSetupAndEnter()).toBe(true)
+    expect(storage.get('gotit:selectedUnitId')).toBe(unitId)
+    expect(Date.parse(storage.get('gotit:progress:updatedAt') as string))
+      .toBeGreaterThan(Date.parse(staleStamp))
+  })
+
+  it('keeps the latest unit after switching textbooks twice', async () => {
+    const first = await ensurePracticeSessionReady()
+    first.setCourseSetupStage('高中')
+    first.setCourseSetupPublisher('rj')
+    const firstUnitId = first.courseSetupUnitOptions.value[0]!.id
+    first.setCourseSetupUnit(firstUnitId)
+    expect(await confirmCourseSetupAndEnter()).toBe(true)
+
+    const second = await ensurePracticeSessionReady()
+    second.openCourseSetup()
+    second.setCourseSetupStage('初中')
+    second.setCourseSetupGrade('七年级')
+    second.setCourseSetupPublisher('kp')
+    const secondUnitId = second.courseSetupUnitOptions.value[0]!.id
+    second.setCourseSetupUnit(secondUnitId)
+    expect(await confirmCourseSetupAndEnter()).toBe(true)
+
+    expect(secondUnitId).not.toBe(firstUnitId)
+    expect(storage.get('gotit:selectedUnitId')).toBe(secondUnitId)
+    const current = await ensurePracticeSessionReady()
+    expect(current.selectedUnit.value?.unitId).toBe(secondUnitId)
+  })
+
+  it('updates the same session object so mounted shells see the new textbook', async () => {
+    const session = await ensurePracticeSessionReady()
+    session.setCourseSetupStage('高中')
+    session.setCourseSetupPublisher('rj')
+    session.setCourseSetupUnit(session.courseSetupUnitOptions.value[0]!.id)
+    expect(await confirmCourseSetupAndEnter()).toBe(true)
+
+    session.openCourseSetup()
+    session.setCourseSetupStage('初中')
+    session.setCourseSetupGrade('七年级')
+    session.setCourseSetupPublisher('kp')
+    const switchedUnitId = session.courseSetupUnitOptions.value[0]!.id
+    session.setCourseSetupUnit(switchedUnitId)
+    expect(await confirmCourseSetupAndEnter()).toBe(true)
+
+    // The reference a mounted shell captured at setup time must reflect the switch;
+    // recreating the session instead would leave that shell on the old textbook.
+    expect(await ensurePracticeSessionReady()).toBe(session)
+    expect(session.selectedUnit.value?.unitId).toBe(switchedUnitId)
+    expect(session.unitWords.value.length).toBeGreaterThan(0)
+    expect(session.screen.value).toBe('home')
   })
 
   it('skips the loading popup when the publisher is already expanded', async () => {

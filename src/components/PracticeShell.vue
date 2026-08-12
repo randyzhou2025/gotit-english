@@ -1,7 +1,6 @@
 <template>
   <PracticeShellInner
     v-if="ready"
-    :key="practiceSessionGeneration"
     v-bind="$attrs"
     class="practiceShellInner"
   />
@@ -46,8 +45,7 @@
 import { computed, onBeforeMount, onMounted, ref, useAttrs } from 'vue'
 import {
   ensurePracticeSessionReady,
-  isPracticeSessionReady,
-  practiceSessionGeneration
+  isPracticeSessionReady
 } from '@/app/usePracticeSession'
 import PracticeShellInner from '@/components/PracticeShellInner.vue'
 
