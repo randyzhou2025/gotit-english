@@ -61,6 +61,14 @@ describe('practice shell full-page layout', () => {
     expect(source).not.toContain('class="weakbookQuickActions"')
   })
 
+  it('pops back to the live home page when confirming a textbook switch', () => {
+    const start = source.indexOf('async function confirmCourseSetupPage()')
+    const confirmBody = source.slice(start, source.indexOf('\n}', start))
+
+    expect(confirmBody).toContain("props.routeScreen === 'courseSetup'")
+    expect(confirmBody.indexOf('uni.navigateBack(')).toBeLessThan(confirmBody.lastIndexOf('uni.reLaunch('))
+  })
+
   it('uses the approved paper dictation hierarchy and copy', () => {
     expect(source).toContain('class="dictationPaperNumber"')
     expect(source).toContain('class="dictationReplayHint"')
