@@ -87,10 +87,8 @@
 
     <canvas
       :id="CANVAS_ID"
-      :canvas-id="CANVAS_ID"
+      type="2d"
       class="exportCanvas"
-      :width="CANVAS_WIDTH"
-      :height="CANVAS_HEIGHT"
     />
   </view>
 </template>
@@ -105,6 +103,11 @@ import {
 import { useWeappShare } from '@/app/useWeappShare'
 import type { WordEntry } from '@/core/types'
 import {
+  drawWordlistPage,
+  wordlistCellMeaning,
+  wordlistCellWord
+} from '@/core/wordlistCanvas'
+import {
   buildJpegPdf,
   buildWordlistExportFilename,
   buildWordlistExportPages,
@@ -118,6 +121,14 @@ const CANVAS_ID = 'wordlistExportCanvas'
 const CANVAS_WIDTH = 1240
 const CANVAS_HEIGHT = 1754
 const instance = getCurrentInstance()
+
+interface ExportCanvasNode {
+  width: number
+  height: number
+  getContext(contextType: '2d'): CanvasRenderingContext2D
+}
+
+let exportCanvas: ExportCanvasNode | null = null
 
 const ready = ref(isPracticeSessionReady())
 const exporting = ref(false)
@@ -204,199 +215,63 @@ function previewRowNumber(columnIndex: number, rowIndex: number): number {
 }
 
 function previewWord(word: WordEntry | null, _columnIndex: number): string {
-  if (!word) return ''
-  if (exportMode.value === 'chinese') return ''
-  return word.word
+  return word ? wordlistCellWord(word, exportMode.value) : ''
 }
 
 function previewMeaning(word: WordEntry | null, _columnIndex: number): string {
-  if (!word) return ''
-  if (exportMode.value === 'english') return ''
-  return word.meaning
+  return word ? wordlistCellMeaning(word, exportMode.value) : ''
 }
 
-function drawLine(
-  context: UniNamespace.CanvasContext,
-  startX: number,
-  startY: number,
-  endX: number,
-  endY: number,
-  color = '#ccd8d2'
-) {
-  context.beginPath()
-  context.setStrokeStyle(color)
-  context.setLineWidth(1)
-  context.moveTo(startX, startY)
-  context.lineTo(endX, endY)
-  context.stroke()
-}
+// The legacy canvas sized its buffer as CSS size x devicePixelRatio, which put an
+// A4 page past the pixel budget Android silently degrades at. Canvas 2D lets us pin
+// the buffer to the drawing coordinates instead, so DPR no longer multiplies it.
+function resolveExportCanvas(): Promise<ExportCanvasNode> {
+  if (exportCanvas) return Promise.resolve(exportCanvas)
 
-function fitText(
-  context: UniNamespace.CanvasContext,
-  value: string,
-  maxWidth: number
-): string {
-  if (context.measureText(value).width <= maxWidth) return value
-
-  let result = ''
-  for (const character of value) {
-    if (context.measureText(`${result}${character}...`).width > maxWidth) break
-    result += character
-  }
-  return `${result}...`
-}
-
-function wrapText(
-  context: UniNamespace.CanvasContext,
-  value: string,
-  maxWidth: number,
-  maxLines = 2
-): string[] {
-  if (!value) return []
-
-  const lines: string[] = []
-  let current = ''
-  for (const character of value) {
-    const next = `${current}${character}`
-    if (current && context.measureText(next).width > maxWidth) {
-      lines.push(current)
-      current = character
-      if (lines.length === maxLines) break
-    } else {
-      current = next
-    }
-  }
-
-  if (lines.length < maxLines && current) lines.push(current)
-  if (lines.length === maxLines && lines.join('').length < value.length) {
-    lines[maxLines - 1] = fitText(context, `${lines[maxLines - 1]}...`, maxWidth)
-  }
-  return lines
-}
-
-function drawTable(
-  context: UniNamespace.CanvasContext,
-  words: Array<WordEntry | null>,
-  columnIndex: number,
-  pageIndex: number,
-  x: number,
-  y: number
-) {
-  const tableWidth = 545
-  const headerHeight = 44
-  const rowHeight = 68
-  const widths = [42, 174, 289, 40]
-  const boundaries = widths.reduce<number[]>((result, width) => {
-    result.push((result[result.length - 1] ?? x) + width)
-    return result
-  }, [x])
-
-  context.setFillStyle('#dfeee7')
-  context.fillRect(x, y, tableWidth, headerHeight)
-  context.setFillStyle('#36534a')
-  context.font = '700 18px sans-serif'
-  context.setTextBaseline('middle')
-  context.setTextAlign('center')
-  const headerCenters = widths.map((width, index) => boundaries[index]! + width / 2)
-  ;['序', '单词', '释义', '□'].forEach((label, index) => {
-    context.fillText(label, headerCenters[index]!, y + headerHeight / 2)
-  })
-
-  words.forEach((word, rowIndex) => {
-    const rowY = y + headerHeight + rowIndex * rowHeight
-    if (rowIndex % 2 === 1) {
-      context.setFillStyle('#f6f1e7')
-      context.fillRect(x, rowY, tableWidth, rowHeight)
-    }
-
-    if (!word) return
-    const rowNumber = pageIndex * 40 + columnIndex * 20 + rowIndex + 1
-    const wordValue = previewWord(word, columnIndex)
-    const meaningValue = previewMeaning(word, columnIndex)
-
-    context.setFillStyle('#718078')
-    context.font = '600 16px sans-serif'
-    context.setTextAlign('center')
-    context.fillText(String(rowNumber), x + widths[0]! / 2, rowY + rowHeight / 2)
-
-    context.setFillStyle('#17342c')
-    context.font = '700 20px sans-serif'
-    context.setTextAlign('left')
-    context.fillText(
-      fitText(context, wordValue, widths[1]! - 20),
-      boundaries[1]! + 10,
-      rowY + rowHeight / 2
-    )
-
-    context.font = '400 16px sans-serif'
-    const meaningLines = wrapText(context, meaningValue, widths[2]! - 18)
-    const lineHeight = 20
-    const firstLineY = rowY + rowHeight / 2 - ((meaningLines.length - 1) * lineHeight) / 2
-    meaningLines.forEach((line, lineIndex) => {
-      context.fillText(line, boundaries[2]! + 9, firstLineY + lineIndex * lineHeight)
-    })
-
-    context.setFillStyle('#8b9892')
-    context.font = '400 21px sans-serif'
-    context.setTextAlign('center')
-    context.fillText('□', boundaries[3]! + widths[3]! / 2, rowY + rowHeight / 2)
-  })
-
-  context.setStrokeStyle('#8eb5a5')
-  context.setLineWidth(2)
-  context.strokeRect(x, y, tableWidth, headerHeight + rowHeight * 20)
-  for (let rowIndex = 0; rowIndex <= 20; rowIndex += 1) {
-    const rowY = y + headerHeight + rowIndex * rowHeight
-    drawLine(context, x, rowY, x + tableWidth, rowY)
-  }
-  boundaries.slice(1, -1).forEach(boundary => {
-    drawLine(context, boundary, y, boundary, y + headerHeight + rowHeight * 20)
+  return new Promise((resolve, reject) => {
+    uni.createSelectorQuery()
+      .in(instance?.proxy)
+      .select(`#${CANVAS_ID}`)
+      .fields({ node: true, size: true }, () => {})
+      .exec(result => {
+        const node = (result?.[0] as { node?: ExportCanvasNode } | undefined)?.node
+        if (!node) {
+          reject(new Error('画布初始化失败，请重试'))
+          return
+        }
+        node.width = CANVAS_WIDTH
+        node.height = CANVAS_HEIGHT
+        exportCanvas = node
+        resolve(node)
+      })
   })
 }
 
-function drawExportPage(pageIndex: number): Promise<void> {
+async function drawExportPage(pageIndex: number): Promise<void> {
   const page = exportPages.value[pageIndex]
-  if (!page) return Promise.resolve()
+  if (!page) return
 
-  const context = uni.createCanvasContext(CANVAS_ID, instance?.proxy)
-  context.setFillStyle('#ffffff')
-  context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+  const canvas = await resolveExportCanvas()
+  const context = canvas.getContext('2d')
+  // Some runtimes hand back a context pre-scaled by devicePixelRatio. The buffer is
+  // already pinned to the drawing coordinates, so drop any transform they applied.
+  context.setTransform(1, 0, 0, 1, 0, 0)
 
-  context.setFillStyle('#17342c')
-  context.font = '800 34px sans-serif'
-  context.setTextAlign('left')
-  context.setTextBaseline('middle')
-  context.fillText(previewTitle.value, 68, 68)
-
-  context.setFillStyle('#718078')
-  context.font = '500 20px sans-serif'
-  context.fillText(unitTitle.value, 68, 108)
-  context.setTextAlign('right')
-  context.fillText(`共 ${sourceWords.value.length} 词`, CANVAS_WIDTH - 68, 108)
-
-  drawTable(context, page.left, 0, pageIndex, 68, 142)
-  drawTable(context, page.right, 1, pageIndex, 627, 142)
-
-  context.setFillStyle('#718078')
-  context.font = '500 17px sans-serif'
-  context.setTextAlign('left')
-  context.fillText('课本单词通 · 纸上默写更专注', 68, 1635)
-  context.setTextAlign('right')
-  context.fillText(
-    `第 ${pageIndex + 1}/${exportPages.value.length} 页`,
-    CANVAS_WIDTH - 68,
-    1635
-  )
-
-  return new Promise(resolve => {
-    context.draw(false, () => resolve())
+  drawWordlistPage(context, {
+    page,
+    pageIndex,
+    pageCount: exportPages.value.length,
+    mode: exportMode.value,
+    title: previewTitle.value,
+    subtitle: unitTitle.value,
+    totalWords: sourceWords.value.length
   })
 }
 
 function canvasToJpeg(): Promise<string> {
   return new Promise((resolve, reject) => {
     uni.canvasToTempFilePath({
-      canvasId: CANVAS_ID,
+      canvas: exportCanvas,
       x: 0,
       y: 0,
       width: CANVAS_WIDTH,
@@ -407,7 +282,7 @@ function canvasToJpeg(): Promise<string> {
       quality: 0.98,
       success: result => resolve(result.tempFilePath),
       fail: reject
-    }, instance?.proxy)
+    } as UniNamespace.CanvasToTempFilePathOptions, instance?.proxy)
   })
 }
 
@@ -850,6 +725,7 @@ onMounted(() => {
   text-align: center;
 }
 
+/* Matches the Canvas 2D buffer 1:1 so export crop coordinates need no conversion. */
 .exportCanvas {
   position: fixed;
   top: 0;

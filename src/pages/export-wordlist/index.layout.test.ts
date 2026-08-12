@@ -2,6 +2,10 @@ import fs from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
 const source = fs.readFileSync(new URL('./index.vue', import.meta.url), 'utf8')
+const canvasSource = fs.readFileSync(
+  new URL('../../core/wordlistCanvas.ts', import.meta.url),
+  'utf8'
+)
 
 describe('wordlist export canvas layout', () => {
   it('keeps the canvas coordinate space aligned with the exported JPEG size', () => {
@@ -13,12 +17,31 @@ describe('wordlist export canvas layout', () => {
     expect(source).not.toContain('height: 877px;')
   })
 
+  it('draws through Canvas 2D so the buffer size does not scale with devicePixelRatio', () => {
+    expect(source).toContain('type="2d"')
+    expect(source).toContain('node.width = CANVAS_WIDTH')
+    expect(source).toContain('node.height = CANVAS_HEIGHT')
+    expect(source).toContain("canvas.getContext('2d')")
+    expect(source).toContain('canvas: exportCanvas')
+
+    // The legacy context batches commands and replays them differently on Android.
+    expect(source).not.toContain('createCanvasContext')
+    expect(source).not.toContain('canvas-id')
+    expect(source).not.toContain('context.draw(')
+  })
+
+  it('draws through the shared canvas module so the preview cannot drift from the PDF', () => {
+    expect(source).toContain("from '@/core/wordlistCanvas'")
+    expect(source).toContain('drawWordlistPage(context, {')
+    expect(source).toContain('wordlistCellWord(word, exportMode.value)')
+    expect(source).toContain('wordlistCellMeaning(word, exportMode.value)')
+  })
+
   it('fits two complete 20-row tables inside the A4 canvas', () => {
-    expect(source).toContain('const tableWidth = 545')
-    expect(source).toContain('const rowHeight = 68')
-    expect(source).toContain('headerHeight + rowHeight * 20')
-    expect(source).toContain('drawTable(context, page.left, 0, pageIndex, 68, 142)')
-    expect(source).toContain('drawTable(context, page.right, 1, pageIndex, 627, 142)')
+    expect(canvasSource).toContain('const TABLE_WIDTH = 545')
+    expect(canvasSource).toContain('const ROW_HEIGHT = 68')
+    expect(canvasSource).toContain('const TABLE_ORIGINS = [68, 627]')
+    expect(canvasSource).toContain('HEADER_HEIGHT + ROW_HEIGHT * 20')
   })
 
   it('keeps the wordlist label concise', () => {
