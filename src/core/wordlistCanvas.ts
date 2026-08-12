@@ -1,8 +1,15 @@
 import type { WordEntry } from './types'
 import type { WordlistExportMode, WordlistExportPage } from './wordlistExport'
 
+/** Drawing coordinate space: A4 at 150 DPI. All layout constants live in it. */
 export const WORDLIST_CANVAS_WIDTH = 1240
 export const WORDLIST_CANVAS_HEIGHT = 1754
+
+// Rasterise at 2x for a 300 DPI page. Going further breaks one of two platform
+// limits: 4096 on either dimension (2.5x would be 4385 tall) and 16.7M pixels.
+export const WORDLIST_EXPORT_SCALE = 2
+export const WORDLIST_BUFFER_WIDTH = WORDLIST_CANVAS_WIDTH * WORDLIST_EXPORT_SCALE
+export const WORDLIST_BUFFER_HEIGHT = WORDLIST_CANVAS_HEIGHT * WORDLIST_EXPORT_SCALE
 
 const TABLE_WIDTH = 545
 const HEADER_HEIGHT = 44

@@ -103,6 +103,9 @@ import {
 import { useWeappShare } from '@/app/useWeappShare'
 import type { WordEntry } from '@/core/types'
 import {
+  WORDLIST_BUFFER_HEIGHT,
+  WORDLIST_BUFFER_WIDTH,
+  WORDLIST_EXPORT_SCALE,
   drawWordlistPage,
   wordlistCellMeaning,
   wordlistCellWord
@@ -118,8 +121,7 @@ import {
 useWeappShare()
 
 const CANVAS_ID = 'wordlistExportCanvas'
-const CANVAS_WIDTH = 1240
-const CANVAS_HEIGHT = 1754
+const EXPORT_JPEG_QUALITY = 0.92
 const instance = getCurrentInstance()
 
 interface ExportCanvasNode {
@@ -239,8 +241,8 @@ function resolveExportCanvas(): Promise<ExportCanvasNode> {
           reject(new Error('画布初始化失败，请重试'))
           return
         }
-        node.width = CANVAS_WIDTH
-        node.height = CANVAS_HEIGHT
+        node.width = WORDLIST_BUFFER_WIDTH
+        node.height = WORDLIST_BUFFER_HEIGHT
         exportCanvas = node
         resolve(node)
       })
@@ -253,9 +255,11 @@ async function drawExportPage(pageIndex: number): Promise<void> {
 
   const canvas = await resolveExportCanvas()
   const context = canvas.getContext('2d')
-  // Some runtimes hand back a context pre-scaled by devicePixelRatio. The buffer is
-  // already pinned to the drawing coordinates, so drop any transform they applied.
-  context.setTransform(1, 0, 0, 1, 0, 0)
+  // Overwrite rather than compose: some runtimes hand back a context already scaled
+  // by devicePixelRatio, which would stack on top of the export scale.
+  context.setTransform(
+    WORDLIST_EXPORT_SCALE, 0, 0, WORDLIST_EXPORT_SCALE, 0, 0
+  )
 
   drawWordlistPage(context, {
     page,
@@ -274,12 +278,12 @@ function canvasToJpeg(): Promise<string> {
       canvas: exportCanvas,
       x: 0,
       y: 0,
-      width: CANVAS_WIDTH,
-      height: CANVAS_HEIGHT,
-      destWidth: CANVAS_WIDTH,
-      destHeight: CANVAS_HEIGHT,
+      width: WORDLIST_BUFFER_WIDTH,
+      height: WORDLIST_BUFFER_HEIGHT,
+      destWidth: WORDLIST_BUFFER_WIDTH,
+      destHeight: WORDLIST_BUFFER_HEIGHT,
       fileType: 'jpg',
-      quality: 0.98,
+      quality: EXPORT_JPEG_QUALITY,
       success: result => resolve(result.tempFilePath),
       fail: reject
     } as UniNamespace.CanvasToTempFilePathOptions, instance?.proxy)
@@ -303,8 +307,8 @@ async function writeAndOpenPdf(imagePaths: string[]) {
     }
     return {
       bytes: new Uint8Array(data),
-      width: CANVAS_WIDTH,
-      height: CANVAS_HEIGHT
+      width: WORDLIST_BUFFER_WIDTH,
+      height: WORDLIST_BUFFER_HEIGHT
     }
   })
   const pdf = buildJpegPdf(jpegPages)
@@ -725,13 +729,14 @@ onMounted(() => {
   text-align: center;
 }
 
-/* Matches the Canvas 2D buffer 1:1 so export crop coordinates need no conversion. */
+/* Matches the Canvas 2D buffer 1:1 so the export crop reads the same whether the
+   runtime measures it in CSS pixels or buffer pixels. */
 .exportCanvas {
   position: fixed;
   top: 0;
-  left: -1400px;
-  width: 1240px;
-  height: 1754px;
+  left: -2600px;
+  width: 2480px;
+  height: 3508px;
   pointer-events: none;
 }
 </style>

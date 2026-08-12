@@ -8,19 +8,28 @@ const canvasSource = fs.readFileSync(
 )
 
 describe('wordlist export canvas layout', () => {
-  it('keeps the canvas coordinate space aligned with the exported JPEG size', () => {
-    expect(source).toContain('const CANVAS_WIDTH = 1240')
-    expect(source).toContain('const CANVAS_HEIGHT = 1754')
-    expect(source).toContain('width: 1240px;')
-    expect(source).toContain('height: 1754px;')
-    expect(source).not.toContain('width: 620px;')
-    expect(source).not.toContain('height: 877px;')
+  it('sizes the canvas element to match the export buffer 1:1', () => {
+    expect(canvasSource).toContain('const WORDLIST_CANVAS_WIDTH = 1240')
+    expect(canvasSource).toContain('const WORDLIST_CANVAS_HEIGHT = 1754')
+    expect(canvasSource).toContain('const WORDLIST_EXPORT_SCALE = 2')
+    expect(source).toContain('width: 2480px;')
+    expect(source).toContain('height: 3508px;')
+  })
+
+  it('stays inside the platform limits an A4 raster can hit', () => {
+    const scale = Number(/WORDLIST_EXPORT_SCALE = (\d+(?:\.\d+)?)/.exec(canvasSource)![1])
+    const width = 1240 * scale
+    const height = 1754 * scale
+
+    // Either limit breaks the export silently, and Android degrades without an error.
+    expect(Math.max(width, height)).toBeLessThanOrEqual(4096)
+    expect(width * height).toBeLessThanOrEqual(16777216)
   })
 
   it('draws through Canvas 2D so the buffer size does not scale with devicePixelRatio', () => {
     expect(source).toContain('type="2d"')
-    expect(source).toContain('node.width = CANVAS_WIDTH')
-    expect(source).toContain('node.height = CANVAS_HEIGHT')
+    expect(source).toContain('node.width = WORDLIST_BUFFER_WIDTH')
+    expect(source).toContain('node.height = WORDLIST_BUFFER_HEIGHT')
     expect(source).toContain("canvas.getContext('2d')")
     expect(source).toContain('canvas: exportCanvas')
 
