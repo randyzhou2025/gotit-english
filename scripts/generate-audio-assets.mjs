@@ -29,7 +29,7 @@ const skipSynthesis = process.env.AUDIO_SKIP_SYNTHESIS === '1'
 const writeManifest = process.env.AUDIO_WRITE_MANIFEST !== '0'
 const forceSynthesis = process.env.AUDIO_FORCE === '1'
 const maxRetries = Math.max(1, Number(process.env.AUDIO_RETRIES || 3))
-const variants = (process.env.AUDIO_VARIANTS || 'uk,us,zh')
+const variants = (process.env.AUDIO_VARIANTS || 'uk,zh')
   .split(',')
   .map(value => value.trim())
   .filter(Boolean)

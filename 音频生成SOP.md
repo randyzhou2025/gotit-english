@@ -55,6 +55,12 @@ python -m edge_tts --version
 pnpm audio:generate
 ```
 
+默认只生成 `uk.mp3` 与 `zh.mp3`（脚本默认值 `AUDIO_VARIANTS=uk,zh`）。如需补生成美音，显式指定：
+
+```bash
+AUDIO_VARIANTS=uk,us,zh pnpm audio:generate
+```
+
 生成目录：
 
 ```text

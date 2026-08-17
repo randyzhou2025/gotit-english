@@ -9,7 +9,7 @@
     "us": "en-US-JennyNeural",
     "zh": "zh-CN-XiaoxiaoNeural"
   },
-  "generatedAt": "2026-08-17T22:46:21.650Z",
+  "generatedAt": "2026-08-17T23:46:13.801Z",
   "items": {
     "shj/required-1/unit-1/digital": {
       "status": "ready",
@@ -69217,13 +69217,13 @@
     },
     "ylj/grade-9-1/unit-1/organized": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/organized/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/organized/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/organized/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/order": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/order/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/order/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/order/zh.mp3",
       "status": "ready"
     },
@@ -69235,19 +69235,19 @@
     },
     "ylj/grade-9-1/unit-1/neither": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/neither/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/neither/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/neither/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/nor": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/nor/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/nor/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/nor/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/accountant": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/accountant/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/accountant/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/accountant/zh.mp3",
       "status": "ready"
     },
@@ -69259,7 +69259,7 @@
     },
     "ylj/grade-9-1/unit-1/impress": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/impress/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/impress/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/impress/zh.mp3",
       "status": "ready"
     },
@@ -69295,7 +69295,7 @@
     },
     "ylj/grade-9-1/unit-1/challenge": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/challenge/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/challenge/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/challenge/zh.mp3",
       "status": "ready"
     },
@@ -69331,7 +69331,7 @@
     },
     "ylj/grade-9-1/unit-1/standard": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/standard/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/standard/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/standard/zh.mp3",
       "status": "ready"
     },
@@ -69463,7 +69463,7 @@
     },
     "ylj/grade-9-1/unit-1/position": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/position/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/position/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/position/zh.mp3",
       "status": "ready"
     },
@@ -69487,7 +69487,7 @@
     },
     "ylj/grade-9-1/unit-2/mood": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/mood/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/mood/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/mood/zh.mp3",
       "status": "ready"
     },
@@ -69613,7 +69613,7 @@
     },
     "ylj/grade-9-1/unit-2/decision": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/decision/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/decision/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/decision/zh.mp3",
       "status": "ready"
     },
@@ -70057,7 +70057,7 @@
     },
     "ylj/grade-9-1/unit-4/graduate": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/graduate/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/graduate/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/graduate/zh.mp3",
       "status": "ready"
     },
@@ -70195,7 +70195,7 @@
     },
     "ylj/grade-9-1/unit-4/research": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/research/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/research/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/research/zh.mp3",
       "status": "ready"
     },
@@ -70231,7 +70231,7 @@
     },
     "ylj/grade-9-1/unit-5/musical": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/musical/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/musical/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/musical/zh.mp3",
       "status": "ready"
     },
@@ -70243,7 +70243,7 @@
     },
     "ylj/grade-9-1/unit-5/boundary": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/boundary/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/boundary/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/boundary/zh.mp3",
       "status": "ready"
     },
@@ -70267,7 +70267,7 @@
     },
     "ylj/grade-9-1/unit-5/composer": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/composer/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/composer/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/composer/zh.mp3",
       "status": "ready"
     },
@@ -70279,7 +70279,7 @@
     },
     "ylj/grade-9-1/unit-5/instrument": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/instrument/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/instrument/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/instrument/zh.mp3",
       "status": "ready"
     },
@@ -70315,7 +70315,7 @@
     },
     "ylj/grade-9-1/unit-5/flow": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/flow/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/flow/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/flow/zh.mp3",
       "status": "ready"
     },
@@ -70333,7 +70333,7 @@
     },
     "ylj/grade-9-1/unit-5/bell": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/bell/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/bell/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/bell/zh.mp3",
       "status": "ready"
     },
@@ -70363,7 +70363,7 @@
     },
     "ylj/grade-9-1/unit-5/concert": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/concert/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/concert/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/concert/zh.mp3",
       "status": "ready"
     },
@@ -70375,31 +70375,31 @@
     },
     "ylj/grade-9-1/unit-5/jazz": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/jazz/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/jazz/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/jazz/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/rock": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/rock/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/rock/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/rock/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/country": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/country/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/country/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/country/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/cowboy": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/cowboy/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/cowboy/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/cowboy/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/guitar": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/guitar/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/guitar/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/guitar/zh.mp3",
       "status": "ready"
     },
@@ -70417,19 +70417,19 @@
     },
     "ylj/grade-9-1/unit-5/drum": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/drum/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/drum/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/drum/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/african": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/african/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/african/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/african/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/american": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/american/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/american/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/american/zh.mp3",
       "status": "ready"
     },
@@ -70723,43 +70723,43 @@
     },
     "ylj/grade-9-1/unit-7/storyteller": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/storyteller/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/storyteller/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/storyteller/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/script": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/script/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/script/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/script/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/all-time": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/all-time/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/all-time/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/all-time/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/actress": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/actress/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/actress/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/actress/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/loss": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/loss/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/loss/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/loss/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/humanitarian": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/humanitarian/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/humanitarian/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/humanitarian/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/ballet": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/ballet/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/ballet/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/ballet/zh.mp3",
       "status": "ready"
     },
@@ -70771,13 +70771,13 @@
     },
     "ylj/grade-9-1/unit-7/charm": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/charm/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/charm/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/charm/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/insist": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/insist/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/insist/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/insist/zh.mp3",
       "status": "ready"
     },
@@ -70801,25 +70801,25 @@
     },
     "ylj/grade-9-1/unit-7/major": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/major/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/major/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/major/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/mark": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/mark/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/mark/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/mark/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/career": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/career/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/career/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/career/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/princess": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/princess/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/princess/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/princess/zh.mp3",
       "status": "ready"
     },
@@ -70843,13 +70843,13 @@
     },
     "ylj/grade-9-1/unit-7/appearance": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/appearance/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/appearance/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/appearance/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/angel": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/angel/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/angel/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/angel/zh.mp3",
       "status": "ready"
     },
@@ -70867,7 +70867,7 @@
     },
     "ylj/grade-9-1/unit-7/peacefully": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/peacefully/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/peacefully/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/peacefully/zh.mp3",
       "status": "ready"
     },
@@ -70879,7 +70879,7 @@
     },
     "ylj/grade-9-1/unit-7/park": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/park/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/park/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/park/zh.mp3",
       "status": "ready"
     },
@@ -70897,7 +70897,7 @@
     },
     "ylj/grade-9-1/unit-7/mistake": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/mistake/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/mistake/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/mistake/zh.mp3",
       "status": "ready"
     },
@@ -70909,7 +70909,7 @@
     },
     "ylj/grade-9-1/unit-7/actor": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/actor/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/actor/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/actor/zh.mp3",
       "status": "ready"
     },
@@ -71065,7 +71065,7 @@
     },
     "ylj/grade-9-1/unit-8/enemy": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/enemy/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-8/enemy/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/enemy/zh.mp3",
       "status": "ready"
     },
@@ -121123,1531 +121123,1531 @@
     },
     "ylj/grade-9-1/unit-1/careless": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/careless/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/careless/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/careless/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/explain": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/explain/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/explain/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/explain/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/suppose": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/suppose/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/suppose/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/suppose/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/involve": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/involve/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/involve/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/involve/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/imagination": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/imagination/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/imagination/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/imagination/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/manager": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/manager/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/manager/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/manager/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/quit": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/quit/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/quit/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/quit/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/suit": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/suit/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/suit/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/suit/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/railway": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/railway/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/railway/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/railway/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/mention": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/mention/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/mention/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/mention/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/passenger": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/passenger/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/passenger/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/passenger/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/tough": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/tough/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/tough/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/tough/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/social": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/social/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/social/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/social/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/exactly": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/exactly/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/exactly/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/exactly/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/improvement": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/improvement/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/improvement/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/improvement/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/personality": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/personality/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/personality/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/personality/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/winner": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/winner/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/winner/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/winner/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/outgoing": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/outgoing/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/outgoing/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/outgoing/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/kindness": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/kindness/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/kindness/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/kindness/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/opposite": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/opposite/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/opposite/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/opposite/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/probably": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/probably/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/probably/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/probably/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/son": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/son/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/son/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/son/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/remain": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/remain/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/remain/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/remain/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/confident": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/confident/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/confident/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/confident/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/likely": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/likely/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/likely/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/likely/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/matter": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/matter/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/matter/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/matter/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/negative": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/negative/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/negative/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/negative/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/lecture": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/lecture/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/lecture/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/lecture/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/encouragement": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/encouragement/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/encouragement/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/encouragement/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/connection": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/connection/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/connection/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/connection/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/speaker": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/speaker/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/speaker/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/speaker/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/succeed": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/succeed/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/succeed/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/succeed/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/point": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/point/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/point/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/point/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/president": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/president/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/president/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/president/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/cooperate": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/cooperate/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/cooperate/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/cooperate/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/voice": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/voice/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/voice/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/voice/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-1/consider": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-1/consider/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-1/consider/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-1/consider/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/teenage": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/teenage/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/teenage/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/teenage/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/drive": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/drive/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/drive/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/drive/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/mad": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/mad/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/mad/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/mad/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/lately": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/lately/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/lately/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/lately/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/patience": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/patience/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/patience/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/patience/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/stick": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/stick/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/stick/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/stick/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/regret": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/regret/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/regret/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/regret/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/focused": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/focused/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/focused/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/focused/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/argue": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/argue/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/argue/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/argue/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/silly": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/silly/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/silly/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/silly/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/waste": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/waste/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/waste/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/waste/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/stress": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/stress/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/stress/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/stress/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/normal": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/normal/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/normal/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/normal/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/bottom": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/bottom/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/bottom/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/bottom/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/dialogue": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/dialogue/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/dialogue/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/dialogue/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/communicate": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/communicate/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/communicate/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/communicate/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/dictionary": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/dictionary/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/dictionary/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/dictionary/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/youth": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/youth/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/youth/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/youth/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/stage": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/stage/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/stage/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/stage/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/experience": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/experience/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/experience/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/experience/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/rapid": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/rapid/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/rapid/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/rapid/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/ugly": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/ugly/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/ugly/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/ugly/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/adult": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/adult/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/adult/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/adult/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/risk": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/risk/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/risk/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/risk/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/mean": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/mean/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/mean/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/mean/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/stranger": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/stranger/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/stranger/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/stranger/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/midterm": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/midterm/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/midterm/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/midterm/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/uncomfortable": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/uncomfortable/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/uncomfortable/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/uncomfortable/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/tight": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/tight/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/tight/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/tight/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/overweight": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/overweight/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/overweight/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/overweight/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/bully": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/bully/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/bully/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/bully/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/screen": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/screen/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/screen/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/screen/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/bedtime": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/bedtime/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/bedtime/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/bedtime/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/pain": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/pain/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/pain/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/pain/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-2/shame": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-2/shame/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-2/shame/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-2/shame/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/seed": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/seed/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/seed/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/seed/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/dancer": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/dancer/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/dancer/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/dancer/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/contribution": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/contribution/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/contribution/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/contribution/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/overcome": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/overcome/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/overcome/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/overcome/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/suffering": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/suffering/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/suffering/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/suffering/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/household": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/household/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/household/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/household/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/inspiration": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/inspiration/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/inspiration/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/inspiration/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/diagnose": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/diagnose/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/diagnose/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/diagnose/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/further": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/further/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/further/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/further/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/rob": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/rob/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/rob/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/rob/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/shortly": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/shortly/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/shortly/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/shortly/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/muscle": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/muscle/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/muscle/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/muscle/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/yet": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/yet/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/yet/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/yet/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/attitude": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/attitude/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/attitude/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/attitude/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/surprisingly": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/surprisingly/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/surprisingly/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/surprisingly/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/despite": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/despite/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/despite/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/despite/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/universe": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/universe/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/universe/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/universe/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/scientific": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/scientific/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/scientific/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/scientific/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/continued": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/continued/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/continued/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/continued/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/audience": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/audience/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/audience/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/audience/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/highly": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/highly/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/highly/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/highly/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/whenever": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/whenever/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/whenever/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/whenever/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/achievement": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/achievement/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/achievement/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/achievement/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/however": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/however/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/however/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/however/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/musician": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/musician/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/musician/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/musician/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/shoulder": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/shoulder/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/shoulder/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/shoulder/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/death": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/death/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/death/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/death/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/coach": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/coach/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/coach/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/coach/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/pretty": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/pretty/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/pretty/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/pretty/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/knee": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/knee/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/knee/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/knee/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/challenging": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/challenging/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/challenging/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/challenging/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/cheers": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/cheers/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/cheers/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/cheers/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/fair": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/fair/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/fair/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/fair/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/gymnast": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/gymnast/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/gymnast/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/gymnast/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/irish": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/irish/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/irish/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/irish/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/compete": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/compete/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/compete/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/compete/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/injure": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/injure/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/injure/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/injure/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/performance": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/performance/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/performance/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/performance/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/will": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/will/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/will/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/will/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/runner": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/runner/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/runner/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/runner/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/semi-final": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/semi-final/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/semi-final/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/semi-final/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/whatever": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/whatever/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/whatever/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/whatever/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/diary": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/diary/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/diary/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/diary/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/victory": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/victory/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/victory/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/victory/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/perform": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/perform/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/perform/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/perform/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-3/disappoint": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-3/disappoint/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-3/disappoint/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-3/disappoint/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/cactus": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/cactus/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/cactus/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/cactus/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/lotus": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/lotus/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/lotus/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/lotus/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/self": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/self/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/self/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/self/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/peanut": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/peanut/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/peanut/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/peanut/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/unused": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/unused/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/unused/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/unused/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/pity": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/pity/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/pity/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/pity/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/celebration": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/celebration/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/celebration/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/celebration/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/oil": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/oil/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/oil/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/oil/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/dig": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/dig/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/dig/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/dig/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/unlike": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/unlike/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/unlike/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/unlike/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/stem": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/stem/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/stem/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/stem/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/bear": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/bear/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/bear/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/bear/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/attractive": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/attractive/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/attractive/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/attractive/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/compare": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/compare/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/compare/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/compare/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/hidden": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/hidden/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/hidden/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/hidden/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/society": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/society/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/society/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/society/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/helpfulness": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/helpfulness/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/helpfulness/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/helpfulness/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/purpose": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/purpose/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/purpose/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/purpose/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/satisfied": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/satisfied/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/satisfied/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/satisfied/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/boss": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/boss/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/boss/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/boss/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/wife": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/wife/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/wife/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/wife/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/stamp": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/stamp/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/stamp/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/stamp/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/passage": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/passage/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/passage/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/passage/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/daughter": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/daughter/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/daughter/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/daughter/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/devote": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/devote/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/devote/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/devote/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/house": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/house/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/house/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/house/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/overtourism": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/overtourism/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/overtourism/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/overtourism/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/dentist": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/dentist/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/dentist/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/dentist/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/condition": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/condition/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/condition/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/condition/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/serve": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/serve/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/serve/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/serve/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/contribute": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/contribute/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/contribute/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/contribute/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/judge": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/judge/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/judge/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/judge/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-4/amazed": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-4/amazed/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-4/amazed/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-4/amazed/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/keyboard": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/keyboard/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/keyboard/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/keyboard/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/bow": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/bow/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/bow/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/bow/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/string": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/string/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/string/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/string/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/pear-shaped": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/pear-shaped/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/pear-shaped/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/pear-shaped/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/strength": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/strength/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/strength/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/strength/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/unique": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/unique/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/unique/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/unique/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/familiar": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/familiar/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/familiar/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/familiar/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/earn": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/earn/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/earn/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/earn/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/worldwide": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/worldwide/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/worldwide/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/worldwide/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/simply": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/simply/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/simply/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/simply/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/eastern": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/eastern/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/eastern/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/eastern/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/talented": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/talented/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/talented/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/talented/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/mixture": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/mixture/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/mixture/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/mixture/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/press": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/press/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/press/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/press/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/brain": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/brain/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/brain/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/brain/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/ticket": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/ticket/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/ticket/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/ticket/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/rather": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/rather/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/rather/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/rather/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/attend": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/attend/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/attend/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/attend/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/quick": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/quick/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/quick/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/quick/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/flute": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/flute/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/flute/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/flute/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/jasmine": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/jasmine/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/jasmine/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/jasmine/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/gentle": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/gentle/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/gentle/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/gentle/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/range": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/range/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/range/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/range/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/download": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/download/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/download/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/download/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-5/calming": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-5/calming/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-5/calming/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-5/calming/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/calligrapher": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/calligrapher/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/calligrapher/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/calligrapher/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/bottled": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/bottled/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/bottled/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/bottled/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/tip": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/tip/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/tip/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/tip/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/calligraphy": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/calligraphy/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/calligraphy/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/calligraphy/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/stroke": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/stroke/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/stroke/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/stroke/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/final": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/final/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/final/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/final/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/appear": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/appear/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/appear/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/appear/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/doorway": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/doorway/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/doorway/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/doorway/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/still": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/still/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/still/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/still/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/concentrate": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/concentrate/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/concentrate/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/concentrate/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/pleasure": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/pleasure/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/pleasure/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/pleasure/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/undoubtedly": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/undoubtedly/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/undoubtedly/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/undoubtedly/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/artistic": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/artistic/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/artistic/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/artistic/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/characteristic": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/characteristic/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/characteristic/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/characteristic/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/character": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/character/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/character/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/character/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/breath": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/breath/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/breath/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/breath/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/pressure": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/pressure/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/pressure/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/pressure/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/beautifully": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/beautifully/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/beautifully/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/beautifully/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/pride": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/pride/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/pride/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/pride/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/technique": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/technique/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/technique/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/technique/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/unfamiliar": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/unfamiliar/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/unfamiliar/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/unfamiliar/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/basket": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/basket/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/basket/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/basket/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/general": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/general/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/general/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/general/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/brushwork": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/brushwork/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/brushwork/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/brushwork/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/present": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/present/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/present/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/present/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/perhaps": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/perhaps/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/perhaps/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/perhaps/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/similarity": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/similarity/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/similarity/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/similarity/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/sometime": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/sometime/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/sometime/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/sometime/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-6/expert": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-6/expert/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-6/expert/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-6/expert/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/comedy": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/comedy/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/comedy/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/comedy/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/cartoon": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/cartoon/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/cartoon/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/cartoon/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/documentary": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/documentary/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/documentary/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/documentary/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/romance": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/romance/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/romance/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/romance/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/based": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/based/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/based/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/based/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/radio": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/radio/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/radio/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/radio/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/discover": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/discover/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/discover/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/discover/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/cancer": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/cancer/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/cancer/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/cancer/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/star": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/star/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/star/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/star/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/aid": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/aid/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/aid/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/aid/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/tireless": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/tireless/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/tireless/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/tireless/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/steal": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/steal/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/steal/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/steal/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/supporting": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/supporting/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/supporting/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/supporting/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/handsome": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/handsome/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/handsome/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/handsome/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/inspiring": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/inspiring/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/inspiring/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/inspiring/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/price": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/price/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/price/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/price/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/scriptwriter": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/scriptwriter/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/scriptwriter/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/scriptwriter/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/director": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/director/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/director/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/director/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/film-maker": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/film-maker/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/film-maker/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/film-maker/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/shoot": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/shoot/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/shoot/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/shoot/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/film": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/film/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/film/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/film/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/post-production": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/post-production/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/post-production/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/post-production/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/editor": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/editor/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/editor/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/editor/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/world-class": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/world-class/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/world-class/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/world-class/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/wrestler": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/wrestler/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/wrestler/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/wrestler/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/touching": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/touching/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/touching/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/touching/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/fighter": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/fighter/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/fighter/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/fighter/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-7/elder": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-7/elder/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-7/elder/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-7/elder/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-8/classic": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/classic/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-8/classic/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/classic/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-8/against": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/against/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-8/against/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/against/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-8/branch": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/branch/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-8/branch/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/branch/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-8/bedside": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/bedside/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-8/bedside/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/bedside/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-8/anger": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/anger/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-8/anger/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/anger/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-8/apartment": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/apartment/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-8/apartment/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/apartment/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-8/fool": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/fool/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-8/fool/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/fool/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-8/remain": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/remain/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-8/remain/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/remain/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-8/widely": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/widely/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-8/widely/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/widely/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-8/fair": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/fair/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-8/fair/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/fair/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-8/act": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/act/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-8/act/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/act/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-8/seat": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/seat/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-8/seat/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/seat/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-8/masterpiece": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/masterpiece/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-8/masterpiece/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/masterpiece/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-8/unable": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/unable/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-8/unable/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/unable/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-8/throne": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/throne/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-8/throne/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/throne/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-8/writing": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/writing/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-8/writing/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/writing/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-8/image": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/image/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-8/image/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/image/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-8/lasting": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/lasting/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-8/lasting/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/lasting/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-8/mirror": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/mirror/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-8/mirror/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/mirror/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-8/knock": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/knock/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-8/knock/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/knock/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-8/doorbell": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/doorbell/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-8/doorbell/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/doorbell/zh.mp3",
       "status": "ready"
     },
     "ylj/grade-9-1/unit-8/ring": {
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/ring/uk.mp3",
-      "usUrl": "/generated/audio/ylj/grade-9-1/unit-8/ring/us.mp3",
+      "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/ring/zh.mp3",
       "status": "ready"
     }
