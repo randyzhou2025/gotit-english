@@ -3,6 +3,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import XLSX from 'xlsx'
+import { enrichMissingPhrase } from './phrase-enrichment.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(__dirname, '..')
@@ -77,13 +78,21 @@ const wyxJuniorBookMeta = [
   ['外研社版(新版)初中英语八年级下册_词汇表.xlsx', '八年级下册', 'grade-8-2']
 ]
 
-const swjSourceFile = '沪外教高中英语教材_全7册词汇扩展版.xlsx'
-const rjSourceFile = '人教版高中英语教材_全7册词汇扩展版.xlsx'
-const shjSourceFile = '沪教版高中英语教材_全7册词汇扩展版.xlsx'
-const shjExampleFallbackFile = '沪教版高中英语教材_Words_by_unit汇总_终版_增加经典例句及翻译.xlsx'
+const swjSourceFile = path.join('高中课本', '沪外教高中英语教材_全7册词汇扩展版.xlsx')
+const rjSourceFile = path.join('高中课本', '人教版高中英语教材_全7册词汇扩展版.xlsx')
+const shjSourceFile = path.join('高中课本', '沪教版高中英语教材_全7册词汇扩展版.xlsx')
+const shjExampleFallbackFile = path.join('高中课本', '沪教版高中英语教材_Words_by_unit汇总_终版_增加经典例句及翻译.xlsx')
 const bsdSourceFile = path.join('高中课本', '北师大版高中英语全7册_词汇表.xlsx')
+const bsdExtensionFile = path.join('高中课本', '北师大版高中英语全7册_增加学习扩展字段.xlsx')
 const yljSourceFile = path.join('高中课本', '译林版高中英语全7册_词汇表.xlsx')
+const yljExtensionFile = path.join('高中课本', '译林版高中英语全7册_增加学习扩展字段.xlsx')
 const wySourceFile = path.join('高中课本', '外研社版高中英语全7册_词汇表.xlsx')
+const wyExtensionFile = path.join('高中课本', '外研社版高中英语全7册_增加学习扩展字段.xlsx')
+const rjJuniorExtensionFile = path.join('初中课本', '人教版初中英语全5册_增加学习扩展字段.xlsx')
+const kpJuniorExtensionFile = path.join('初中课本', '科普版初中英语全6册_增加学习扩展字段.xlsx')
+const yljJuniorExtensionFile = path.join('初中课本', '译林版初中英语全6册_增加学习扩展字段.xlsx')
+const shjxJuniorExtensionFile = path.join('初中课本', '沪教版（上海新版）初中英语全6册_增加学习扩展字段.xlsx')
+const wyxJuniorExtensionFile = path.join('初中课本', '外研社版（新版）初中英语全4册_增加学习扩展字段.xlsx')
 
 function buildColumnIndex(headerRow) {
   const columns = {}
@@ -121,6 +130,106 @@ function buildWordTuple(row, columns, rowNumber, word, slug) {
     optionalField(cell(row, columns, '同源词')),
     optionalField(cell(row, columns, '反义词'))
   ]
+}
+
+function buildHighSchoolExtensionLookup(relativeSourceFile) {
+  const sourcePath = path.join(root, 'doc', relativeSourceFile)
+  if (!fs.existsSync(sourcePath)) return new Map()
+
+  const workbook = XLSX.readFile(sourcePath)
+  const lookup = new Map()
+
+  for (const [sheetName, bookId] of bookIds) {
+    const sheet = workbook.Sheets[sheetName]
+    if (!sheet) continue
+
+    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' })
+    const headerRowIndex = findJuniorHeaderRowIndex(rows)
+    const columns = buildColumnIndex(rows[headerRowIndex] ?? [])
+
+    for (const row of rows.slice(headerRowIndex + 1)) {
+      const unitMeta = parseNumericUnit(row[columns['单元'] ?? 0])
+      const word = clean(row[columns['英文'] ?? 1])
+      if (!unitMeta.number || !word) continue
+      if (isPhraseEntry(word)) continue
+
+      const extension = {
+        exampleSentence: optionalField(cell(row, columns, '经典例句')),
+        exampleTranslation: optionalField(cell(row, columns, '例句翻译')),
+        commonPhrases: optionalField(cell(row, columns, '常用词组')),
+        wordForms: optionalField(cell(row, columns, '词形变化')),
+        etymology: optionalField(cell(row, columns, '词根词缀')),
+        cognates: optionalField(cell(row, columns, '同源词')),
+        antonyms: optionalField(cell(row, columns, '反义词'))
+      }
+
+      if (!Object.values(extension).some(Boolean)) continue
+
+      lookup.set(`${bookId}:${unitMeta.number}:${word.toLowerCase()}`, extension)
+    }
+  }
+
+  return lookup
+}
+
+function buildJuniorExtensionLookup(relativeSourceFile, bookMeta, parseUnit) {
+  const sourcePath = path.join(root, 'doc', relativeSourceFile)
+  if (!fs.existsSync(sourcePath)) return new Map()
+
+  const workbook = XLSX.readFile(sourcePath)
+  const lookup = new Map()
+
+  for (const [, bookName, bookId] of bookMeta) {
+    const sheet = workbook.Sheets[bookName]
+    if (!sheet) continue
+
+    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' })
+    const headerRowIndex = findJuniorHeaderRowIndex(rows)
+    const columns = buildColumnIndex(rows[headerRowIndex] ?? [])
+
+    for (const row of rows.slice(headerRowIndex + 1)) {
+      let unitMeta
+      try {
+        unitMeta = parseUnit(row[columns['单元'] ?? 0])
+      } catch {
+        continue
+      }
+
+      const word = clean(row[columns['英文'] ?? 1])
+      if (!word) continue
+      if (isPhraseEntry(word)) continue
+
+      const extension = {
+        exampleSentence: optionalField(cell(row, columns, '经典例句')),
+        exampleTranslation: optionalField(cell(row, columns, '例句翻译')),
+        commonPhrases: optionalField(cell(row, columns, '常用词组')),
+        wordForms: optionalField(cell(row, columns, '词形变化')),
+        etymology: optionalField(cell(row, columns, '词根词缀')),
+        cognates: optionalField(cell(row, columns, '同源词')),
+        antonyms: optionalField(cell(row, columns, '反义词'))
+      }
+
+      if (!Object.values(extension).some(Boolean)) continue
+
+      lookup.set(`${bookId}:${unitMeta.number}:${word.toLowerCase()}`, extension)
+    }
+  }
+
+  return lookup
+}
+
+function applyHighSchoolExtension(tuple, extension) {
+  if (!extension) return tuple
+
+  if (!tuple[7] && extension.exampleSentence) tuple[7] = extension.exampleSentence
+  if (!tuple[8] && extension.exampleTranslation) tuple[8] = extension.exampleTranslation
+  if (!tuple[9] && extension.commonPhrases) tuple[9] = extension.commonPhrases
+  if (!tuple[10] && extension.wordForms) tuple[10] = extension.wordForms
+  if (!tuple[11] && extension.etymology) tuple[11] = extension.etymology
+  if (!tuple[12] && extension.cognates) tuple[12] = extension.cognates
+  if (!tuple[13] && extension.antonyms) tuple[13] = extension.antonyms
+
+  return tuple
 }
 
 function buildShjExampleLookup() {
@@ -398,7 +507,7 @@ function buildSwjPublisher() {
   }
 }
 
-function buildJuniorBooksFromDir(relativeDir, bookMeta, parseUnit) {
+function buildJuniorBooksFromDir(relativeDir, bookMeta, parseUnit, extensionLookup = null) {
   const books = []
 
   for (const [bookIndex, [fileName, bookName, bookId]] of bookMeta.entries()) {
@@ -431,13 +540,22 @@ function buildJuniorBooksFromDir(relativeDir, bookMeta, parseUnit) {
 
       const unitMeta = parseUnit(row[columns['单元'] ?? 0])
       const targetUnit = upsertUnit(units, unitMeta)
-      targetUnit.words.push(buildWordTuple(
+      const tuple = buildWordTuple(
         row,
         columns,
         headerRowIndex + rowIndex + 2,
         word,
         slugify(normalizeWordForSlug(word))
-      ))
+      )
+
+      if (extensionLookup) {
+        applyHighSchoolExtension(
+          tuple,
+          extensionLookup.get(`${bookId}:${unitMeta.number}:${word.toLowerCase()}`)
+        )
+      }
+
+      targetUnit.words.push(tuple)
     }
 
     books.push({
@@ -467,26 +585,46 @@ function parseRjJuniorUnit(rawUnit) {
 }
 
 function buildRjJuniorBooks() {
-  return buildJuniorBooksFromDir(rjJuniorDir, rjJuniorBookMeta, parseRjJuniorUnit)
+  return buildJuniorBooksFromDir(
+    rjJuniorDir,
+    rjJuniorBookMeta,
+    parseRjJuniorUnit,
+    buildJuniorExtensionLookup(rjJuniorExtensionFile, rjJuniorBookMeta, parseRjJuniorUnit)
+  )
 }
 
 function buildKpJuniorPublisher() {
   return {
     publisher: { id: 'kp', name: '科普版' },
     sourceWorkbook: kpJuniorDir,
-    books: buildJuniorBooksFromDir(kpJuniorDir, kpJuniorBookMeta, parseNumericUnit)
+    books: buildJuniorBooksFromDir(
+      kpJuniorDir,
+      kpJuniorBookMeta,
+      parseNumericUnit,
+      buildJuniorExtensionLookup(kpJuniorExtensionFile, kpJuniorBookMeta, parseNumericUnit)
+    )
   }
 }
 
 function buildYljJuniorBooks() {
-  return buildJuniorBooksFromDir(yljJuniorDir, yljJuniorBookMeta, parseNumericUnit)
+  return buildJuniorBooksFromDir(
+    yljJuniorDir,
+    yljJuniorBookMeta,
+    parseNumericUnit,
+    buildJuniorExtensionLookup(yljJuniorExtensionFile, yljJuniorBookMeta, parseNumericUnit)
+  )
 }
 
 function buildShjxJuniorPublisher() {
   return {
     publisher: { id: 'shjx', name: '沪教版(上海新版)' },
     sourceWorkbook: shjxJuniorDir,
-    books: buildJuniorBooksFromDir(shjxJuniorDir, shjxJuniorBookMeta, parseNumericUnit)
+    books: buildJuniorBooksFromDir(
+      shjxJuniorDir,
+      shjxJuniorBookMeta,
+      parseNumericUnit,
+      buildJuniorExtensionLookup(shjxJuniorExtensionFile, shjxJuniorBookMeta, parseNumericUnit)
+    )
   }
 }
 
@@ -494,11 +632,16 @@ function buildWyxJuniorPublisher() {
   return {
     publisher: { id: 'wyx', name: '外研社版(新版)' },
     sourceWorkbook: wyxJuniorDir,
-    books: buildJuniorBooksFromDir(wyxJuniorDir, wyxJuniorBookMeta, parseWyxUnit)
+    books: buildJuniorBooksFromDir(
+      wyxJuniorDir,
+      wyxJuniorBookMeta,
+      parseWyxUnit,
+      buildJuniorExtensionLookup(wyxJuniorExtensionFile, wyxJuniorBookMeta, parseWyxUnit)
+    )
   }
 }
 
-function buildHighSchoolBooks(sourceFile) {
+function buildHighSchoolBooks(sourceFile, extensionLookup = null) {
   const sourcePath = path.join(root, 'doc', sourceFile)
   if (!fs.existsSync(sourcePath)) {
     throw new Error(`Missing source workbook: ${sourcePath}`)
@@ -530,13 +673,20 @@ function buildHighSchoolBooks(sourceFile) {
 
       const unitMeta = parseNumericUnit(row[columns['单元'] ?? 0])
       const targetUnit = upsertUnit(units, unitMeta)
-      targetUnit.words.push(buildWordTuple(
+      const tuple = buildWordTuple(
         row,
         columns,
         headerRowIndex + rowIndex + 2,
         word,
         slugify(normalizeWordForSlug(word))
-      ))
+      )
+      if (extensionLookup) {
+        applyHighSchoolExtension(
+          tuple,
+          extensionLookup.get(`${bookId}:${unitMeta.number}:${word.toLowerCase()}`)
+        )
+      }
+      targetUnit.words.push(tuple)
     }
 
     books.push({
@@ -550,16 +700,34 @@ function buildHighSchoolBooks(sourceFile) {
   return books
 }
 
+function enrichHighSchoolBookPhrases(books) {
+  for (const book of books) {
+    for (const unit of book.units) {
+      for (const tuple of unit.words) {
+        enrichMissingPhrase(root, tuple)
+      }
+    }
+  }
+
+  return books
+}
+
 function buildBsdPublisher() {
   return {
     publisher: { id: 'bsd', name: '北师大版' },
     sourceWorkbook: path.basename(bsdSourceFile),
-    books: buildHighSchoolBooks(bsdSourceFile)
+    books: enrichHighSchoolBookPhrases(buildHighSchoolBooks(
+      bsdSourceFile,
+      buildHighSchoolExtensionLookup(bsdExtensionFile)
+    ))
   }
 }
 
 function buildYljPublisher() {
-  const books = buildHighSchoolBooks(yljSourceFile)
+  const books = enrichHighSchoolBookPhrases(buildHighSchoolBooks(
+    yljSourceFile,
+    buildHighSchoolExtensionLookup(yljExtensionFile)
+  ))
   books.push(...buildYljJuniorBooks().map((book, index) => ({
     ...book,
     order: bookIds.length + index + 1
@@ -576,7 +744,10 @@ function buildWyPublisher() {
   return {
     publisher: { id: 'wy', name: '外研社版' },
     sourceWorkbook: path.basename(wySourceFile),
-    books: buildHighSchoolBooks(wySourceFile)
+    books: enrichHighSchoolBookPhrases(buildHighSchoolBooks(
+      wySourceFile,
+      buildHighSchoolExtensionLookup(wyExtensionFile)
+    ))
   }
 }
 
