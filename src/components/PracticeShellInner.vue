@@ -1064,7 +1064,11 @@
 
       <view class="playerStage">
         <text class="playerInstruction">{{ dictationPlayerInstruction }}</text>
-        <view v-if="isDictationRecognitionMode" class="dictationRecognitionWordCard">
+        <view
+          v-if="isDictationRecognitionMode"
+          :class="['dictationRecognitionWordCard', dictationRecognitionMeaningVisible && 'isMeaningVisible']"
+          @tap="toggleDictationRecognitionMeaningVisible"
+        >
           <view class="dictationRecognitionWordHead">
             <view class="dictationRecognitionWordCopy">
               <view class="dictationRecognitionWordRow">
@@ -1096,6 +1100,19 @@
               mode="aspectFit"
               aria-hidden="true"
             />
+          </view>
+          <view class="dictationRecognitionMeaningSlot">
+            <view v-if="dictationRecognitionMeaningVisible" class="dictationRecognitionMeaningBlock">
+              <view
+                v-for="(line, index) in currentDictationRecognitionMeaningLines"
+                :key="`${line.partOfSpeech}-${index}`"
+                class="dictationRecognitionMeaningLine"
+              >
+                <text v-if="line.partOfSpeech" class="dictationRecognitionMeaningPos">{{ line.partOfSpeech }}</text>
+                <text class="dictationRecognitionMeaningText">{{ line.meaning }}</text>
+              </view>
+            </view>
+            <text v-else class="dictationRecognitionMeaningHint">点击空白处查看释义</text>
           </view>
         </view>
         <view v-if="!isDictationRecognitionMode" :class="['dictationAudioCard', dictationMode === 'paper' && 'isPaper']">
@@ -1672,6 +1689,7 @@ function saveDictationRecognitionWordVisible(visible: boolean) {
 
 const rewardProgressPercent = ref(0)
 const dictationRecognitionWordVisible = ref(loadDictationRecognitionWordVisible())
+const dictationRecognitionMeaningVisible = ref(false)
 
 const screenStyle = computed(() => {
   // #ifdef MP-WEIXIN
@@ -1906,6 +1924,12 @@ const dictationSpokenPrompt = computed(() => {
 const currentDictationMeaningLines = computed(() => {
   const entry = currentDictationEntry.value
   if (!entry || dictationPrompt.value !== 'chinese') return []
+  return splitMeaningByPartOfSpeech(entry.partOfSpeech, entry.meaning)
+})
+
+const currentDictationRecognitionMeaningLines = computed(() => {
+  const entry = currentDictationEntry.value
+  if (!entry) return []
   return splitMeaningByPartOfSpeech(entry.partOfSpeech, entry.meaning)
 })
 
@@ -2816,6 +2840,10 @@ function toggleDictationRecognitionWordVisible() {
   saveDictationRecognitionWordVisible(dictationRecognitionWordVisible.value)
 }
 
+function toggleDictationRecognitionMeaningVisible() {
+  dictationRecognitionMeaningVisible.value = !dictationRecognitionMeaningVisible.value
+}
+
 function isCorrectSelected(choice: string): boolean {
   return recognitionState.value === 'correct' && selectedMeaning.value === choice
 }
@@ -3109,6 +3137,13 @@ watch(
     syncNativeWeakbookBadge()
   },
   { immediate: true }
+)
+
+watch(
+  () => [activeScreen.value, currentDictationEntry.value?.id, dictationMode.value],
+  () => {
+    dictationRecognitionMeaningVisible.value = false
+  }
 )
 
 watch(
@@ -5668,6 +5703,64 @@ onBeforeUnmount(() => {
   font-size: 16px;
   line-height: 1.35;
   font-weight: 750;
+  text-align: center;
+}
+
+.dictationRecognitionMeaningSlot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 56px;
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+
+.dictationRecognitionMeaningBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  width: 100%;
+}
+
+.dictationRecognitionMeaningLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px 7px;
+  width: 100%;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.dictationRecognitionMeaningPos {
+  flex: 0 0 auto;
+  color: var(--accent);
+  font-family: var(--font-word);
+  font-size: 13px;
+  font-style: italic;
+  font-weight: 600;
+}
+
+.dictationRecognitionMeaningText {
+  min-width: 0;
+  color: var(--ink-soft);
+  font-size: 15px;
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+
+.dictationRecognitionMeaningHint {
+  position: absolute;
+  right: 16px;
+  bottom: 4px;
+  left: 16px;
+  color: var(--muted-light);
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 600;
   text-align: center;
 }
 
@@ -13793,10 +13886,10 @@ onBeforeUnmount(() => {
 .screen.isDictationPlayerScreen .dictationPlayerScreen.isRecognitionMode .dictationRecognitionWordCard {
   position: relative;
   justify-content: center;
-  gap: 20px;
-  min-height: 232px;
+  gap: 14px;
+  min-height: 270px;
   margin-top: 18px;
-  padding: 30px 22px 24px;
+  padding: 24px 22px 20px;
   overflow: hidden;
   border: 1px solid rgba(45, 99, 135, 0.2);
   border-radius: 17px;
@@ -13808,6 +13901,10 @@ onBeforeUnmount(() => {
       rgba(45, 99, 135, 0.08) 35px
     );
   box-shadow: 0 12px 28px rgba(23, 52, 44, 0.07);
+}
+
+.screen.isDictationPlayerScreen .dictationPlayerScreen.isRecognitionMode .dictationRecognitionWordCard.isMeaningVisible {
+  border-color: rgba(23, 107, 80, 0.28);
 }
 
 .screen.isDictationPlayerScreen .dictationPlayerScreen.isRecognitionMode .dictationRecognitionWord {
@@ -13902,10 +13999,10 @@ onBeforeUnmount(() => {
   }
 
   .screen.isDictationPlayerScreen .dictationPlayerScreen.isRecognitionMode .dictationRecognitionWordCard {
-    min-height: 198px;
+    min-height: 236px;
     margin-top: 12px;
-    padding-top: 22px;
-    padding-bottom: 18px;
+    padding-top: 18px;
+    padding-bottom: 14px;
   }
 
   .screen.isDictationPlayerScreen .dictationPlayerScreen.isRecognitionMode .dictationRecognitionPanel {

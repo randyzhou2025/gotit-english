@@ -91,6 +91,13 @@ describe('practice shell full-page layout', () => {
     expect(source).toContain("isDictationRecognitionMode && 'isRecognitionMode'")
     expect(source).toContain('v-if="!isDictationRecognitionMode"')
     expect(source).toContain('.dictationPlayerScreen.isRecognitionMode .dictationRecognitionWordCard')
+    expect(source).toContain('@tap="toggleDictationRecognitionMeaningVisible"')
+    expect(source).toContain('点击空白处查看释义')
+    expect(source).toContain('class="dictationRecognitionMeaningBlock"')
+    expect(source).toContain('currentDictationRecognitionMeaningLines')
+    expect(source).toContain('dictationRecognitionMeaningVisible.value = false')
+    expect(source).toContain('min-height: 56px;')
+    expect(source).toContain('bottom: 4px;')
   })
 
   it('uses the latest editorial heading and continuous-list hierarchy for dictation word selection', () => {
