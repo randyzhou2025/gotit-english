@@ -1083,7 +1083,21 @@
           <text v-if="dictationMode === 'paper'" class="dictationPaperNumber">
             {{ String(dictationIndex + 1).padStart(2, '0') }}
           </text>
-          <text v-if="dictationPrompt === 'chinese'" class="dictationAudioMeaning">{{ currentDictationEntry.meaning }}</text>
+          <view
+            v-if="dictationPrompt === 'chinese'"
+            :class="['dictationAudioMeaningBlock', dictationMode === 'paper' && 'isPaper']"
+          >
+            <view
+              v-for="(line, index) in currentDictationMeaningLines"
+              :key="`${line.partOfSpeech}-${index}`"
+              class="dictationAudioMeaningLine"
+            >
+              <text class="dictationAudioMeaningText">
+                <text v-if="line.partOfSpeech" class="dictationAudioMeaningPos">{{ line.partOfSpeech }} </text>
+                <text class="dictationAudioMeaning">{{ line.meaning }}</text>
+              </text>
+            </view>
+          </view>
           <view
             :class="['dictationSpeakerButton', dictationPrompt === 'english' && 'isSolo', isAudioPlaying && 'isPlaying', !dictationAudioReady && 'isMissing']"
             @tap.stop="repeatCurrentDictation"
@@ -1859,6 +1873,12 @@ const dictationSpokenPrompt = computed(() => {
   if (!currentDictationEntry.value) return ''
   if (dictationMode.value === 'recognition') return '想不出释义可点「不认识」'
   return ''
+})
+
+const currentDictationMeaningLines = computed(() => {
+  const entry = currentDictationEntry.value
+  if (!entry || dictationPrompt.value !== 'chinese') return []
+  return splitMeaningByPartOfSpeech(entry.partOfSpeech, entry.meaning)
 })
 
 const dictationTransportStatus = computed(() => {
@@ -5231,13 +5251,41 @@ onBeforeUnmount(() => {
   box-sizing: border-box;
 }
 
+.dictationAudioMeaningBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dictationAudioMeaningLine {
+  width: 100%;
+}
+
+.dictationAudioMeaningText {
+  display: block;
+  width: 100%;
+  text-align: center;
+  word-break: break-word;
+}
+
+.dictationAudioMeaningPos {
+  color: #4a5851;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  line-height: 1.45;
+  font-style: italic;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 .dictationAudioMeaning {
-  max-width: 100%;
   color: #24342c;
   font-size: 24px;
   line-height: 1.45;
-  font-weight: 850;
-  text-align: center;
+  font-weight: 800;
 }
 
 .dictationSpeakerButton {
@@ -9795,6 +9843,12 @@ onBeforeUnmount(() => {
 .screen.isDictationPlayerScreen .dictationAudioMeaning {
   color: #24342c;
   font-size: 26px;
+  line-height: 1.45;
+}
+
+.screen.isDictationPlayerScreen .dictationAudioMeaningPos {
+  font-size: 20px;
+  line-height: 1.45;
 }
 
 .screen.isDictationPlayerScreen .spokenPrompt {
@@ -11838,11 +11892,16 @@ onBeforeUnmount(() => {
 }
 
 .screen.isDictationPlayerScreen .dictationAudioCard.isPaper .dictationAudioMeaning {
-  max-width: calc(100% - 18px);
   color: var(--ink);
-  font-size: 27px;
-  line-height: 1.35;
+  font-size: 26px;
+  line-height: 1.45;
   font-weight: 800;
+}
+
+.screen.isDictationPlayerScreen .dictationAudioCard.isPaper .dictationAudioMeaningPos {
+  color: #5a6860;
+  font-size: 20px;
+  line-height: 1.45;
 }
 
 .screen.isDictationPlayerScreen .dictationAudioCard.isPaper .dictationSpeakerButton {
@@ -12611,6 +12670,12 @@ onBeforeUnmount(() => {
 
   .screen.isDictationPlayerScreen .dictationAudioCard.isPaper .dictationAudioMeaning {
     font-size: 23px;
+    line-height: 1.42;
+  }
+
+  .screen.isDictationPlayerScreen .dictationAudioCard.isPaper .dictationAudioMeaningPos {
+    font-size: 18px;
+    line-height: 1.42;
   }
 
   .screen.isDictationPlayerScreen .transportRow {
