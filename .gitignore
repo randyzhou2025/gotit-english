@@ -9,6 +9,9 @@ unpackage/
 # Generated assets (regenerate via pnpm audio:generate)
 generated/
 
+# Textbook covers are served from CDN; keep local copies untracked
+src/static/textbook-covers/
+
 # Local backups & QA screenshots
 backup/
 .tmp/
