@@ -8,6 +8,7 @@
     "audio:generate": "node scripts/generate-audio-assets.mjs",
     "audio:verify-cdn": "node scripts/verify-audio-cdn.mjs",
     "covers:sync": "node scripts/sync-textbook-covers.mjs",
+    "covers:manifest": "node scripts/write-covers-manifest.mjs",
     "tabbar:icons": "node scripts/generate-tabbar-icons.mjs",
     "dev:h5": "uni -p h5",
     "dev:weapp": "uni -p mp-weixin",

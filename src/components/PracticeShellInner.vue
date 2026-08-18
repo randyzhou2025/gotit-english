@@ -1420,7 +1420,12 @@ import { onHide, onShow } from '@dcloudio/uni-app'
 import { confirmCourseSetupAndEnter, usePracticeSession, type AppScreen } from '@/app/usePracticeSession'
 import TabBottomNav from '@/components/TabBottomNav.vue'
 import { getAudioUrl, hasPlayableAudio } from '@/core/audio'
-import { buildTextbookCoverUrl } from '@/core/textbookCover'
+import {
+  buildTextbookCoverUrl,
+  ensureTextbookCoverVersion,
+  getTextbookCoverRevision,
+  subscribeTextbookCoverRevision,
+} from '@/core/textbookCover'
 import { splitMeaningByPartOfSpeech } from '@/core/wordMeaning'
 import {
   buildWordDetailMemoryLines,
@@ -1621,6 +1626,8 @@ const unitWordAlphabetical = ref(false)
 const unitWordMeaningVisible = ref(false)
 const homeRecommendedWordId = ref('')
 const homeBookCoverFailed = ref(false)
+const coverManifestRevision = ref(getTextbookCoverRevision())
+let unsubscribeCoverManifest: (() => void) | null = null
 const unitWordFilterOptions: Array<{ value: UnitWordFilter; label: string }> = [
   { value: 'all', label: '全部' },
   { value: 'learning', label: '待学习' },
@@ -1982,6 +1989,7 @@ const filteredUnitWords = computed(() => {
 const HIGH_DIFFICULTY_THRESHOLD = 2
 
 const homeBookCoverSource = computed(() => {
+  void coverManifestRevision.value
   const unit = selectedUnit.value
   if (!unit) return ''
   return buildTextbookCoverUrl(unit.publisherId, unit.bookId)
@@ -2049,6 +2057,15 @@ watch(
   () => homeRecommendationPool.value.map(word => word.id).join('|'),
   () => chooseRandomHomeRecommendedWord(false),
   { immediate: true }
+)
+
+watch(
+  () => [selectedUnit.value?.publisherId, selectedUnit.value?.bookId] as const,
+  ([publisherId, bookId]) => {
+    if (!publisherId || !bookId) return
+    void ensureTextbookCoverVersion(publisherId, bookId)
+  },
+  { immediate: true },
 )
 
 watch(homeBookCoverSource, () => {
@@ -3129,6 +3146,10 @@ watch(
 )
 
 onMounted(() => {
+  unsubscribeCoverManifest = subscribeTextbookCoverRevision(() => {
+    coverManifestRevision.value = getTextbookCoverRevision()
+  })
+
   // Inner mounts after async wordbank boot and can miss the page's first onShow.
   if (isHostingPageActive()) {
     handlePageShow()
@@ -3157,6 +3178,8 @@ onHide(() => {
 })
 
 onBeforeUnmount(() => {
+  unsubscribeCoverManifest?.()
+  unsubscribeCoverManifest = null
   clearDictationTimers()
   destroyActiveAudio()
   // #ifdef MP-WEIXIN

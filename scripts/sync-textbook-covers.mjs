@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { copyFile, mkdtemp, mkdir, readFile, rm, unlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { basename, join, resolve } from 'node:path'
+import { buildCoversManifest } from './write-covers-manifest.mjs'
 
 const projectRoot = resolve(import.meta.dirname, '..')
 const catalogDir = join(projectRoot, 'assets/textbook-covers/official')
@@ -331,6 +332,9 @@ const main = async () => {
       2,
     )}\n`,
   )
+
+  const cdnManifest = await buildCoversManifest(cdnDir)
+  await writeFile(join(cdnDir, 'manifest.json'), `${JSON.stringify(cdnManifest, null, 2)}\n`)
   await rm(tempDir, { recursive: true, force: true })
 
   console.log(`官网英语教材封面：${manifest.length} 张`)
