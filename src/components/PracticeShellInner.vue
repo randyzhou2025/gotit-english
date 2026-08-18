@@ -140,7 +140,26 @@
     >
       <view class="homeHero">
         <view class="homeHeroMain">
-          <view class="homeHeroTitle">课本单词通</view>
+          <view class="homeHeroTitleRow">
+            <view class="homeHeroTitle">课本单词通</view>
+            <view
+              class="homeFeedbackButton"
+              hover-class="homeFeedbackButtonPressed"
+              hover-stay-time="80"
+              role="button"
+              aria-label="Feedback"
+              @tap.stop="openFeedbackPage"
+            >
+              <view class="homeFeedbackMark">
+                <view class="homeFeedbackBubble">
+                  <view class="homeFeedbackDot" />
+                  <view class="homeFeedbackDot" />
+                  <view class="homeFeedbackDot" />
+                </view>
+                <view class="homeFeedbackTail" />
+              </view>
+            </view>
+          </view>
           <view class="homeHeroSubtitle">别急着背更多，先把课本里的单词真正掌握</view>
           <view class="homeHeroTags" aria-label="产品特点">
             <text class="homeHeroTag">教材同步</text>
@@ -1624,6 +1643,7 @@ const shellVisible = ref(false)
 const miniProgramNavTop = ref(16)
 const miniProgramCapsuleTop = ref(44)
 const miniProgramCapsuleHeight = ref(32)
+const miniProgramHomeActionRightInset = ref(88)
 const DICTATION_RECOGNITION_WORD_VISIBLE_KEY = 'gotit:dictationRecognitionWordVisible'
 
 function loadDictationRecognitionWordVisible(): boolean {
@@ -1651,6 +1671,7 @@ const screenStyle = computed(() => {
   return `padding-top: ${miniProgramCapsuleTop.value}px;`
     + ` --capsule-top: ${miniProgramCapsuleTop.value}px;`
     + ` --capsule-h: ${miniProgramCapsuleHeight.value}px;`
+    + ` --home-action-right-inset: ${miniProgramHomeActionRightInset.value}px;`
     + ` --nav-top: ${miniProgramNavTop.value}px;`
   // #endif
 
@@ -2085,17 +2106,24 @@ function updateMiniProgramNavInset() {
 
   try {
     const getMenuButton = (uni as unknown as {
-      getMenuButtonBoundingClientRect?: () => { top?: number; bottom?: number; height?: number }
+      getMenuButtonBoundingClientRect?: () => {
+        top?: number
+        bottom?: number
+        height?: number
+        left?: number
+      }
     }).getMenuButtonBoundingClientRect
     const getWindowInfo = (uni as unknown as {
-      getWindowInfo?: () => { statusBarHeight?: number }
+      getWindowInfo?: () => { statusBarHeight?: number; windowWidth?: number }
     }).getWindowInfo
     const menuButton = getMenuButton?.()
     const windowInfo = getWindowInfo?.()
     const menuTop = Number(menuButton?.top ?? 0)
     const menuBottom = Number(menuButton?.bottom ?? 0)
     const menuHeight = Number(menuButton?.height ?? 0)
+    const menuLeft = Number(menuButton?.left ?? 0)
     const statusBarHeight = Number(windowInfo?.statusBarHeight ?? 0)
+    const windowWidth = Number(windowInfo?.windowWidth ?? 0)
     const calculatedTop = menuBottom > 0 ? menuBottom + 16 : statusBarHeight + 64
 
     miniProgramNavTop.value = Math.max(88, calculatedTop)
@@ -2103,10 +2131,14 @@ function updateMiniProgramNavInset() {
       ? menuTop
       : (statusBarHeight > 0 ? statusBarHeight + 4 : 28)
     miniProgramCapsuleHeight.value = menuHeight > 0 ? menuHeight : 32
+    miniProgramHomeActionRightInset.value = menuLeft > 0 && windowWidth > menuLeft
+      ? Math.max(0, windowWidth - menuLeft - 8)
+      : 88
   } catch {
     miniProgramNavTop.value = fallbackTop
     miniProgramCapsuleTop.value = 44
     miniProgramCapsuleHeight.value = 32
+    miniProgramHomeActionRightInset.value = 88
   }
   // #endif
 }
@@ -2550,6 +2582,12 @@ function openDictationSetupPage() {
 function openWordlistExportPage() {
   uni.navigateTo({
     url: '/pages/export-wordlist/index'
+  })
+}
+
+function openFeedbackPage() {
+  uni.navigateTo({
+    url: '/pages/feedback/index'
   })
 }
 
@@ -7139,13 +7177,28 @@ onBeforeUnmount(() => {
 
 /* #ifdef MP-WEIXIN */
 .homeHeroMain {
-  padding-right: 96px;
+  box-sizing: border-box;
+  padding-right: 0;
+}
+
+.homeHeroTitleRow {
+  box-sizing: border-box;
+  padding-right: var(--home-action-right-inset, 88px);
 }
 /* #endif */
 
-.homeHeroTitle {
-  display: block;
+.homeHeroTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   width: 100%;
+  min-height: var(--capsule-h, 32px);
+}
+
+.homeHeroTitle {
+  flex: 1 1 auto;
+  min-width: 0;
   color: #fff;
   font-size: 32px;
   line-height: 1.15;
@@ -7179,6 +7232,62 @@ onBeforeUnmount(() => {
   font-size: 12px;
   line-height: 1;
   font-weight: 900;
+}
+
+.homeFeedbackButton {
+  display: flex;
+  flex: 0 0 44px;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--accent-strong);
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 6px 14px rgba(23, 107, 80, 0.22);
+  box-sizing: border-box;
+}
+
+.homeFeedbackButtonPressed {
+  background: var(--accent-strong);
+  transform: scale(0.96);
+}
+
+.homeFeedbackMark {
+  position: relative;
+  width: 22px;
+  height: 20px;
+}
+
+.homeFeedbackBubble {
+  display: flex;
+  position: relative;
+  z-index: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 22px;
+  height: 16px;
+  border-radius: 6px;
+  background: #fffdf8;
+}
+
+.homeFeedbackDot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.homeFeedbackTail {
+  position: absolute;
+  left: 4px;
+  bottom: 1px;
+  width: 7px;
+  height: 7px;
+  border-radius: 1px;
+  background: #fffdf8;
+  transform: rotate(45deg);
 }
 
 .homeUnitCard {
@@ -10507,6 +10616,14 @@ onBeforeUnmount(() => {
   display: block;
 }
 
+.homeHeroTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: var(--capsule-h, 32px);
+}
+
 .homeHeroTitle {
   display: flex;
   align-items: center;
@@ -10516,6 +10633,12 @@ onBeforeUnmount(() => {
   font-weight: 850;
   line-height: 1;
   letter-spacing: 0;
+}
+
+.homeFeedbackButton {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
 }
 
 .homeHeroSubtitle {
