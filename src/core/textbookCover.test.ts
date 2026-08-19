@@ -4,6 +4,7 @@ describe('textbookCover', () => {
   afterEach(() => {
     vi.resetModules()
     vi.unstubAllEnvs()
+    vi.unstubAllGlobals()
     vi.restoreAllMocks()
   })
 
@@ -21,7 +22,7 @@ describe('textbookCover', () => {
     )
   })
 
-  it('appends CDN Last-Modified as cache-bust version', async () => {
+  it('appends CDN Last-Modified as cache-bust version via fetch', async () => {
     vi.stubEnv('VITE_COVERS_CDN_BASE_URL', 'https://audio.xuexidazi.site/generated/textbook-covers/')
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, {
       status: 200,
@@ -42,5 +43,27 @@ describe('textbookCover', () => {
       'https://audio.xuexidazi.site/generated/textbook-covers/ylj-grade-9-1.jpg',
       { method: 'HEAD', cache: 'no-store' },
     )
+  })
+
+  it('appends CDN Last-Modified as cache-bust version via uni.request HEAD', async () => {
+    vi.stubEnv('VITE_COVERS_CDN_BASE_URL', 'https://audio.xuexidazi.site/generated/textbook-covers/')
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    vi.stubGlobal('uni', {
+      request: vi.fn(({ success }) => {
+        success({
+          statusCode: 200,
+          header: { 'Last-Modified': 'Tue, 18 Aug 2026 09:36:55 GMT' },
+        })
+      }),
+    })
+
+    const coverModule = await import('./textbookCover')
+    await coverModule.ensureTextbookCoverVersion('ylj', 'grade-9-1')
+
+    expect(coverModule.buildTextbookCoverUrl('ylj', 'grade-9-1')).toBe(
+      `https://audio.xuexidazi.site/generated/textbook-covers/ylj-grade-9-1.jpg?v=${Date.parse('Tue, 18 Aug 2026 09:36:55 GMT')}`
+    )
+    expect(globalThis.fetch).not.toHaveBeenCalled()
+    expect(fetchSpy).not.toHaveBeenCalled()
   })
 })

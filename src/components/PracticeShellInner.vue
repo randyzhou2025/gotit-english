@@ -1053,7 +1053,7 @@
             <view class="navBack" @tap="leaveDictationToSetupPage">
               <view class="chevronLeft" />
             </view>
-            <text class="playerTitle">自动听写</text>
+            <text class="playerTitle">{{ dictationTitle }}</text>
           </view>
           <text class="playerProgressMeta">{{ dictationProgressLabel }}</text>
           <view class="playerProgressTrack">
@@ -1235,9 +1235,6 @@
       </view>
 
       <view class="playerBottomInfo">
-        <view class="playerFootnote">
-          <text>屏幕会保持常亮，静音模式下仍可播放。</text>
-        </view>
         <view class="exitDictationButton" @tap="leaveDictationToSetupPage">
           <text>退出听写</text>
         </view>
@@ -3319,7 +3316,6 @@ onBeforeUnmount(() => {
 .spokenPrompt,
 .autoNextText,
 .transportLabel,
-.playerFootnote,
 .exitDictationButton,
 .labelText,
 .heroTitle,
@@ -5849,15 +5845,6 @@ onBeforeUnmount(() => {
   background: #fff;
 }
 
-.playerFootnote {
-  margin-top: 70px;
-  color: #babcc2;
-  font-size: 13px;
-  line-height: 1.4;
-  text-align: center;
-  font-weight: 750;
-}
-
 .exitDictationButton {
   margin-top: 26px;
   color: #ff4d4f;
@@ -7059,10 +7046,6 @@ onBeforeUnmount(() => {
 .transportButton.isPrimary .transportIcon {
   background: #3c3c3c;
   box-shadow: inset 0 -4px #222;
-}
-
-.playerFootnote {
-  margin-top: 18px;
 }
 
 .exitDictationButton {
@@ -10160,13 +10143,6 @@ onBeforeUnmount(() => {
   font-weight: 800;
 }
 
-.screen.isDictationPlayerScreen .playerFootnote {
-  margin-top: 14px;
-  color: #8d9993;
-  font-size: 12px;
-  font-weight: 650;
-}
-
 .screen.isDictationPlayerScreen .exitDictationButton {
   margin-top: 14px;
   padding: 8px 0 4px;
@@ -12186,17 +12162,8 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 
-.screen.isDictationPlayerScreen .playerBottomInfo .playerFootnote {
-  margin: 0;
-  color: var(--muted-light);
-  font-size: 11px;
-  line-height: 1.3;
-  font-weight: 650;
-}
-
 .screen.isDictationPlayerScreen .playerBottomInfo .exitDictationButton {
   display: inline-flex;
-  margin-top: 10px;
   padding: 4px 10px;
   color: var(--danger);
   font-size: 13px;
@@ -14055,7 +14022,6 @@ onBeforeUnmount(() => {
 }
 
 .screen.isDictationPlayerScreen .playerBottomInfo .exitDictationButton {
-  margin-top: 8px;
   padding: 5px 12px;
   border-radius: 8px;
   color: var(--muted);

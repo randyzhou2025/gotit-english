@@ -6,6 +6,10 @@ let coverRevision = 0
 const coverRevisionListeners = new Set<() => void>()
 const coverVersionRequests = new Map<string, Promise<void>>()
 
+function getRuntime(): UniApp.Uni | undefined {
+  return typeof uni !== 'undefined' ? uni : undefined
+}
+
 function coverKey(publisherId: string, bookId: string): string {
   return `${publisherId}:${bookId}`
 }
@@ -28,6 +32,32 @@ function notifyCoverRevision(): void {
   }
 }
 
+function readHeaderValue(
+  headers: Record<string, string | string[] | undefined>,
+  name: string,
+): string | undefined {
+  const target = name.toLowerCase()
+  for (const [key, value] of Object.entries(headers)) {
+    if (key.toLowerCase() !== target) continue
+    if (Array.isArray(value)) return value[0]
+    return value
+  }
+  return undefined
+}
+
+function readCoverVersionFromHeaderRecord(
+  headers: Record<string, string | string[] | undefined>,
+): string | undefined {
+  const etag = readHeaderValue(headers, 'etag')?.replace(/^W\/"|"/g, '').trim()
+  if (etag) return etag
+
+  const lastModified = readHeaderValue(headers, 'last-modified')
+  if (!lastModified) return undefined
+
+  const timestamp = Date.parse(lastModified)
+  return Number.isFinite(timestamp) ? String(timestamp) : undefined
+}
+
 function readCoverVersionFromHeaders(response: Response): string | undefined {
   const etag = response.headers.get('etag')?.replace(/^W\/"|"/g, '').trim()
   if (etag) return etag
@@ -37,6 +67,27 @@ function readCoverVersionFromHeaders(response: Response): string | undefined {
 
   const timestamp = Date.parse(lastModified)
   return Number.isFinite(timestamp) ? String(timestamp) : undefined
+}
+
+async function probeCoverVersion(url: string): Promise<string | undefined> {
+  const runtime = getRuntime()
+  if (runtime?.request) {
+    const response = await new Promise<UniApp.RequestSuccessCallbackResult>((resolve, reject) => {
+      runtime.request({
+        url,
+        method: 'HEAD',
+        header: { 'Cache-Control': 'no-cache' },
+        success: resolve,
+        fail: (error) => reject(new Error(error.errMsg || 'Cover HEAD request failed')),
+      })
+    })
+    if (response.statusCode < 200 || response.statusCode >= 300) return undefined
+    return readCoverVersionFromHeaderRecord(response.header ?? {})
+  }
+
+  const response = await fetch(url, { method: 'HEAD', cache: 'no-store' })
+  if (!response.ok) return undefined
+  return readCoverVersionFromHeaders(response)
 }
 
 export function getTextbookCoverRevision(): number {
@@ -67,13 +118,7 @@ export async function ensureTextbookCoverVersion(
 
   const request = (async () => {
     try {
-      const response = await fetch(coverBaseUrl(publisherId, bookId), {
-        method: 'HEAD',
-        cache: 'no-store',
-      })
-      if (!response.ok) return
-
-      const version = readCoverVersionFromHeaders(response)
+      const version = await probeCoverVersion(coverBaseUrl(publisherId, bookId))
       if (!version) return
 
       coverVersionByKey.set(key, version)

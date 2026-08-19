@@ -47,6 +47,6 @@ export function getAccentLabel(accent: Accent): string {
 }
 
 export function getDictationPromptLabel(plan: Pick<DictationPlan, 'accent' | 'prompt' | 'mode'>): string {
-  if (plan.mode === 'recognition') return '释义核对'
+  if (plan.mode === 'recognition') return '核对释义'
   return plan.prompt === 'chinese' ? '中文听写' : `${getAccentLabel(plan.accent)}听写`
 }

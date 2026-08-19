@@ -79,7 +79,7 @@ describe('practice shell full-page layout', () => {
     expect(source).toContain('这个词没想起来')
     expect(source).toContain('<text class="transportLabel">下一词</text>')
     expect(source).toContain('class="playerBottomInfo"')
-    expect(source).toContain('屏幕会保持常亮，静音模式下仍可播放。')
+    expect(source).not.toContain('屏幕会保持常亮，静音模式下仍可播放。')
     expect(source).toContain('min-height: 320px;')
     expect(source).toContain('max-height: none;')
     expect(source).toContain('flex: 0 0 58px;')
