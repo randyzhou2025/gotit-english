@@ -182,6 +182,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { flushPracticeCloudSync, usePracticeSession } from '@/app/usePracticeSession'
+import { useVisualTheme } from '@/app/useVisualTheme'
 import { flushCloudSyncOnForeground } from '@/core/cloudSyncPolicy'
 import { readLocalProgressSnapshot } from '@/core/progressMerge'
 import TabBottomNav from '@/components/TabBottomNav.vue'
@@ -213,6 +214,7 @@ const apiEnabled = isApiEnabled()
 const customerServiceEnabled = false
 
 const { savedWeakWords } = usePracticeSession()
+const { activeVisualThemeStyle } = useVisualTheme()
 
 const weakbookCount = computed(() => savedWeakWords.value.length)
 const weakbookBadge = computed(() => String(Math.min(weakbookCount.value, 99)))
@@ -290,12 +292,15 @@ async function cacheAvatarForDisplay(url: string) {
 }
 
 const screenStyle = computed(() => {
+  let style = activeVisualThemeStyle.value
+
   // #ifdef MP-WEIXIN
-  return `padding-top: ${miniProgramCapsuleTop.value}px;`
+  style += ` padding-top: ${miniProgramCapsuleTop.value}px;`
     + ` --capsule-top: ${miniProgramCapsuleTop.value}px;`
     + ` --capsule-h: ${miniProgramCapsuleHeight.value}px;`
   // #endif
-  return ''
+
+  return style
 })
 
 function updateMiniProgramNavInset() {
@@ -900,11 +905,11 @@ onShow(() => {
   width: 13px;
   min-height: 8px;
   border-radius: 6px 6px 2px 2px;
-  background: #b8cdc4;
+  background: var(--line-strong);
 }
 
 .weeklyStudyBar.isToday {
-  background: #c27b28;
+  background: var(--accent);
 }
 
 .weeklyStudyLabel {
@@ -1185,7 +1190,7 @@ onShow(() => {
   height: 60px;
   border: 2px solid var(--surface);
   background: var(--accent-soft);
-  box-shadow: 0 7px 16px rgba(23, 52, 44, 0.08);
+  box-shadow: 0 7px 16px var(--ink-shadow);
 }
 
 .avatarImage {
@@ -1205,10 +1210,10 @@ onShow(() => {
 
 .promoBanner {
   margin-bottom: 12px;
-  border: 1px solid #2c7961;
+  border: 1px solid var(--accent-strong);
   border-radius: 16px;
   background: var(--accent);
-  box-shadow: 0 9px 20px rgba(23, 107, 80, 0.15);
+  box-shadow: 0 9px 20px var(--accent-shadow);
 }
 
 .promoAction {

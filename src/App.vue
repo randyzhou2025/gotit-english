@@ -10,6 +10,7 @@ import {
   ensurePracticeSessionReady,
   scheduleDeferredStartupSync
 } from '@/app/usePracticeSession'
+import { initializeVisualTheme } from '@/app/useVisualTheme'
 import { flushCloudSyncOnBackground } from '@/core/cloudSyncPolicy'
 import {
   startStudyDurationPing,
@@ -17,6 +18,7 @@ import {
 } from '@/core/studyStats'
 
 onLaunch(() => {
+  initializeVisualTheme()
   void ensurePracticeSessionReady()
 })
 

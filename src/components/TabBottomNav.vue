@@ -5,7 +5,7 @@
         <view class="bottomNavIconWrap">
           <image
             class="bottomNavIcon"
-            :src="active === 'home' ? '/static/tabbar/home-active.png' : '/static/tabbar/home.png'"
+            src="/static/tabbar/home.png"
             mode="aspectFit"
           />
         </view>
@@ -15,7 +15,7 @@
         <view class="bottomNavIconWrap">
           <image
             class="bottomNavIcon"
-            :src="active === 'weakbook' ? '/static/tabbar/weakbook-active.png' : '/static/tabbar/weakbook.png'"
+            src="/static/tabbar/weakbook.png"
             mode="aspectFit"
           />
         </view>
@@ -26,7 +26,7 @@
         <view class="bottomNavIconWrap">
           <image
             class="bottomNavIcon"
-            :src="active === 'profile' ? '/static/tabbar/profile-active.png' : '/static/tabbar/profile.png'"
+            src="/static/tabbar/profile.png"
             mode="aspectFit"
           />
         </view>
@@ -70,9 +70,9 @@ function goProfile() {
   left: 0;
   z-index: 20;
   padding: 8px 18px calc(8px + env(safe-area-inset-bottom));
-  border-top: 1px solid #ddd9ce;
-  background: rgba(255, 253, 248, 0.97);
-  box-shadow: 0 -10px 28px rgba(23, 52, 44, 0.07);
+  border-top: 1px solid var(--line);
+  background: var(--theme-chrome);
+  box-shadow: 0 -10px 28px var(--ink-shadow);
   backdrop-filter: blur(16px);
 }
 
@@ -96,7 +96,7 @@ function goProfile() {
 }
 
 .bottomNavItem.isActive {
-  background: #e4efe9;
+  background: var(--accent-soft);
 }
 
 .bottomNavIconWrap {
@@ -110,18 +110,23 @@ function goProfile() {
 .bottomNavIcon {
   width: 29px;
   height: 29px;
+  opacity: 0.72;
+}
+
+.bottomNavItem.isActive .bottomNavIcon {
+  opacity: 1;
 }
 
 .bottomNavLabel {
   margin-top: 3px;
-  color: #8a9298;
+  color: var(--muted);
   font-size: 11px;
   font-weight: 850;
   line-height: 1;
 }
 
 .bottomNavItem.isActive .bottomNavLabel {
-  color: #176b50;
+  color: var(--accent);
   font-weight: 950;
 }
 
@@ -132,7 +137,7 @@ function goProfile() {
   min-width: 18px;
   padding: 1px 5px;
   border-radius: 999px;
-  background: #a64a43;
+  background: var(--danger);
   color: #fff;
   font-size: 10px;
   font-weight: 900;

@@ -187,6 +187,7 @@ describe('practice session dictation navigation', () => {
     expect(session.dictationRecords.value).toEqual([
       expect.objectContaining({ wordId: firstWord.id, correct: true })
     ])
+    expect(session.isUnitWordMastered(firstWord.id)).toBe(true)
     expect(session.dictationIndex.value).toBe(1)
 
     session.submitDictationRecognition(false)

@@ -17,11 +17,23 @@
       activeScreen === 'report' && 'isCheckupReportScreen',
       activeScreen === 'unitWords' && 'isUnitWordScreen',
       activeScreen === 'wordDetail' && 'isWordDetailScreen',
+      visualThemeEnabledForScreen && 'hasVisualTheme',
       activeScreen === 'dictationReport' && 'isDictationReportScreen',
       activeScreen === 'dictationReward' && 'isDictationRewardScreen'
     ]"
     :style="screenStyle"
   >
+    <image
+      v-if="visualThemeEnabledForScreen && activeScreen === 'home' && activeVisualTheme.homeBackground"
+      class="visualThemeHomeBackground"
+      :src="activeVisualTheme.homeBackground"
+      mode="aspectFill"
+    />
+    <view
+      v-if="visualThemeEnabledForScreen && activeScreen === 'home'"
+      class="visualThemeHomeScrim"
+    />
+
     <view v-if="activeScreen === 'courseSetup'" class="courseSetupScreen">
       <view class="dictationNav">
         <view v-if="courseSetupCompleted" class="navBack" @tap="goBack">
@@ -150,6 +162,7 @@
         :unit-mastery-percent="unitMasteryPercent"
         :today-dictation-word-count="todayDictationWordCount"
         :unit-egg-audio-playing="isAudioPlaying"
+        :visual-theme-name="activeVisualTheme.name"
         :weak-word-count="savedWeakWords.length"
         @feedback="openFeedbackPage"
         @change-course="openCourseSetupPage"
@@ -157,6 +170,7 @@
         @start-dictation="openDictationSetupPage"
         @export-wordlist="openWordlistExportPage"
         @review-weak-words="openWeakbook"
+        @switch-theme="switchToNextVisualTheme"
         @play-unit-egg-audio="playUnitEggAudio"
         @book-cover-error="homeBookCoverFailed = true"
       />
@@ -473,6 +487,9 @@
         </view>
         <view class="unitWordMetaRow">
           <text class="unitWordCountLabel">已掌握 {{ masteredUnitWordCount }}/{{ unitWordCount }} 词</text>
+          <view class="unitWordRecognitionButton" @tap="startUnitRecognitionTestPage">
+            <text>释义自测</text>
+          </view>
           <view
             class="unitWordMeaningToggle"
             role="switch"
@@ -1457,7 +1474,8 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { onHide, onShow } from '@dcloudio/uni-app'
 import { confirmCourseSetupAndEnter, usePracticeSession, type AppScreen } from '@/app/usePracticeSession'
-import { HOME_REDESIGN_V2_ENABLED } from '@/app/featureFlags'
+import { HOME_REDESIGN_V2_ENABLED, VISUAL_THEME_ENABLED } from '@/app/featureFlags'
+import { useVisualTheme } from '@/app/useVisualTheme'
 import HomeRedesign from '@/components/home/HomeRedesign.vue'
 import TabBottomNav from '@/components/TabBottomNav.vue'
 import { getAudioUrl, hasPlayableAudio } from '@/core/audio'
@@ -1480,6 +1498,8 @@ const props = defineProps<{
   tabScreen?: 'home' | 'weakbook'
   routeScreen?: AppScreen
 }>()
+
+const { activeVisualTheme, activeVisualThemeStyle, switchToNextVisualTheme } = useVisualTheme()
 
 const choiceKeys = ['A', 'B', 'C', 'D']
 const rewardParticles = [
@@ -1719,15 +1739,21 @@ const dictationRecognitionWordVisible = ref(loadDictationRecognitionWordVisible(
 const dictationRecognitionMeaningVisible = ref(false)
 
 const screenStyle = computed(() => {
+  let style = ''
+
   // #ifdef MP-WEIXIN
-  return `padding-top: ${miniProgramCapsuleTop.value}px;`
+  style += `padding-top: ${miniProgramCapsuleTop.value}px;`
     + ` --capsule-top: ${miniProgramCapsuleTop.value}px;`
     + ` --capsule-h: ${miniProgramCapsuleHeight.value}px;`
     + ` --home-action-right-inset: ${miniProgramHomeActionRightInset.value}px;`
     + ` --nav-top: ${miniProgramNavTop.value}px;`
   // #endif
 
-  return ''
+  if (visualThemeEnabledForScreen.value) {
+    style += ` ${activeVisualThemeStyle.value}`
+  }
+
+  return style
 })
 
 const TAB_ROOT_SCREENS = new Set<AppScreen>(['home', 'weakbook'])
@@ -1763,6 +1789,7 @@ const bottomNavActive = computed<'home' | 'weakbook'>(() => (
 ))
 
 const activeScreen = computed<AppScreen>(() => props.routeScreen ?? tabRootScreen.value)
+const visualThemeEnabledForScreen = computed(() => VISUAL_THEME_ENABLED)
 
 function getProgressPercent(current: number, total: number): number {
   if (total <= 0) return 0
@@ -2672,6 +2699,13 @@ function openCheckupSetupPage() {
 function openDictationSetupPage() {
   openDictationSetupScreen({ scrollToTop: false })
   navigateToRoute('dictationSetup')
+}
+
+function startUnitRecognitionTestPage() {
+  openDictationSetupScreen({ scrollToTop: false })
+  setDictationPrompt('english')
+  setDictationMode('recognition')
+  beginDictation()
 }
 
 function openWordlistExportPage() {
@@ -11357,7 +11391,7 @@ onBeforeUnmount(() => {
 .unitWordFixedTools {
   flex: 0 0 auto;
   z-index: 20;
-  background: var(--page-bg);
+  background: transparent;
 }
 
 .unitWordFilterTab {
@@ -13051,7 +13085,30 @@ onBeforeUnmount(() => {
 }
 
 .screen.isUnitWordScreen .unitWordCountLabel {
+  flex: 1 1 auto;
   padding: 0;
+}
+
+.screen.isUnitWordScreen .unitWordRecognitionButton {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  margin-left: 10px;
+  padding: 0 13px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 750;
+  box-shadow: 0 5px 12px var(--accent-shadow);
+}
+
+.screen.isUnitWordScreen .unitWordRecognitionButton:active {
+  background: var(--accent-strong);
+  transform: translateY(1px);
 }
 
 .screen.isUnitWordScreen .unitWordMeaningToggle {
@@ -13059,7 +13116,7 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 7px;
   min-height: 28px;
-  padding-left: 10px;
+  margin-left: 12px;
   color: var(--muted);
   font-size: 11px;
   line-height: 1;
@@ -14456,6 +14513,64 @@ onBeforeUnmount(() => {
   .homeExportEntry {
     flex-basis: 80px;
     width: 80px;
+  }
+}
+
+.screen.hasVisualTheme {
+  position: relative;
+  isolation: isolate;
+}
+
+.visualThemeHomeBackground,
+.visualThemeHomeScrim {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.visualThemeHomeBackground {
+  opacity: 1;
+}
+
+.visualThemeHomeScrim {
+  background: var(--theme-home-scrim);
+}
+
+.screen.hasVisualTheme .homeV2,
+.screen.hasVisualTheme .unitWordScreen,
+.screen.hasVisualTheme .wordDetailScreen {
+  position: relative;
+  z-index: 1;
+}
+
+.screen.hasVisualTheme.isUnitWordScreen,
+.screen.hasVisualTheme.isWordDetailScreen {
+  background: var(--theme-study-background) !important;
+}
+
+.screen.hasVisualTheme.isUnitWordScreen .pageBodyScroll,
+.screen.hasVisualTheme.isWordDetailScreen .pageBodyScroll {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.screen.hasVisualTheme.isWordDetailScreen .wordDetailFooter {
+  background: var(--theme-chrome);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .screen.hasVisualTheme.isWordDetailScreen .wordDetailFooter {
+    background: var(--page-bg);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 }
 </style>

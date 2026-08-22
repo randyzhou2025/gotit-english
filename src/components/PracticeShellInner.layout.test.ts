@@ -141,6 +141,9 @@ describe('practice shell full-page layout', () => {
     expect(source).toContain(':aria-checked="unitWordMeaningVisible"')
     expect(source).toContain('v-if="unitWordMeaningVisible" class="unitWordMeaning"')
     expect(source).toContain('已掌握 {{ masteredUnitWordCount }}/{{ unitWordCount }} 词')
+    expect(source).toContain('class="unitWordRecognitionButton" @tap="startUnitRecognitionTestPage"')
+    expect(source).toContain('<text>释义自测</text>')
+    expect(source).toContain("setDictationMode('recognition')")
     expect(source).toContain('<text>认识</text>')
     expect(source).toContain('<text>不熟</text>')
     expect(source).toContain('.screen.isUnitWordScreen .unitWordRow.isMastered')
@@ -297,6 +300,8 @@ describe('practice shell full-page layout', () => {
 
   it('keeps unit-word filters fixed, shows complete words, and exposes two row shortcuts', () => {
     expect(source).toContain('class="unitWordFixedTools"')
+    expect(source).toContain('.unitWordFixedTools {')
+    expect(source).toContain('background: transparent;')
     expect(source).toContain('class="pageBodyScroll unitWordScroll"')
     expect(source).toContain('class="unitWordQuickActions"')
     expect(source).toContain("'isMastery'")

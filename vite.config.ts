@@ -85,14 +85,30 @@ function h5WordbankAssetPlugin(): Plugin {
   )
 }
 
-function weappStripBundledCoversPlugin(coversCdnBaseUrl: string): Plugin {
+function removeDsStoreFiles(rootDir: string): void {
+  if (!fs.existsSync(rootDir)) return
+
+  for (const entry of fs.readdirSync(rootDir, { withFileTypes: true })) {
+    const entryPath = path.join(rootDir, entry.name)
+    if (entry.isDirectory()) {
+      removeDsStoreFiles(entryPath)
+    } else if (entry.name === '.DS_Store') {
+      fs.rmSync(entryPath, { force: true })
+    }
+  }
+}
+
+function weappPackageCleanupPlugin(coversCdnBaseUrl: string): Plugin {
   return {
-    name: 'gotit-weapp-strip-bundled-covers',
+    name: 'gotit-weapp-package-cleanup',
     apply: 'build' as const,
     closeBundle() {
+      const outputDir = path.resolve(__dirname, 'dist/build/mp-weixin')
+      removeDsStoreFiles(outputDir)
+
       if (!coversCdnBaseUrl) return
 
-      const coversDir = path.resolve(__dirname, 'dist/build/mp-weixin/static/textbook-covers')
+      const coversDir = path.join(outputDir, 'static/textbook-covers')
       if (!fs.existsSync(coversDir)) return
 
       fs.rmSync(coversDir, { recursive: true, force: true })
@@ -110,7 +126,7 @@ export default defineConfig(({ mode }) => {
     localWordbankMiddleware(),
     h5AudioAssetPlugin(),
     h5WordbankAssetPlugin(),
-    weappStripBundledCoversPlugin(coversCdnBaseUrl),
+    weappPackageCleanupPlugin(coversCdnBaseUrl),
     uni()
   ],
   resolve: {

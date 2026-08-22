@@ -100,6 +100,7 @@ import {
   isPracticeSessionReady,
   usePracticeSession
 } from '@/app/usePracticeSession'
+import { useVisualTheme } from '@/app/useVisualTheme'
 import { useWeappShare } from '@/app/useWeappShare'
 import type { WordEntry } from '@/core/types'
 import {
@@ -119,6 +120,7 @@ import {
 } from '@/core/wordlistExport'
 
 useWeappShare()
+const { activeVisualThemeStyle } = useVisualTheme()
 
 const CANVAS_ID = 'wordlistExportCanvas'
 const EXPORT_JPEG_QUALITY = 0.92
@@ -171,7 +173,7 @@ const previewTitle = computed(() => {
   return '单词表'
 })
 const screenStyle = computed(() => (
-  `padding-top: ${miniProgramCapsuleTop.value}px;`
+  `${activeVisualThemeStyle.value} padding-top: ${miniProgramCapsuleTop.value}px;`
   + ` --capsule-top: ${miniProgramCapsuleTop.value}px;`
   + ` --capsule-h: ${miniProgramCapsuleHeight.value}px;`
   + ` --nav-top: ${miniProgramNavTop.value}px;`
@@ -616,13 +618,13 @@ onMounted(() => {
   padding: 7px 5px;
   border: 1.5px solid var(--line-strong);
   border-radius: 12px;
-  background: #fff;
+  background: var(--surface);
 }
 
 .modeOption.isActive {
   border: 2px solid var(--accent);
   background: var(--accent-soft);
-  box-shadow: 0 5px 12px rgba(23, 107, 80, 0.08);
+  box-shadow: 0 5px 12px var(--ink-shadow);
 }
 
 .modeTitle {
@@ -708,7 +710,7 @@ onMounted(() => {
   color: #fff;
   font-size: 15px;
   font-weight: 850;
-  box-shadow: 0 8px 18px rgba(23, 107, 80, 0.18);
+  box-shadow: 0 8px 18px var(--accent-shadow);
 }
 
 .exportButton:active {

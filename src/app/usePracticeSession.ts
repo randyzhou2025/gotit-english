@@ -1366,6 +1366,7 @@ export function createPracticeSession(initialWords: WordEntry[]) {
           correct: true
         }
       ]
+      recordMasteredWords([entry.id])
       triggerHapticFeedback('medium')
     } else {
       markDictationWordForgotten(entry.id)

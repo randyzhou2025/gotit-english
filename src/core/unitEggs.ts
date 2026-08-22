@@ -3,8 +3,6 @@ import unitEggData from '@/data/unit-eggs.generated.json'
 export type UnitEggTemplate = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J'
 
 export interface UnitEgg {
-  id: string
-  sequence: number
   template: UnitEggTemplate
   keyword: string
   title: string
@@ -13,7 +11,6 @@ export interface UnitEgg {
   memory: string
   compare: string
   phonetic: string
-  meaning: string
 }
 
 function escapeRegExp(value: string): string {

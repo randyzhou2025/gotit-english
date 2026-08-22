@@ -6,13 +6,22 @@
   />
   <view
     v-else
-    :class="['practiceBoot', 'screen', isTabRoot && 'hasBottomNav', HOME_REDESIGN_V2_ENABLED && 'isHomeV2Screen']"
+    :class="[
+      'practiceBoot',
+      'screen',
+      isTabRoot && 'hasBottomNav',
+      HOME_REDESIGN_V2_ENABLED && 'isHomeV2Screen',
+      visualThemeBootEnabled && 'hasVisualThemeBoot'
+    ]"
     :style="screenStyle"
   >
     <view v-if="HOME_REDESIGN_V2_ENABLED" class="homeV2Boot">
       <view class="homeV2BootHeader">
         <view class="bootSkeletonBlock homeV2BootTitle" />
-        <view class="bootSkeletonBlock homeV2BootFeedback" />
+        <view class="homeV2BootHeaderActions">
+          <view class="bootSkeletonBlock homeV2BootTheme" />
+          <view class="bootSkeletonBlock homeV2BootFeedback" />
+        </view>
       </view>
       <view class="bootSkeletonBlock homeV2BootCourse" />
       <view class="bootSkeletonBlock homeV2BootDictation" />
@@ -61,7 +70,8 @@ import {
   ensurePracticeSessionReady,
   isPracticeSessionReady
 } from '@/app/usePracticeSession'
-import { HOME_REDESIGN_V2_ENABLED } from '@/app/featureFlags'
+import { HOME_REDESIGN_V2_ENABLED, VISUAL_THEME_ENABLED } from '@/app/featureFlags'
+import { useVisualTheme } from '@/app/useVisualTheme'
 import PracticeShellInner from '@/components/PracticeShellInner.vue'
 
 defineOptions({
@@ -69,15 +79,23 @@ defineOptions({
 })
 
 const attrs = useAttrs()
+const { activeVisualThemeStyle } = useVisualTheme()
 const ready = ref(isPracticeSessionReady())
 const miniProgramCapsuleTop = ref(44)
 
 const isTabRoot = computed(() => typeof attrs['tab-screen'] === 'string')
+const visualThemeBootEnabled = computed(() => VISUAL_THEME_ENABLED)
 
-const screenStyle = computed(() => (
-  `padding-top: ${miniProgramCapsuleTop.value}px;`
-  + ` --capsule-top: ${miniProgramCapsuleTop.value}px;`
-))
+const screenStyle = computed(() => {
+  let style = `padding-top: ${miniProgramCapsuleTop.value}px;`
+    + ` --capsule-top: ${miniProgramCapsuleTop.value}px;`
+
+  if (visualThemeBootEnabled.value) {
+    style += ` ${activeVisualThemeStyle.value}`
+  }
+
+  return style
+})
 
 function updateMiniProgramNavInset() {
   try {
@@ -114,6 +132,10 @@ onBeforeMount(async () => {
 <style scoped lang="scss">
 .practiceShellInner {
   animation: practiceShellFadeIn 220ms ease;
+}
+
+.screen.hasVisualThemeBoot {
+  background: var(--theme-study-background);
 }
 
 @keyframes practiceShellFadeIn {
@@ -174,6 +196,12 @@ onBeforeMount(async () => {
   min-height: 44px;
 }
 
+.homeV2BootHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .homeV2BootTitle {
   width: 142px;
   height: 27px;
@@ -182,6 +210,12 @@ onBeforeMount(async () => {
 .homeV2BootFeedback {
   width: 42px;
   height: 42px;
+  border-radius: 999px;
+}
+
+.homeV2BootTheme {
+  width: 64px;
+  height: 28px;
   border-radius: 999px;
 }
 

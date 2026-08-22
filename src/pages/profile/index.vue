@@ -1,6 +1,6 @@
 <template>
   <ProfileScreen v-if="ready" />
-  <view v-else class="bootScreen">
+  <view v-else class="bootScreen" :style="activeVisualThemeStyle">
     <text class="bootText">加载中…</text>
   </view>
 </template>
@@ -8,12 +8,14 @@
 <script setup lang="ts">
 import { onBeforeMount, ref } from 'vue'
 import { ensurePracticeSessionReady, isPracticeSessionReady } from '@/app/usePracticeSession'
+import { useVisualTheme } from '@/app/useVisualTheme'
 import { useWeappShare } from '@/app/useWeappShare'
 import ProfileScreen from '@/components/ProfileScreen.vue'
 
 useWeappShare()
 
 const ready = ref(isPracticeSessionReady())
+const { activeVisualThemeStyle } = useVisualTheme()
 
 onBeforeMount(async () => {
   if (ready.value) return

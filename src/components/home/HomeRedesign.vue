@@ -2,20 +2,33 @@
   <view class="homeV2">
     <view class="homeV2Header">
       <text class="homeV2Title">课本单词通</text>
-      <view
-        class="homeV2Feedback"
-        hover-class="homeV2FeedbackPressed"
-        hover-stay-time="80"
-        role="button"
-        aria-label="意见反馈"
-        @tap="emit('feedback')"
-      >
-        <view class="homeV2FeedbackBubble">
-          <view class="homeV2FeedbackDot" />
-          <view class="homeV2FeedbackDot" />
-          <view class="homeV2FeedbackDot" />
+      <view class="homeV2HeaderActions">
+        <view
+          class="homeV2ThemeSwitch"
+          hover-class="homeV2ThemeSwitchPressed"
+          hover-stay-time="80"
+          role="button"
+          :aria-label="`切换主题，当前${visualThemeName}`"
+          @tap.stop="emit('switch-theme')"
+        >
+          <view class="homeV2ThemeSwatch" aria-hidden="true" />
+          <text>{{ visualThemeName }}</text>
         </view>
-        <view class="homeV2FeedbackTail" />
+        <view
+          class="homeV2Feedback"
+          hover-class="homeV2FeedbackPressed"
+          hover-stay-time="80"
+          role="button"
+          aria-label="意见反馈"
+          @tap="emit('feedback')"
+        >
+          <view class="homeV2FeedbackBubble">
+            <view class="homeV2FeedbackDot" />
+            <view class="homeV2FeedbackDot" />
+            <view class="homeV2FeedbackDot" />
+          </view>
+          <view class="homeV2FeedbackTail" />
+        </view>
       </view>
     </view>
 
@@ -149,6 +162,7 @@ const props = defineProps<{
   unitMasteryPercent: number
   todayDictationWordCount: number
   unitEggAudioPlaying: boolean
+  visualThemeName: string
   weakWordCount: number
 }>()
 
@@ -159,6 +173,7 @@ const emit = defineEmits<{
   'start-dictation': []
   'export-wordlist': []
   'review-weak-words': []
+  'switch-theme': []
   'play-unit-egg-audio': [keyword: string]
   'book-cover-error': []
 }>()
@@ -194,6 +209,8 @@ const weakWordBadge = computed(() => String(Math.min(99, props.weakWordCount)))
 
 <style scoped lang="scss">
 .homeV2 {
+  position: relative;
+  z-index: 1;
   display: grid;
   flex: 1 1 auto;
   grid-template-rows: 44px 230px 145px 90px 140px;
@@ -230,6 +247,47 @@ const weakWordBadge = computed(() => String(Math.min(99, props.weakWordCount)))
   letter-spacing: -0.02em;
 }
 
+.homeV2HeaderActions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.homeV2ThemeSwitch {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--surface-soft);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.58);
+  color: var(--accent-strong);
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 800;
+  white-space: nowrap;
+  backdrop-filter: blur(10px) saturate(115%);
+  -webkit-backdrop-filter: blur(10px) saturate(115%);
+}
+
+.homeV2ThemeSwitchPressed {
+  background: var(--surface);
+  transform: translateY(1px);
+}
+
+.homeV2ThemeSwatch {
+  width: 13px;
+  height: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 4px;
+  background: var(--theme-switch-swatch);
+  box-shadow: 0 1px 3px var(--ink-shadow);
+}
+
 .homeV2Feedback {
   position: relative;
   display: flex;
@@ -241,7 +299,7 @@ const weakWordBadge = computed(() => String(Math.min(99, props.weakWordCount)))
   border: 1px solid var(--accent-strong);
   border-radius: 999px;
   background: var(--accent);
-  box-shadow: 0 6px 14px rgba(23, 107, 80, 0.19);
+  box-shadow: 0 6px 14px var(--accent-shadow);
 }
 
 .homeV2FeedbackPressed {
@@ -506,7 +564,7 @@ const weakWordBadge = computed(() => String(Math.min(99, props.weakWordCount)))
   overflow: hidden;
   border-radius: 18px;
   background: var(--accent);
-  box-shadow: 0 10px 24px rgba(23, 107, 80, 0.17);
+  box-shadow: 0 10px 24px var(--accent-shadow);
   color: #fffdf8;
 }
 
@@ -567,7 +625,7 @@ const weakWordBadge = computed(() => String(Math.min(99, props.weakWordCount)))
   border-radius: 13px;
   background: #fffdf8;
   color: var(--accent);
-  box-shadow: 0 6px 18px rgba(10, 58, 42, 0.13);
+  box-shadow: 0 6px 18px var(--ink-shadow);
   font-size: 18px;
   line-height: 1;
   font-weight: 900;
@@ -613,7 +671,7 @@ const weakWordBadge = computed(() => String(Math.min(99, props.weakWordCount)))
   border: 1px solid var(--line);
   border-radius: 16px;
   background: var(--surface);
-  box-shadow: 0 6px 16px rgba(23, 52, 44, 0.05);
+  box-shadow: 0 6px 16px var(--ink-shadow);
 }
 
 .homeV2QuickCard.isExport,
@@ -666,7 +724,7 @@ const weakWordBadge = computed(() => String(Math.min(99, props.weakWordCount)))
   margin-left: auto;
   padding: 2px 7px;
   border-radius: 999px;
-  background: #b74033;
+  background: var(--danger);
   color: #fffdf8;
   font-size: 11px;
   line-height: 1.35;
@@ -752,7 +810,24 @@ const weakWordBadge = computed(() => String(Math.min(99, props.weakWordCount)))
 
 @media (max-width: 375px) {
   .homeV2Title {
-    font-size: 25px;
+    font-size: 24px;
+  }
+
+  .homeV2HeaderActions {
+    gap: 6px;
+  }
+
+  .homeV2ThemeSwitch {
+    height: 26px;
+    padding-right: 7px;
+    padding-left: 7px;
+    font-size: 10px;
+  }
+
+  .homeV2Feedback {
+    flex-basis: 40px;
+    width: 40px;
+    height: 40px;
   }
 
   .homeV2CourseCard {
@@ -893,6 +968,7 @@ const weakWordBadge = computed(() => String(Math.min(99, props.weakWordCount)))
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .homeV2ThemeSwitchPressed,
   .homeV2FeedbackPressed,
   .homeV2DictationCard:active,
   .homeV2QuickCard:active {

@@ -1,11 +1,14 @@
 <template>
-  <view class="redirectScreen">
+  <view class="redirectScreen" :style="activeVisualThemeStyle">
     <text>正在打开听写…</text>
   </view>
 </template>
 
 <script setup lang="ts">
 import { onLoad } from '@dcloudio/uni-app'
+import { useVisualTheme } from '@/app/useVisualTheme'
+
+const { activeVisualThemeStyle } = useVisualTheme()
 
 onLoad(() => {
   uni.redirectTo({ url: '/pages/dictation/setup' })

@@ -14,6 +14,8 @@
   --accent: #176b50;
   --accent-strong: #10533d;
   --accent-soft: #e4efe9;
+  --accent-shadow: rgba(23, 107, 80, 0.19);
+  --ink-shadow: rgba(23, 52, 44, 0.07);
   --info: #2d6387;
   --info-soft: #e6eef3;
   --warning: #e8893e;
@@ -23,6 +25,9 @@
   --success: #176b50;
   --success-soft: #e4efe9;
   --shadow-soft: 0 10px 24px rgba(23, 52, 44, 0.07);
+  --theme-chrome: var(--page-bg);
+  --theme-study-background: var(--page-bg);
+  --theme-home-scrim: linear-gradient(180deg, rgba(244, 241, 232, 0.08), rgba(244, 241, 232, 0.48));
   --radius: 18px;
 }
 

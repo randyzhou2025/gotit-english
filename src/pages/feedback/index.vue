@@ -39,10 +39,12 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useVisualTheme } from '@/app/useVisualTheme'
 import { useWeappShare } from '@/app/useWeappShare'
 import { submitFeedback, type FeedbackCategory } from '@/core/userSession'
 
 useWeappShare()
+const { activeVisualThemeStyle } = useVisualTheme()
 
 const categories: Array<{ id: FeedbackCategory; label: string }> = [
   { id: 'bug', label: '错误反馈' },
@@ -59,7 +61,7 @@ const miniProgramCapsuleTop = ref(44)
 const miniProgramCapsuleHeight = ref(32)
 
 const screenStyle = computed(() => (
-  `padding-top: ${miniProgramCapsuleTop.value}px;`
+  `${activeVisualThemeStyle.value} padding-top: ${miniProgramCapsuleTop.value}px;`
   + ` --capsule-top: ${miniProgramCapsuleTop.value}px;`
   + ` --capsule-h: ${miniProgramCapsuleHeight.value}px;`
 ))

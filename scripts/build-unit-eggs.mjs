@@ -95,22 +95,24 @@ for (const workbookConfig of workbookConfigs) {
       }
 
       const sequence = Number(row['彩蛋序号'])
+      const eggId = `${unitId}:egg${sequence}`
       const egg = {
-        id: `${unitId}:egg${sequence}`,
+        id: eggId,
         sequence,
-        template,
-        keyword: text(row['核心词/短语']),
-        title: text(row['引导标题']),
-        core: text(row['核心展示']),
-        explanation: text(row['解释文案']),
-        memory: text(row['记忆提示']),
-        compare: text(row['对比词/词根']),
-        phonetic: text(row['音标']),
-        meaning: text(row['课本释义'])
+        data: {
+          template,
+          keyword: text(row['核心词/短语']),
+          title: text(row['引导标题']),
+          core: text(row['核心展示']),
+          explanation: text(row['解释文案']),
+          memory: text(row['记忆提示']),
+          compare: text(row['对比词/词根']),
+          phonetic: text(row['音标'])
+        }
       }
 
-      if (eggIds.has(egg.id)) throw new Error(`Duplicate unit egg id: ${egg.id}`)
-      eggIds.add(egg.id)
+      if (eggIds.has(eggId)) throw new Error(`Duplicate unit egg id: ${eggId}`)
+      eggIds.add(eggId)
 
       if (!byUnit[unitId]) byUnit[unitId] = []
       byUnit[unitId].push(egg)
@@ -122,7 +124,12 @@ for (const workbookConfig of workbookConfigs) {
 const sortedByUnit = Object.fromEntries(
   Object.entries(byUnit)
     .sort(([left], [right]) => left.localeCompare(right, 'en'))
-    .map(([unitId, eggs]) => [unitId, eggs.sort((left, right) => left.sequence - right.sequence)])
+    .map(([unitId, eggs]) => [
+      unitId,
+      eggs
+        .sort((left, right) => left.sequence - right.sequence)
+        .map(egg => egg.data)
+    ])
 )
 
 const sourceHash = crypto
