@@ -35,6 +35,11 @@ describe('redesigned home', () => {
     expect(homeSource).toContain('一键生成')
   })
 
+  it('uses the same color treatment for both quick actions', () => {
+    expect(homeSource).toContain('.homeV2QuickCard.isExport,\n.homeV2QuickCard.isWeakbook {')
+    expect(homeSource).not.toContain('.homeV2QuickCard.isExport {\n  border-color: var(--accent);')
+  })
+
   it('moves the enlarged egg below the core actions', () => {
     const eggPosition = homeSource.indexOf('<UnitEggCard')
     const quickActionsPosition = homeSource.indexOf('<view class="homeV2QuickGrid">')

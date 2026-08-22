@@ -616,10 +616,7 @@ const weakWordBadge = computed(() => String(Math.min(99, props.weakWordCount)))
   box-shadow: 0 6px 16px rgba(23, 52, 44, 0.05);
 }
 
-.homeV2QuickCard.isExport {
-  border-color: var(--accent);
-}
-
+.homeV2QuickCard.isExport,
 .homeV2QuickCard.isWeakbook {
   background: var(--accent-soft);
 }

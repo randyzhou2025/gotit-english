@@ -7,16 +7,15 @@ import {
 } from './unitEggs'
 
 describe('unit egg dataset', () => {
-  it('loads every workbook record and covered high-school unit', () => {
-    expect(unitEggDatasetMeta.recordCount).toBe(1064)
-    expect(unitEggDatasetMeta.unitCount).toBe(183)
+  it('loads every junior-high and high-school workbook record', () => {
+    expect(unitEggDatasetMeta.recordCount).toBe(1815)
+    expect(unitEggDatasetMeta.unitCount).toBe(366)
     expect(getUnitEggs('rj:required-1:uwelcome')).toHaveLength(6)
     expect(getUnitEggs('ylj:selective-required-4:u4')).toHaveLength(5)
-  })
-
-  it('does not invent eggs for uncovered junior-high units', () => {
-    expect(getUnitEggs('ylj:grade-9-1:u1')).toEqual([])
-    expect(getUnitEggForDate('ylj:grade-9-1:u1', new Date(2026, 7, 20))).toBeNull()
+    expect(getUnitEggs('rj:grade-7-1:ustarter-1')).toHaveLength(2)
+    expect(getUnitEggs('wyx:grade-7-1:ustarter')).toHaveLength(4)
+    expect(getUnitEggs('shjx:grade-6-1:u1')).toHaveLength(4)
+    expect(getUnitEggs('ylj:grade-9-1:u1')).toHaveLength(4)
   })
 
   it('keeps the same unit egg stable throughout a local calendar day', () => {
