@@ -71,6 +71,23 @@ describe('practice session dictation navigation', () => {
     expect(session.screen.value).toBe('dictationReport')
   })
 
+  it('persists completed dictation word totals for the current day', async () => {
+    const session = await openSession()
+    session.openDictationSetup()
+    session.startDictation()
+    const completedWordCount = session.dictationPlan.value?.words.length ?? 0
+
+    session.confirmDictationResult()
+    expect(session.todayDictationWordCount.value).toBe(completedWordCount)
+
+    session.confirmDictationResult()
+    expect(session.todayDictationWordCount.value).toBe(completedWordCount)
+
+    resetPracticeSessionState()
+    const restoredSession = await ensurePracticeSessionReady()
+    expect(restoredSession.todayDictationWordCount.value).toBe(completedWordCount)
+  })
+
   it('restores unfinished progress after the session is recreated', async () => {
     const firstSession = await openSession()
     firstSession.openDictationSetup()

@@ -31,11 +31,6 @@ export function createDictationPlan(
   repeatCount: DictationRepeatCount = 1
 ): DictationPlan {
   const planWords = order === 'shuffle' ? shuffleWords(words) : [...words]
-  const secondsPerWord = mode === 'paper'
-    ? intervalSeconds * repeatCount
-    : mode === 'recognition'
-      ? Math.max(8, intervalSeconds)
-      : Math.max(18, intervalSeconds * repeatCount)
 
   return {
     id: `dictation:${mode}:${accent}:${prompt}:${intervalSeconds}:${order}:${repeatCount}:${planWords.map(word => word.id).join('|')}`,
@@ -46,8 +41,24 @@ export function createDictationPlan(
     order,
     repeatCount,
     words: planWords,
-    estimatedSeconds: words.length * secondsPerWord
+    estimatedSeconds: estimateDictationSeconds(words.length, mode, intervalSeconds, repeatCount)
   }
+}
+
+export function estimateDictationSeconds(
+  wordCount: number,
+  mode: DictationMode,
+  intervalSeconds = 8,
+  repeatCount: DictationRepeatCount = 1
+): number {
+  const normalizedWordCount = Math.max(0, Math.floor(wordCount))
+  const secondsPerWord = mode === 'paper'
+    ? intervalSeconds * repeatCount
+    : mode === 'recognition'
+      ? Math.max(8, intervalSeconds)
+      : Math.max(18, intervalSeconds * repeatCount)
+
+  return normalizedWordCount * secondsPerWord
 }
 
 export function gradeDictationInput(entry: WordEntry, input: string): DictationRecord {

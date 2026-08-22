@@ -6,10 +6,24 @@
   />
   <view
     v-else
-    :class="['practiceBoot', 'screen', isTabRoot && 'hasBottomNav']"
+    :class="['practiceBoot', 'screen', isTabRoot && 'hasBottomNav', HOME_REDESIGN_V2_ENABLED && 'isHomeV2Screen']"
     :style="screenStyle"
   >
-    <view class="homeScreen">
+    <view v-if="HOME_REDESIGN_V2_ENABLED" class="homeV2Boot">
+      <view class="homeV2BootHeader">
+        <view class="bootSkeletonBlock homeV2BootTitle" />
+        <view class="bootSkeletonBlock homeV2BootFeedback" />
+      </view>
+      <view class="bootSkeletonBlock homeV2BootCourse" />
+      <view class="bootSkeletonBlock homeV2BootDictation" />
+      <view class="homeV2BootQuickGrid">
+        <view class="bootSkeletonBlock homeV2BootQuick" />
+        <view class="bootSkeletonBlock homeV2BootQuick" />
+      </view>
+      <view class="bootSkeletonBlock homeV2BootEgg" />
+    </view>
+
+    <view v-else class="homeScreen">
       <view class="homeHero">
         <view class="homeHeroMain">
           <view class="homeHeroTitle">课本单词通</view>
@@ -47,6 +61,7 @@ import {
   ensurePracticeSessionReady,
   isPracticeSessionReady
 } from '@/app/usePracticeSession'
+import { HOME_REDESIGN_V2_ENABLED } from '@/app/featureFlags'
 import PracticeShellInner from '@/components/PracticeShellInner.vue'
 
 defineOptions({
@@ -142,6 +157,83 @@ onBeforeMount(async () => {
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+.homeV2Boot {
+  display: grid;
+  flex: 1 1 auto;
+  grid-template-rows: 44px 230px 145px 90px 140px;
+  align-content: space-between;
+  min-height: 0;
+}
+
+.homeV2BootHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+}
+
+.homeV2BootTitle {
+  width: 142px;
+  height: 27px;
+}
+
+.homeV2BootFeedback {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+}
+
+.homeV2BootEgg {
+  box-sizing: border-box;
+  height: 100%;
+  border-radius: 14px;
+}
+
+.homeV2BootCourse {
+  box-sizing: border-box;
+  height: 100%;
+  border-radius: 18px;
+}
+
+.homeV2BootDictation {
+  box-sizing: border-box;
+  height: 100%;
+  border-radius: 18px;
+}
+
+.homeV2BootQuickGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.homeV2BootQuick {
+  box-sizing: border-box;
+  height: 100%;
+  border-radius: 16px;
+}
+
+.screen.isHomeV2Screen {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (max-height: 820px) {
+  .homeV2Boot {
+    grid-template-rows: 42px 190px 132px 72px 120px;
+  }
+}
+
+@media (max-height: 720px) {
+  .homeV2Boot {
+    grid-template-rows: 40px 170px 122px 68px 100px;
+  }
 }
 
 .homeHero {

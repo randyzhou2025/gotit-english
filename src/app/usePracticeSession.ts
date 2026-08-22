@@ -9,6 +9,7 @@ import { flushCloudSyncOnForeground } from '@/core/cloudSyncPolicy'
 import { queueStudyWordIds, setCachedDashboard } from '@/core/studyStats'
 import { ensureUserSession, markProgressUpdatedAt } from '@/core/userSession'
 import { getDictationAudioUrl, getDictationPromptLabel, hasPlayableDictationAudio } from '@/core/audio'
+import { loadTodayDictationWordCount, recordTodayDictationWords } from '@/core/dailyDictationProgress'
 import {
   createCheckupQuestions,
   gradeCheckupAnswer,
@@ -423,6 +424,7 @@ export function createPracticeSession(initialWords: WordEntry[]) {
   const dictationExcludesMasteredWords = ref(true)
   const dictationResultConfirmed = ref(false)
   const dictationReward = ref<DictationRewardState | null>(null)
+  const todayDictationWordCount = ref(loadTodayDictationWordCount())
 
   const selectedUnit = computed<UnitGroup | undefined>(() => findUnit(units.value, selectedUnitId.value))
   const currentSchoolStage = computed(() => selectedUnit.value ? inferSchoolStage(selectedUnit.value) : '高中')
@@ -1497,6 +1499,7 @@ export function createPracticeSession(initialWords: WordEntry[]) {
     const newlyMasteredCount = masteredIds.filter(id => !beforeMasteredIds.has(id)).length
 
     recordMasteredWords(masteredIds)
+    todayDictationWordCount.value = recordTodayDictationWords(dictationPlan.value.words.length)
     dictationResultConfirmed.value = true
 
     const afterMasteredIds = new Set(masteredWordIds.value)
@@ -1526,6 +1529,10 @@ export function createPracticeSession(initialWords: WordEntry[]) {
   function finishDictationReward() {
     dictationReward.value = null
     resetPractice()
+  }
+
+  function refreshTodayDictationWordCount() {
+    todayDictationWordCount.value = loadTodayDictationWordCount()
   }
 
   function revealPaperAnswer() {
@@ -1657,6 +1664,7 @@ export function createPracticeSession(initialWords: WordEntry[]) {
     resetPractice,
     resumeDictation,
     revealPaperAnswer,
+    refreshTodayDictationWordCount,
     screen,
     selectMeaning,
     selectAllDictationWords,
@@ -1706,6 +1714,7 @@ export function createPracticeSession(initialWords: WordEntry[]) {
     submitDictationRecognition,
     submitSpelling,
     targetDictationWords,
+    todayDictationWordCount,
     toggleExcludeMasteredDictationWords,
     toggleDictationReportWordStatus,
     toggleDictationWordSelection,

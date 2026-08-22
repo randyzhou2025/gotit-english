@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { createDictationPlan, formatEstimatedMinutes, gradeDictationInput } from './dictation'
+import {
+  createDictationPlan,
+  estimateDictationSeconds,
+  formatEstimatedMinutes,
+  gradeDictationInput
+} from './dictation'
 import type { WordEntry } from './types'
 
 const word: WordEntry = {
@@ -52,5 +57,11 @@ describe('dictation', () => {
   it('records online input correctness', () => {
     expect(gradeDictationInput(word, 'challenge').correct).toBe(true)
     expect(gradeDictationInput(word, 'challange').correct).toBe(false)
+  })
+
+  it('uses one estimate for the home card and dictation setup', () => {
+    expect(formatEstimatedMinutes(estimateDictationSeconds(20, 'paper', 8, 1))).toBe('3 分钟')
+    expect(formatEstimatedMinutes(estimateDictationSeconds(47, 'paper', 8, 1))).toBe('7 分钟')
+    expect(formatEstimatedMinutes(estimateDictationSeconds(47, 'paper', 8, 2))).toBe('13 分钟')
   })
 })

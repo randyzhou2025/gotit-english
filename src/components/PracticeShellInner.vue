@@ -9,6 +9,7 @@
       activeScreen === 'dictation' && 'isDictationPlayerScreen',
       activeScreen === 'weakbook' && 'isWeakbookScreen',
       activeScreen === 'home' && 'isHomeScreen',
+      activeScreen === 'home' && HOME_REDESIGN_V2_ENABLED && 'isHomeV2Screen',
       activeScreen === 'courseSetup' && 'isCourseSetupScreen',
       activeScreen === 'checkupSetup' && 'isCheckupSetupScreen',
       activeScreen === 'checkup' && 'isCheckupScreen',
@@ -134,10 +135,33 @@
       </view>
     </view>
 
-    <view
-      v-else-if="activeScreen === 'home'"
-      class="sectionStack homeScreen"
-    >
+    <template v-else-if="activeScreen === 'home'">
+      <HomeRedesign
+        v-if="HOME_REDESIGN_V2_ENABLED"
+        :selected-unit="selectedUnit"
+        :book-cover-source="homeBookCoverSource"
+        :book-cover-visible="homeBookCoverVisible"
+        :unit-word-count="unitWordCount"
+        :mastered-unit-word-count="masteredUnitWordCount"
+        :dictation-interval-seconds="dictationIntervalSeconds"
+        :dictation-mode="dictationMode"
+        :dictation-repeat-count="dictationRepeatCount"
+        :unit-mastery-label="unitMasteryLabel"
+        :unit-mastery-percent="unitMasteryPercent"
+        :today-dictation-word-count="todayDictationWordCount"
+        :unit-egg-audio-playing="isAudioPlaying"
+        :weak-word-count="savedWeakWords.length"
+        @feedback="openFeedbackPage"
+        @change-course="openCourseSetupPage"
+        @open-unit-words="openUnitWordsPage()"
+        @start-dictation="openDictationSetupPage"
+        @export-wordlist="openWordlistExportPage"
+        @review-weak-words="openWeakbook"
+        @play-unit-egg-audio="playUnitEggAudio"
+        @book-cover-error="homeBookCoverFailed = true"
+      />
+
+      <view v-else class="sectionStack homeScreen">
       <view class="homeHero">
         <view class="homeHeroMain">
           <view class="homeHeroTitleRow">
@@ -264,7 +288,8 @@
           <text class="homeDailyExampleText">{{ homeRecommendedWord.exampleSentence }}</text>
         </view>
       </view>
-    </view>
+      </view>
+    </template>
 
     <view v-else-if="activeScreen === 'checkupSetup'" class="checkupSetupScreen">
       <view class="dictationNav">
@@ -1432,8 +1457,11 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { onHide, onShow } from '@dcloudio/uni-app'
 import { confirmCourseSetupAndEnter, usePracticeSession, type AppScreen } from '@/app/usePracticeSession'
+import { HOME_REDESIGN_V2_ENABLED } from '@/app/featureFlags'
+import HomeRedesign from '@/components/home/HomeRedesign.vue'
 import TabBottomNav from '@/components/TabBottomNav.vue'
 import { getAudioUrl, hasPlayableAudio } from '@/core/audio'
+import { estimateDictationSeconds, formatEstimatedMinutes } from '@/core/dictation'
 import {
   buildTextbookCoverUrl,
   ensureTextbookCoverVersion,
@@ -1551,6 +1579,7 @@ const {
   nextAfterWrong,
   nextWordDetail,
   previousWordDetail,
+  refreshTodayDictationWordCount,
   openDictationSetup: openDictationSetupScreen,
   openSelectedWeakDictationSetup,
   openUnitWords,
@@ -1597,6 +1626,7 @@ const {
   submitDictationRecognition,
   submitSpelling,
   targetDictationWords,
+  todayDictationWordCount,
   toggleDictationReportWordStatus,
   toggleDictationWordSelection,
   toggleWeakWordSelection,
@@ -1878,8 +1908,12 @@ const dictationReportMasteredCount = computed(() => (
 ))
 
 const dictationSetupMinutes = computed(() => {
-  const seconds = targetDictationWords.value.length * dictationIntervalSeconds.value * dictationRepeatCount.value
-  return `${Math.max(1, Math.ceil(seconds / 60))} 分钟`
+  return formatEstimatedMinutes(estimateDictationSeconds(
+    targetDictationWords.value.length,
+    dictationMode.value,
+    dictationIntervalSeconds.value,
+    dictationRepeatCount.value
+  ))
 })
 
 const dictationSourceLabel = computed(() => {
@@ -2288,6 +2322,7 @@ function isHostingPageActive(): boolean {
 function handlePageShow() {
   updateMiniProgramNavInset()
   configureMiniProgramAudioPlayback()
+  refreshTodayDictationWordCount()
   shellVisible.value = true
   if (props.routeScreen) {
     activateRouteScreen(props.routeScreen)
@@ -2585,6 +2620,28 @@ function playWordDetailAudio(accent: Accent) {
 function playHomeRecommendedAudio() {
   const entry = homeRecommendedWord.value
   if (!entry) return
+
+  const accent: Accent = hasPlayableAudio(entry, 'uk') ? 'uk' : 'us'
+  if (!hasPlayableAudio(entry, accent)) {
+    uni.showToast({ title: '音频待生成', icon: 'none' })
+    return
+  }
+
+  const audio = ensureAudioContext(true)
+  audioRepeatsLeft = 1
+  audioErrorShouldToast = true
+  audio.stop()
+  audio.src = getAudioUrl(entry, accent)
+  audio.play()
+}
+
+function playUnitEggAudio(keyword: string) {
+  const normalizedKeyword = keyword.trim().toLowerCase()
+  const entry = unitWords.value.find(word => word.word.trim().toLowerCase() === normalizedKeyword)
+  if (!entry) {
+    uni.showToast({ title: '暂无发音', icon: 'none' })
+    return
+  }
 
   const accent: Accent = hasPlayableAudio(entry, 'uk') ? 'uk' : 'us'
   if (!hasPlayableAudio(entry, accent)) {
@@ -7686,6 +7743,15 @@ onBeforeUnmount(() => {
 
 .screen.isHomeScreen.hasBottomNav {
   padding-bottom: calc(92px + env(safe-area-inset-bottom));
+}
+
+.screen.isHomeV2Screen {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .screen.isHomeScreen .homeScreen {
