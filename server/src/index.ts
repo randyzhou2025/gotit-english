@@ -8,6 +8,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
+import { registerAnalyticsRoutes } from "./routes/analytics.js";
 import { registerAuthRoutes } from "./routes/auth.js";
 import { registerFeedbackRoutes } from "./routes/feedback.js";
 import { registerStudyRoutes } from "./routes/study.js";
@@ -56,6 +57,7 @@ const authenticate = async (request: FastifyRequest, reply: FastifyReply) => {
 app.get("/api/health", async () => ({ ok: true }));
 
 await registerAuthRoutes(app, authenticate);
+await registerAnalyticsRoutes(app, authenticate);
 await registerUserRoutes(app, authenticate);
 await registerStudyRoutes(app, authenticate);
 await registerFeedbackRoutes(app, authenticate);

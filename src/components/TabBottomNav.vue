@@ -38,6 +38,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { trackAnalyticsEvent } from '@/core/analytics'
 
 const props = defineProps<{
   active: 'home' | 'weakbook' | 'profile'
@@ -53,6 +54,7 @@ function goHome() {
 
 function goWeakbook() {
   if (props.active === 'weakbook') return
+  trackAnalyticsEvent('weakbook_click', { source: 'tabbar' })
   uni.switchTab({ url: '/pages/weakbook/index' })
 }
 

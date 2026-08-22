@@ -874,7 +874,7 @@
       </view>
 
       <view class="actionStack reportActions">
-        <view class="bottomButton" @tap="openWeakbook">
+        <view class="bottomButton" @tap="goWeakbook">
           <text>查看生词本</text>
         </view>
         <view class="secondaryButton" @tap="startReportWeakCheckupPage">
@@ -1353,7 +1353,7 @@
             <view :class="['secondaryButton', dictationReportPendingCount === 0 && 'isDisabled']" @tap="startForgottenDictationPage">
               <text>生词再听一轮</text>
             </view>
-            <view class="secondaryButton" @tap="openWeakbook">
+            <view class="secondaryButton" @tap="goWeakbook">
               <text>查看生词本</text>
             </view>
           </view>
@@ -1478,6 +1478,7 @@ import { HOME_REDESIGN_V2_ENABLED, VISUAL_THEME_ENABLED } from '@/app/featureFla
 import { useVisualTheme } from '@/app/useVisualTheme'
 import HomeRedesign from '@/components/home/HomeRedesign.vue'
 import TabBottomNav from '@/components/TabBottomNav.vue'
+import { trackAnalyticsEvent } from '@/core/analytics'
 import { getAudioUrl, hasPlayableAudio } from '@/core/audio'
 import { estimateDictationSeconds, formatEstimatedMinutes } from '@/core/dictation'
 import {
@@ -2484,7 +2485,7 @@ function navigateBackToPrevious(fallbackScreen: AppScreen = 'home') {
 
 function goToFallbackScreen(fallbackScreen: AppScreen) {
   if (fallbackScreen === 'weakbook') {
-    openWeakbook()
+    navigateToWeakbook()
     return
   }
 
@@ -2507,9 +2508,14 @@ function resetPractice() {
   switchNativeTab('/pages/index/index')
 }
 
-function openWeakbook() {
+function navigateToWeakbook() {
   openWeakbookScreen()
   switchNativeTab('/pages/weakbook/index')
+}
+
+function openWeakbook() {
+  trackAnalyticsEvent('weakbook_click', { source: 'in_page' })
+  navigateToWeakbook()
 }
 
 function openDictationSetup() {
@@ -2523,6 +2529,15 @@ function openCourseSetupPage() {
 }
 
 function openUnitWordsPage(masteredFirst = false) {
+  const unit = selectedUnit.value
+  trackAnalyticsEvent('unit_wordlist_click', {
+    unitId: unit?.unitId,
+    bookId: unit?.bookId,
+    bookName: unit?.bookName,
+    unitName: unit?.unitName,
+    wordCount: unit?.words.length,
+    masteredFirst
+  })
   openUnitWords(masteredFirst)
   navigateToRoute('unitWords')
 }
@@ -2702,13 +2717,29 @@ function openDictationSetupPage() {
 }
 
 function startUnitRecognitionTestPage() {
+  const unit = selectedUnit.value
+  trackAnalyticsEvent('meaning_self_test_click', {
+    unitId: unit?.unitId,
+    bookId: unit?.bookId,
+    bookName: unit?.bookName,
+    unitName: unit?.unitName,
+    wordCount: unit?.words.length
+  })
   openDictationSetupScreen({ scrollToTop: false })
   setDictationPrompt('english')
   setDictationMode('recognition')
-  beginDictation()
+  startDictationAndNavigate('meaning_self_test')
 }
 
 function openWordlistExportPage() {
+  const unit = selectedUnit.value
+  trackAnalyticsEvent('home_export_click', {
+    unitId: unit?.unitId,
+    bookId: unit?.bookId,
+    bookName: unit?.bookName,
+    unitName: unit?.unitName,
+    wordCount: unit?.words.length
+  })
   uni.navigateTo({
     url: '/pages/export-wordlist/index'
   })
@@ -2879,8 +2910,9 @@ function finishDictationRewardAndReturnHome() {
 }
 
 function finishDictationRewardAndOpenWeakbook() {
+  trackAnalyticsEvent('weakbook_click', { source: 'dictation_reward' })
   finishDictationRewardInSession()
-  openWeakbook()
+  navigateToWeakbook()
 }
 
 function restartDictationFromReward() {
@@ -2894,10 +2926,30 @@ function restartDictationFromReward() {
 }
 
 function beginDictation() {
+  startDictationAndNavigate('dictation_setup')
+}
+
+function startDictationAndNavigate(source: 'dictation_setup' | 'meaning_self_test') {
   lastPlaybackKey = ''
   pendingPushedScreen = props.routeScreen ? 'dictation' : null
   startDictation()
   if (screen.value === 'dictation') {
+    const unit = selectedUnit.value
+    trackAnalyticsEvent('dictation_start', {
+      source,
+      unitId: unit?.unitId,
+      bookId: unit?.bookId,
+      bookName: unit?.bookName,
+      unitName: unit?.unitName,
+      prompt: dictationPrompt.value,
+      mode: dictationMode.value,
+      intervalSeconds: dictationIntervalSeconds.value,
+      order: dictationOrder.value,
+      repeatCount: dictationRepeatCount.value,
+      wordCount: targetDictationWords.value.length,
+      excludesMasteredWords: dictationExcludesMasteredWords.value,
+      quickCount: selectedDictationQuickCount.value
+    })
     clearDictationTimers()
     navigateToRoute('dictation')
     return

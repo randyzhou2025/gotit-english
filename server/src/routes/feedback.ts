@@ -43,6 +43,7 @@ export async function registerFeedbackRoutes(
     return {
       customerServiceQrUrl: config.customer_service_qr_url ?? "",
       icpNumber: config.icp_number ?? "",
+      analyticsEnabled: config.analytics_enabled !== "false",
     };
   });
 }

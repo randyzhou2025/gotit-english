@@ -1,8 +1,8 @@
 <template>
   <view class="homeV2">
     <view class="homeV2Header">
-      <text class="homeV2Title">课本单词通</text>
-      <view class="homeV2HeaderActions">
+      <view class="homeV2TitleGroup">
+        <text class="homeV2Title">课本单词通</text>
         <view
           class="homeV2ThemeSwitch"
           hover-class="homeV2ThemeSwitchPressed"
@@ -14,6 +14,8 @@
           <view class="homeV2ThemeSwatch" aria-hidden="true" />
           <text>{{ visualThemeName }}</text>
         </view>
+      </view>
+      <view class="homeV2HeaderActions">
         <view
           class="homeV2Feedback"
           hover-class="homeV2FeedbackPressed"
@@ -245,6 +247,13 @@ const weakWordBadge = computed(() => String(Math.min(99, props.weakWordCount)))
   line-height: 1;
   font-weight: 900;
   letter-spacing: -0.02em;
+}
+
+.homeV2TitleGroup {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
 }
 
 .homeV2HeaderActions {
@@ -809,6 +818,10 @@ const weakWordBadge = computed(() => String(Math.min(99, props.weakWordCount)))
 .homeV2ReviewCheck.three { top: 17px; }
 
 @media (max-width: 375px) {
+  .homeV2TitleGroup {
+    gap: 6px;
+  }
+
   .homeV2Title {
     font-size: 24px;
   }

@@ -41,6 +41,7 @@ export interface DashboardSnapshot {
 export interface PublicAppConfig {
   customerServiceQrUrl: string
   icpNumber: string
+  analyticsEnabled: boolean
 }
 
 export type FeedbackCategory = 'bug' | 'malfunction' | 'experience' | 'feature' | 'other'
@@ -259,13 +260,13 @@ export async function uploadAvatar(filePath: string): Promise<string | null> {
 
 export async function fetchPublicConfig(): Promise<PublicAppConfig> {
   if (!isApiEnabled()) {
-    return { customerServiceQrUrl: '', icpNumber: '' }
+    return { customerServiceQrUrl: '', icpNumber: '', analyticsEnabled: false }
   }
 
   try {
     return await apiRequest<PublicAppConfig>('/api/config/public', { auth: false })
   } catch {
-    return { customerServiceQrUrl: '', icpNumber: '' }
+    return { customerServiceQrUrl: '', icpNumber: '', analyticsEnabled: true }
   }
 }
 

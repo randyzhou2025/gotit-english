@@ -143,6 +143,11 @@ export async function getDashboard(userId: string): Promise<DashboardSnapshot> {
 }
 
 export async function ensureAppConfigDefaults() {
+  await db
+    .insert(appConfig)
+    .values({ key: "analytics_enabled", value: "true" })
+    .onConflictDoNothing({ target: appConfig.key });
+
   const defaults: Record<string, string> = {
     customer_service_qr_url: process.env.CUSTOMER_SERVICE_QR_URL ?? "",
     icp_number: process.env.ICP_NUMBER ?? "",

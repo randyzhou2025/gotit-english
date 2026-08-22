@@ -102,6 +102,7 @@ import {
 } from '@/app/usePracticeSession'
 import { useVisualTheme } from '@/app/useVisualTheme'
 import { useWeappShare } from '@/app/useWeappShare'
+import { trackAnalyticsEvent } from '@/core/analytics'
 import type { WordEntry } from '@/core/types'
 import {
   WORDLIST_BUFFER_HEIGHT,
@@ -347,6 +348,17 @@ async function writeAndOpenPdf(imagePaths: string[]) {
 async function exportPdf() {
   if (exporting.value || sourceWords.value.length === 0) return
 
+  const unit = selectedUnit.value
+  trackAnalyticsEvent('wordlist_export_click', {
+    mode: exportMode.value,
+    shuffled: shuffled.value,
+    unitId: unit?.unitId,
+    bookId: unit?.bookId,
+    bookName: unit?.bookName,
+    unitName: unit?.unitName,
+    wordCount: sourceWords.value.length,
+    pageCount: exportPages.value.length
+  })
   exporting.value = true
   const imagePaths: string[] = []
   try {

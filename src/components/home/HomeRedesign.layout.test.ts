@@ -59,6 +59,7 @@ describe('redesigned home', () => {
 
   it('keeps the theme switch compact, named and connected through the theme state layer', () => {
     expect(homeSource).toContain('class="homeV2ThemeSwitch"')
+    expect(homeSource).toMatch(/class="homeV2TitleGroup"[\s\S]*class="homeV2Title"[\s\S]*class="homeV2ThemeSwitch"/)
     expect(homeSource).toContain('{{ visualThemeName }}')
     expect(homeSource).toContain("emit('switch-theme')")
     expect(homeSource).toMatch(/\.homeV2ThemeSwitch\s*\{[^}]*height: 28px;[^}]*border-radius: 999px;/s)

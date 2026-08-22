@@ -5,6 +5,7 @@ import {
   getVisualTheme,
   serializeVisualThemeTokens
 } from '@/core/visualTheme'
+import { trackAnalyticsEvent } from '@/core/analytics'
 
 const VISUAL_THEME_STORAGE_KEY = 'gotit:visualTheme:last'
 
@@ -33,11 +34,15 @@ export function initializeVisualTheme() {
   initialized = true
 
   saveActiveVisualThemeId()
+  const theme = getVisualTheme(activeVisualThemeId.value)
+  trackAnalyticsEvent('theme_selected', { themeId: theme.id, themeName: theme.name })
 }
 
 function switchToNextVisualTheme() {
   activeVisualThemeId.value = getNextVisualThemeId(activeVisualThemeId.value)
   saveActiveVisualThemeId()
+  const theme = getVisualTheme(activeVisualThemeId.value)
+  trackAnalyticsEvent('theme_selected', { themeId: theme.id, themeName: theme.name })
 }
 
 export function useVisualTheme() {

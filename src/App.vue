@@ -11,7 +11,9 @@ import {
   scheduleDeferredStartupSync
 } from '@/app/usePracticeSession'
 import { initializeVisualTheme } from '@/app/useVisualTheme'
+import { flushAnalyticsEvents, setAnalyticsEnabled } from '@/core/analytics'
 import { flushCloudSyncOnBackground } from '@/core/cloudSyncPolicy'
+import { fetchPublicConfig } from '@/core/userSession'
 import {
   startStudyDurationPing,
   stopStudyDurationPing
@@ -19,17 +21,24 @@ import {
 
 onLaunch(() => {
   initializeVisualTheme()
-  void ensurePracticeSessionReady()
+  void fetchPublicConfig().then(config => {
+    setAnalyticsEnabled(config.analyticsEnabled)
+  })
+  void ensurePracticeSessionReady().finally(() => {
+    void flushAnalyticsEvents()
+  })
 })
 
 onShow(() => {
   startStudyDurationPing()
   scheduleDeferredStartupSync()
+  void flushAnalyticsEvents()
 })
 
 onHide(() => {
   stopStudyDurationPing()
   flushCloudSyncOnBackground()
+  void flushAnalyticsEvents()
 })
 </script>
 

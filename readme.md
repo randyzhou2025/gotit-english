@@ -63,6 +63,24 @@ docker compose -f docker-compose.prod.yml --env-file .env.prod exec gotit_postgr
   psql -U gotit -d gotit -c "
 ALTER TABLE users ADD COLUMN IF NOT EXISTS last_active_ip varchar(64);
 ALTER TABLE users ADD COLUMN IF NOT EXISTS last_active_location varchar(128);
+
+INSERT INTO app_config (key, value)
+VALUES ('analytics_enabled', 'true')
+ON CONFLICT (key) DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS usage_events (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_id varchar(64) NOT NULL UNIQUE,
+  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  event_name varchar(64) NOT NULL,
+  properties jsonb NOT NULL DEFAULT '{}'::jsonb,
+  occurred_at timestamptz NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS usage_events_occurred_at_idx
+  ON usage_events (occurred_at);
+CREATE INDEX IF NOT EXISTS usage_events_user_event_idx
+  ON usage_events (user_id, event_name, occurred_at);
 "
 ```
 

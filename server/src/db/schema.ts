@@ -1,6 +1,7 @@
 import {
   boolean,
   date,
+  index,
   integer,
   jsonb,
   pgTable,
@@ -67,3 +68,24 @@ export const appConfig = pgTable("app_config", {
   key: varchar("key", { length: 64 }).primaryKey(),
   value: text("value").notNull(),
 });
+
+export type UsageEventProperties = Record<string, string | number | boolean | null>;
+
+export const usageEvents = pgTable(
+  "usage_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    eventId: varchar("event_id", { length: 64 }).notNull().unique(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    eventName: varchar("event_name", { length: 64 }).notNull(),
+    properties: jsonb("properties").$type<UsageEventProperties>().notNull().default({}),
+    occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("usage_events_occurred_at_idx").on(t.occurredAt),
+    index("usage_events_user_event_idx").on(t.userId, t.eventName, t.occurredAt),
+  ]
+);
