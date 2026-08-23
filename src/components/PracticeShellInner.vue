@@ -2533,6 +2533,7 @@ function openUnitWordsPage(masteredFirst = false) {
   trackAnalyticsEvent('unit_wordlist_click', {
     unitId: unit?.unitId,
     bookId: unit?.bookId,
+    publisherName: unit?.publisherName,
     bookName: unit?.bookName,
     unitName: unit?.unitName,
     wordCount: unit?.words.length,
@@ -2721,6 +2722,7 @@ function startUnitRecognitionTestPage() {
   trackAnalyticsEvent('meaning_self_test_click', {
     unitId: unit?.unitId,
     bookId: unit?.bookId,
+    publisherName: unit?.publisherName,
     bookName: unit?.bookName,
     unitName: unit?.unitName,
     wordCount: unit?.words.length
@@ -2736,6 +2738,7 @@ function openWordlistExportPage() {
   trackAnalyticsEvent('home_export_click', {
     unitId: unit?.unitId,
     bookId: unit?.bookId,
+    publisherName: unit?.publisherName,
     bookName: unit?.bookName,
     unitName: unit?.unitName,
     wordCount: unit?.words.length
@@ -2939,6 +2942,7 @@ function startDictationAndNavigate(source: 'dictation_setup' | 'meaning_self_tes
       source,
       unitId: unit?.unitId,
       bookId: unit?.bookId,
+      publisherName: unit?.publisherName,
       bookName: unit?.bookName,
       unitName: unit?.unitName,
       prompt: dictationPrompt.value,

@@ -354,6 +354,7 @@ async function exportPdf() {
     shuffled: shuffled.value,
     unitId: unit?.unitId,
     bookId: unit?.bookId,
+    publisherName: unit?.publisherName,
     bookName: unit?.bookName,
     unitName: unit?.unitName,
     wordCount: sourceWords.value.length,
