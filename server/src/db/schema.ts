@@ -15,7 +15,8 @@ import {
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   openid: varchar("openid", { length: 128 }).notNull().unique(),
-  nickname: varchar("nickname", { length: 20 }).notNull(),
+  nickname: varchar("nickname", { length: 20 }),
+  isDefaultNickname: boolean("is_default_nickname").notNull().default(false),
   avatarUrl: varchar("avatar_url", { length: 512 }),
   phoneNumber: varchar("phone_number", { length: 20 }),
   phoneCountryCode: varchar("phone_country_code", { length: 8 }),

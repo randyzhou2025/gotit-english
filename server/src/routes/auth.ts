@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getDashboard } from "../services/study.js";
 import {
   createUser,
+  ensureDefaultNickname,
   findUserByOpenId,
   getProgress,
   getUserById,
@@ -32,6 +33,7 @@ export async function registerAuthRoutes(app: FastifyInstance, authenticate: pre
       if (!user) {
         user = await createUser(openid, { ip, location });
       } else {
+        user = await ensureDefaultNickname(user);
         user = (await touchUserActivity(user.id, { ip, location })) ?? user;
       }
 
@@ -55,10 +57,11 @@ export async function registerAuthRoutes(app: FastifyInstance, authenticate: pre
 
   app.get("/api/user/me", { preHandler: [authenticate] }, async (request: FastifyRequest) => {
     const jwtUser = request.user as { sub: string };
-    const user = await getUserById(jwtUser.sub);
-    if (!user) {
+    const existingUser = await getUserById(jwtUser.sub);
+    if (!existingUser) {
       throw app.httpErrors.notFound("User not found");
     }
+    const user = await ensureDefaultNickname(existingUser);
     return { user: serializeUser(user) };
   });
 }

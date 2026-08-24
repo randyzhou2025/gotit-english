@@ -8,13 +8,18 @@ export interface ProgressSnapshot {
 
 export interface UserProfile {
   nickname: string
+  isDefaultNickname: boolean
   avatarUrl: string
   createdAt: string
 }
 
 const DEFAULT_NICKNAME_PATTERN = /^课本单词通_[a-z0-9]{5}$/
 
-export function isDefaultGeneratedNickname(nickname: string | undefined | null): boolean {
+export function isDefaultGeneratedNickname(
+  nickname: string | undefined | null,
+  isDefaultNickname?: boolean
+): boolean {
+  if (typeof isDefaultNickname === 'boolean') return isDefaultNickname
   if (!nickname || nickname === '课本单词通') return true
   return DEFAULT_NICKNAME_PATTERN.test(nickname)
 }
@@ -25,7 +30,8 @@ export function hasCustomAvatar(avatarUrl: string | undefined | null): boolean {
 
 export function shouldShowProfileEditHint(profile: UserProfile | null | undefined): boolean {
   if (!profile) return true
-  return isDefaultGeneratedNickname(profile.nickname) && !hasCustomAvatar(profile.avatarUrl)
+  return isDefaultGeneratedNickname(profile.nickname, profile.isDefaultNickname)
+    && !hasCustomAvatar(profile.avatarUrl)
 }
 
 export interface DashboardSnapshot {

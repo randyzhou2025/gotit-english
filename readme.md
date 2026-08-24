@@ -63,6 +63,12 @@ docker compose -f docker-compose.prod.yml --env-file .env.prod exec gotit_postgr
   psql -U gotit -d gotit -c "
 ALTER TABLE users ADD COLUMN IF NOT EXISTS last_active_ip varchar(64);
 ALTER TABLE users ADD COLUMN IF NOT EXISTS last_active_location varchar(128);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS is_default_nickname boolean NOT NULL DEFAULT false;
+ALTER TABLE users ALTER COLUMN nickname DROP NOT NULL;
+UPDATE users
+SET is_default_nickname = true
+WHERE nickname = '课本单词通'
+   OR nickname ~ '^课本单词通_[a-z0-9]{5}$';
 
 INSERT INTO app_config (key, value)
 VALUES ('analytics_enabled', 'true')

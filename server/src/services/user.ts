@@ -1,8 +1,8 @@
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { userProgress, users } from "../db/schema.js";
+import { generateNickname, shouldGenerateDefaultNickname } from "../lib/nickname.js";
 import {
-  defaultNickname,
   emptyProgress,
   serializeProgress,
   type ProgressSnapshot,
@@ -10,7 +10,8 @@ import {
 
 export function serializeUser(row: typeof users.$inferSelect) {
   return {
-    nickname: row.nickname,
+    nickname: row.nickname ?? "",
+    isDefaultNickname: row.isDefaultNickname,
     avatarUrl: row.avatarUrl ?? "",
     createdAt: row.createdAt.toISOString(),
   };
@@ -30,7 +31,8 @@ export async function createUser(
     .insert(users)
     .values({
       openid,
-      nickname: defaultNickname(),
+      nickname: generateNickname(),
+      isDefaultNickname: true,
       lastActiveIp: activity?.ip,
       lastActiveLocation: activity?.location,
       updatedAt: now,
@@ -43,6 +45,26 @@ export async function createUser(
   });
 
   return user!;
+}
+
+export async function ensureDefaultNickname(user: typeof users.$inferSelect) {
+  if (!shouldGenerateDefaultNickname(user.nickname)) return user;
+
+  const now = new Date();
+  const unchangedNickname = user.nickname === null
+    ? isNull(users.nickname)
+    : eq(users.nickname, user.nickname);
+  const [updated] = await db
+    .update(users)
+    .set({
+      nickname: generateNickname(),
+      isDefaultNickname: true,
+      updatedAt: now,
+    })
+    .where(and(eq(users.id, user.id), unchangedNickname))
+    .returning();
+
+  return updated ?? (await getUserById(user.id)) ?? user;
 }
 
 export async function touchUserActivity(
@@ -108,7 +130,10 @@ export async function updateUserProfile(
 ) {
   const now = new Date();
   const patch: Partial<typeof users.$inferInsert> = { updatedAt: now };
-  if (input.nickname !== undefined) patch.nickname = input.nickname;
+  if (input.nickname !== undefined) {
+    patch.nickname = input.nickname;
+    patch.isDefaultNickname = false;
+  }
   if (input.avatarUrl !== undefined) patch.avatarUrl = input.avatarUrl;
 
   const [row] = await db.update(users).set(patch).where(eq(users.id, userId)).returning();
