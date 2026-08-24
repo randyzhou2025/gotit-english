@@ -1,6 +1,6 @@
 import { and, eq, isNull } from "drizzle-orm";
 import { db } from "../db/index.js";
-import { userProgress, users } from "../db/schema.js";
+import { userProgress, userWeakWordHistory, users } from "../db/schema.js";
 import { generateNickname, shouldGenerateDefaultNickname } from "../lib/nickname.js";
 import {
   emptyProgress,
@@ -99,29 +99,47 @@ export async function getProgress(userId: string): Promise<ProgressSnapshot> {
 export async function saveProgress(userId: string, snapshot: ProgressSnapshot) {
   const now = new Date();
   const updatedAt = snapshot.updatedAt ? new Date(snapshot.updatedAt) : now;
-  const [row] = await db
-    .insert(userProgress)
-    .values({
-      userId,
-      masteredWordIds: snapshot.masteredWordIds,
-      savedWeakWordIds: snapshot.savedWeakWordIds,
-      selectedUnitId: snapshot.selectedUnitId,
-      courseSetupCompleted: snapshot.courseSetupCompleted,
-      updatedAt,
-    })
-    .onConflictDoUpdate({
-      target: userProgress.userId,
-      set: {
+  const row = await db.transaction(async (tx) => {
+    const [saved] = await tx
+      .insert(userProgress)
+      .values({
+        userId,
         masteredWordIds: snapshot.masteredWordIds,
         savedWeakWordIds: snapshot.savedWeakWordIds,
         selectedUnitId: snapshot.selectedUnitId,
         courseSetupCompleted: snapshot.courseSetupCompleted,
         updatedAt,
-      },
-    })
-    .returning();
+      })
+      .onConflictDoUpdate({
+        target: userProgress.userId,
+        set: {
+          masteredWordIds: snapshot.masteredWordIds,
+          savedWeakWordIds: snapshot.savedWeakWordIds,
+          selectedUnitId: snapshot.selectedUnitId,
+          courseSetupCompleted: snapshot.courseSetupCompleted,
+          updatedAt,
+        },
+      })
+      .returning();
 
-  return serializeProgress(row!);
+    if (snapshot.savedWeakWordIds.length > 0) {
+      await tx
+        .insert(userWeakWordHistory)
+        .values(snapshot.savedWeakWordIds.map((wordId) => ({
+          userId,
+          wordId,
+          firstMarkedWeakAt: now,
+          lastMarkedWeakAt: now,
+        })))
+        .onConflictDoUpdate({
+          target: [userWeakWordHistory.userId, userWeakWordHistory.wordId],
+          set: { lastMarkedWeakAt: now },
+        });
+    }
+    return saved!;
+  });
+
+  return serializeProgress(row);
 }
 
 export async function updateUserProfile(

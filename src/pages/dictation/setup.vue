@@ -8,10 +8,3 @@ import PracticeShell from '@/components/PracticeShell.vue'
 
 useWeappShare()
 </script>
-
-<script lang="ts">
-export default {
-  onShareAppMessage() {},
-  onShareTimeline() {}
-}
-</script>

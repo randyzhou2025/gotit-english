@@ -8,6 +8,13 @@
       }
     },
     {
+      "path": "pages/classmates/index",
+      "style": {
+        "navigationBarTitleText": "同学",
+        "navigationStyle": "custom"
+      }
+    },
+    {
       "path": "pages/weakbook/index",
       "style": {
         "navigationBarTitleText": "生词本",
@@ -25,6 +32,13 @@
       "path": "pages/feedback/index",
       "style": {
         "navigationBarTitleText": "意见反馈",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/share-entry/index",
+      "style": {
+        "navigationBarTitleText": "同学学习任务",
         "navigationStyle": "custom"
       }
     },
@@ -138,6 +152,12 @@
         "iconPath": "static/tabbar/home.png",
         "selectedIconPath": "static/tabbar/home-active.png",
         "text": "首页"
+      },
+      {
+        "pagePath": "pages/classmates/index",
+        "iconPath": "static/tabbar/classmates.png",
+        "selectedIconPath": "static/tabbar/classmates-active.png",
+        "text": "同学"
       },
       {
         "pagePath": "pages/weakbook/index",

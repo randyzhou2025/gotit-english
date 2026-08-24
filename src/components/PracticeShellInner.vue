@@ -1418,6 +1418,20 @@
           </view>
         </view>
 
+        <view v-if="learningPowerPending || learningPowerAward" class="rewardPowerCard">
+          <text v-if="learningPowerPending" class="rewardPowerPending">正在计算本次学习力...</text>
+          <template v-else-if="learningPowerAward">
+            <view class="rewardPowerTop">
+              <text class="rewardPowerTitle">本次获得 +{{ learningPowerAward.earned }} 学习力</text>
+              <text class="rewardPowerWeek">
+                本周 {{ learningPowerAward.weeklyLearningPower }}
+                <template v-if="learningPowerAward.myRank"> · 第{{ learningPowerAward.myRank }}名</template>
+              </text>
+            </view>
+            <text v-if="learningPowerBreakdownText" class="rewardPowerBreakdown">{{ learningPowerBreakdownText }}</text>
+          </template>
+        </view>
+
         <view class="rewardUnitProgressCard">
           <view class="rewardProgressTop">
             <text>单元进度</text>
@@ -1453,11 +1467,23 @@
       </view>
 
       <view class="rewardBottomActions">
-        <view class="rewardPrimaryButton" @tap="finishDictationRewardAndReturnHome">
-          <text>回到首页</text>
+        <!-- #ifdef MP-WEIXIN -->
+        <button class="rewardChallengeButton" open-type="share" hover-class="rewardButtonPressed">
+          <text>邀请同学挑战</text>
+        </button>
+        <!-- #endif -->
+        <!-- #ifndef MP-WEIXIN -->
+        <view class="rewardChallengeButton" hover-class="rewardButtonPressed" @tap="showUnitChallengeShareHint">
+          <text>邀请同学挑战</text>
         </view>
-        <view class="rewardSecondaryButton" @tap="restartDictationFromReward">
-          <text>{{ dictationReward.forgottenCount > 0 ? '再听一轮生词' : '回到听写' }}</text>
+        <!-- #endif -->
+        <view class="rewardExitActions">
+          <view class="rewardPrimaryButton" hover-class="rewardButtonPressed" @tap="finishDictationRewardAndReturnHome">
+            <text>回到首页</text>
+          </view>
+          <view class="rewardSecondaryButton" hover-class="rewardButtonPressed" @tap="restartDictationFromReward">
+            <text>{{ dictationReward.forgottenCount > 0 ? '再听一轮生词' : '回到听写' }}</text>
+          </view>
         </view>
       </view>
     </view>
@@ -1577,6 +1603,8 @@ const {
   dictationPrompt,
   dictationRecords,
   dictationReward,
+  learningPowerAward,
+  learningPowerPending,
   dictationResultConfirmed,
   dictationRepeatCount,
   dictationSummary,
@@ -1832,6 +1860,22 @@ const dictationRewardSubtitle = computed(() => {
     return `${dictationReward.value.forgottenCount} 个词已经放进生词本，下次只练真正需要巩固的。`
   }
   return '本轮没有新增生词，今天的学习结果已经保存。'
+})
+
+const learningPowerBreakdownText = computed(() => {
+  const breakdown = learningPowerAward.value?.breakdown
+  if (!breakdown) return ''
+  const items = [
+    ['听写单词', breakdown.dictationWordScore],
+    ['完整听写', breakdown.validDictationScore],
+    ['每日学习', breakdown.dailyBonusScore],
+    ['连续学习', breakdown.streakScore],
+    ['错词复习', breakdown.mistakeReviewScore]
+  ] as const
+  return items
+    .filter(([, score]) => score > 0)
+    .map(([label, score]) => `${label} +${score}`)
+    .join('　')
 })
 
 const rewardUnitMeta = computed(() => {
@@ -2322,13 +2366,13 @@ function syncNativeWeakbookBadge() {
     const count = savedWeakWords.value.length
     if (count > 0) {
       uni.setTabBarBadge({
-        index: 1,
+        index: 2,
         text: String(Math.min(count, 99))
       })
       return
     }
 
-    uni.removeTabBarBadge({ index: 1 })
+    uni.removeTabBarBadge({ index: 2 })
   } catch {
     // Native tabBar can be unavailable in H5 preview or before tab pages mount.
   }
@@ -2910,6 +2954,10 @@ function isDictationQuickOptionActive(option: { count: number, isAll: boolean })
 function finishDictationRewardAndReturnHome() {
   finishDictationRewardInSession()
   switchNativeTab('/pages/index/index')
+}
+
+function showUnitChallengeShareHint() {
+  uni.showToast({ title: '请在微信小程序中分享', icon: 'none' })
 }
 
 function finishDictationRewardAndOpenWeakbook() {
@@ -12759,12 +12807,49 @@ onBeforeUnmount(() => {
 }
 
 .screen.isDictationRewardScreen .rewardStatsStrip,
+.screen.isDictationRewardScreen .rewardPowerCard,
 .screen.isDictationRewardScreen .rewardUnitProgressCard,
 .screen.isDictationRewardScreen .rewardNextStepCard {
   border: 1px solid #cad8d1;
   background: var(--surface);
   box-shadow: none;
   box-sizing: border-box;
+}
+
+.screen.isDictationRewardScreen .rewardPowerCard {
+  width: 100%;
+  min-height: 64px;
+  margin-top: 14px;
+  padding: 13px 15px;
+  border-radius: 16px;
+}
+
+.screen.isDictationRewardScreen .rewardPowerTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.screen.isDictationRewardScreen .rewardPowerTitle {
+  color: var(--accent);
+  font-size: 16px;
+  line-height: 1.3;
+  font-weight: 900;
+}
+
+.screen.isDictationRewardScreen .rewardPowerWeek,
+.screen.isDictationRewardScreen .rewardPowerPending,
+.screen.isDictationRewardScreen .rewardPowerBreakdown {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.45;
+  font-weight: 650;
+}
+
+.screen.isDictationRewardScreen .rewardPowerBreakdown {
+  display: block;
+  margin-top: 7px;
 }
 
 .screen.isDictationRewardScreen .rewardStatsStrip {
@@ -12952,6 +13037,7 @@ onBeforeUnmount(() => {
   box-sizing: border-box;
 }
 
+.screen.isDictationRewardScreen .rewardChallengeButton,
 .screen.isDictationRewardScreen .rewardPrimaryButton,
 .screen.isDictationRewardScreen .rewardSecondaryButton {
   display: flex;
@@ -12967,16 +13053,40 @@ onBeforeUnmount(() => {
   box-sizing: border-box;
 }
 
-.screen.isDictationRewardScreen .rewardPrimaryButton {
+.screen.isDictationRewardScreen .rewardChallengeButton {
+  margin: 0;
+  padding: 0;
   border: 1px solid var(--accent);
   background: var(--accent);
   color: #fffdf8;
 }
 
+.screen.isDictationRewardScreen .rewardChallengeButton::after {
+  border: 0;
+}
+
+.screen.isDictationRewardScreen .rewardExitActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.screen.isDictationRewardScreen .rewardPrimaryButton,
 .screen.isDictationRewardScreen .rewardSecondaryButton {
   border: 1px solid #c9d2cd;
   background: var(--surface);
   color: var(--ink);
+  font-size: 14px;
+}
+
+.screen.isDictationRewardScreen .rewardPrimaryButton {
+  border-color: #9bbbad;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.screen.isDictationRewardScreen .rewardButtonPressed {
+  transform: translateY(1px) scale(0.99);
 }
 
 @media (max-height: 700px) {

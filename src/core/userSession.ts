@@ -106,10 +106,10 @@ function saveAuthSession(token: string, user: UserProfile) {
   writeStorage(USER_KEY, user)
 }
 
-async function apiRequest<T>(
+export async function apiRequest<T>(
   path: string,
   options: {
-    method?: 'GET' | 'POST' | 'PUT' | 'PATCH'
+    method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
     body?: unknown
     auth?: boolean
   } = {}
@@ -173,6 +173,12 @@ export function ensureUserSession(): Promise<SessionPayload | null> {
 async function resolveLoginCode(): Promise<string | null> {
   const apiBase = getApiBaseUrl()
   const isLocalApi = /localhost|127\.0\.0\.1/.test(apiBase)
+
+  // #ifdef H5
+  if (import.meta.env.DEV && isLocalApi) {
+    return 'dev-local-code'
+  }
+  // #endif
 
   try {
     const loginResult = await new Promise<UniApp.LoginRes>((resolve, reject) => {

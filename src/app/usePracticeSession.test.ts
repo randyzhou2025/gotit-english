@@ -3,6 +3,7 @@ import {
   confirmCourseSetupAndEnter,
   createPracticeSession,
   ensurePracticeSessionReady,
+  openUnitDictationChallenge,
   resetPracticeSessionForTests,
   resetPracticeSessionState
 } from './usePracticeSession'
@@ -323,6 +324,34 @@ describe('confirmCourseSetupAndEnter', () => {
     expect(next.units.value.length).toBeGreaterThan(0)
     expect(storage.get('gotit:courseSetupCompleted')).toBe(true)
     expect(storage.get('gotit:selectedUnitId')).toBe(unitId)
+  })
+
+  it('opens a shared unit directly in dictation setup for a new user', async () => {
+    const session = await ensurePracticeSessionReady()
+    expect(session.units.value.length).toBe(0)
+
+    const targetUnitId = 'rj:required-1:u1'
+    expect(await openUnitDictationChallenge(targetUnitId)).toBe(true)
+
+    expect(session.courseSetupCompleted.value).toBe(false)
+    expect(session.selectedUnit.value?.unitId).toBe(targetUnitId)
+    expect(session.unitWords.value.length).toBeGreaterThan(0)
+    expect(session.screen.value).toBe('dictationSetup')
+    expect(storage.get('gotit:courseSetupCompleted')).not.toBe(true)
+    expect(storage.get('gotit:selectedUnitId')).not.toBe(targetUnitId)
+
+    session.backFromDictationSetup()
+    expect(session.screen.value).toBe('courseSetup')
+    expect(storage.get('gotit:selectedUnitId')).not.toBe(targetUnitId)
+  })
+
+  it('rejects an unknown shared unit without completing setup', async () => {
+    expect(await openUnitDictationChallenge('missing:book:unit')).toBe(false)
+    const session = await ensurePracticeSessionReady()
+
+    expect(session.courseSetupCompleted.value).toBe(false)
+    expect(session.screen.value).toBe('courseSetup')
+    expect(storage.get('gotit:courseSetupCompleted')).not.toBe(true)
   })
 
   it('stamps progress updatedAt so a stale cloud snapshot cannot revert the choice', async () => {

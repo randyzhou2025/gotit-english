@@ -11,10 +11,12 @@ import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
 import { registerAnalyticsRoutes } from "./routes/analytics.js";
 import { registerAuthRoutes } from "./routes/auth.js";
 import { registerFeedbackRoutes } from "./routes/feedback.js";
+import { registerSocialRoutes } from "./routes/social.js";
 import { registerStudyRoutes } from "./routes/study.js";
 import { registerUploadRoutes } from "./routes/upload.js";
 import { registerUserRoutes } from "./routes/user.js";
 import { ensureAppConfigDefaults } from "./services/study.js";
+import { ensureSocialConfigDefaults } from "./services/social.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.join(__dirname, "..", "data", "uploads");
@@ -60,10 +62,12 @@ await registerAuthRoutes(app, authenticate);
 await registerAnalyticsRoutes(app, authenticate);
 await registerUserRoutes(app, authenticate);
 await registerStudyRoutes(app, authenticate);
+await registerSocialRoutes(app, authenticate);
 await registerFeedbackRoutes(app, authenticate);
 await registerUploadRoutes(app, authenticate, uploadsDir);
 
 await ensureAppConfigDefaults();
+await ensureSocialConfigDefaults();
 
 try {
   await app.listen({ port, host });

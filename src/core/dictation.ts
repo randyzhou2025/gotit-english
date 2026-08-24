@@ -21,6 +21,10 @@ function shuffleWords(words: WordEntry[]): WordEntry[] {
   return nextWords
 }
 
+function createDictationSessionId(): string {
+  return `dictation-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`
+}
+
 export function createDictationPlan(
   words: WordEntry[],
   mode: DictationMode,
@@ -33,7 +37,7 @@ export function createDictationPlan(
   const planWords = order === 'shuffle' ? shuffleWords(words) : [...words]
 
   return {
-    id: `dictation:${mode}:${accent}:${prompt}:${intervalSeconds}:${order}:${repeatCount}:${planWords.map(word => word.id).join('|')}`,
+    id: createDictationSessionId(),
     mode,
     accent,
     prompt,

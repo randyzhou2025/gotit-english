@@ -7,9 +7,15 @@ import {
 import { flushProgressUpload, markProgressDirty, scheduleProgressUpload } from '@/core/progressSync'
 import { flushCloudSyncOnForeground } from '@/core/cloudSyncPolicy'
 import { queueStudyWordIds, setCachedDashboard } from '@/core/studyStats'
+import { trackAnalyticsEvent } from '@/core/analytics'
 import { ensureUserSession, markProgressUpdatedAt } from '@/core/userSession'
 import { getDictationAudioUrl, getDictationPromptLabel, hasPlayableDictationAudio } from '@/core/audio'
 import { loadTodayDictationWordCount, recordTodayDictationWords } from '@/core/dailyDictationProgress'
+import {
+  submitDictationCompletion,
+  submitMistakeReviews,
+  type LearningPowerAward
+} from '@/core/classmates'
 import {
   createCheckupQuestions,
   gradeCheckupAnswer,
@@ -96,6 +102,10 @@ interface SavedDictationProgress {
 }
 
 type WeakWordSource = 'checkup' | 'dictation' | 'manual'
+
+function createLearningSessionId(prefix: string): string {
+  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`
+}
 
 function loadUnfinishedDictation(): SavedDictationProgress | null {
   try {
@@ -392,6 +402,8 @@ export function createPracticeSession(initialWords: WordEntry[]) {
 
   const checkupQuestions = ref<CheckupQuestion[]>([])
   const checkupAnswers = ref<CheckupAnswer[]>([])
+  const checkupReviewSessionId = ref(createLearningSessionId('review'))
+  const mistakeReviewSuccessIds = ref<string[]>([])
   const checkupIndex = ref(0)
   const checkupLimit = ref(0)
   const selectedMeaning = ref('')
@@ -424,7 +436,10 @@ export function createPracticeSession(initialWords: WordEntry[]) {
   const dictationExcludesMasteredWords = ref(true)
   const dictationResultConfirmed = ref(false)
   const dictationReward = ref<DictationRewardState | null>(null)
+  const learningPowerAward = ref<LearningPowerAward | null>(null)
+  const learningPowerPending = ref(false)
   const todayDictationWordCount = ref(loadTodayDictationWordCount())
+  const temporaryDefaultUnitId = ref<string | null>(null)
 
   const selectedUnit = computed<UnitGroup | undefined>(() => findUnit(units.value, selectedUnitId.value))
   const currentSchoolStage = computed(() => selectedUnit.value ? inferSchoolStage(selectedUnit.value) : '高中')
@@ -862,6 +877,14 @@ export function createPracticeSession(initialWords: WordEntry[]) {
     resetPractice()
   }
 
+  function setTemporaryUnit(unit: UnitGroup) {
+    resetPractice()
+    temporaryDefaultUnitId.value = selectedUnitId.value
+    selectedUnitId.value = unit.unitId
+    checkupLimit.value = 0
+    setDefaultDictationSelection(true)
+  }
+
   /** Swap in a wider wordbank without rebuilding the session. */
   function adoptWords(nextWords: WordEntry[]) {
     loadedWords.value = nextWords
@@ -905,7 +928,12 @@ export function createPracticeSession(initialWords: WordEntry[]) {
   }
 
   function resetPractice() {
-    screen.value = 'home'
+    const restoreUnitId = temporaryDefaultUnitId.value
+    temporaryDefaultUnitId.value = null
+    if (restoreUnitId !== null) {
+      selectedUnitId.value = restoreUnitId
+    }
+    screen.value = courseSetupCompleted.value ? 'home' : 'courseSetup'
     checkupQuestions.value = []
     checkupAnswers.value = []
     checkupIndex.value = 0
@@ -924,6 +952,8 @@ export function createPracticeSession(initialWords: WordEntry[]) {
     setDefaultDictationSelection(true)
     dictationResultConfirmed.value = false
     dictationReward.value = null
+    learningPowerAward.value = null
+    learningPowerPending.value = false
     scrollToTop()
   }
 
@@ -995,12 +1025,16 @@ export function createPracticeSession(initialWords: WordEntry[]) {
   }
 
   function recordCheckupAnswer(answer: CheckupAnswer) {
+    const wasWeakBefore = savedWeakWordIds.value.includes(answer.wordId)
     checkupAnswers.value = [...checkupAnswers.value, answer]
     if (answer.status !== 'mastered') {
       recordWeakWord(answer.wordId, 'checkup')
       return
     }
 
+    if (wasWeakBefore && !mistakeReviewSuccessIds.value.includes(answer.wordId)) {
+      mistakeReviewSuccessIds.value = [...mistakeReviewSuccessIds.value, answer.wordId]
+    }
     recordMasteredWords([answer.wordId])
   }
 
@@ -1014,6 +1048,12 @@ export function createPracticeSession(initialWords: WordEntry[]) {
       return
     }
 
+    if (mistakeReviewSuccessIds.value.length > 0) {
+      void submitMistakeReviews({
+        reviewSessionId: checkupReviewSessionId.value,
+        wordIds: mistakeReviewSuccessIds.value
+      }).catch(error => console.warn('[usePracticeSession] mistake review score failed', error))
+    }
     screen.value = 'report'
     scrollToTop()
   }
@@ -1023,6 +1063,8 @@ export function createPracticeSession(initialWords: WordEntry[]) {
 
     checkupQuestions.value = createCheckupQuestions(targetWords, limit, unitWords.value)
     checkupAnswers.value = []
+    checkupReviewSessionId.value = createLearningSessionId('review')
+    mistakeReviewSuccessIds.value = []
     checkupIndex.value = 0
     spellingInput.value = ''
     resetRecognition()
@@ -1489,6 +1531,8 @@ export function createPracticeSession(initialWords: WordEntry[]) {
   function confirmDictationResult() {
     if (!dictationPlan.value || dictationResultConfirmed.value) return
 
+    const completedPlan = dictationPlan.value
+    const completedUnit = selectedUnit.value
     const beforeMasteredIds = new Set(masteredWordIds.value)
     const beforeUnitMastered = unitWords.value.filter(word => beforeMasteredIds.has(word.id)).length
     const forgottenWordIds = new Set(dictationRecords.value
@@ -1519,6 +1563,35 @@ export function createPracticeSession(initialWords: WordEntry[]) {
       afterPercent: total === 0 ? 0 : Math.round((afterUnitMastered / total) * 100),
       allCorrect
     }
+    learningPowerAward.value = null
+    learningPowerPending.value = true
+    void submitDictationCompletion({
+      sessionId: completedPlan.id,
+      unitId: completedUnit?.unitId ?? completedPlan.words[0]?.unitId ?? '',
+      unitName: completedUnit?.unitName ?? completedPlan.words[0]?.unitName ?? '当前 Unit',
+      unitWordCount: completedUnit?.words.length ?? completedPlan.words.length,
+      completed: true,
+      wordResults: completedPlan.words.map(word => ({
+        wordId: word.id,
+        correct: !forgottenWordIds.has(word.id)
+      }))
+    }).then((award) => {
+      if (dictationPlan.value?.id !== completedPlan.id || !dictationReward.value) return
+      learningPowerAward.value = award
+      if (award) {
+        trackAnalyticsEvent('learning_power_awarded', {
+          earned: award.earned,
+          validDictation: award.validDictation,
+          rank: award.myRank
+        })
+      }
+    }).catch(error => {
+      console.warn('[usePracticeSession] learning power submission failed', error)
+    }).finally(() => {
+      if (dictationPlan.value?.id === completedPlan.id && dictationReward.value) {
+        learningPowerPending.value = false
+      }
+    })
     triggerHapticFeedback(allCorrect ? 'heavy' : 'medium')
     if (allCorrect) {
       setTimeout(() => triggerHapticFeedback('heavy'), 130)
@@ -1631,6 +1704,8 @@ export function createPracticeSession(initialWords: WordEntry[]) {
     dictationPrompt,
     dictationRecords,
     dictationReward,
+    learningPowerAward,
+    learningPowerPending,
     dictationResultConfirmed,
     dictationRepeatCount,
     dictationSummary,
@@ -1691,6 +1766,7 @@ export function createPracticeSession(initialWords: WordEntry[]) {
     savedWeakWords,
     savedWeakWordSources,
     setSelectedUnit,
+    setTemporaryUnit,
     setSelectedBookByIndex,
     setCheckupLimit,
     setCourseSetupBook,
@@ -1839,6 +1915,47 @@ export async function confirmCourseSetupAndEnter(): Promise<boolean> {
   session.courseSetupCompleted.value = true
   session.setSelectedUnit(unit)
   session.screen.value = 'home'
+  return true
+}
+
+export async function openUnitDictationChallenge(unitId: string): Promise<boolean> {
+  const normalizedUnitId = unitId.trim()
+  await ensureManifestReady()
+
+  if (!normalizedUnitId || !isUnitIdInCatalog(getWordbankManifest(), normalizedUnitId)) {
+    uni.showToast({ title: '这个单元暂时无法打开', icon: 'none' })
+    return false
+  }
+
+  const publisherId = publisherIdFromUnitId(normalizedUnitId)
+  const showsLoading = !isPublisherLoaded(publisherId)
+  if (showsLoading) {
+    uni.showLoading({ title: '正在打开同学挑战', mask: true })
+  }
+
+  let words: WordEntry[]
+  try {
+    await ensurePublisherLoaded(publisherId)
+    words = await ensureWordbankLoaded()
+  } catch (error) {
+    if (showsLoading) uni.hideLoading()
+    console.warn('[usePracticeSession] challenge wordbank download failed', publisherId, error)
+    uni.showToast({ title: '挑战加载失败，请检查网络', icon: 'none' })
+    return false
+  }
+
+  const unit = findUnit(groupUnits(words), normalizedUnitId)
+  if (showsLoading) uni.hideLoading()
+
+  if (!unit) {
+    uni.showToast({ title: '这个单元暂时无法打开', icon: 'none' })
+    return false
+  }
+
+  const session = practiceSession ?? await ensurePracticeSessionReady()
+  session.adoptWords(words)
+  session.setTemporaryUnit(unit)
+  session.openDictationSetup({ scrollToTop: false })
   return true
 }
 

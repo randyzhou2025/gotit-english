@@ -18,6 +18,20 @@ const icons = {
       <rect x="33.5" y="47.5" width="14" height="21" rx="7" fill="#ffffff"/>
     `
   },
+  classmates: {
+    inactive: `
+      <circle cx="31" cy="31" r="8.5" fill="none" stroke="${INACTIVE}" stroke-width="3.2"/>
+      <circle cx="52" cy="34" r="7" fill="none" stroke="${INACTIVE}" stroke-width="3.2"/>
+      <path d="M16.5 62 C17.5 50.5 23.5 44.5 31 44.5 C38.5 44.5 44.5 50.5 45.5 62" fill="none" stroke="${INACTIVE}" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M45 48 C47.2 46.2 49.8 45.2 52.5 45.2 C59 45.2 64 50.2 65 59.5" fill="none" stroke="${INACTIVE}" stroke-width="3.2" stroke-linecap="round"/>
+    `,
+    active: `
+      <circle cx="31" cy="31" r="8.5" fill="${ACTIVE}"/>
+      <circle cx="52" cy="34" r="7" fill="${ACTIVE}"/>
+      <path d="M16.5 62 C17.5 50.5 23.5 44.5 31 44.5 C38.5 44.5 44.5 50.5 45.5 62 Z" fill="${ACTIVE}"/>
+      <path d="M45 48 C47.2 46.2 49.8 45.2 52.5 45.2 C59 45.2 64 50.2 65 59.5 L45 59.5 Z" fill="${ACTIVE}"/>
+    `
+  },
   weakbook: {
     inactive: `
       <rect x="21" y="18" width="17" height="45" rx="4" fill="none" stroke="${INACTIVE}" stroke-width="3.2"/>

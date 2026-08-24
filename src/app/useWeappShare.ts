@@ -10,6 +10,8 @@ export interface WeappShareOptions {
   timelineTitle?: string
 }
 
+export type WeappShareOptionsSource = WeappShareOptions | (() => WeappShareOptions)
+
 export function buildWeappShareAppMessage(options: WeappShareOptions = {}) {
   return {
     title: options.title ?? WEAPP_SHARE_TITLE,
@@ -23,15 +25,22 @@ export function buildWeappShareTimeline(options: WeappShareOptions = {}) {
   }
 }
 
-export function useWeappShare(options: WeappShareOptions = {}) {
-  // #ifdef MP-WEIXIN
-  onShareAppMessage(() => buildWeappShareAppMessage(options))
-  onShareTimeline(() => buildWeappShareTimeline(options))
-  onMounted(() => {
-    uni.showShareMenu({
-      withShareTicket: true,
-      menus: ['shareAppMessage', 'shareTimeline']
-    })
+export function showWeappShareMenu() {
+  if (typeof uni.showShareMenu !== 'function') return
+  uni.showShareMenu({
+    withShareTicket: true,
+    menus: ['shareAppMessage', 'shareTimeline']
   })
+}
+
+function resolveWeappShareOptions(source: WeappShareOptionsSource): WeappShareOptions {
+  return typeof source === 'function' ? source() : source
+}
+
+export function useWeappShare(options: WeappShareOptionsSource = {}) {
+  // #ifdef MP-WEIXIN
+  onShareAppMessage(() => buildWeappShareAppMessage(resolveWeappShareOptions(options)))
+  onShareTimeline(() => buildWeappShareTimeline(resolveWeappShareOptions(options)))
+  onMounted(showWeappShareMenu)
   // #endif
 }

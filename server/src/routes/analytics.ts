@@ -12,6 +12,13 @@ const analyticsEventNames = [
   "dictation_start",
   "unit_wordlist_click",
   "meaning_self_test_click",
+  "classmates_tab_view",
+  "leaderboard_view",
+  "share_created",
+  "share_accepted",
+  "cheer_toggle",
+  "classmate_removed",
+  "learning_power_awarded",
 ] as const;
 
 const analyticsPropertyValue = z.union([

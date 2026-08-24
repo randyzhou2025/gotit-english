@@ -8,6 +8,13 @@ export type AnalyticsEventName =
   | 'dictation_start'
   | 'unit_wordlist_click'
   | 'meaning_self_test_click'
+  | 'classmates_tab_view'
+  | 'leaderboard_view'
+  | 'share_created'
+  | 'share_accepted'
+  | 'cheer_toggle'
+  | 'classmate_removed'
+  | 'learning_power_awarded'
 
 export type AnalyticsPropertyValue = string | number | boolean | null
 export type AnalyticsProperties = Record<string, AnalyticsPropertyValue | undefined>

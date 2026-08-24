@@ -11,6 +11,16 @@
         </view>
         <text class="bottomNavLabel">首页</text>
       </view>
+      <view :class="['bottomNavItem', active === 'classmates' && 'isActive']" @tap="goClassmates">
+        <view class="bottomNavIconWrap">
+          <image
+            class="bottomNavIcon"
+            src="/static/tabbar/classmates.png"
+            mode="aspectFit"
+          />
+        </view>
+        <text class="bottomNavLabel">同学</text>
+      </view>
       <view :class="['bottomNavItem', active === 'weakbook' && 'isActive']" @tap="goWeakbook">
         <view class="bottomNavIconWrap">
           <image
@@ -41,7 +51,7 @@ import { computed } from 'vue'
 import { trackAnalyticsEvent } from '@/core/analytics'
 
 const props = defineProps<{
-  active: 'home' | 'weakbook' | 'profile'
+  active: 'home' | 'classmates' | 'weakbook' | 'profile'
   weakbookCount?: number
 }>()
 
@@ -56,6 +66,11 @@ function goWeakbook() {
   if (props.active === 'weakbook') return
   trackAnalyticsEvent('weakbook_click', { source: 'tabbar' })
   uni.switchTab({ url: '/pages/weakbook/index' })
+}
+
+function goClassmates() {
+  if (props.active === 'classmates') return
+  uni.switchTab({ url: '/pages/classmates/index' })
 }
 
 function goProfile() {
@@ -80,7 +95,7 @@ function goProfile() {
 
 .bottomNavInner {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 6px;
   max-width: 430px;
   margin: 0 auto;

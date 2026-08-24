@@ -53,4 +53,5 @@ coverage/
 server/node_modules/
 server/dist/
 server/data/
-server/drizzle/
+server/drizzle/*
+!server/drizzle/*.sql
