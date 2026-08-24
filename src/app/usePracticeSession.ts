@@ -13,6 +13,7 @@ import { getDictationAudioUrl, getDictationPromptLabel, hasPlayableDictationAudi
 import { loadTodayDictationWordCount, recordTodayDictationWords } from '@/core/dailyDictationProgress'
 import {
   submitDictationCompletion,
+  submitDictationWordCompletion,
   submitMistakeReviews,
   type LearningPowerAward
 } from '@/core/classmates'
@@ -402,8 +403,6 @@ export function createPracticeSession(initialWords: WordEntry[]) {
 
   const checkupQuestions = ref<CheckupQuestion[]>([])
   const checkupAnswers = ref<CheckupAnswer[]>([])
-  const checkupReviewSessionId = ref(createLearningSessionId('review'))
-  const mistakeReviewSuccessIds = ref<string[]>([])
   const checkupIndex = ref(0)
   const checkupLimit = ref(0)
   const selectedMeaning = ref('')
@@ -440,6 +439,13 @@ export function createPracticeSession(initialWords: WordEntry[]) {
   const learningPowerPending = ref(false)
   const todayDictationWordCount = ref(loadTodayDictationWordCount())
   const temporaryDefaultUnitId = ref<string | null>(null)
+  const dictationReviewEligibleWordIds = ref<string[]>(unfinishedDictation
+    ? unfinishedDictation.plan.words
+        .filter(word => savedWeakWordIds.value.includes(word.id))
+        .map(word => word.id)
+    : [])
+  const submittedDictationWordKeys = new Set<string>()
+  let learningPowerSettlementSessionId = ''
 
   const selectedUnit = computed<UnitGroup | undefined>(() => findUnit(units.value, selectedUnitId.value))
   const currentSchoolStage = computed(() => selectedUnit.value ? inferSchoolStage(selectedUnit.value) : '高中')
@@ -954,6 +960,9 @@ export function createPracticeSession(initialWords: WordEntry[]) {
     dictationReward.value = null
     learningPowerAward.value = null
     learningPowerPending.value = false
+    dictationReviewEligibleWordIds.value = []
+    submittedDictationWordKeys.clear()
+    learningPowerSettlementSessionId = ''
     scrollToTop()
   }
 
@@ -1024,17 +1033,20 @@ export function createPracticeSession(initialWords: WordEntry[]) {
     removeWeakWords(wordIds)
   }
 
+  function submitWeakWordReviewScores(wordIds: string[], reviewSessionId = createLearningSessionId('review')) {
+    const uniqueIds = Array.from(new Set(wordIds))
+    if (uniqueIds.length === 0) return
+    void submitMistakeReviews({ reviewSessionId, wordIds: uniqueIds })
+      .catch(error => console.warn('[usePracticeSession] weak-word review score failed', error))
+  }
+
   function recordCheckupAnswer(answer: CheckupAnswer) {
-    const wasWeakBefore = savedWeakWordIds.value.includes(answer.wordId)
     checkupAnswers.value = [...checkupAnswers.value, answer]
     if (answer.status !== 'mastered') {
       recordWeakWord(answer.wordId, 'checkup')
       return
     }
 
-    if (wasWeakBefore && !mistakeReviewSuccessIds.value.includes(answer.wordId)) {
-      mistakeReviewSuccessIds.value = [...mistakeReviewSuccessIds.value, answer.wordId]
-    }
     recordMasteredWords([answer.wordId])
   }
 
@@ -1048,12 +1060,6 @@ export function createPracticeSession(initialWords: WordEntry[]) {
       return
     }
 
-    if (mistakeReviewSuccessIds.value.length > 0) {
-      void submitMistakeReviews({
-        reviewSessionId: checkupReviewSessionId.value,
-        wordIds: mistakeReviewSuccessIds.value
-      }).catch(error => console.warn('[usePracticeSession] mistake review score failed', error))
-    }
     screen.value = 'report'
     scrollToTop()
   }
@@ -1063,8 +1069,6 @@ export function createPracticeSession(initialWords: WordEntry[]) {
 
     checkupQuestions.value = createCheckupQuestions(targetWords, limit, unitWords.value)
     checkupAnswers.value = []
-    checkupReviewSessionId.value = createLearningSessionId('review')
-    mistakeReviewSuccessIds.value = []
     checkupIndex.value = 0
     spellingInput.value = ''
     resetRecognition()
@@ -1185,7 +1189,9 @@ export function createPracticeSession(initialWords: WordEntry[]) {
   }
 
   function markSelectedWeakWordsKnown() {
-    recordMasteredWords(selectedWeakWordIds.value)
+    const wordIds = [...selectedWeakWordIds.value]
+    submitWeakWordReviewScores(wordIds)
+    recordMasteredWords(wordIds)
   }
 
   function saveWeakWord(wordId: string) {
@@ -1206,6 +1212,9 @@ export function createPracticeSession(initialWords: WordEntry[]) {
       return
     }
 
+    if (savedWeakWordIds.value.includes(wordId)) {
+      submitWeakWordReviewScores([wordId])
+    }
     recordMasteredWords([wordId])
   }
 
@@ -1390,6 +1399,13 @@ export function createPracticeSession(initialWords: WordEntry[]) {
     dictationRecords.value = []
     showDictationAnswer.value = false
     dictationResultConfirmed.value = false
+    dictationReviewEligibleWordIds.value = plan.words
+      .filter(word => savedWeakWordIds.value.includes(word.id))
+      .map(word => word.id)
+    submittedDictationWordKeys.clear()
+    learningPowerSettlementSessionId = ''
+    learningPowerAward.value = null
+    learningPowerPending.value = false
     screen.value = 'dictation'
     scrollToTop()
   }
@@ -1528,11 +1544,69 @@ export function createPracticeSession(initialWords: WordEntry[]) {
     }, FORGOTTEN_ADVANCE_DELAY_MS)
   }
 
+  function submitCurrentDictationWordScores() {
+    const plan = dictationPlan.value
+    const entry = currentDictationEntry.value
+    if (!plan || !entry) return
+    const submissionKey = `${plan.id}:${entry.id}`
+    if (submittedDictationWordKeys.has(submissionKey)) return
+    submittedDictationWordKeys.add(submissionKey)
+
+    void submitDictationWordCompletion({
+      sessionId: plan.id,
+      unitId: entry.unitId,
+      wordId: entry.id
+    }).catch(error => console.warn('[usePracticeSession] dictation word score failed', error))
+
+    if (dictationReviewEligibleWordIds.value.includes(entry.id)) {
+      submitWeakWordReviewScores([entry.id], plan.id)
+    }
+  }
+
+  function settleDictationLearningPower() {
+    const completedPlan = dictationPlan.value
+    if (!completedPlan || learningPowerSettlementSessionId === completedPlan.id) return
+    learningPowerSettlementSessionId = completedPlan.id
+    const completedUnit = selectedUnit.value
+    const forgottenWordIds = new Set(dictationRecords.value
+      .filter(record => record.forgotten)
+      .map(record => record.wordId))
+
+    learningPowerAward.value = null
+    learningPowerPending.value = true
+    void submitDictationCompletion({
+      sessionId: completedPlan.id,
+      unitId: completedUnit?.unitId ?? completedPlan.words[0]?.unitId ?? '',
+      unitName: completedUnit?.unitName ?? completedPlan.words[0]?.unitName ?? '当前 Unit',
+      unitWordCount: completedUnit?.words.length ?? completedPlan.words.length,
+      completed: true,
+      wordResults: completedPlan.words.map(word => ({
+        wordId: word.id,
+        correct: !forgottenWordIds.has(word.id)
+      })),
+      reviewedWeakWordIds: dictationReviewEligibleWordIds.value
+    }).then((award) => {
+      if (dictationPlan.value?.id !== completedPlan.id) return
+      learningPowerAward.value = award
+      if (award) {
+        trackAnalyticsEvent('learning_power_awarded', {
+          earned: award.earned,
+          validDictation: award.validDictation,
+          rank: award.myRank
+        })
+      }
+    }).catch(error => {
+      console.warn('[usePracticeSession] learning power settlement failed', error)
+    }).finally(() => {
+      if (dictationPlan.value?.id === completedPlan.id) {
+        learningPowerPending.value = false
+      }
+    })
+  }
+
   function confirmDictationResult() {
     if (!dictationPlan.value || dictationResultConfirmed.value) return
 
-    const completedPlan = dictationPlan.value
-    const completedUnit = selectedUnit.value
     const beforeMasteredIds = new Set(masteredWordIds.value)
     const beforeUnitMastered = unitWords.value.filter(word => beforeMasteredIds.has(word.id)).length
     const forgottenWordIds = new Set(dictationRecords.value
@@ -1563,35 +1637,6 @@ export function createPracticeSession(initialWords: WordEntry[]) {
       afterPercent: total === 0 ? 0 : Math.round((afterUnitMastered / total) * 100),
       allCorrect
     }
-    learningPowerAward.value = null
-    learningPowerPending.value = true
-    void submitDictationCompletion({
-      sessionId: completedPlan.id,
-      unitId: completedUnit?.unitId ?? completedPlan.words[0]?.unitId ?? '',
-      unitName: completedUnit?.unitName ?? completedPlan.words[0]?.unitName ?? '当前 Unit',
-      unitWordCount: completedUnit?.words.length ?? completedPlan.words.length,
-      completed: true,
-      wordResults: completedPlan.words.map(word => ({
-        wordId: word.id,
-        correct: !forgottenWordIds.has(word.id)
-      }))
-    }).then((award) => {
-      if (dictationPlan.value?.id !== completedPlan.id || !dictationReward.value) return
-      learningPowerAward.value = award
-      if (award) {
-        trackAnalyticsEvent('learning_power_awarded', {
-          earned: award.earned,
-          validDictation: award.validDictation,
-          rank: award.myRank
-        })
-      }
-    }).catch(error => {
-      console.warn('[usePracticeSession] learning power submission failed', error)
-    }).finally(() => {
-      if (dictationPlan.value?.id === completedPlan.id && dictationReward.value) {
-        learningPowerPending.value = false
-      }
-    })
     triggerHapticFeedback(allCorrect ? 'heavy' : 'medium')
     if (allCorrect) {
       setTimeout(() => triggerHapticFeedback('heavy'), 130)
@@ -1634,6 +1679,8 @@ export function createPracticeSession(initialWords: WordEntry[]) {
   function nextDictation() {
     if (!dictationPlan.value) return
 
+    submitCurrentDictationWordScores()
+
     if (dictationIndex.value < dictationPlan.value.words.length - 1) {
       dictationIndex.value += 1
       dictationInput.value = ''
@@ -1647,6 +1694,7 @@ export function createPracticeSession(initialWords: WordEntry[]) {
     clearUnfinishedDictation()
     selectedWeakWordIds.value = savedWeakWords.value.map(word => word.id)
     screen.value = 'dictationReport'
+    settleDictationLearningPower()
     scrollToTop()
   }
 

@@ -115,9 +115,22 @@ export async function submitDictationCompletion(input: {
   unitWordCount: number
   completed: true
   wordResults: Array<{ wordId: string; correct: boolean }>
+  reviewedWeakWordIds: string[]
 }): Promise<LearningPowerAward | null> {
   if (!(await ensureAuthenticatedApi())) return null
   return apiRequest<LearningPowerAward>('/api/learning-power/dictations', {
+    method: 'POST',
+    body: input
+  })
+}
+
+export async function submitDictationWordCompletion(input: {
+  sessionId: string
+  unitId: string
+  wordId: string
+}): Promise<{ earned: number; weekKey: string } | null> {
+  if (!(await ensureAuthenticatedApi())) return null
+  return apiRequest('/api/learning-power/dictation-words', {
     method: 'POST',
     body: input
   })

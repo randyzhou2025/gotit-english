@@ -50,6 +50,13 @@ export interface DictationCompletionInput {
   completedAt?: Date;
 }
 
+export interface DictationWordCompletionInput {
+  sessionId: string;
+  unitId: string;
+  wordId: string;
+  completedAt?: Date;
+}
+
 export interface LearningPowerBreakdown {
   dictationWordScore: number;
   validDictationScore: number;
@@ -151,6 +158,141 @@ function dailyStatDefaults(userId: string, dateKey: string) {
     ...EMPTY_BREAKDOWN,
     totalScore: 0,
     updatedAt: new Date(),
+  };
+}
+
+async function learningBreakdownForSession(
+  userId: string,
+  sessionId: string
+): Promise<LearningPowerBreakdown> {
+  const rows = await db
+    .select({ eventType: learningPowerEvents.eventType, score: learningPowerEvents.score })
+    .from(learningPowerEvents)
+    .where(and(
+      eq(learningPowerEvents.userId, userId),
+      eq(learningPowerEvents.dictationSessionId, sessionId)
+    ));
+  const breakdown = { ...EMPTY_BREAKDOWN };
+  for (const row of rows) {
+    if (row.eventType === "DICTATION_WORD") breakdown.dictationWordScore += row.score;
+    if (row.eventType === "VALID_DICTATION") breakdown.validDictationScore += row.score;
+    if (row.eventType === "DAILY_BONUS") breakdown.dailyBonusScore += row.score;
+    if (row.eventType === "STREAK_BONUS") breakdown.streakScore += row.score;
+    if (row.eventType === "MISTAKE_REVIEW") breakdown.mistakeReviewScore += row.score;
+  }
+  return breakdown;
+}
+
+export async function recordDictationWordCompletion(
+  userId: string,
+  input: DictationWordCompletionInput
+) {
+  const occurredAt = input.completedAt ?? new Date();
+  const context = shanghaiWeekContext(occurredAt);
+  const earned = await db.transaction(async (tx) => {
+    await tx
+      .insert(dailyLearningPowerStats)
+      .values(dailyStatDefaults(userId, context.dateKey))
+      .onConflictDoNothing({ target: [dailyLearningPowerStats.userId, dailyLearningPowerStats.statDate] });
+    const [daily] = await tx
+      .select()
+      .from(dailyLearningPowerStats)
+      .where(and(
+        eq(dailyLearningPowerStats.userId, userId),
+        eq(dailyLearningPowerStats.statDate, context.dateKey)
+      ))
+      .for("update")
+      .limit(1);
+    if (!daily) throw new Error("Daily learning power row was not created");
+
+    await tx
+      .insert(weeklyLearningPower)
+      .values({ userId, weekKey: context.weekKey, lastScoreAt: occurredAt })
+      .onConflictDoNothing({ target: [weeklyLearningPower.userId, weeklyLearningPower.weekKey] });
+    const [weekly] = await tx
+      .select()
+      .from(weeklyLearningPower)
+      .where(and(
+        eq(weeklyLearningPower.userId, userId),
+        eq(weeklyLearningPower.weekKey, context.weekKey)
+      ))
+      .for("update")
+      .limit(1);
+    if (!weekly) throw new Error("Weekly learning power row was not created");
+
+    const [newlyLearned] = await tx
+      .insert(weeklyWordLearning)
+      .values({
+        userId,
+        wordId: input.wordId,
+        weekKey: context.weekKey,
+        firstLearnedAt: occurredAt,
+      })
+      .onConflictDoNothing({
+        target: [weeklyWordLearning.userId, weeklyWordLearning.wordId, weeklyWordLearning.weekKey],
+      })
+      .returning({ wordId: weeklyWordLearning.wordId });
+    if (!newlyLearned) return 0;
+
+    const score = availableScore(
+      daily.dictationWordScore,
+      LEARNING_POWER_LIMITS.dictationWord,
+      1
+    );
+    if (score <= 0) return 0;
+
+    const [event] = await tx
+      .insert(learningPowerEvents)
+      .values({
+        userId,
+        weekKey: context.weekKey,
+        eventDate: context.dateKey,
+        eventType: "DICTATION_WORD",
+        score,
+        wordId: input.wordId,
+        unitId: input.unitId,
+        dictationSessionId: input.sessionId,
+        uniqueKey: learningPowerUniqueKey({
+          type: "DICTATION_WORD",
+          userId,
+          dateKey: context.dateKey,
+          weekKey: context.weekKey,
+          wordId: input.wordId,
+        }),
+        createdAt: occurredAt,
+      })
+      .onConflictDoNothing({ target: learningPowerEvents.uniqueKey })
+      .returning({ id: learningPowerEvents.id });
+    if (!event) return 0;
+
+    await tx
+      .update(dailyLearningPowerStats)
+      .set({
+        dictationWordScore: daily.dictationWordScore + score,
+        totalScore: daily.totalScore + score,
+        updatedAt: occurredAt,
+      })
+      .where(and(
+        eq(dailyLearningPowerStats.userId, userId),
+        eq(dailyLearningPowerStats.statDate, context.dateKey)
+      ));
+    await tx
+      .update(weeklyLearningPower)
+      .set({
+        learningPower: weekly.learningPower + score,
+        lastScoreAt: occurredAt,
+        updatedAt: occurredAt,
+      })
+      .where(and(
+        eq(weeklyLearningPower.userId, userId),
+        eq(weeklyLearningPower.weekKey, context.weekKey)
+      ));
+    return score;
+  });
+
+  return {
+    earned,
+    weekKey: context.weekKey,
   };
 }
 
@@ -266,7 +408,7 @@ export async function recordDictationCompletion(userId: string, input: Dictation
       );
       breakdown.dictationWordScore = awardedWordCount;
       for (const row of newlyLearned.slice(0, awardedWordCount)) {
-        addEvent("DICTATION_WORD", 1, { wordId: row.wordId });
+        addEvent("DICTATION_WORD", 1, { wordId: row.wordId, sessionId: input.sessionId });
       }
     }
 
@@ -281,11 +423,11 @@ export async function recordDictationCompletion(userId: string, input: Dictation
 
       if (firstValidStudyToday) {
         breakdown.dailyBonusScore = LEARNING_POWER_LIMITS.dailyBonus;
-        addEvent("DAILY_BONUS", breakdown.dailyBonusScore);
+        addEvent("DAILY_BONUS", breakdown.dailyBonusScore, { sessionId: input.sessionId });
 
         if (previousStreak >= 1) {
           breakdown.streakScore = LEARNING_POWER_LIMITS.streak;
-          addEvent("STREAK_BONUS", breakdown.streakScore);
+          addEvent("STREAK_BONUS", breakdown.streakScore, { sessionId: input.sessionId });
         }
 
         if (previousStreak + 1 >= 2) {
@@ -388,9 +530,10 @@ export async function recordDictationCompletion(userId: string, input: Dictation
     return { duplicate: false, breakdown, validDictation };
   });
 
-  const [weeklySnapshot, myRank] = await Promise.all([
+  const [weeklySnapshot, myRank, sessionBreakdown] = await Promise.all([
     currentLearningSnapshot(userId, context.weekKey),
     getRank(userId, context.weekKey),
+    learningBreakdownForSession(userId, input.sessionId),
   ]);
   if (!result.duplicate && oldRank !== null && myRank !== null && myRank < oldRank) {
     await db
@@ -408,8 +551,8 @@ export async function recordDictationCompletion(userId: string, input: Dictation
   return {
     duplicate: result.duplicate,
     validDictation: result.validDictation,
-    earned: totalBreakdown(result.breakdown),
-    breakdown: result.breakdown,
+    earned: totalBreakdown(sessionBreakdown),
+    breakdown: sessionBreakdown,
     weekKey: context.weekKey,
     weeklyLearningPower: weeklySnapshot?.learningPower ?? 0,
     myRank,
@@ -495,6 +638,7 @@ export async function recordMistakeReviews(
         eventType: "MISTAKE_REVIEW",
         score: 1,
         wordId,
+        dictationSessionId: input.reviewSessionId,
         uniqueKey: learningPowerUniqueKey({
           type: "MISTAKE_REVIEW",
           userId,

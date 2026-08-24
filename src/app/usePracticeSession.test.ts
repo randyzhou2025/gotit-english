@@ -10,10 +10,25 @@ import {
 import { ensureManifestReady, ensureWordbankFullyLoaded, resetWordbankCacheForTests } from '@/core/wordbank'
 import { seedWordbankTestCache } from '@/test/wordbankTestCache'
 
+const scoringMocks = vi.hoisted(() => ({
+  submitDictationCompletion: vi.fn(),
+  submitDictationWordCompletion: vi.fn(),
+  submitMistakeReviews: vi.fn()
+}))
+
+vi.mock('@/core/classmates', () => ({
+  submitDictationCompletion: scoringMocks.submitDictationCompletion,
+  submitDictationWordCompletion: scoringMocks.submitDictationWordCompletion,
+  submitMistakeReviews: scoringMocks.submitMistakeReviews
+}))
+
 describe('practice session dictation navigation', () => {
   let storage: Map<string, unknown>
 
   beforeEach(async () => {
+    scoringMocks.submitDictationCompletion.mockReset().mockResolvedValue(null)
+    scoringMocks.submitDictationWordCompletion.mockReset().mockResolvedValue(null)
+    scoringMocks.submitMistakeReviews.mockReset().mockResolvedValue(null)
     storage = new Map()
     vi.stubGlobal('uni', {
       getStorageSync: vi.fn((key: string) => storage.get(key) ?? ''),
@@ -70,6 +85,89 @@ describe('practice session dictation navigation', () => {
 
     expect(session.dictationInProgress.value).toBe(false)
     expect(session.screen.value).toBe('dictationReport')
+  })
+
+  it('submits each completed word without blocking navigation', async () => {
+    const session = await openSession()
+    session.dictationOrder.value = 'sequence'
+    session.openDictationSetup()
+    session.startDictation()
+    const plan = session.dictationPlan.value
+    const firstWord = plan?.words[0]
+    if (!plan || !firstWord) return
+    scoringMocks.submitDictationWordCompletion.mockReturnValue(new Promise(() => {}))
+
+    session.nextDictation()
+
+    expect(session.dictationIndex.value).toBe(1)
+    expect(scoringMocks.submitDictationWordCompletion).toHaveBeenCalledWith({
+      sessionId: plan.id,
+      unitId: firstWord.unitId,
+      wordId: firstWord.id
+    })
+  })
+
+  it('starts full score settlement on report entry and only displays it after confirmation', async () => {
+    const session = await openSession()
+    session.openDictationSetup()
+    session.startDictation()
+    const plan = session.dictationPlan.value
+    if (!plan) return
+    scoringMocks.submitDictationCompletion.mockResolvedValue({
+      duplicate: false,
+      validDictation: true,
+      earned: 25,
+      breakdown: {
+        dictationWordScore: 10,
+        validDictationScore: 5,
+        dailyBonusScore: 10,
+        streakScore: 0,
+        mistakeReviewScore: 0
+      },
+      weekKey: '2026-W35',
+      weeklyLearningPower: 25,
+      myRank: 1
+    })
+    session.dictationIndex.value = plan.words.length - 1
+
+    session.nextDictation()
+
+    expect(session.screen.value).toBe('dictationReport')
+    expect(scoringMocks.submitDictationCompletion).toHaveBeenCalledTimes(1)
+    expect(session.dictationReward.value).toBeNull()
+    await Promise.resolve()
+    expect(session.learningPowerAward.value?.earned).toBe(25)
+
+    session.confirmDictationResult()
+    expect(session.screen.value).toBe('dictationReward')
+    expect(scoringMocks.submitDictationCompletion).toHaveBeenCalledTimes(1)
+  })
+
+  it('scores a historical weak word when it is dictated or marked known', async () => {
+    const session = await openSession()
+    const weakWord = session.unitWords.value[0]
+    if (!weakWord) return
+    session.saveWeakWord(weakWord.id)
+    session.dictationOrder.value = 'sequence'
+    session.openDictationSetup()
+    session.startDictation()
+    const plan = session.dictationPlan.value
+    if (!plan) return
+
+    session.nextDictation()
+    expect(scoringMocks.submitMistakeReviews).toHaveBeenCalledWith({
+      reviewSessionId: plan.id,
+      wordIds: [weakWord.id]
+    })
+
+    session.resetPractice()
+    session.openWeakbook()
+    session.toggleWeakWordSelection(weakWord.id)
+    session.markSelectedWeakWordsKnown()
+    expect(scoringMocks.submitMistakeReviews).toHaveBeenLastCalledWith({
+      reviewSessionId: expect.stringMatching(/^review-/),
+      wordIds: [weakWord.id]
+    })
   })
 
   it('persists completed dictation word totals for the current day', async () => {

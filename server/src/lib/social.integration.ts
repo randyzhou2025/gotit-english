@@ -14,6 +14,7 @@ import {
   acceptShare,
   createShare,
   recordDictationCompletion,
+  recordDictationWordCompletion,
   recordMistakeReviews,
   toggleFeedCheer,
 } from "../services/social.js";
@@ -54,10 +55,31 @@ async function main() {
       completed: true,
       wordResults: wordResults(`duplicate-${suffix}`, 10),
     } as const;
+    const perWordResults = await Promise.all(duplicatePayload.wordResults.flatMap((result) => [
+      recordDictationWordCompletion(duplicateUser, {
+        sessionId: duplicatePayload.sessionId,
+        unitId: duplicatePayload.unitId,
+        wordId: result.wordId,
+      }),
+      recordDictationWordCompletion(duplicateUser, {
+        sessionId: duplicatePayload.sessionId,
+        unitId: duplicatePayload.unitId,
+        wordId: result.wordId,
+      }),
+    ]));
+    assert.equal(perWordResults.reduce((sum, result) => sum + result.earned, 0), 10);
+    const [beforeReportWeekly] = await db
+      .select()
+      .from(weeklyLearningPower)
+      .where(and(eq(weeklyLearningPower.userId, duplicateUser), eq(weeklyLearningPower.weekKey, context.weekKey)));
+    assert.equal(beforeReportWeekly?.learningPower, 10);
+
     const duplicateResults = await Promise.all(
       Array.from({ length: 10 }, () => recordDictationCompletion(duplicateUser, duplicatePayload))
     );
     assert.equal(duplicateResults.filter((result) => !result.duplicate).length, 1);
+    assert.equal(duplicateResults[0]?.earned, 25);
+    assert.equal(duplicateResults[0]?.breakdown.dictationWordScore, 10);
     const [duplicateWeekly] = await db
       .select()
       .from(weeklyLearningPower)
@@ -65,13 +87,22 @@ async function main() {
     assert.equal(duplicateWeekly?.learningPower, 25);
     assert.equal(duplicateWeekly?.validDictationCount, 1);
 
+    const wordCapSessionId = `word-cap-${suffix}`;
+    const wordCapResults = wordResults(`word-cap-${suffix}`, 100);
+    for (const result of wordCapResults) {
+      await recordDictationWordCompletion(wordCapUser, {
+        sessionId: wordCapSessionId,
+        unitId: "rj:required-1:u1",
+        wordId: result.wordId,
+      });
+    }
     await recordDictationCompletion(wordCapUser, {
-      sessionId: `word-cap-${suffix}`,
+      sessionId: wordCapSessionId,
       unitId: "rj:required-1:u1",
       unitName: "Unit 1",
       unitWordCount: 100,
       completed: true,
-      wordResults: wordResults(`word-cap-${suffix}`, 100),
+      wordResults: wordCapResults,
     });
     const [[wordCapDaily], [weeklyWords]] = await Promise.all([
       db.select().from(dailyLearningPowerStats).where(and(
@@ -110,6 +141,14 @@ async function main() {
       reviewSessionId: `review-${suffix}`,
       wordIds: reviewWordIds.slice(0, 10),
     });
+    const reviewDictation = await recordDictationCompletion(reviewCapUser, {
+      sessionId: `review-${suffix}`,
+      unitId: "rj:required-1:u1",
+      unitName: "Unit 1",
+      unitWordCount: 20,
+      completed: true,
+      wordResults: reviewWordIds.slice(0, 10).map((wordId) => ({ wordId, correct: true })),
+    });
     const secondReview = await recordMistakeReviews(reviewCapUser, {
       reviewSessionId: `review-repeat-${suffix}`,
       wordIds: reviewWordIds.slice(0, 30),
@@ -119,6 +158,8 @@ async function main() {
       wordIds: reviewWordIds,
     });
     assert.equal(firstReview.earned, 10);
+    assert.equal(reviewDictation.breakdown.mistakeReviewScore, 10);
+    assert.equal(reviewDictation.earned, 35);
     assert.equal(secondReview.earned, 10);
     assert.equal(cappedReview.earned, 0);
 
@@ -151,7 +192,7 @@ async function main() {
     assert.deepEqual(await toggleFeedCheer(wordCapUser, feed.id), { cheered: true, cheerCount: 1 });
     assert.deepEqual(await toggleFeedCheer(wordCapUser, feed.id), { cheered: false, cheerCount: 0 });
 
-    console.log("social integration: duplicate, caps, weak-word proof, relation, and cheer permission passed");
+    console.log("social integration: per-word scoring, report settlement, caps, weak words, relation, and cheer permission passed");
   } finally {
     await db.delete(users).where(inArray(users.id, userIds));
   }

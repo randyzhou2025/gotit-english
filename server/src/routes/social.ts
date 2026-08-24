@@ -7,6 +7,7 @@ import {
   getClassmates,
   getLeaderboard,
   recordDictationCompletion,
+  recordDictationWordCompletion,
   recordMistakeReviews,
   removeClassmate,
   toggleFeedCheer,
@@ -32,6 +33,13 @@ const dictationCompletionSchema = z.object({
     wordId: z.string().trim().min(1).max(160),
     correct: z.boolean(),
   })).min(1).max(500),
+  reviewedWeakWordIds: z.array(z.string().trim().min(1).max(160)).max(500).default([]),
+});
+
+const dictationWordCompletionSchema = z.object({
+  sessionId: z.string().trim().min(8).max(128),
+  unitId: z.string().trim().min(1).max(128),
+  wordId: z.string().trim().min(1).max(160),
 });
 
 const mistakeReviewSchema = z.object({
@@ -63,7 +71,20 @@ export async function registerSocialRoutes(
     const parsed = dictationCompletionSchema.safeParse(request.body ?? {});
     if (!parsed.success) throw app.httpErrors.badRequest("Invalid dictation result payload");
     const jwtUser = request.user as { sub: string };
+    if (parsed.data.reviewedWeakWordIds.length > 0) {
+      await recordMistakeReviews(jwtUser.sub, {
+        reviewSessionId: parsed.data.sessionId,
+        wordIds: parsed.data.reviewedWeakWordIds,
+      });
+    }
     return recordDictationCompletion(jwtUser.sub, parsed.data);
+  });
+
+  app.post("/api/learning-power/dictation-words", { preHandler: [authenticate] }, async (request: FastifyRequest) => {
+    const parsed = dictationWordCompletionSchema.safeParse(request.body ?? {});
+    if (!parsed.success) throw app.httpErrors.badRequest("Invalid dictation word payload");
+    const jwtUser = request.user as { sub: string };
+    return recordDictationWordCompletion(jwtUser.sub, parsed.data);
   });
 
   app.post("/api/learning-power/reviews", { preHandler: [authenticate] }, async (request: FastifyRequest) => {
