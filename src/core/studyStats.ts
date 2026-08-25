@@ -106,6 +106,11 @@ export function setCachedDashboard(dashboard: DashboardSnapshot | null) {
   dashboardCache = dashboard
 }
 
+export function setCachedStreakDays(streakDays: number) {
+  if (!dashboardCache) return
+  dashboardCache = { ...dashboardCache, streakDays }
+}
+
 export function startStudyDurationPing() {
   if (!isApiEnabled() || durationPingTimer) return
   lastDurationTickAt = Date.now()

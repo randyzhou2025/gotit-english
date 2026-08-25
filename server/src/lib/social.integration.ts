@@ -15,10 +15,12 @@ import {
   createShare,
   recordDictationCompletion,
   recordDictationWordCompletion,
+  recordAppOpen,
   recordMistakeReviews,
   toggleFeedCheer,
 } from "../services/social.js";
-import { shanghaiWeekContext } from "./learning-power.js";
+import { getDashboard } from "../services/study.js";
+import { previousShanghaiDate, shanghaiWeekContext } from "./learning-power.js";
 
 function wordResults(prefix: string, countValue: number) {
   return Array.from({ length: countValue }, (_, index) => ({
@@ -42,11 +44,29 @@ async function main() {
     createTestUser(`${suffix}-b`),
     createTestUser(`${suffix}-c`),
     createTestUser(`${suffix}-d`),
+    createTestUser(`${suffix}-e`),
   ]);
-  const [duplicateUser, wordCapUser, validCapUser, reviewCapUser] = userIds as [string, string, string, string];
+  const [duplicateUser, wordCapUser, validCapUser, reviewCapUser, streakUser] = userIds as [string, string, string, string, string];
   const context = shanghaiWeekContext();
 
   try {
+    const yesterday = new Date(`${previousShanghaiDate(context.dateKey)}T12:00:00+08:00`);
+    const today = new Date(`${context.dateKey}T12:00:00+08:00`);
+    const dayAfterTomorrow = new Date(today.getTime() + 2 * 86_400_000);
+    const firstOpen = await recordAppOpen(streakUser, yesterday);
+    const duplicateOpen = await recordAppOpen(streakUser, new Date(yesterday.getTime() + 3_600_000));
+    const consecutiveOpen = await recordAppOpen(streakUser, today);
+    const brokenStreakOpen = await recordAppOpen(streakUser, dayAfterTomorrow);
+    assert.equal(firstOpen.earned, 0);
+    assert.equal(firstOpen.streakDays, 1);
+    assert.equal(duplicateOpen.earned, 0);
+    assert.equal(duplicateOpen.duplicate, true);
+    assert.equal(consecutiveOpen.earned, 5);
+    assert.equal(consecutiveOpen.streakDays, 2);
+    assert.equal((await getDashboard(streakUser)).streakDays, 2);
+    assert.equal(brokenStreakOpen.earned, 0);
+    assert.equal(brokenStreakOpen.streakDays, 1);
+
     const duplicatePayload = {
       sessionId: `duplicate-${suffix}`,
       unitId: "rj:required-1:u1",
@@ -192,7 +212,7 @@ async function main() {
     assert.deepEqual(await toggleFeedCheer(wordCapUser, feed.id), { cheered: true, cheerCount: 1 });
     assert.deepEqual(await toggleFeedCheer(wordCapUser, feed.id), { cheered: false, cheerCount: 0 });
 
-    console.log("social integration: per-word scoring, report settlement, caps, weak words, relation, and cheer permission passed");
+    console.log("social integration: app-open streak, per-word scoring, report settlement, caps, weak words, relation, and cheer permission passed");
   } finally {
     await db.delete(users).where(inArray(users.id, userIds));
   }

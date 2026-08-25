@@ -1,5 +1,5 @@
 <template>
-  <view class="classmatesScreen hasBottomNav" :style="activeVisualThemeStyle">
+  <view class="classmatesScreen hasBottomNav" :style="activeVisualThemeStyle" @tap="closeLearningPowerHelp">
     <view class="classmatesChrome">
       <text class="classmatesTitle">同学</text>
       <view class="classmatesTabs">
@@ -103,7 +103,25 @@
         <view class="leaderboardHeader">
           <view>
             <text class="leaderboardTitle">本周排行榜</text>
-            <text class="leaderboardMeta">按本周学习力排名</text>
+            <view class="learningPowerHelpAnchor" @tap.stop>
+              <text class="leaderboardMeta">按本周学习力排名</text>
+              <view
+                class="learningPowerHelpButton"
+                role="button"
+                :aria-label="showLearningPowerHelp ? '关闭学习力计算规则' : '查看学习力计算规则'"
+                @tap.stop="toggleLearningPowerHelp"
+              >
+                <text>?</text>
+              </view>
+              <view v-if="showLearningPowerHelp" class="learningPowerHelpPopover" role="note" @tap.stop>
+                <text class="learningPowerHelpTitle">学习力计算</text>
+                <text class="learningPowerHelpRule">本周首次听写该词：每词 +1，每日最多 20</text>
+                <text class="learningPowerHelpRule">完成有效听写：每次 +5，每日最多 20</text>
+                <text class="learningPowerHelpRule">当天首次有效听写：额外 +10</text>
+                <text class="learningPowerHelpRule">连续打开：从第 2 天起，每天 +5</text>
+                <text class="learningPowerHelpRule">错词听写或标记认识：每词 +1，每日最多 20</text>
+              </view>
+            </view>
           </view>
           <text class="leaderboardReset">周一重新开始</text>
         </view>
@@ -202,6 +220,7 @@ const activeTab = ref<'feed' | 'leaderboard'>('feed')
 const loading = ref(true)
 const loadError = ref(false)
 const showManager = ref(false)
+const showLearningPowerHelp = ref(false)
 const feedItems = ref<FeedItem[]>([])
 const classmates = ref<ClassmateSummary[]>([])
 const leaderboard = ref<LeaderboardSnapshot>({ ...EMPTY_LEADERBOARD })
@@ -272,8 +291,17 @@ async function loadPageData() {
 }
 
 function setActiveTab(tab: 'feed' | 'leaderboard') {
+  showLearningPowerHelp.value = false
   activeTab.value = tab
   if (tab === 'leaderboard') trackAnalyticsEvent('leaderboard_view')
+}
+
+function toggleLearningPowerHelp() {
+  showLearningPowerHelp.value = !showLearningPowerHelp.value
+}
+
+function closeLearningPowerHelp() {
+  showLearningPowerHelp.value = false
 }
 
 function avatarInitial(nickname: string): string {
@@ -440,7 +468,12 @@ onShow(() => {
 
 .leaderboardHeader { padding: 2px 2px 14px; }
 .leaderboardTitle { display: block; font-size: 22px; font-weight: 950; }
-.leaderboardMeta { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; font-weight: 650; }
+.learningPowerHelpAnchor { position: relative; display: inline-flex; align-items: center; margin-top: 4px; gap: 5px; }
+.leaderboardMeta { color: var(--muted); font-size: 12px; font-weight: 650; }
+.learningPowerHelpButton { display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; border: 1px solid var(--muted); border-radius: 50%; color: var(--muted); font-size: 11px; line-height: 1; font-weight: 900; }
+.learningPowerHelpPopover { position: absolute; top: 26px; left: 0; z-index: 6; box-sizing: border-box; display: flex; flex-direction: column; width: 292px; max-width: calc(100vw - 40px); padding: 13px 14px; border: 1px solid #bdd5c9; border-radius: 13px; background: #fffdf8; box-shadow: 0 12px 30px rgba(23, 52, 44, 0.16); }
+.learningPowerHelpTitle { margin-bottom: 7px; color: var(--ink); font-size: 13px; line-height: 1.3; font-weight: 900; }
+.learningPowerHelpRule { color: var(--ink-soft); font-size: 11px; line-height: 1.65; font-weight: 650; }
 .leaderboardReset { color: var(--muted); font-size: 11px; font-weight: 700; }
 .podium { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: end; min-height: 214px; padding: 18px 10px 14px; background: linear-gradient(180deg, #fff9ec, var(--surface)); }
 .podiumEntry { display: flex; flex-direction: column; align-items: center; min-width: 0; }

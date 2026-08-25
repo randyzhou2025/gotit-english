@@ -9,6 +9,7 @@ export const LEARNING_POWER_LIMITS = {
 } as const;
 
 export type LearningPowerEventType =
+  | "APP_OPEN"
   | "DICTATION_WORD"
   | "VALID_DICTATION"
   | "DAILY_BONUS"
@@ -99,6 +100,8 @@ export function learningPowerUniqueKey(input: {
   sessionId?: string;
 }): string {
   switch (input.type) {
+    case "APP_OPEN":
+      return `APP_OPEN:${input.userId}:${input.dateKey.replaceAll("-", "")}`;
     case "DICTATION_WORD":
       return `WEEKLY_WORD:${input.userId}:${input.wordId ?? ""}:${input.weekKey}`;
     case "VALID_DICTATION":

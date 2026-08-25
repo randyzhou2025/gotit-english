@@ -1,6 +1,6 @@
 import { and, count, desc, eq, gte } from "drizzle-orm";
 import { db } from "../db/index.js";
-import { appConfig, userDailyStats, userProgress } from "../db/schema.js";
+import { appConfig, learningPowerEvents, userDailyStats, userProgress } from "../db/schema.js";
 import { shanghaiDateString, uniqueWordIds } from "../lib/utils.js";
 
 export interface DashboardSnapshot {
@@ -73,10 +73,13 @@ export async function recordStudyEvent(
 
 async function countConsecutiveStudyDays(userId: string): Promise<number> {
   const rows = await db
-    .select({ statDate: userDailyStats.statDate })
-    .from(userDailyStats)
-    .where(eq(userDailyStats.userId, userId))
-    .orderBy(desc(userDailyStats.statDate));
+    .select({ statDate: learningPowerEvents.eventDate })
+    .from(learningPowerEvents)
+    .where(and(
+      eq(learningPowerEvents.userId, userId),
+      eq(learningPowerEvents.eventType, "APP_OPEN")
+    ))
+    .orderBy(desc(learningPowerEvents.eventDate));
 
   if (rows.length === 0) return 0;
 

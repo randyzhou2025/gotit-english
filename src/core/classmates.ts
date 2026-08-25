@@ -124,6 +124,17 @@ export async function submitDictationCompletion(input: {
   })
 }
 
+export async function submitAppOpen(): Promise<{
+  duplicate: boolean
+  earned: number
+  streakDays: number
+  weekKey: string
+  weeklyLearningPower: number
+} | null> {
+  if (!(await ensureAuthenticatedApi())) return null
+  return apiRequest('/api/learning-power/app-opens', { method: 'POST', body: {} })
+}
+
 export async function submitDictationWordCompletion(input: {
   sessionId: string
   unitId: string

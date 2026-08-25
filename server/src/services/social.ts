@@ -130,25 +130,157 @@ async function currentLearningSnapshot(userId: string, weekKey: string) {
   return row ?? null;
 }
 
-async function countPreviousStudyStreak(userId: string, dateKey: string): Promise<number> {
+async function countAppOpenStreak(userId: string, dateKey: string): Promise<number> {
   const rows = await db
-    .select({ statDate: dailyLearningPowerStats.statDate })
-    .from(dailyLearningPowerStats)
+    .select({ eventDate: learningPowerEvents.eventDate })
+    .from(learningPowerEvents)
     .where(and(
-      eq(dailyLearningPowerStats.userId, userId),
-      lte(dailyLearningPowerStats.statDate, previousShanghaiDate(dateKey)),
-      sql`${dailyLearningPowerStats.dailyBonusScore} > 0`
+      eq(learningPowerEvents.userId, userId),
+      eq(learningPowerEvents.eventType, "APP_OPEN"),
+      lte(learningPowerEvents.eventDate, dateKey)
     ))
-    .orderBy(desc(dailyLearningPowerStats.statDate));
+    .orderBy(desc(learningPowerEvents.eventDate));
 
-  const dates = new Set(rows.map((row) => String(row.statDate)));
-  let cursor = previousShanghaiDate(dateKey);
+  const dates = new Set(rows.map((row) => String(row.eventDate)));
+  let cursor = dateKey;
   let streak = 0;
   while (dates.has(cursor)) {
     streak += 1;
     cursor = previousShanghaiDate(cursor);
   }
   return streak;
+}
+
+export async function recordAppOpen(userId: string, openedAt = new Date()) {
+  const context = shanghaiWeekContext(openedAt);
+  const result = await db.transaction(async (tx) => {
+    const [openEvent] = await tx
+      .insert(learningPowerEvents)
+      .values({
+        userId,
+        weekKey: context.weekKey,
+        eventDate: context.dateKey,
+        eventType: "APP_OPEN",
+        score: 0,
+        uniqueKey: learningPowerUniqueKey({
+          type: "APP_OPEN",
+          userId,
+          dateKey: context.dateKey,
+          weekKey: context.weekKey,
+        }),
+        createdAt: openedAt,
+      })
+      .onConflictDoNothing({ target: learningPowerEvents.uniqueKey })
+      .returning({ id: learningPowerEvents.id });
+    if (!openEvent) return { duplicate: true, earned: 0 };
+
+    const [yesterdayOpen] = await tx
+      .select({ id: learningPowerEvents.id })
+      .from(learningPowerEvents)
+      .where(and(
+        eq(learningPowerEvents.userId, userId),
+        eq(learningPowerEvents.eventType, "APP_OPEN"),
+        eq(learningPowerEvents.eventDate, previousShanghaiDate(context.dateKey))
+      ))
+      .limit(1);
+    if (!yesterdayOpen) return { duplicate: false, earned: 0 };
+
+    await tx
+      .insert(dailyLearningPowerStats)
+      .values(dailyStatDefaults(userId, context.dateKey))
+      .onConflictDoNothing({ target: [dailyLearningPowerStats.userId, dailyLearningPowerStats.statDate] });
+    const [daily] = await tx
+      .select()
+      .from(dailyLearningPowerStats)
+      .where(and(
+        eq(dailyLearningPowerStats.userId, userId),
+        eq(dailyLearningPowerStats.statDate, context.dateKey)
+      ))
+      .for("update")
+      .limit(1);
+    if (!daily) throw new Error("Daily learning power row was not created");
+
+    await tx
+      .insert(weeklyLearningPower)
+      .values({ userId, weekKey: context.weekKey, lastScoreAt: openedAt })
+      .onConflictDoNothing({ target: [weeklyLearningPower.userId, weeklyLearningPower.weekKey] });
+    const [weekly] = await tx
+      .select()
+      .from(weeklyLearningPower)
+      .where(and(
+        eq(weeklyLearningPower.userId, userId),
+        eq(weeklyLearningPower.weekKey, context.weekKey)
+      ))
+      .for("update")
+      .limit(1);
+    if (!weekly) throw new Error("Weekly learning power row was not created");
+
+    const score = LEARNING_POWER_LIMITS.streak;
+    const [scoreEvent] = await tx
+      .insert(learningPowerEvents)
+      .values({
+        userId,
+        weekKey: context.weekKey,
+        eventDate: context.dateKey,
+        eventType: "STREAK_BONUS",
+        score,
+        uniqueKey: learningPowerUniqueKey({
+          type: "STREAK_BONUS",
+          userId,
+          dateKey: context.dateKey,
+          weekKey: context.weekKey,
+        }),
+        createdAt: openedAt,
+      })
+      .onConflictDoNothing({ target: learningPowerEvents.uniqueKey })
+      .returning({ id: learningPowerEvents.id });
+    if (!scoreEvent) return { duplicate: false, earned: 0 };
+
+    await tx
+      .update(dailyLearningPowerStats)
+      .set({
+        streakScore: daily.streakScore + score,
+        totalScore: daily.totalScore + score,
+        updatedAt: openedAt,
+      })
+      .where(and(
+        eq(dailyLearningPowerStats.userId, userId),
+        eq(dailyLearningPowerStats.statDate, context.dateKey)
+      ));
+    await tx
+      .update(weeklyLearningPower)
+      .set({
+        learningPower: weekly.learningPower + score,
+        lastScoreAt: openedAt,
+        updatedAt: openedAt,
+      })
+      .where(and(
+        eq(weeklyLearningPower.userId, userId),
+        eq(weeklyLearningPower.weekKey, context.weekKey)
+      ));
+    return { duplicate: false, earned: score };
+  });
+
+  const streakDays = await countAppOpenStreak(userId, context.dateKey);
+  if (streakDays >= 2) {
+    await db
+      .insert(learningActivities)
+      .values({
+        userId,
+        activityType: "STREAK",
+        countValue: streakDays,
+        uniqueKey: `STREAK:${userId}:${context.dateKey}`,
+        occurredAt: openedAt,
+      })
+      .onConflictDoNothing({ target: learningActivities.uniqueKey });
+  }
+  const weekly = await currentLearningSnapshot(userId, context.weekKey);
+  return {
+    ...result,
+    streakDays,
+    weekKey: context.weekKey,
+    weeklyLearningPower: weekly?.learningPower ?? 0,
+  };
 }
 
 function dailyStatDefaults(userId: string, dateKey: string) {
@@ -306,10 +438,7 @@ export async function recordDictationCompletion(userId: string, input: Dictation
     unitWordCount: input.unitWordCount,
   });
 
-  const [oldRank, previousStreak] = await Promise.all([
-    getRank(userId, context.weekKey),
-    validDictation ? countPreviousStudyStreak(userId, context.dateKey) : Promise.resolve(0),
-  ]);
+  const oldRank = await getRank(userId, context.weekKey);
   const result = await db.transaction(async (tx) => {
     const [submission] = await tx
       .insert(dictationSubmissions)
@@ -424,24 +553,6 @@ export async function recordDictationCompletion(userId: string, input: Dictation
       if (firstValidStudyToday) {
         breakdown.dailyBonusScore = LEARNING_POWER_LIMITS.dailyBonus;
         addEvent("DAILY_BONUS", breakdown.dailyBonusScore, { sessionId: input.sessionId });
-
-        if (previousStreak >= 1) {
-          breakdown.streakScore = LEARNING_POWER_LIMITS.streak;
-          addEvent("STREAK_BONUS", breakdown.streakScore, { sessionId: input.sessionId });
-        }
-
-        if (previousStreak + 1 >= 2) {
-          await tx
-            .insert(learningActivities)
-            .values({
-              userId,
-              activityType: "STREAK",
-              countValue: previousStreak + 1,
-              uniqueKey: `STREAK:${userId}:${context.dateKey}`,
-              occurredAt,
-            })
-            .onConflictDoNothing({ target: learningActivities.uniqueKey });
-        }
       }
     }
 

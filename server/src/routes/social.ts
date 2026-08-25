@@ -6,6 +6,7 @@ import {
   getClassmateFeed,
   getClassmates,
   getLeaderboard,
+  recordAppOpen,
   recordDictationCompletion,
   recordDictationWordCompletion,
   recordMistakeReviews,
@@ -78,6 +79,11 @@ export async function registerSocialRoutes(
       });
     }
     return recordDictationCompletion(jwtUser.sub, parsed.data);
+  });
+
+  app.post("/api/learning-power/app-opens", { preHandler: [authenticate] }, async (request: FastifyRequest) => {
+    const jwtUser = request.user as { sub: string };
+    return recordAppOpen(jwtUser.sub);
   });
 
   app.post("/api/learning-power/dictation-words", { preHandler: [authenticate] }, async (request: FastifyRequest) => {

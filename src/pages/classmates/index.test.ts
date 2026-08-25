@@ -31,4 +31,13 @@ describe('classmates page MVP', () => {
     expect(source).not.toContain('私信')
     expect(source).not.toContain('积分商城')
   })
+
+  it('explains learning power in a dismissible help popover', () => {
+    expect(source).toContain('class="learningPowerHelpButton"')
+    expect(source).toContain('@tap.stop="toggleLearningPowerHelp"')
+    expect(source).toContain('@tap="closeLearningPowerHelp"')
+    expect(source).toContain('本周首次听写该词：每词 +1，每日最多 20')
+    expect(source).toContain('连续打开：从第 2 天起，每天 +5')
+    expect(source).toContain('错词听写或标记认识：每词 +1，每日最多 20')
+  })
 })

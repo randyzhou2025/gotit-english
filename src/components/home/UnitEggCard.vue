@@ -423,6 +423,22 @@ const showOrnament = computed(() => {
   font-weight: 700;
 }
 
+.unitEggFocus {
+  width: 100%;
+  overflow: hidden;
+  white-space: normal;
+}
+
+.unitEggFocus .unitEggKeyword {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: break-word;
+  line-height: 1.18;
+  white-space: normal;
+  word-break: break-word;
+}
+
 .unitEggPhonetic {
   min-width: 0;
   overflow: hidden;
@@ -618,6 +634,10 @@ const showOrnament = computed(() => {
   .unitEggFormulaPart,
   .unitEggFlowPart {
     font-size: 11.5px;
+  }
+
+  .unitEggFocus .unitEggKeyword {
+    font-size: 20px;
   }
 
 }

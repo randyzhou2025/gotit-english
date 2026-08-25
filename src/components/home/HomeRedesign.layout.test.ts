@@ -143,6 +143,8 @@ describe('redesigned home', () => {
     expect(eggSource).not.toContain('splitPhrase')
     expect(eggSource).toContain("['C', 'D', 'F', 'H'].includes")
     expect(eggSource).toContain('props.egg.core.length + noteText.value.length < 58')
+    expect(eggSource).toMatch(/\.unitEggFocus\s*\{[^}]*white-space: normal;/s)
+    expect(eggSource).toMatch(/\.unitEggFocus \.unitEggKeyword\s*\{[^}]*overflow-wrap: break-word;[^}]*white-space: normal;[^}]*word-break: break-word;/s)
   })
 
   it('makes pronunciation audio real and keeps long corrections inside the card', () => {

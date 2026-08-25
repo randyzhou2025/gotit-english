@@ -32,8 +32,9 @@ test("daily caps never exceed their configured maximum", () => {
   assert.equal(availableScore(20, 20, 5), 0);
 });
 
-test("unique keys make weekly words, sessions, daily bonuses and reviews idempotent", () => {
+test("unique keys make app opens, weekly words, sessions, daily bonuses and reviews idempotent", () => {
   const base = { userId: "u1", dateKey: "2026-08-24", weekKey: "2026-W35" };
+  assert.equal(learningPowerUniqueKey({ ...base, type: "APP_OPEN" }), "APP_OPEN:u1:20260824");
   assert.equal(learningPowerUniqueKey({ ...base, type: "DICTATION_WORD", wordId: "apple" }), "WEEKLY_WORD:u1:apple:2026-W35");
   assert.equal(learningPowerUniqueKey({ ...base, type: "VALID_DICTATION", sessionId: "s1" }), "VALID_DICTATION:u1:s1");
   assert.equal(learningPowerUniqueKey({ ...base, type: "DAILY_BONUS" }), "DAILY_BONUS:u1:20260824");

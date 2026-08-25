@@ -13,8 +13,10 @@ import {
 import { initializeVisualTheme } from '@/app/useVisualTheme'
 import { flushAnalyticsEvents, setAnalyticsEnabled } from '@/core/analytics'
 import { flushCloudSyncOnBackground } from '@/core/cloudSyncPolicy'
+import { submitAppOpen } from '@/core/classmates'
 import { fetchPublicConfig } from '@/core/userSession'
 import {
+  setCachedStreakDays,
   startStudyDurationPing,
   stopStudyDurationPing
 } from '@/core/studyStats'
@@ -32,6 +34,13 @@ onLaunch(() => {
 onShow(() => {
   startStudyDurationPing()
   scheduleDeferredStartupSync()
+  // #ifdef MP-WEIXIN
+  void submitAppOpen()
+    .then(result => {
+      if (result) setCachedStreakDays(result.streakDays)
+    })
+    .catch(() => {})
+  // #endif
   void flushAnalyticsEvents()
 })
 
