@@ -32,12 +32,12 @@
             <text class="inviteMeta">{{ currentUnitLabel }}</text>
           </view>
           <!-- #ifdef MP-WEIXIN -->
-          <button class="inviteButton" open-type="share" hover-class="buttonPressed">
+          <button class="inviteButton" open-type="share" hover-class="buttonPressed" @tap="trackClassmateInviteClick('classmates_header')">
             <text>邀请同学</text>
           </button>
           <!-- #endif -->
           <!-- #ifndef MP-WEIXIN -->
-          <view class="inviteButton" hover-class="buttonPressed" @tap="showShareHint">
+          <view class="inviteButton" hover-class="buttonPressed" @tap="showShareHint('classmates_header')">
             <text>邀请同学</text>
           </view>
           <!-- #endif -->
@@ -91,10 +91,10 @@
           <text class="classmatesStateTitle">还没有同学动态</text>
           <text class="classmatesStateCopy">邀请微信同学完成同一个 Unit，学习记录会出现在这里</text>
           <!-- #ifdef MP-WEIXIN -->
-          <button class="stateAction" open-type="share" hover-class="buttonPressed"><text>邀请第一位同学</text></button>
+          <button class="stateAction" open-type="share" hover-class="buttonPressed" @tap="trackClassmateInviteClick('classmates_empty')"><text>邀请第一位同学</text></button>
           <!-- #endif -->
           <!-- #ifndef MP-WEIXIN -->
-          <view class="stateAction" @tap="showShareHint"><text>邀请第一位同学</text></view>
+          <view class="stateAction" @tap="showShareHint('classmates_empty')"><text>邀请第一位同学</text></view>
           <!-- #endif -->
         </view>
       </template>
@@ -123,7 +123,6 @@
               </view>
             </view>
           </view>
-          <text class="leaderboardReset">周一重新开始</text>
         </view>
 
         <view v-if="topThree.length > 0" class="podium">
@@ -132,7 +131,13 @@
             :key="entry.userId"
             :class="['podiumEntry', `rank${entry.rank}`, entry.isMe && 'isMe']"
           >
-            <text class="podiumBadge">第{{ entry.rank }}名</text>
+            <view class="podiumMedal" :aria-label="`第${entry.rank}名奖牌`">
+              <view class="podiumMedalRibbons">
+                <view class="podiumMedalRibbon isLeft" />
+                <view class="podiumMedalRibbon isRight" />
+              </view>
+              <view class="podiumMedalDisc"><text>{{ entry.rank }}</text></view>
+            </view>
             <view class="podiumAvatar">
               <image v-if="entry.avatarUrl" class="avatarImage" :src="entry.avatarUrl" mode="aspectFill" />
               <text v-else>{{ avatarInitial(entry.nickname) }}</text>
@@ -165,7 +170,11 @@
           </view>
         </view>
 
-        <view v-if="leaderboard.myRank && leaderboard.pointsToOvertakePrevious" class="overtakeCard">
+        <view v-if="leaderboard.myEntry && leaderboard.pointsToEnterTopTen" class="overtakeCard">
+          <text>距离上榜还差 {{ leaderboard.pointsToEnterTopTen }} 学习力</text>
+        </view>
+
+        <view v-else-if="leaderboard.myRank && leaderboard.pointsToOvertakePrevious" class="overtakeCard">
           <text>再获得 {{ leaderboard.pointsToOvertakePrevious }} 学习力，就能超过上一名</text>
         </view>
 
@@ -175,10 +184,10 @@
         </view>
 
         <!-- #ifdef MP-WEIXIN -->
-        <button class="leaderboardInvite" open-type="share" hover-class="buttonPressed"><text>邀请同学一起学</text></button>
+        <button class="leaderboardInvite" open-type="share" hover-class="buttonPressed" @tap="trackClassmateInviteClick('leaderboard')"><text>邀请同学一起学</text></button>
         <!-- #endif -->
         <!-- #ifndef MP-WEIXIN -->
-        <view class="leaderboardInvite" @tap="showShareHint"><text>邀请同学一起学</text></view>
+        <view class="leaderboardInvite" @tap="showShareHint('leaderboard')"><text>邀请同学一起学</text></view>
         <!-- #endif -->
       </template>
     </scroll-view>
@@ -213,7 +222,8 @@ import type { UnitGroup, WordEntry } from '@/core/types'
 
 const EMPTY_LEADERBOARD: LeaderboardSnapshot = {
   weekKey: '', weekStart: '', weekEnd: '', displayLimit: 10, topSpecialCount: 3,
-  myLearningPower: 0, myRank: null, pointsToOvertakePrevious: null, ranking: [], myEntry: null
+  myLearningPower: 0, myRank: null, pointsToOvertakePrevious: null, pointsToEnterTopTen: null,
+  ranking: [], myEntry: null
 }
 
 const activeTab = ref<'feed' | 'leaderboard'>('feed')
@@ -293,7 +303,7 @@ async function loadPageData() {
 function setActiveTab(tab: 'feed' | 'leaderboard') {
   showLearningPowerHelp.value = false
   activeTab.value = tab
-  if (tab === 'leaderboard') trackAnalyticsEvent('leaderboard_view')
+  if (tab === 'leaderboard') trackAnalyticsEvent('leaderboard_view', { source: 'classmates_page' })
 }
 
 function toggleLearningPowerHelp() {
@@ -360,7 +370,19 @@ function confirmRemove(classmate: ClassmateSummary) {
   })
 }
 
-function showShareHint() {
+function trackClassmateInviteClick(source: 'classmates_header' | 'classmates_empty' | 'leaderboard') {
+  const unit = selectedUnit.value
+  trackAnalyticsEvent('classmate_invite_click', {
+    source,
+    shareType: 'CLASSMATE_INVITE',
+    publisherName: unit?.publisherName,
+    bookName: unit?.bookName,
+    unitName: unit?.unitName
+  })
+}
+
+function showShareHint(source: 'classmates_header' | 'classmates_empty' | 'leaderboard') {
+  trackClassmateInviteClick(source)
   uni.showToast({ title: '请在微信小程序中分享', icon: 'none' })
 }
 
@@ -379,7 +401,6 @@ onMounted(() => {
   })
 })
 onShow(() => {
-  trackAnalyticsEvent('classmates_tab_view')
   void ensurePageSession().then(loadPageData)
 })
 </script>
@@ -474,15 +495,23 @@ onShow(() => {
 .learningPowerHelpPopover { position: absolute; top: 26px; left: 0; z-index: 6; box-sizing: border-box; display: flex; flex-direction: column; width: 292px; max-width: calc(100vw - 40px); padding: 13px 14px; border: 1px solid #bdd5c9; border-radius: 13px; background: #fffdf8; box-shadow: 0 12px 30px rgba(23, 52, 44, 0.16); }
 .learningPowerHelpTitle { margin-bottom: 7px; color: var(--ink); font-size: 13px; line-height: 1.3; font-weight: 900; }
 .learningPowerHelpRule { color: var(--ink-soft); font-size: 11px; line-height: 1.65; font-weight: 650; }
-.leaderboardReset { color: var(--muted); font-size: 11px; font-weight: 700; }
 .podium { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: end; min-height: 214px; padding: 18px 10px 14px; background: linear-gradient(180deg, #fff9ec, var(--surface)); }
 .podiumEntry { display: flex; flex-direction: column; align-items: center; min-width: 0; }
 .podiumEntry.rank1 { order: 2; transform: translateY(-16px); }
 .podiumEntry.rank2 { order: 1; }
 .podiumEntry.rank3 { order: 3; }
-.podiumBadge { margin-bottom: 8px; padding: 3px 7px; border-radius: 999px; background: #e9ecea; color: #6b7370; font-size: 9px; font-weight: 850; }
-.rank1 .podiumBadge { background: #f4dfad; color: #795b1d; }
-.rank3 .podiumBadge { background: #ead4c6; color: #81543b; }
+.podiumMedal { position: relative; width: 38px; height: 46px; margin-bottom: 8px; }
+.podiumMedalRibbons { position: absolute; top: 0; left: 6px; display: flex; width: 26px; height: 23px; }
+.podiumMedalRibbon { width: 13px; height: 23px; background: #8d9b97; }
+.podiumMedalRibbon.isLeft { transform: rotate(8deg); transform-origin: top right; }
+.podiumMedalRibbon.isRight { transform: rotate(-8deg); transform-origin: top left; }
+.podiumMedalDisc { position: absolute; bottom: 0; left: 2px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 34px; height: 34px; border: 3px solid #aeb7b4; border-radius: 50%; background: linear-gradient(145deg, #f7faf9, #bdc7c4); color: #5e6966; box-shadow: 0 3px 8px rgba(44, 57, 53, 0.16); font-size: 13px; font-weight: 950; }
+.rank1 .podiumMedalRibbon { background: #b88c20; }
+.rank1 .podiumMedalDisc { border-color: #c79621; background: linear-gradient(145deg, #fff1ae, #d6a328); color: #76530a; }
+.rank2 .podiumMedalRibbon { background: #899592; }
+.rank2 .podiumMedalDisc { border-color: #9aa5a2; background: linear-gradient(145deg, #f8fbfa, #b7c1be); color: #58625f; }
+.rank3 .podiumMedalRibbon { background: #a66b45; }
+.rank3 .podiumMedalDisc { border-color: #a96840; background: linear-gradient(145deg, #efc2a0, #b87750); color: #6f3d21; }
 .podiumAvatar { width: 54px; height: 54px; border: 3px solid #bfc6c3; background: #eef1ef; }
 .rank1 .podiumAvatar { width: 66px; height: 66px; border-color: #d5b66b; box-shadow: 0 0 20px rgba(213, 182, 107, 0.2); }
 .rank3 .podiumAvatar { border-color: #bd8f72; }

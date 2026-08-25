@@ -185,6 +185,8 @@ describe('practice shell full-page layout', () => {
     expect(source).toContain("'再听一轮生词' : '回到听写'")
     expect(source).toContain('open-type="share"')
     expect(source).toContain('邀请同学挑战')
+    expect(source).toContain("trackAnalyticsEvent('classmate_invite_click'")
+    expect(source).toContain("source: 'dictation_reward'")
     expect(source).toContain('本次获得 +{{ learningPowerAward.earned }} 学习力')
     expect(source).toContain('class="rewardExitActions"')
     expect(source).toContain('min-height: 86px;')

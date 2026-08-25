@@ -31,6 +31,7 @@ import {
   isValidDictation,
   learningPowerUniqueKey,
   normalizedClassmatePair,
+  pointsToEnterTopTen,
   pointsToOvertake,
   previousShanghaiDate,
   shanghaiWeekContext,
@@ -109,9 +110,8 @@ function orderedWeeklyRows<T extends typeof db>(database: T, weekKey: string) {
     .where(eq(weeklyLearningPower.weekKey, weekKey))
     .orderBy(
       desc(weeklyLearningPower.learningPower),
-      desc(weeklyLearningPower.validDictationCount),
-      desc(weeklyLearningPower.activeStudyDays),
-      asc(weeklyLearningPower.lastScoreAt)
+      desc(weeklyLearningPower.lastScoreAt),
+      asc(weeklyLearningPower.userId)
     );
 }
 
@@ -958,10 +958,10 @@ async function leaderboardConfig(): Promise<LeaderboardConfig> {
   }
 }
 
-export async function getLeaderboard(userId: string, requestedLimit?: number) {
+export async function getLeaderboard(userId: string) {
   const context = shanghaiWeekContext();
   const config = await leaderboardConfig();
-  const limit = Math.min(requestedLimit ?? config.displayLimit, config.maxLimit);
+  const limit = 10;
   const rows = await orderedWeeklyRows(db, context.weekKey);
   const serialized = rows.map((row, index) => ({
     rank: index + 1,
@@ -974,6 +974,7 @@ export async function getLeaderboard(userId: string, requestedLimit?: number) {
   const myIndex = serialized.findIndex((row) => row.isMe);
   const me = myIndex >= 0 ? serialized[myIndex]! : null;
   const previous = myIndex > 0 ? serialized[myIndex - 1]! : null;
+  const tenth = serialized[9] ?? null;
 
   return {
     weekKey: context.weekKey,
@@ -984,6 +985,9 @@ export async function getLeaderboard(userId: string, requestedLimit?: number) {
     myLearningPower: me?.learningPower ?? 0,
     myRank: me?.rank ?? null,
     pointsToOvertakePrevious: pointsToOvertake(previous?.learningPower ?? null, me?.learningPower ?? 0),
+    pointsToEnterTopTen: me && me.rank > 10
+      ? pointsToEnterTopTen(tenth?.learningPower ?? null, me.learningPower)
+      : null,
     ranking: serialized.slice(0, limit),
     myEntry: me && me.rank > limit ? me : null,
   };

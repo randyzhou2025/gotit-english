@@ -52,6 +52,29 @@ describe('analytics queue', () => {
     expect(queued).toHaveLength(1)
   })
 
+  it('queues a classmate invitation click with its page source', async () => {
+    const analytics = await import('./analytics')
+    analytics.trackAnalyticsEvent('classmate_invite_click', {
+      source: 'dictation_reward',
+      shareType: 'DICTATION_RESULT'
+    })
+    await vi.advanceTimersByTimeAsync(0)
+
+    const queued = storage.get('gotit:analytics:queue:v1') as Array<{
+      name: string
+      properties: Record<string, string>
+    }>
+    expect(queued).toEqual([
+      expect.objectContaining({
+        name: 'classmate_invite_click',
+        properties: {
+          source: 'dictation_reward',
+          shareType: 'DICTATION_RESULT'
+        }
+      })
+    ])
+  })
+
   it('clears pending events and stops uploads when disabled', async () => {
     storage.set('gotit:auth:token', 'token')
     const analytics = await import('./analytics')

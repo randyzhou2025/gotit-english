@@ -1468,7 +1468,7 @@
 
       <view class="rewardBottomActions">
         <!-- #ifdef MP-WEIXIN -->
-        <button class="rewardChallengeButton" open-type="share" hover-class="rewardButtonPressed">
+        <button class="rewardChallengeButton" open-type="share" hover-class="rewardButtonPressed" @tap="trackRewardInviteClick">
           <text>邀请同学挑战</text>
         </button>
         <!-- #endif -->
@@ -2957,7 +2957,19 @@ function finishDictationRewardAndReturnHome() {
 }
 
 function showUnitChallengeShareHint() {
+  trackRewardInviteClick()
   uni.showToast({ title: '请在微信小程序中分享', icon: 'none' })
+}
+
+function trackRewardInviteClick() {
+  const unit = selectedUnit.value
+  trackAnalyticsEvent('classmate_invite_click', {
+    source: 'dictation_reward',
+    shareType: 'DICTATION_RESULT',
+    publisherName: unit?.publisherName,
+    bookName: unit?.bookName,
+    unitName: unit?.unitName
+  })
 }
 
 function finishDictationRewardAndOpenWeakbook() {

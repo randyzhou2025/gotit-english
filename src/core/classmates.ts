@@ -72,6 +72,7 @@ export interface LeaderboardSnapshot {
   myLearningPower: number
   myRank: number | null
   pointsToOvertakePrevious: number | null
+  pointsToEnterTopTen: number | null
   ranking: LeaderboardEntry[]
   myEntry: LeaderboardEntry | null
 }
@@ -178,6 +179,7 @@ export async function fetchLeaderboard(): Promise<LeaderboardSnapshot> {
       myLearningPower: 0,
       myRank: null,
       pointsToOvertakePrevious: null,
+      pointsToEnterTopTen: null,
       ranking: [],
       myEntry: null
     }

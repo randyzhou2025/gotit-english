@@ -87,6 +87,11 @@ export function pointsToOvertake(previousScore: number | null, myScore: number):
   return Math.max(1, previousScore - myScore + 1);
 }
 
+export function pointsToEnterTopTen(tenthScore: number | null, myScore: number): number | null {
+  if (tenthScore === null) return null;
+  return Math.max(1, tenthScore - myScore);
+}
+
 export function dictationSubmissionKey(userId: string, sessionId: string): string {
   return `${userId}:${sessionId}`;
 }

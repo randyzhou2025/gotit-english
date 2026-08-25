@@ -14,6 +14,7 @@ const analyticsEventNames = [
   "meaning_self_test_click",
   "classmates_tab_view",
   "leaderboard_view",
+  "classmate_invite_click",
   "share_created",
   "share_accepted",
   "cheer_toggle",

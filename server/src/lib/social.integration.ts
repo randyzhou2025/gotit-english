@@ -13,6 +13,7 @@ import {
 import {
   acceptShare,
   createShare,
+  getLeaderboard,
   recordDictationCompletion,
   recordDictationWordCompletion,
   recordAppOpen,
@@ -39,14 +40,18 @@ async function createTestUser(suffix: string) {
 
 async function main() {
   const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  const userIds = await Promise.all([
+  const coreUserIds = await Promise.all([
     createTestUser(`${suffix}-a`),
     createTestUser(`${suffix}-b`),
     createTestUser(`${suffix}-c`),
     createTestUser(`${suffix}-d`),
     createTestUser(`${suffix}-e`),
   ]);
-  const [duplicateUser, wordCapUser, validCapUser, reviewCapUser, streakUser] = userIds as [string, string, string, string, string];
+  const rankingUserIds = await Promise.all(
+    Array.from({ length: 11 }, (_, index) => createTestUser(`${suffix}-rank-${index}`))
+  );
+  const userIds = [...coreUserIds, ...rankingUserIds];
+  const [duplicateUser, wordCapUser, validCapUser, reviewCapUser, streakUser] = coreUserIds as [string, string, string, string, string];
   const context = shanghaiWeekContext();
 
   try {
@@ -212,7 +217,23 @@ async function main() {
     assert.deepEqual(await toggleFeedCheer(wordCapUser, feed.id), { cheered: true, cheerCount: 1 });
     assert.deepEqual(await toggleFeedCheer(wordCapUser, feed.id), { cheered: false, cheerCount: 0 });
 
-    console.log("social integration: app-open streak, per-word scoring, report settlement, caps, weak words, relation, and cheer permission passed");
+    const olderTieAt = new Date(today.getTime() + 3_600_000);
+    const newerTieAt = new Date(today.getTime() + 7_200_000);
+    await db.insert(weeklyLearningPower).values(rankingUserIds.map((userId, index) => ({
+      userId,
+      weekKey: context.weekKey,
+      learningPower: index < 9 ? 1_000 - index * 100 : 100,
+      lastScoreAt: index === 9 ? newerTieAt : olderTieAt,
+    })));
+    const leaderboard = await getLeaderboard(rankingUserIds[10]!);
+    assert.equal(leaderboard.displayLimit, 10);
+    assert.equal(leaderboard.ranking.length, 10);
+    assert.equal(leaderboard.ranking[9]?.userId, rankingUserIds[9]!);
+    assert.equal(leaderboard.myRank, 11);
+    assert.equal(leaderboard.myEntry?.userId, rankingUserIds[10]!);
+    assert.equal(leaderboard.pointsToEnterTopTen, 1);
+
+    console.log("social integration: scoring, caps, social permissions, and top-ten leaderboard ordering passed");
   } finally {
     await db.delete(users).where(inArray(users.id, userIds));
   }

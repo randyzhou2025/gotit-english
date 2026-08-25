@@ -5,6 +5,7 @@ import {
   isValidDictation,
   learningPowerUniqueKey,
   normalizedClassmatePair,
+  pointsToEnterTopTen,
   pointsToOvertake,
   shanghaiWeekContext,
 } from "./learning-power.js";
@@ -45,4 +46,10 @@ test("classmate pairs are normalized and overtake copy uses score plus one", () 
   assert.deepEqual(normalizedClassmatePair("b", "a"), ["a", "b"]);
   assert.equal(pointsToOvertake(215, 203), 13);
   assert.equal(pointsToOvertake(null, 203), null);
+});
+
+test("top-ten gap allows a newly reached tie to enter ahead of an older score", () => {
+  assert.equal(pointsToEnterTopTen(215, 203), 12);
+  assert.equal(pointsToEnterTopTen(203, 203), 1);
+  assert.equal(pointsToEnterTopTen(null, 203), null);
 });

@@ -115,10 +115,8 @@ export async function registerSocialRoutes(
   });
 
   app.get("/api/classmates/leaderboard", { preHandler: [authenticate] }, async (request: FastifyRequest) => {
-    const parsed = z.object({ limit: z.coerce.number().int().min(1).max(100).optional() }).safeParse(request.query ?? {});
-    if (!parsed.success) throw app.httpErrors.badRequest("Invalid leaderboard query");
     const jwtUser = request.user as { sub: string };
-    return getLeaderboard(jwtUser.sub, parsed.data.limit);
+    return getLeaderboard(jwtUser.sub);
   });
 
   app.get("/api/classmates", { preHandler: [authenticate] }, async (request: FastifyRequest) => {

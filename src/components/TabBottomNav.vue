@@ -70,6 +70,7 @@ function goWeakbook() {
 
 function goClassmates() {
   if (props.active === 'classmates') return
+  trackAnalyticsEvent('classmates_tab_view', { source: 'tabbar' })
   uni.switchTab({ url: '/pages/classmates/index' })
 }
 
