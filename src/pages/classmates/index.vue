@@ -106,6 +106,7 @@
             <view class="learningPowerHelpAnchor" @tap.stop>
               <text class="leaderboardMeta">按本周学习力排名</text>
               <view
+                v-if="learningPowerHelpEnabled"
                 class="learningPowerHelpButton"
                 role="button"
                 :aria-label="showLearningPowerHelp ? '关闭学习力计算规则' : '查看学习力计算规则'"
@@ -113,7 +114,7 @@
               >
                 <text>?</text>
               </view>
-              <view v-if="showLearningPowerHelp" class="learningPowerHelpPopover" role="note" @tap.stop>
+              <view v-if="learningPowerHelpEnabled && showLearningPowerHelp" class="learningPowerHelpPopover" role="note" @tap.stop>
                 <text class="learningPowerHelpTitle">学习力计算</text>
                 <text class="learningPowerHelpRule">本周首次听写该词：每词 +1，每日最多 20</text>
                 <text class="learningPowerHelpRule">完成有效听写：每次 +5，每日最多 20</text>
@@ -230,6 +231,7 @@ const activeTab = ref<'feed' | 'leaderboard'>('feed')
 const loading = ref(true)
 const loadError = ref(false)
 const showManager = ref(false)
+const learningPowerHelpEnabled = false
 const showLearningPowerHelp = ref(false)
 const feedItems = ref<FeedItem[]>([])
 const classmates = ref<ClassmateSummary[]>([])

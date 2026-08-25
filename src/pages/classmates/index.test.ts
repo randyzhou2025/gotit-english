@@ -45,7 +45,9 @@ describe('classmates page MVP', () => {
     expect(source).not.toContain("trackAnalyticsEvent('classmates_tab_view')")
   })
 
-  it('explains learning power in a dismissible help popover', () => {
+  it('temporarily hides the learning-power help entry while preserving its content', () => {
+    expect(source).toContain('const learningPowerHelpEnabled = false')
+    expect(source).toContain('v-if="learningPowerHelpEnabled"')
     expect(source).toContain('class="learningPowerHelpButton"')
     expect(source).toContain('@tap.stop="toggleLearningPowerHelp"')
     expect(source).toContain('@tap="closeLearningPowerHelp"')
