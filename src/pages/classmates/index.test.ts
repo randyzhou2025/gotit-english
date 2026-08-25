@@ -45,6 +45,14 @@ describe('classmates page MVP', () => {
     expect(source).not.toContain("trackAnalyticsEvent('classmates_tab_view')")
   })
 
+  it('defaults to the feed and restores the last selected classmates tab', () => {
+    expect(source).toContain("const CLASSMATES_ACTIVE_TAB_KEY = 'gotit:classmates:activeTab'")
+    expect(source).toContain("uni.getStorageSync(CLASSMATES_ACTIVE_TAB_KEY) === 'leaderboard' ? 'leaderboard' : 'feed'")
+    expect(source).toContain('const activeTab = ref<ClassmatesTab>(readStoredActiveTab())')
+    expect(source).toContain('uni.setStorageSync(CLASSMATES_ACTIVE_TAB_KEY, tab)')
+    expect(source).toContain('storeActiveTab(tab)')
+  })
+
   it('temporarily hides the learning-power help entry while preserving its content', () => {
     expect(source).toContain('const learningPowerHelpEnabled = false')
     expect(source).toContain('v-if="learningPowerHelpEnabled"')

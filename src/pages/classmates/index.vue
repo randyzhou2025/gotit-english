@@ -227,7 +227,27 @@ const EMPTY_LEADERBOARD: LeaderboardSnapshot = {
   ranking: [], myEntry: null
 }
 
-const activeTab = ref<'feed' | 'leaderboard'>('feed')
+type ClassmatesTab = 'feed' | 'leaderboard'
+
+const CLASSMATES_ACTIVE_TAB_KEY = 'gotit:classmates:activeTab'
+
+function readStoredActiveTab(): ClassmatesTab {
+  try {
+    return uni.getStorageSync(CLASSMATES_ACTIVE_TAB_KEY) === 'leaderboard' ? 'leaderboard' : 'feed'
+  } catch {
+    return 'feed'
+  }
+}
+
+function storeActiveTab(tab: ClassmatesTab) {
+  try {
+    uni.setStorageSync(CLASSMATES_ACTIVE_TAB_KEY, tab)
+  } catch {
+    // Keep tab switching available when storage is unavailable.
+  }
+}
+
+const activeTab = ref<ClassmatesTab>(readStoredActiveTab())
 const loading = ref(true)
 const loadError = ref(false)
 const showManager = ref(false)
@@ -302,9 +322,10 @@ async function loadPageData() {
   }
 }
 
-function setActiveTab(tab: 'feed' | 'leaderboard') {
+function setActiveTab(tab: ClassmatesTab) {
   showLearningPowerHelp.value = false
   activeTab.value = tab
+  storeActiveTab(tab)
   if (tab === 'leaderboard') trackAnalyticsEvent('leaderboard_view', { source: 'classmates_page' })
 }
 
