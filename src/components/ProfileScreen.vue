@@ -183,7 +183,6 @@ import { computed, onMounted, ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { flushPracticeCloudSync, usePracticeSession } from '@/app/usePracticeSession'
 import { useVisualTheme } from '@/app/useVisualTheme'
-import { flushCloudSyncOnForeground } from '@/core/cloudSyncPolicy'
 import { readLocalProgressSnapshot } from '@/core/progressMerge'
 import TabBottomNav from '@/components/TabBottomNav.vue'
 import { flushStudyEvents, getCachedDashboard, refreshDashboard, setCachedDashboard } from '@/core/studyStats'
@@ -453,7 +452,6 @@ async function syncProgress() {
   if (syncing.value) return
   syncing.value = true
   try {
-    flushCloudSyncOnForeground(true)
     await flushStudyEvents()
     await flushPracticeCloudSync()
     dashboard.value = await refreshDashboard()

@@ -4,6 +4,7 @@ import { userProgress, userWeakWordHistory, users } from "../db/schema.js";
 import { generateNickname, shouldGenerateDefaultNickname } from "../lib/nickname.js";
 import {
   emptyProgress,
+  mergeProgressForSave,
   serializeProgress,
   type ProgressSnapshot,
 } from "../lib/utils.js";
@@ -98,25 +99,34 @@ export async function getProgress(userId: string): Promise<ProgressSnapshot> {
 
 export async function saveProgress(userId: string, snapshot: ProgressSnapshot) {
   const now = new Date();
-  const updatedAt = snapshot.updatedAt ? new Date(snapshot.updatedAt) : now;
   const row = await db.transaction(async (tx) => {
+    const [existingRow] = await tx
+      .select()
+      .from(userProgress)
+      .where(eq(userProgress.userId, userId))
+      .limit(1);
+    const savedSnapshot = existingRow
+      ? mergeProgressForSave(serializeProgress(existingRow), snapshot)
+      : snapshot;
+    const updatedAt = savedSnapshot.updatedAt ? new Date(savedSnapshot.updatedAt) : now;
+
     const [saved] = await tx
       .insert(userProgress)
       .values({
         userId,
-        masteredWordIds: snapshot.masteredWordIds,
-        savedWeakWordIds: snapshot.savedWeakWordIds,
-        selectedUnitId: snapshot.selectedUnitId,
-        courseSetupCompleted: snapshot.courseSetupCompleted,
+        masteredWordIds: savedSnapshot.masteredWordIds,
+        savedWeakWordIds: savedSnapshot.savedWeakWordIds,
+        selectedUnitId: savedSnapshot.selectedUnitId,
+        courseSetupCompleted: savedSnapshot.courseSetupCompleted,
         updatedAt,
       })
       .onConflictDoUpdate({
         target: userProgress.userId,
         set: {
-          masteredWordIds: snapshot.masteredWordIds,
-          savedWeakWordIds: snapshot.savedWeakWordIds,
-          selectedUnitId: snapshot.selectedUnitId,
-          courseSetupCompleted: snapshot.courseSetupCompleted,
+          masteredWordIds: savedSnapshot.masteredWordIds,
+          savedWeakWordIds: savedSnapshot.savedWeakWordIds,
+          selectedUnitId: savedSnapshot.selectedUnitId,
+          courseSetupCompleted: savedSnapshot.courseSetupCompleted,
           updatedAt,
         },
       })

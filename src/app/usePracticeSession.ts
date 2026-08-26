@@ -4,11 +4,11 @@ import {
   readLocalProgressSnapshot,
   writeLocalProgressSnapshot
 } from '@/core/progressMerge'
-import { flushProgressUpload, markProgressDirty, scheduleProgressUpload } from '@/core/progressSync'
+import { flushProgressUpload, markProgressDirty, pullRemoteProgress, scheduleProgressUpload } from '@/core/progressSync'
 import { flushCloudSyncOnForeground } from '@/core/cloudSyncPolicy'
 import { queueStudyWordIds, setCachedDashboard } from '@/core/studyStats'
 import { trackAnalyticsEvent } from '@/core/analytics'
-import { ensureUserSession, markProgressUpdatedAt } from '@/core/userSession'
+import { ensureUserSession, markProgressUpdatedAt, type ProgressSnapshot } from '@/core/userSession'
 import { getDictationAudioUrl, getDictationPromptLabel, hasPlayableDictationAudio } from '@/core/audio'
 import { loadTodayDictationWordCount, recordTodayDictationWords } from '@/core/dailyDictationProgress'
 import {
@@ -900,6 +900,19 @@ export function createPracticeSession(initialWords: WordEntry[]) {
     selectedUnitId.value = getDefaultUnit(units.value)?.unitId ?? ''
   }
 
+  function adoptProgress(snapshot: ProgressSnapshot) {
+    masteredWordIds.value = Array.from(new Set(snapshot.masteredWordIds))
+    savedWeakWordIds.value = Array.from(new Set(snapshot.savedWeakWordIds))
+    courseSetupCompleted.value = snapshot.courseSetupCompleted
+
+    if (!snapshot.selectedUnitId) return
+
+    syncCourseSetupDraftFromManifestUnit(snapshot.selectedUnitId)
+    if (findUnit(units.value, snapshot.selectedUnitId)) {
+      selectedUnitId.value = snapshot.selectedUnitId
+    }
+  }
+
   function setSelectedSchoolStageByIndex(index: number) {
     const stage = schoolStageOptions.value[index]
     const next = units.value.find(unit => inferSchoolStage(unit) === stage)
@@ -1706,6 +1719,7 @@ export function createPracticeSession(initialWords: WordEntry[]) {
 
   return {
     activeWords,
+    adoptProgress,
     adoptWords,
     checkupAnswers,
     checkupIndex,
@@ -1874,15 +1888,36 @@ let pendingScreenAfterRemount: AppScreen | null = null
 const STARTUP_WORDBANK_REFRESH_DELAY_MS = 3000
 const STARTUP_CLOUD_SYNC_DELAY_MS = 1500
 
-function attachPracticeSessionCloudSync() {
+function progressContentMatches(left: ProgressSnapshot, right: ProgressSnapshot): boolean {
+  const sameIds = (leftIds: string[], rightIds: string[]) => {
+    if (leftIds.length !== rightIds.length) return false
+    const rightSet = new Set(rightIds)
+    return leftIds.every(id => rightSet.has(id))
+  }
+
+  return sameIds(left.masteredWordIds, right.masteredWordIds)
+    && sameIds(left.savedWeakWordIds, right.savedWeakWordIds)
+    && left.selectedUnitId === right.selectedUnitId
+    && left.courseSetupCompleted === right.courseSetupCompleted
+}
+
+function applyCloudProgress(session: PracticeSession, remote: ProgressSnapshot) {
+  const merged = mergeProgress(readLocalProgressSnapshot(), remote)
+  writeLocalProgressSnapshot(merged)
+  session.adoptProgress(merged)
+  markProgressUpdatedAt(merged.updatedAt)
+
+  if (!progressContentMatches(merged, remote)) {
+    scheduleProgressUpload(merged, 300)
+  }
+}
+
+function attachPracticeSessionCloudSync(session: PracticeSession) {
   void ensureUserSession().then((sessionPayload) => {
     if (!sessionPayload) return
 
-    const merged = mergeProgress(readLocalProgressSnapshot(), sessionPayload.progress)
-    writeLocalProgressSnapshot(merged)
-    markProgressUpdatedAt(merged.updatedAt)
+    applyCloudProgress(session, sessionPayload.progress)
     setCachedDashboard(sessionPayload.dashboard)
-    scheduleProgressUpload(merged, 300)
   })
 }
 
@@ -2032,7 +2067,7 @@ export async function ensurePracticeSessionReady(): Promise<PracticeSession> {
 
       practiceSession = createPracticeSession(words)
 
-      attachPracticeSessionCloudSync()
+      attachPracticeSessionCloudSync(practiceSession)
 
       return practiceSession
     })()
@@ -2040,8 +2075,16 @@ export async function ensurePracticeSessionReady(): Promise<PracticeSession> {
   return sessionInitPromise
 }
 
-export function flushPracticeCloudSync(): Promise<void> {
-  return flushProgressUpload()
+export async function flushPracticeCloudSync(): Promise<void> {
+  const session = practiceSession ?? await ensurePracticeSessionReady()
+  const sessionPayload = await ensureUserSession()
+  const remote = await pullRemoteProgress() ?? sessionPayload?.progress ?? null
+
+  if (remote) {
+    applyCloudProgress(session, remote)
+  }
+
+  await flushProgressUpload()
 }
 
 export function isPracticeSessionReady(): boolean {

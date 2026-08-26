@@ -187,6 +187,25 @@ describe('practice session dictation navigation', () => {
     expect(restoredSession.todayDictationWordCount.value).toBe(completedWordCount)
   })
 
+  it('updates the mounted session immediately when cloud progress arrives', async () => {
+    const session = await openSession()
+    const masteredWord = session.unitWords.value[0]
+    if (!masteredWord) return
+
+    expect(session.masteredUnitWordCount.value).toBe(0)
+    session.adoptProgress({
+      masteredWordIds: [masteredWord.id],
+      savedWeakWordIds: [],
+      selectedUnitId: masteredWord.unitId,
+      courseSetupCompleted: true,
+      updatedAt: new Date().toISOString()
+    })
+
+    expect(session.masteredUnitWordCount.value).toBe(1)
+    expect(session.courseSetupUnitOptions.value.find(unit => unit.id === masteredWord.unitId)?.masteryPercent)
+      .toBeGreaterThan(0)
+  })
+
   it('restores unfinished progress after the session is recreated', async () => {
     const firstSession = await openSession()
     firstSession.openDictationSetup()

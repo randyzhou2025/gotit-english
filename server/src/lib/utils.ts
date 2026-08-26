@@ -41,6 +41,32 @@ export function emptyProgress(): ProgressSnapshot {
   };
 }
 
+/**
+ * Preserve words omitted by a partial/stale client snapshot while still allowing
+ * an incoming mastered/weak status to replace the previous status.
+ */
+export function mergeProgressForSave(
+  existing: ProgressSnapshot,
+  incoming: ProgressSnapshot
+): ProgressSnapshot {
+  const incomingMastered = new Set(uniqueWordIds(incoming.masteredWordIds));
+  const incomingWeak = new Set(uniqueWordIds(incoming.savedWeakWordIds));
+
+  return {
+    masteredWordIds: uniqueWordIds([
+      ...existing.masteredWordIds.filter((id) => !incomingWeak.has(id)),
+      ...incomingMastered,
+    ]),
+    savedWeakWordIds: uniqueWordIds([
+      ...existing.savedWeakWordIds.filter((id) => !incomingMastered.has(id)),
+      ...incomingWeak,
+    ]),
+    selectedUnitId: incoming.selectedUnitId || existing.selectedUnitId,
+    courseSetupCompleted: existing.courseSetupCompleted || incoming.courseSetupCompleted,
+    updatedAt: incoming.updatedAt || existing.updatedAt,
+  };
+}
+
 export function maskOpenId(openid: string): string {
   if (openid.length <= 8) return "***";
   return `${openid.slice(0, 4)}***${openid.slice(-4)}`;

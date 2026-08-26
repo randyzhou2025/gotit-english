@@ -21,7 +21,7 @@ async function putProgress(snapshot: ProgressSnapshot): Promise<void> {
   const baseUrl = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '')
   if (!baseUrl) return
 
-  await uni.request({
+  const response = await uni.request({
     url: `${baseUrl}/api/user/progress`,
     method: 'PUT',
     header: {
@@ -30,6 +30,11 @@ async function putProgress(snapshot: ProgressSnapshot): Promise<void> {
     },
     data: snapshot
   })
+
+  const statusCode = response.statusCode ?? 0
+  if (statusCode < 200 || statusCode >= 300) {
+    throw new Error(`Progress upload failed (${statusCode})`)
+  }
 }
 
 function resolvePendingSnapshot(): ProgressSnapshot {
@@ -122,7 +127,6 @@ export function flushProgressUpload(): Promise<void> {
       // ignore
     }
   }
-  uploadDirty = true
   return flushPendingUpload()
 }
 
