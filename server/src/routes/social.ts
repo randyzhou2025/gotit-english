@@ -10,6 +10,7 @@ import {
   recordDictationCompletion,
   recordDictationWordCompletion,
   recordMistakeReviews,
+  recordWordlistExport,
   removeClassmate,
   toggleFeedCheer,
 } from "../services/social.js";
@@ -46,6 +47,11 @@ const dictationWordCompletionSchema = z.object({
 const mistakeReviewSchema = z.object({
   reviewSessionId: z.string().trim().min(8).max(128),
   wordIds: z.array(z.string().trim().min(1).max(160)).min(1).max(100),
+});
+
+const wordlistExportSchema = z.object({
+  exportId: z.string().trim().min(8).max(128),
+  unitId: z.string().trim().min(1).max(128).optional(),
 });
 
 export async function registerSocialRoutes(
@@ -98,6 +104,13 @@ export async function registerSocialRoutes(
     if (!parsed.success) throw app.httpErrors.badRequest("Invalid review result payload");
     const jwtUser = request.user as { sub: string };
     return recordMistakeReviews(jwtUser.sub, parsed.data);
+  });
+
+  app.post("/api/learning-power/wordlist-exports", { preHandler: [authenticate] }, async (request: FastifyRequest) => {
+    const parsed = wordlistExportSchema.safeParse(request.body ?? {});
+    if (!parsed.success) throw app.httpErrors.badRequest("Invalid wordlist export payload");
+    const jwtUser = request.user as { sub: string };
+    return recordWordlistExport(jwtUser.sub, parsed.data);
   });
 
   app.get("/api/classmates/feed", { preHandler: [authenticate] }, async (request: FastifyRequest) => {

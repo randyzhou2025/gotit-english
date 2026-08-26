@@ -103,6 +103,7 @@ import {
 import { useVisualTheme } from '@/app/useVisualTheme'
 import { useWeappShare } from '@/app/useWeappShare'
 import { trackAnalyticsEvent } from '@/core/analytics'
+import { submitWordlistExport } from '@/core/classmates'
 import type { WordEntry } from '@/core/types'
 import {
   WORDLIST_BUFFER_HEIGHT,
@@ -370,6 +371,12 @@ async function exportPdf() {
     }
     exportProgress.value = '正在打开 PDF…'
     await writeAndOpenPdf(imagePaths)
+    void submitWordlistExport({
+      exportId: `export-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`,
+      unitId: unit?.unitId
+    }).catch(error => {
+      console.warn('[wordlist-export] learning power submission failed', error)
+    })
   } catch (error) {
     console.error('[wordlist-export] PDF export failed', error)
     uni.showToast({

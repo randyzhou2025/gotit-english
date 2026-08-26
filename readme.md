@@ -90,6 +90,20 @@ CREATE INDEX IF NOT EXISTS usage_events_user_event_idx
 "
 ```
 
+### 导出词表学习力迁移
+
+导出词表每次 +2、每日最多 +20。已有社交表的生产环境须先执行迁移，再重建 API；新环境先执行 `server/drizzle/0000_social_learning_power.sql`，再执行此迁移。SQL 可重复执行，原有记录的导出得分默认为 0。
+
+```bash
+docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T gotit_postgres \
+  pg_dump -U gotit -d gotit > "gotit-before-wordlist-export-$(date +%Y%m%d-%H%M%S).sql"
+
+docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T gotit_postgres \
+  psql -U gotit -d gotit -v ON_ERROR_STOP=1 < server/drizzle/0001_wordlist_export_learning_power.sql
+
+docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build gotit_api
+```
+
 ### 验证 API
 
 ```bash

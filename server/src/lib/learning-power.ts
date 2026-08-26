@@ -6,6 +6,7 @@ export const LEARNING_POWER_LIMITS = {
   dailyBonus: 10,
   streak: 5,
   mistakeReview: 20,
+  wordlistExport: 20,
 } as const;
 
 export type LearningPowerEventType =
@@ -14,7 +15,8 @@ export type LearningPowerEventType =
   | "VALID_DICTATION"
   | "DAILY_BONUS"
   | "STREAK_BONUS"
-  | "MISTAKE_REVIEW";
+  | "MISTAKE_REVIEW"
+  | "WORDLIST_EXPORT";
 
 export interface ShanghaiWeekContext {
   dateKey: string;
@@ -103,6 +105,7 @@ export function learningPowerUniqueKey(input: {
   weekKey: string;
   wordId?: string;
   sessionId?: string;
+  exportId?: string;
 }): string {
   switch (input.type) {
     case "APP_OPEN":
@@ -117,5 +120,7 @@ export function learningPowerUniqueKey(input: {
       return `STREAK_BONUS:${input.userId}:${input.dateKey.replaceAll("-", "")}`;
     case "MISTAKE_REVIEW":
       return `MISTAKE_REVIEW:${input.userId}:${input.wordId ?? ""}:${input.dateKey.replaceAll("-", "")}`;
+    case "WORDLIST_EXPORT":
+      return `WORDLIST_EXPORT:${input.userId}:${input.exportId ?? ""}`;
   }
 }

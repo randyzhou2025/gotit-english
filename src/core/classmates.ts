@@ -156,6 +156,14 @@ export async function submitMistakeReviews(input: {
   return apiRequest('/api/learning-power/reviews', { method: 'POST', body: input })
 }
 
+export async function submitWordlistExport(input: {
+  exportId: string
+  unitId?: string
+}): Promise<{ duplicate: boolean; earned: number; weekKey: string } | null> {
+  if (!(await ensureAuthenticatedApi())) return null
+  return apiRequest('/api/learning-power/wordlist-exports', { method: 'POST', body: input })
+}
+
 export async function fetchClassmateFeed(): Promise<{ classmateCount: number; items: FeedItem[] }> {
   if (!(await ensureAuthenticatedApi())) return { classmateCount: 0, items: [] }
   return apiRequest('/api/classmates/feed')

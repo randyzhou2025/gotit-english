@@ -80,7 +80,7 @@
 
     <template v-else>
       <view class="unitEggFocus">
-        <text class="unitEggKeyword">{{ focusWord }}</text>
+        <text class="unitEggKeyword"><template v-for="(part, index) in focusParts" :key="index"><text v-if="part.trim()" class="unitEggFocusToken">{{ part }}</text><text v-else>{{ part }}</text></template></text>
         <text v-if="focusMeta" class="unitEggFocusMeta">{{ focusMeta }}</text>
       </view>
       <text class="unitEggNote">{{ noteText }}</text>
@@ -167,6 +167,8 @@ const focusWord = computed(() => {
   return props.egg.core || props.egg.keyword
 })
 
+const focusParts = computed(() => focusWord.value.split(/(\s+)/))
+
 const focusMeta = computed(() => {
   if (props.egg.template !== 'H') return ''
   return props.egg.core.replace(new RegExp(`^${escapeRegExp(props.egg.keyword)}[：:]?\\s*`, 'i'), '').trim()
@@ -206,7 +208,7 @@ const isDense = computed(() => {
 })
 
 const showOrnament = computed(() => {
-  if (!['C', 'D', 'F', 'H'].includes(props.egg.template)) return false
+  if (!['C', 'D', 'H'].includes(props.egg.template)) return false
   return props.egg.core.length + noteText.value.length < 58
 })
 </script>
@@ -436,6 +438,15 @@ const showOrnament = computed(() => {
   overflow-wrap: break-word;
   line-height: 1.18;
   white-space: normal;
+  word-break: break-word;
+}
+
+.unitEggFocusToken {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: bottom;
+  white-space: normal;
+  overflow-wrap: break-word;
   word-break: break-word;
 }
 

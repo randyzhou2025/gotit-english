@@ -1,18 +1,19 @@
 <template>
+  <page-meta page-style="overflow: visible;" />
   <view class="classmatesScreen hasBottomNav" :style="activeVisualThemeStyle" @tap="closeLearningPowerHelp">
-    <view class="classmatesChrome">
-      <text class="classmatesTitle">同学</text>
+    <view class="classmatesChrome" :style="classmatesChromeStyle">
+      <view class="classmatesNav"><text class="classmatesTitle">同学</text></view>
       <view class="classmatesTabs">
         <view :class="['classmatesTab', activeTab === 'feed' && 'isActive']" @tap="setActiveTab('feed')">
           <text>同学动态</text>
         </view>
         <view :class="['classmatesTab', activeTab === 'leaderboard' && 'isActive']" @tap="setActiveTab('leaderboard')">
-          <text>排行榜</text>
+          <text>全国排行榜</text>
         </view>
       </view>
     </view>
 
-    <scroll-view scroll-y class="classmatesScroll" :show-scrollbar="false">
+    <view class="classmatesContent">
       <view v-if="loading" class="classmatesLoading">
         <view class="skeletonLine isTitle" />
         <view class="skeletonCard" />
@@ -102,9 +103,9 @@
       <template v-else>
         <view class="leaderboardHeader">
           <view>
-            <text class="leaderboardTitle">本周排行榜</text>
+            <text class="leaderboardTitle">本周 Top 10</text>
             <view class="learningPowerHelpAnchor" @tap.stop>
-              <text class="leaderboardMeta">按本周学习力排名</text>
+              <text class="leaderboardMeta">按本周学习力排名 · 仅展示前10名</text>
               <view
                 v-if="learningPowerHelpEnabled"
                 class="learningPowerHelpButton"
@@ -121,6 +122,7 @@
                 <text class="learningPowerHelpRule">当天首次有效听写：额外 +10</text>
                 <text class="learningPowerHelpRule">连续打开：从第 2 天起，每天 +5</text>
                 <text class="learningPowerHelpRule">错词听写或标记认识：每词 +1，每日最多 20</text>
+                <text class="learningPowerHelpRule">成功导出词表：每次 +2，每日最多 20</text>
               </view>
             </view>
           </view>
@@ -132,31 +134,48 @@
             :key="entry.userId"
             :class="['podiumEntry', `rank${entry.rank}`, entry.isMe && 'isMe']"
           >
-            <view class="podiumMedal" :aria-label="`第${entry.rank}名奖牌`">
-              <view class="podiumMedalRibbons">
-                <view class="podiumMedalRibbon isLeft" />
-                <view class="podiumMedalRibbon isRight" />
+            <view class="podiumPortrait">
+              <view v-if="entry.rank === 1" class="championLaurel" aria-hidden="true">
+                <view class="laurelBranch isLeft">
+                  <view v-for="leaf in 7" :key="leaf" :class="['laurelLeaf', `leaf${leaf}`]" />
+                </view>
+                <view class="laurelBranch isRight">
+                  <view v-for="leaf in 7" :key="leaf" :class="['laurelLeaf', `leaf${leaf}`]" />
+                </view>
               </view>
-              <view class="podiumMedalDisc"><text>{{ entry.rank }}</text></view>
+              <view class="podiumAvatar">
+                <image v-if="entry.avatarUrl" class="avatarImage" :src="entry.avatarUrl" mode="aspectFill" />
+                <text v-else>{{ avatarInitial(entry.nickname) }}</text>
+              </view>
+              <view class="podiumMedal" :aria-label="`第${entry.rank}名奖牌`">
+                <view class="podiumMedalRibbons">
+                  <view class="podiumMedalRibbon isLeft" />
+                  <view class="podiumMedalRibbon isRight" />
+                </view>
+                <view class="podiumMedalDisc"><text>{{ entry.rank }}</text></view>
+              </view>
             </view>
-            <view class="podiumAvatar">
-              <image v-if="entry.avatarUrl" class="avatarImage" :src="entry.avatarUrl" mode="aspectFill" />
-              <text v-else>{{ avatarInitial(entry.nickname) }}</text>
+            <view class="podiumNameRow">
+              <text class="podiumName">{{ entry.nickname }}</text>
+              <text v-if="entry.isMe" class="meTag">我</text>
             </view>
-            <text class="podiumName">{{ entry.nickname }}<template v-if="entry.isMe"> · 我</template></text>
             <text class="podiumPower">{{ entry.learningPower }}</text>
             <text class="podiumUnit">学习力</text>
           </view>
         </view>
 
         <view v-if="regularRanking.length > 0" class="rankingList">
+          <view class="rankingListHeader"><text>排名</text><text>学习力</text></view>
           <view v-for="entry in regularRanking" :key="entry.userId" :class="['rankingRow', entry.isMe && 'isMe']">
             <text class="rankingIndex">{{ String(entry.rank).padStart(2, '0') }}</text>
             <view class="avatar isRanking">
               <image v-if="entry.avatarUrl" class="avatarImage" :src="entry.avatarUrl" mode="aspectFill" />
               <text v-else>{{ avatarInitial(entry.nickname) }}</text>
             </view>
-            <text class="rankingName">{{ entry.nickname }}<template v-if="entry.isMe"> · 我</template></text>
+            <view class="rankingNameWrap">
+              <text class="rankingName">{{ entry.nickname }}</text>
+              <text v-if="entry.isMe" class="meTag">我</text>
+            </view>
             <text class="rankingPower">{{ entry.learningPower }}</text>
           </view>
         </view>
@@ -165,8 +184,14 @@
           <text class="sectionHeading">我的排名</text>
           <view class="rankingRow isMe">
             <text class="rankingIndex">{{ leaderboard.myEntry.rank }}</text>
-            <view class="avatar isRanking"><text>{{ avatarInitial(leaderboard.myEntry.nickname) }}</text></view>
-            <text class="rankingName">{{ leaderboard.myEntry.nickname }} · 我</text>
+            <view class="avatar isRanking">
+              <image v-if="leaderboard.myEntry.avatarUrl" class="avatarImage" :src="leaderboard.myEntry.avatarUrl" mode="aspectFill" />
+              <text v-else>{{ avatarInitial(leaderboard.myEntry.nickname) }}</text>
+            </view>
+            <view class="rankingNameWrap">
+              <text class="rankingName">{{ leaderboard.myEntry.nickname }}</text>
+              <text class="meTag">我</text>
+            </view>
             <text class="rankingPower">{{ leaderboard.myEntry.learningPower }}</text>
           </view>
         </view>
@@ -185,13 +210,19 @@
         </view>
 
         <!-- #ifdef MP-WEIXIN -->
-        <button class="leaderboardInvite" open-type="share" hover-class="buttonPressed" @tap="trackClassmateInviteClick('leaderboard')"><text>邀请同学一起学</text></button>
+        <button class="leaderboardInvite" open-type="share" hover-class="buttonPressed" @tap="trackClassmateInviteClick('leaderboard')">
+          <view class="leaderboardInviteIcon" aria-hidden="true"><view class="invitePerson" /><view class="invitePlus" /></view>
+          <text>邀请同学一起学</text>
+        </button>
         <!-- #endif -->
         <!-- #ifndef MP-WEIXIN -->
-        <view class="leaderboardInvite" @tap="showShareHint('leaderboard')"><text>邀请同学一起学</text></view>
+        <view class="leaderboardInvite" hover-class="buttonPressed" @tap="showShareHint('leaderboard')">
+          <view class="leaderboardInviteIcon" aria-hidden="true"><view class="invitePerson" /><view class="invitePlus" /></view>
+          <text>邀请同学一起学</text>
+        </view>
         <!-- #endif -->
       </template>
-    </scroll-view>
+    </view>
 
     <TabBottomNav active="classmates" :weakbook-count="savedWeakWords.length" />
   </view>
@@ -258,6 +289,33 @@ const classmates = ref<ClassmateSummary[]>([])
 const leaderboard = ref<LeaderboardSnapshot>({ ...EMPTY_LEADERBOARD })
 const preparedShare = ref<ShareDescriptor | null>(null)
 const { activeVisualThemeStyle } = useVisualTheme()
+const miniProgramCapsuleTop = ref(44)
+const miniProgramCapsuleHeight = ref(32)
+const classmatesChromeStyle = computed(() => {
+  let style = ''
+  // #ifdef MP-WEIXIN
+  style = `padding-top: ${miniProgramCapsuleTop.value}px; --capsule-h: ${miniProgramCapsuleHeight.value}px;`
+  // #endif
+  return style
+})
+
+function updateMiniProgramNavInset() {
+  // #ifdef MP-WEIXIN
+  try {
+    const statusBarHeight = Number(uni.getWindowInfo?.().statusBarHeight) || 0
+    miniProgramCapsuleTop.value = statusBarHeight > 0 ? statusBarHeight + 4 : 44
+    const menuButton = uni.getMenuButtonBoundingClientRect?.()
+    if (menuButton && menuButton.top > 0) {
+      miniProgramCapsuleTop.value = Math.max(menuButton.top, statusBarHeight)
+      miniProgramCapsuleHeight.value = menuButton.height > 0 ? menuButton.height : 32
+    }
+  } catch {
+    // Keep the status-bar or default inset when native metrics are unavailable.
+  }
+  // #endif
+}
+
+updateMiniProgramNavInset()
 const selectedUnit = shallowRef<UnitGroup>()
 const savedWeakWords = shallowRef<WordEntry[]>([])
 let pageSessionPromise: Promise<void> | null = null
@@ -424,15 +482,19 @@ onMounted(() => {
   })
 })
 onShow(() => {
+  uni.hideTabBar({ animation: false })
+  updateMiniProgramNavInset()
   void ensurePageSession().then(loadPageData)
 })
 </script>
 
 <style scoped lang="scss">
 .classmatesScreen {
+  box-sizing: border-box;
   min-height: 100vh;
   min-height: 100dvh;
   background: var(--page-bg);
+  background-image: linear-gradient(var(--surface), var(--surface));
   color: var(--ink);
 }
 
@@ -442,20 +504,20 @@ onShow(() => {
   position: sticky;
   top: 0;
   z-index: 10;
-  padding: calc(14px + env(safe-area-inset-top)) 20px 0;
+  padding: calc(8px + env(safe-area-inset-top)) 20px 0;
   border-bottom: 1px solid var(--line);
-  background: var(--theme-chrome);
-  backdrop-filter: blur(18px);
+  background: var(--page-bg);
+  background-image: linear-gradient(var(--surface), var(--surface));
 }
 
-.classmatesTitle { display: block; font-size: 26px; line-height: 1.2; font-weight: 950; }
+.classmatesNav { display: flex; align-items: center; justify-content: center; height: var(--capsule-h, 32px); }
+.classmatesTitle { display: block; color: var(--ink); font-size: 18px; line-height: 1.4; font-weight: 800; letter-spacing: 0.02em; text-align: center; }
 .classmatesTabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 12px; }
-.classmatesTab { position: relative; display: flex; justify-content: center; padding: 11px 8px 13px; color: var(--muted); font-size: 14px; font-weight: 800; }
-.classmatesTab.isActive { color: var(--accent); }
-.classmatesTab.isActive::after { position: absolute; right: 28%; bottom: 0; left: 28%; height: 3px; border-radius: 999px; background: var(--accent); content: ''; }
+.classmatesTab { position: relative; display: flex; justify-content: center; padding: 13px 8px; color: var(--muted); font-size: 14px; line-height: 20px; font-weight: 500; }
+.classmatesTab.isActive { color: var(--accent); font-weight: 650; }
+.classmatesTab.isActive::after { position: absolute; bottom: 0; left: 50%; width: 44px; height: 2px; border-radius: 999px; background: var(--accent); transform: translateX(-50%); content: ''; }
 
-.classmatesScroll { height: calc(100vh - 128px - env(safe-area-inset-top)); height: calc(100dvh - 128px - env(safe-area-inset-top)); }
-.classmatesScroll :deep(.uni-scroll-view-content) { box-sizing: border-box; padding: 18px 18px 34px; }
+.classmatesContent { box-sizing: border-box; padding: 18px 18px 34px; }
 
 .inviteCard, .classmateManager, .feedList, .rankingList, .myRankSection, .overtakeCard, .classmatesState, .podium {
   border: 1px solid var(--line);
@@ -489,7 +551,7 @@ onShow(() => {
 .feedItem + .feedItem { border-top: 1px solid var(--line); }
 .avatar, .podiumAvatar { display: flex; flex: 0 0 auto; align-items: center; justify-content: center; overflow: hidden; width: 42px; height: 42px; border: 2px solid var(--accent-soft); border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-size: 16px; font-weight: 900; }
 .avatar.isSmall { width: 34px; height: 34px; font-size: 13px; }
-.avatar.isRanking { width: 36px; height: 36px; font-size: 13px; }
+.avatar.isRanking { box-sizing: border-box; width: 32px; height: 32px; border: 0; font-size: 14px; font-weight: 500; }
 .avatarImage { width: 100%; height: 100%; }
 .feedBody { flex: 1 1 auto; min-width: 0; }
 .feedTopline { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
@@ -510,49 +572,82 @@ onShow(() => {
 .emptyPerson.isLeft { left: 7px; }
 .emptyPerson.isRight { right: 7px; background: var(--surface); }
 
-.leaderboardHeader { padding: 2px 2px 14px; }
-.leaderboardTitle { display: block; font-size: 22px; font-weight: 950; }
-.learningPowerHelpAnchor { position: relative; display: inline-flex; align-items: center; margin-top: 4px; gap: 5px; }
-.leaderboardMeta { color: var(--muted); font-size: 12px; font-weight: 650; }
+.leaderboardHeader { padding: 6px 2px 20px; }
+.leaderboardTitle { display: block; font-size: 24px; line-height: 1.3; font-weight: 650; letter-spacing: -0.5px; }
+.learningPowerHelpAnchor { position: relative; display: inline-flex; align-items: center; margin-top: 6px; gap: 5px; }
+.leaderboardMeta { color: var(--ink-soft); font-size: 11px; line-height: 1.5; font-weight: 400; }
 .learningPowerHelpButton { display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; border: 1px solid var(--muted); border-radius: 50%; color: var(--muted); font-size: 11px; line-height: 1; font-weight: 900; }
 .learningPowerHelpPopover { position: absolute; top: 26px; left: 0; z-index: 6; box-sizing: border-box; display: flex; flex-direction: column; width: 292px; max-width: calc(100vw - 40px); padding: 13px 14px; border: 1px solid #bdd5c9; border-radius: 13px; background: #fffdf8; box-shadow: 0 12px 30px rgba(23, 52, 44, 0.16); }
 .learningPowerHelpTitle { margin-bottom: 7px; color: var(--ink); font-size: 13px; line-height: 1.3; font-weight: 900; }
 .learningPowerHelpRule { color: var(--ink-soft); font-size: 11px; line-height: 1.65; font-weight: 650; }
-.podium { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: end; min-height: 214px; padding: 18px 10px 14px; background: linear-gradient(180deg, #fff9ec, var(--surface)); }
-.podiumEntry { display: flex; flex-direction: column; align-items: center; min-width: 0; }
-.podiumEntry.rank1 { order: 2; transform: translateY(-16px); }
-.podiumEntry.rank2 { order: 1; }
-.podiumEntry.rank3 { order: 3; }
-.podiumMedal { position: relative; width: 38px; height: 46px; margin-bottom: 8px; }
-.podiumMedalRibbons { position: absolute; top: 0; left: 6px; display: flex; width: 26px; height: 23px; }
-.podiumMedalRibbon { width: 13px; height: 23px; background: #8d9b97; }
-.podiumMedalRibbon.isLeft { transform: rotate(8deg); transform-origin: top right; }
-.podiumMedalRibbon.isRight { transform: rotate(-8deg); transform-origin: top left; }
-.podiumMedalDisc { position: absolute; bottom: 0; left: 2px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 34px; height: 34px; border: 3px solid #aeb7b4; border-radius: 50%; background: linear-gradient(145deg, #f7faf9, #bdc7c4); color: #5e6966; box-shadow: 0 3px 8px rgba(44, 57, 53, 0.16); font-size: 13px; font-weight: 950; }
-.rank1 .podiumMedalRibbon { background: #b88c20; }
-.rank1 .podiumMedalDisc { border-color: #c79621; background: linear-gradient(145deg, #fff1ae, #d6a328); color: #76530a; }
-.rank2 .podiumMedalRibbon { background: #899592; }
-.rank2 .podiumMedalDisc { border-color: #9aa5a2; background: linear-gradient(145deg, #f8fbfa, #b7c1be); color: #58625f; }
-.rank3 .podiumMedalRibbon { background: #a66b45; }
-.rank3 .podiumMedalDisc { border-color: #a96840; background: linear-gradient(145deg, #efc2a0, #b87750); color: #6f3d21; }
-.podiumAvatar { width: 54px; height: 54px; border: 3px solid #bfc6c3; background: #eef1ef; }
-.rank1 .podiumAvatar { width: 66px; height: 66px; border-color: #d5b66b; box-shadow: 0 0 20px rgba(213, 182, 107, 0.2); }
-.rank3 .podiumAvatar { border-color: #bd8f72; }
-.podiumName { overflow: hidden; max-width: 92px; margin-top: 8px; font-size: 12px; font-weight: 850; text-overflow: ellipsis; white-space: nowrap; }
-.podiumPower { margin-top: 5px; color: var(--ink); font-size: 23px; line-height: 1; font-weight: 950; }
-.podiumUnit { margin-top: 3px; color: var(--muted); font-size: 9px; font-weight: 650; }
-.rankingList { overflow: hidden; margin-top: 14px; }
-.rankingRow { display: flex; align-items: center; min-height: 58px; padding: 0 14px; }
-.rankingRow + .rankingRow { border-top: 1px solid var(--line); }
+.podium { box-sizing: border-box; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: end; min-height: 228px; padding: 22px 12px 20px; border-radius: 20px; box-shadow: none; background: radial-gradient(ellipse at 50% 20%, rgba(238, 214, 152, 0.14), transparent 62%), var(--surface); }
+.podiumEntry { --medal-edge: #b5c3c2; --medal-fill: linear-gradient(145deg, #fbfdfd 5%, #d8e1e0 46%, #a1b2b1 100%); --medal-ink: #4c6564; --medal-ribbon: #a4b9b4; display: flex; flex-direction: column; align-items: center; grid-row: 1; min-width: 0; }
+.podiumEntry.rank1 { --medal-edge: #d4ad55; --medal-fill: linear-gradient(145deg, #fff6cc 5%, #efd284 46%, #c49736 100%); --medal-ink: #785715; --medal-ribbon: #83a794; grid-column: 2; padding-bottom: 18px; }
+.podiumEntry.rank2 { grid-column: 1; }
+.podiumEntry.rank3 { --medal-edge: #c89d7c; --medal-fill: linear-gradient(145deg, #fce9d8 5%, #e6bd99 46%, #ba8159 100%); --medal-ink: #7b4b2c; --medal-ribbon: #c8a58b; grid-column: 3; }
+.podiumPortrait { position: relative; display: flex; justify-content: center; width: 100%; height: 82px; }
+.rank1 .podiumPortrait { height: 102px; }
+.podiumAvatar { position: relative; z-index: 1; box-sizing: border-box; width: 60px; height: 60px; padding: 3px; border: 1.5px solid var(--medal-edge); background: var(--accent-soft); color: var(--ink-soft); font-size: 23px; font-weight: 500; box-shadow: inset 0 0 0 3px var(--surface); }
+.podiumAvatar .avatarImage { border-radius: 50%; }
+.rank1 .podiumAvatar { width: 78px; height: 78px; border-width: 2px; }
+.podiumMedal { position: absolute; top: 47px; left: 50%; z-index: 2; width: 26px; height: 33px; transform: translateX(-50%); }
+.rank1 .podiumMedal { top: 64px; width: 29px; height: 36px; }
+.podiumMedalRibbons { position: absolute; right: 5px; bottom: 0; left: 5px; display: flex; justify-content: space-between; height: 15px; }
+.podiumMedalRibbon { width: 8px; height: 15px; border-radius: 0 0 1px 1px; background: var(--medal-ribbon); }
+.podiumMedalRibbon.isLeft { transform: rotate(16deg); }
+.podiumMedalRibbon.isRight { transform: rotate(-16deg); }
+.podiumMedalDisc { position: relative; display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 26px; height: 26px; border: 1px solid var(--medal-edge); border-radius: 50%; background: var(--medal-fill); color: var(--medal-ink); box-shadow: 0 2px 4px rgba(45, 60, 50, 0.12); font-size: 14px; line-height: 1; font-weight: 600; }
+.podiumMedalDisc::after { position: absolute; inset: 2px; border: 1px solid rgba(255, 255, 255, 0.65); border-radius: 50%; content: ''; }
+.rank1 .podiumMedalDisc { width: 29px; height: 29px; font-size: 16px; }
+.championLaurel { position: absolute; top: 23px; left: 50%; width: 116px; height: 72px; transform: translateX(-50%); pointer-events: none; }
+.laurelBranch { position: absolute; top: 0; left: 0; width: 27px; height: 68px; }
+.laurelBranch.isRight { right: 0; left: auto; transform: scaleX(-1); }
+.laurelBranch::after { position: absolute; top: 9px; left: 8px; width: 24px; height: 56px; border-bottom: 1px solid #dcc78d; border-left: 1px solid #dcc78d; border-radius: 0 0 0 100%; transform: rotate(-10deg); content: ''; }
+.laurelLeaf { position: absolute; z-index: 1; width: 7px; height: 12px; border-radius: 90% 0 90% 0; background: linear-gradient(145deg, #f2e4ba, #dbbb70); }
+.laurelLeaf.leaf1 { top: 0; left: 7px; transform: rotate(8deg); }
+.laurelLeaf.leaf2 { top: 12px; left: 1px; transform: rotate(-38deg); }
+.laurelLeaf.leaf3 { top: 25px; left: 2px; transform: rotate(-54deg); }
+.laurelLeaf.leaf4 { top: 37px; left: 6px; transform: rotate(-70deg); }
+.laurelLeaf.leaf5 { top: 47px; left: 13px; transform: rotate(-86deg); }
+.laurelLeaf.leaf6 { top: 22px; left: 12px; transform: rotate(18deg); }
+.laurelLeaf.leaf7 { top: 37px; left: 17px; transform: rotate(5deg); }
+.podiumNameRow { display: flex; align-items: center; justify-content: center; gap: 5px; width: 100%; min-width: 0; min-height: 20px; }
+.podiumName { overflow: hidden; min-width: 0; font-size: 12px; line-height: 20px; font-weight: 550; text-overflow: ellipsis; white-space: nowrap; }
+.rank1 .podiumName { font-size: 14px; font-weight: 650; }
+.meTag { flex: 0 0 auto; box-sizing: border-box; padding: 0 4px; border: 1px solid var(--accent); border-radius: 6px; color: var(--accent); font-size: 10px; line-height: 16px; font-weight: 500; }
+.podiumPower { max-width: 100%; margin-top: 8px; color: var(--accent); font-size: 26px; line-height: 1.15; font-weight: 550; font-variant-numeric: tabular-nums; }
+.rank1 .podiumPower { font-size: 30px; }
+.podiumUnit { margin-top: 4px; color: var(--muted); font-size: 10px; line-height: 1.4; font-weight: 400; }
+.rankingList { overflow: hidden; margin-top: 14px; border-radius: 20px; box-shadow: none; }
+.rankingListHeader { display: flex; align-items: center; justify-content: space-between; min-height: 36px; padding: 0 16px; color: var(--muted); font-size: 11px; line-height: 1.4; font-weight: 400; }
+.rankingRow { position: relative; display: flex; align-items: center; gap: 0; min-height: 52px; padding: 0 16px; }
+.rankingRow::before { position: absolute; top: 0; right: 16px; left: 16px; height: 1px; background: var(--line); opacity: 0.55; content: ''; }
 .rankingRow.isMe { background: var(--accent-soft); }
-.rankingIndex { flex: 0 0 30px; color: var(--muted); font-size: 13px; font-weight: 850; }
-.rankingName { flex: 1 1 auto; overflow: hidden; margin-left: 10px; font-size: 14px; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
-.rankingPower { flex: 0 0 auto; color: var(--accent); font-size: 18px; font-weight: 950; }
-.myRankSection { overflow: hidden; margin-top: 14px; padding-top: 14px; }
-.myRankSection > .sectionHeading { padding: 0 14px 8px; }
-.overtakeCard { margin-top: 14px; padding: 14px 16px; border-color: #bdd5c9; background: var(--accent-soft); color: var(--accent); font-size: 13px; line-height: 1.5; font-weight: 800; text-align: center; }
+.rankingIndex { flex: 0 0 auto; min-width: 30px; margin-right: 6px; color: var(--muted); font-size: 13px; font-weight: 450; font-variant-numeric: tabular-nums; }
+.rankingNameWrap { display: flex; flex: 1 1 auto; align-items: center; gap: 6px; min-width: 0; margin: 0 10px; }
+.rankingName { overflow: hidden; min-width: 0; font-size: 14px; line-height: 1.4; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.rankingPower { flex: 0 0 auto; color: var(--accent); font-size: 20px; line-height: 1.2; font-weight: 550; font-variant-numeric: tabular-nums; }
+.myRankSection { overflow: hidden; margin-top: 14px; padding-top: 14px; box-shadow: none; }
+.myRankSection > .sectionHeading { padding: 0 16px 10px; font-size: 13px; font-weight: 550; }
+.overtakeCard { margin-top: 14px; padding: 14px 16px; background: var(--accent-soft); color: var(--accent); box-shadow: none; font-size: 12px; line-height: 1.5; font-weight: 500; text-align: center; }
 .leaderboardEmpty { margin-top: 0; }
-.leaderboardInvite { width: 100%; height: 50px; margin-top: 16px; }
+.leaderboardInvite { gap: 10px; width: 100%; height: 50px; margin-top: 18px; border-radius: 16px; font-size: 15px; font-weight: 600; }
+.leaderboardInviteIcon { position: relative; flex: 0 0 24px; width: 24px; height: 26px; color: #fffdf8; }
+.invitePerson { position: absolute; top: 1px; left: 5px; box-sizing: border-box; width: 11px; height: 11px; border: 1.5px solid currentColor; border-radius: 50%; }
+.invitePerson::after { position: absolute; top: 12px; left: -5px; box-sizing: border-box; width: 19px; height: 11px; border: 1.5px solid currentColor; border-radius: 10px 10px 2px 2px; content: ''; }
+.invitePlus { position: absolute; top: 13px; right: 0; width: 8px; height: 1.5px; border-radius: 1px; background: currentColor; }
+.invitePlus::after { position: absolute; top: -3px; left: 3px; width: 1.5px; height: 8px; border-radius: 1px; background: currentColor; content: ''; }
+
+@media (max-width: 360px) {
+  .podium { padding-right: 8px; padding-left: 8px; }
+  .podiumAvatar { width: 54px; height: 54px; }
+  .rank1 .podiumAvatar { width: 70px; height: 70px; }
+  .championLaurel { top: 20px; transform: translateX(-50%) scale(0.9); }
+  .podiumMedal { top: 43px; }
+  .rank1 .podiumMedal { top: 57px; }
+  .rankingRow, .rankingListHeader { padding-right: 12px; padding-left: 12px; }
+  .rankingIndex { min-width: 24px; }
+}
 
 .classmatesLoading { padding: 14px 0; }
 .skeletonLine, .skeletonCard { border-radius: 14px; background: var(--surface); }

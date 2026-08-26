@@ -293,6 +293,79 @@ function dailyStatDefaults(userId: string, dateKey: string) {
   };
 }
 
+export async function recordWordlistExport(
+  userId: string,
+  input: { exportId: string; unitId?: string },
+  occurredAt = new Date()
+) {
+  const context = shanghaiWeekContext(occurredAt);
+  const result = await db.transaction(async (tx) => {
+    await tx
+      .insert(dailyLearningPowerStats)
+      .values(dailyStatDefaults(userId, context.dateKey))
+      .onConflictDoNothing({ target: [dailyLearningPowerStats.userId, dailyLearningPowerStats.statDate] });
+    const [daily] = await tx
+      .select()
+      .from(dailyLearningPowerStats)
+      .where(and(
+        eq(dailyLearningPowerStats.userId, userId),
+        eq(dailyLearningPowerStats.statDate, context.dateKey)
+      ))
+      .for("update")
+      .limit(1);
+    if (!daily) throw new Error("Daily learning power row was not created");
+
+    const score = availableScore(daily.wordlistExportScore, LEARNING_POWER_LIMITS.wordlistExport, 2);
+    // Keep zero-score events too: a capped export must not earn points if retried tomorrow.
+    const [event] = await tx
+      .insert(learningPowerEvents)
+      .values({
+        userId,
+        weekKey: context.weekKey,
+        eventDate: context.dateKey,
+        eventType: "WORDLIST_EXPORT",
+        score,
+        unitId: input.unitId,
+        uniqueKey: learningPowerUniqueKey({
+          type: "WORDLIST_EXPORT",
+          userId,
+          ...context,
+          exportId: input.exportId,
+        }),
+        createdAt: occurredAt,
+      })
+      .onConflictDoNothing({ target: learningPowerEvents.uniqueKey })
+      .returning({ id: learningPowerEvents.id });
+    if (!event) return { duplicate: true, earned: 0 };
+    if (score === 0) return { duplicate: false, earned: 0 };
+
+    await tx
+      .update(dailyLearningPowerStats)
+      .set({
+        wordlistExportScore: daily.wordlistExportScore + score,
+        totalScore: daily.totalScore + score,
+        updatedAt: occurredAt,
+      })
+      .where(and(
+        eq(dailyLearningPowerStats.userId, userId),
+        eq(dailyLearningPowerStats.statDate, context.dateKey)
+      ));
+    await tx
+      .insert(weeklyLearningPower)
+      .values({ userId, weekKey: context.weekKey, learningPower: score, lastScoreAt: occurredAt, updatedAt: occurredAt })
+      .onConflictDoUpdate({
+        target: [weeklyLearningPower.userId, weeklyLearningPower.weekKey],
+        set: {
+          learningPower: sql`${weeklyLearningPower.learningPower} + ${score}`,
+          lastScoreAt: occurredAt,
+          updatedAt: occurredAt,
+        },
+      });
+    return { duplicate: false, earned: score };
+  });
+  return { ...result, weekKey: context.weekKey };
+}
+
 async function learningBreakdownForSession(
   userId: string,
   sessionId: string

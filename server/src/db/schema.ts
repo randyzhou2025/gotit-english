@@ -210,6 +210,7 @@ export const dailyLearningPowerStats = pgTable(
     dailyBonusScore: integer("daily_bonus_score").notNull().default(0),
     streakScore: integer("streak_score").notNull().default(0),
     mistakeReviewScore: integer("mistake_review_score").notNull().default(0),
+    wordlistExportScore: integer("wordlist_export_score").notNull().default(0),
     totalScore: integer("total_score").notNull().default(0),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

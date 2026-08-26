@@ -132,16 +132,19 @@ describe('redesigned home', () => {
 
   it('adds decoration only when content has room and removes it on narrow screens', () => {
     expect(eggSource).toContain('showOrnament')
-    expect(eggSource).toContain("['C', 'D', 'F', 'H'].includes")
+    expect(eggSource).toContain("['C', 'D', 'H'].includes")
     expect(eggSource).toContain('.unitEggCard.hasOrnament')
     expect(eggSource).toContain('.unitEggOrnament')
     expect(eggSource).toContain('display: none;')
   })
 
-  it('keeps phrase eggs stacked and decorates only when content has room', () => {
+  it('gives phrase structures full width and wraps at complete tokens', () => {
     expect(eggSource).not.toContain('unitEggPhrase')
     expect(eggSource).not.toContain('splitPhrase')
-    expect(eggSource).toContain("['C', 'D', 'F', 'H'].includes")
+    expect(eggSource).not.toContain("['C', 'D', 'F', 'H'].includes")
+    expect(eggSource).toContain('focusWord.value.split(/(\\s+)/)')
+    expect(eggSource).toContain('v-for="(part, index) in focusParts"')
+    expect(eggSource).toMatch(/\.unitEggFocusToken\s*\{[^}]*display: inline-block;[^}]*max-width: 100%;/s)
     expect(eggSource).toContain('props.egg.core.length + noteText.value.length < 58')
     expect(eggSource).toMatch(/\.unitEggFocus\s*\{[^}]*white-space: normal;/s)
     expect(eggSource).toMatch(/\.unitEggFocus \.unitEggKeyword\s*\{[^}]*overflow-wrap: break-word;[^}]*white-space: normal;[^}]*word-break: break-word;/s)

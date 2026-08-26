@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  LEARNING_POWER_LIMITS,
   availableScore,
   isValidDictation,
   learningPowerUniqueKey,
@@ -31,6 +32,21 @@ test("daily caps never exceed their configured maximum", () => {
   assert.equal(availableScore(0, 20, 100), 20);
   assert.equal(availableScore(18, 20, 10), 2);
   assert.equal(availableScore(20, 20, 5), 0);
+});
+
+test("wordlist exports earn two points with an independent daily cap of twenty", () => {
+  assert.equal(LEARNING_POWER_LIMITS.wordlistExport, 20);
+  assert.equal(availableScore(0, LEARNING_POWER_LIMITS.wordlistExport, 2), 2);
+  assert.equal(availableScore(18, LEARNING_POWER_LIMITS.wordlistExport, 2), 2);
+  assert.equal(availableScore(20, LEARNING_POWER_LIMITS.wordlistExport, 2), 0);
+});
+
+test("wordlist export keys are scoped to the user and remain idempotent across days", () => {
+  const input = { type: "WORDLIST_EXPORT" as const, userId: "u1", exportId: "export-1", dateKey: "2026-08-26", weekKey: "2026-W35" };
+  assert.equal(learningPowerUniqueKey(input), "WORDLIST_EXPORT:u1:export-1");
+  assert.equal(learningPowerUniqueKey({ ...input, dateKey: "2026-08-31", weekKey: "2026-W36" }), learningPowerUniqueKey(input));
+  assert.notEqual(learningPowerUniqueKey({ ...input, exportId: "export-2" }), learningPowerUniqueKey(input));
+  assert.notEqual(learningPowerUniqueKey({ ...input, userId: "u2" }), learningPowerUniqueKey(input));
 });
 
 test("unique keys make app opens, weekly words, sessions, daily bonuses and reviews idempotent", () => {

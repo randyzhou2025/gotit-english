@@ -1,5 +1,5 @@
 <template>
-  <view class="bottomNav">
+  <view class="bottomNav" :class="{ isClassmates: active === 'classmates' }">
     <view class="bottomNavInner">
       <view :class="['bottomNavItem', active === 'home' && 'isActive']" @tap="goHome">
         <view class="bottomNavIconWrap">
@@ -93,6 +93,16 @@ function goProfile() {
   box-shadow: 0 -10px 28px var(--ink-shadow);
   backdrop-filter: blur(16px);
 }
+
+.bottomNav.isClassmates {
+  background: var(--page-bg);
+  background-image: linear-gradient(var(--surface), var(--surface));
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.bottomNav.isClassmates .bottomNavLabel { font-weight: 500; }
+.bottomNav.isClassmates .bottomNavItem.isActive .bottomNavLabel { font-weight: 650; }
 
 .bottomNavInner {
   display: grid;

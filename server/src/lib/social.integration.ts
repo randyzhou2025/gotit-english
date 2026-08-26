@@ -1,10 +1,14 @@
 import assert from "node:assert/strict";
+import fastifyJwt from "@fastify/jwt";
+import sensible from "@fastify/sensible";
+import Fastify from "fastify";
 import { and, count, eq, inArray } from "drizzle-orm";
 import { db } from "../db/index.js";
 import {
   classmateRelations,
   dailyLearningPowerStats,
   learningActivities,
+  learningPowerEvents,
   userWeakWordHistory,
   users,
   weeklyLearningPower,
@@ -18,9 +22,11 @@ import {
   recordDictationWordCompletion,
   recordAppOpen,
   recordMistakeReviews,
+  recordWordlistExport,
   toggleFeedCheer,
 } from "../services/social.js";
 import { getDashboard } from "../services/study.js";
+import { registerSocialRoutes } from "../routes/social.js";
 import { previousShanghaiDate, shanghaiWeekContext } from "./learning-power.js";
 
 function wordResults(prefix: string, countValue: number) {
@@ -46,12 +52,14 @@ async function main() {
     createTestUser(`${suffix}-c`),
     createTestUser(`${suffix}-d`),
     createTestUser(`${suffix}-e`),
+    createTestUser(`${suffix}-export`),
+    createTestUser(`${suffix}-export-route`),
   ]);
   const rankingUserIds = await Promise.all(
     Array.from({ length: 11 }, (_, index) => createTestUser(`${suffix}-rank-${index}`))
   );
   const userIds = [...coreUserIds, ...rankingUserIds];
-  const [duplicateUser, wordCapUser, validCapUser, reviewCapUser, streakUser] = coreUserIds as [string, string, string, string, string];
+  const [duplicateUser, wordCapUser, validCapUser, reviewCapUser, streakUser, exportUser, exportRouteUser] = coreUserIds as [string, string, string, string, string, string, string];
   const context = shanghaiWeekContext();
 
   try {
@@ -188,6 +196,105 @@ async function main() {
     assert.equal(secondReview.earned, 10);
     assert.equal(cappedReview.earned, 0);
 
+    const beforeMidnight = new Date("2026-08-30T23:59:59+08:00");
+    const afterMidnight = new Date("2026-08-31T00:00:00+08:00");
+    const exportContext = shanghaiWeekContext(beforeMidnight);
+    const exportDailyWhere = and(
+      eq(dailyLearningPowerStats.userId, exportUser),
+      eq(dailyLearningPowerStats.statDate, exportContext.dateKey)
+    );
+    // All existing categories can reach 75 without reducing the independent export allowance.
+    await db.insert(dailyLearningPowerStats).values({
+      userId: exportUser,
+      statDate: exportContext.dateKey,
+      dictationWordScore: 20,
+      validDictationScore: 20,
+      dailyBonusScore: 10,
+      streakScore: 5,
+      mistakeReviewScore: 20,
+      totalScore: 75,
+    });
+    await db.insert(weeklyLearningPower).values({
+      userId: exportUser, weekKey: exportContext.weekKey, learningPower: 75,
+    });
+    const exportPayload = { exportId: `export-${suffix}`, unitId: "rj:required-1:u1" };
+    const firstExport = await recordWordlistExport(exportUser, exportPayload, beforeMidnight);
+    assert.equal(firstExport.earned, 2);
+    assert.equal(firstExport.duplicate, false);
+    const repeatedExports = await Promise.all(Array.from({ length: 10 }, () => (
+      recordWordlistExport(exportUser, exportPayload, beforeMidnight)
+    )));
+    assert.ok(repeatedExports.every((result) => result.duplicate && result.earned === 0));
+    const concurrentExports = await Promise.all(Array.from({ length: 12 }, (_, index) => (
+      recordWordlistExport(exportUser, { exportId: `export-${suffix}-${index}` }, beforeMidnight)
+    )));
+    assert.equal(concurrentExports.reduce((sum, result) => sum + result.earned, 0), 18);
+    const [exportDaily] = await db.select().from(dailyLearningPowerStats).where(exportDailyWhere);
+    assert.equal(exportDaily?.wordlistExportScore, 20);
+    assert.equal(exportDaily?.totalScore, 95);
+    assert.equal(exportDaily?.dictationWordScore, 20);
+    await assert.rejects(db.update(dailyLearningPowerStats).set({ wordlistExportScore: 21 }).where(exportDailyWhere));
+    await assert.rejects(db.update(dailyLearningPowerStats).set({ totalScore: 96 }).where(exportDailyWhere));
+    const [exportWeekly] = await db.select().from(weeklyLearningPower).where(and(
+      eq(weeklyLearningPower.userId, exportUser), eq(weeklyLearningPower.weekKey, exportContext.weekKey)
+    ));
+    assert.equal(exportWeekly?.learningPower, 95);
+    const cappedPayload = { exportId: `export-capped-${suffix}` };
+    assert.equal((await recordWordlistExport(exportUser, cappedPayload, new Date(beforeMidnight.getTime() + 500))).earned, 0);
+    const [cappedWeekly] = await db.select().from(weeklyLearningPower).where(and(
+      eq(weeklyLearningPower.userId, exportUser), eq(weeklyLearningPower.weekKey, exportContext.weekKey)
+    ));
+    assert.equal(cappedWeekly?.lastScoreAt.getTime(), exportWeekly?.lastScoreAt.getTime());
+
+    const [exportEventCount] = await db.select({ total: count() }).from(learningPowerEvents).where(and(
+      eq(learningPowerEvents.userId, exportUser), eq(learningPowerEvents.eventType, "WORDLIST_EXPORT")
+    ));
+    assert.equal(Number(exportEventCount?.total), 14);
+    assert.equal((await recordWordlistExport(streakUser, exportPayload, beforeMidnight)).earned, 2);
+    assert.equal((await recordWordlistExport(exportUser, exportPayload, afterMidnight)).earned, 0);
+    assert.equal((await recordWordlistExport(exportUser, cappedPayload, afterMidnight)).earned, 0);
+    const nextDayExport = await recordWordlistExport(exportUser, { exportId: `export-next-day-${suffix}` }, afterMidnight);
+    assert.equal(nextDayExport.earned, 2);
+    assert.equal(nextDayExport.weekKey, "2026-W36");
+    const [nextDayDaily] = await db.select().from(dailyLearningPowerStats).where(and(
+      eq(dailyLearningPowerStats.userId, exportUser), eq(dailyLearningPowerStats.statDate, "2026-08-31")
+    ));
+    assert.equal(nextDayDaily?.wordlistExportScore, 2);
+    assert.equal(nextDayDaily?.totalScore, 2);
+    const [nextWeekExport] = await db.select().from(weeklyLearningPower).where(and(
+      eq(weeklyLearningPower.userId, exportUser), eq(weeklyLearningPower.weekKey, "2026-W36")
+    ));
+    assert.equal(nextWeekExport?.learningPower, 2);
+
+    const api = Fastify();
+    await api.register(sensible);
+    await api.register(fastifyJwt, { secret: "wordlist-export-integration-test-only" });
+    await registerSocialRoutes(api, async (request, reply) => {
+      try {
+        await request.jwtVerify();
+      } catch {
+        return reply.code(401).send({ error: "Unauthorized" });
+      }
+    });
+    try {
+      const url = "/api/learning-power/wordlist-exports";
+      const headers = { authorization: `Bearer ${api.jwt.sign({ sub: exportRouteUser })}` };
+      assert.equal((await api.inject({ method: "POST", url, payload: exportPayload })).statusCode, 401);
+      for (const payload of [{}, { exportId: "short" }, { exportId: "x".repeat(129) }, { exportId: `route-${suffix}`, unitId: "" }]) {
+        assert.equal((await api.inject({ method: "POST", url, headers, payload })).statusCode, 400);
+      }
+      const payload = { exportId: `route-${suffix}`, score: 999, completedAt: "2000-01-01" };
+      const response = await api.inject({ method: "POST", url, headers, payload });
+      assert.equal(response.statusCode, 200);
+      assert.equal(response.json().earned, 2);
+      assert.equal(response.json().weekKey, context.weekKey);
+      const retry = await api.inject({ method: "POST", url, headers, payload });
+      assert.equal(retry.json().earned, 0);
+      assert.equal(retry.json().duplicate, true);
+    } finally {
+      await api.close();
+    }
+
     const share = await createShare(duplicateUser, {
       publisherId: "rj",
       bookId: "required-1",
@@ -233,7 +340,7 @@ async function main() {
     assert.equal(leaderboard.myEntry?.userId, rankingUserIds[10]!);
     assert.equal(leaderboard.pointsToEnterTopTen, 1);
 
-    console.log("social integration: scoring, caps, social permissions, and top-ten leaderboard ordering passed");
+    console.log("social integration: scoring, wordlist exports, daily caps, social permissions, and top-ten leaderboard ordering passed");
   } finally {
     await db.delete(users).where(inArray(users.id, userIds));
   }
