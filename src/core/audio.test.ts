@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { buildWordAudio, getAudioUrl } from './audio'
+import {
+  buildWordAudio,
+  getAudioUrl,
+  getDictationAudioUrls,
+  getDictationPromptLabel,
+  hasPlayableDictationAudio
+} from './audio'
 import type { WordEntry } from './types'
 
 describe('buildWordAudio', () => {
@@ -19,5 +25,19 @@ describe('buildWordAudio', () => {
     } as WordEntry
 
     expect(getAudioUrl(entry, 'uk')).toContain('/shj/required-1/unit-1/digital/uk.mp3')
+  })
+
+  it('plays Chinese before English in bilingual dictation', () => {
+    const entry = {
+      audio: buildWordAudio('shj/required-1/unit-1/digital')
+    } as WordEntry
+    const plan = { accent: 'uk' as const, prompt: 'bilingual' as const }
+
+    expect(getDictationAudioUrls(entry, plan)).toEqual([
+      expect.stringContaining('/shj/required-1/unit-1/digital/zh.mp3'),
+      expect.stringContaining('/shj/required-1/unit-1/digital/uk.mp3')
+    ])
+    expect(hasPlayableDictationAudio(entry, plan)).toBe(true)
+    expect(getDictationPromptLabel({ ...plan, mode: 'paper' })).toBe('中英文听写')
   })
 })

@@ -1405,6 +1405,7 @@ export function createPracticeSession(initialWords: WordEntry[]) {
       dictationRepeatCount.value
     )
     dictationPlan.value = plan
+    dictationMode.value = plan.mode
     dictationIndex.value = 0
     dictationInProgress.value = true
     saveUnfinishedDictation(plan, 0)

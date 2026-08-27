@@ -30,8 +30,16 @@ export function getAudioUrl(entry: WordEntry, accent: Accent): string {
   return resolveAudioUrl(accent === 'uk' ? entry.audio.ukUrl : entry.audio.usUrl)
 }
 
+export function getDictationAudioUrls(entry: WordEntry, plan: Pick<DictationPlan, 'accent' | 'prompt'>): string[] {
+  if (plan.prompt === 'bilingual') {
+    return [resolveAudioUrl(entry.audio.zhUrl), getAudioUrl(entry, plan.accent)]
+  }
+
+  return [plan.prompt === 'chinese' ? resolveAudioUrl(entry.audio.zhUrl) : getAudioUrl(entry, plan.accent)]
+}
+
 export function getDictationAudioUrl(entry: WordEntry, plan: Pick<DictationPlan, 'accent' | 'prompt'>): string {
-  return plan.prompt === 'chinese' ? resolveAudioUrl(entry.audio.zhUrl) : getAudioUrl(entry, plan.accent)
+  return getDictationAudioUrls(entry, plan)[0] ?? ''
 }
 
 export function hasPlayableAudio(entry: WordEntry, accent: Accent): boolean {
@@ -39,7 +47,7 @@ export function hasPlayableAudio(entry: WordEntry, accent: Accent): boolean {
 }
 
 export function hasPlayableDictationAudio(entry: WordEntry, plan: Pick<DictationPlan, 'accent' | 'prompt'>): boolean {
-  return Boolean(getDictationAudioUrl(entry, plan))
+  return getDictationAudioUrls(entry, plan).every(Boolean)
 }
 
 export function getAccentLabel(accent: Accent): string {
@@ -48,5 +56,6 @@ export function getAccentLabel(accent: Accent): string {
 
 export function getDictationPromptLabel(plan: Pick<DictationPlan, 'accent' | 'prompt' | 'mode'>): string {
   if (plan.mode === 'recognition') return '核对释义'
+  if (plan.prompt === 'bilingual') return '中英文听写'
   return plan.prompt === 'chinese' ? '中文听写' : `${getAccentLabel(plan.accent)}听写`
 }

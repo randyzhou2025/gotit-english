@@ -909,12 +909,15 @@
 
       <view class="settingGroup">
         <text class="settingLabel">报词内容</text>
-        <view class="pillRow">
+        <view class="pillRow promptPillRow">
           <view :class="['pill', dictationPrompt === 'chinese' && 'isActive']" @tap="setDictationPrompt('chinese')">
             <text>中文释义</text>
           </view>
           <view :class="['pill', dictationPrompt === 'english' && 'isActive']" @tap="setDictationPrompt('english')">
             <text>英文单词</text>
+          </view>
+          <view :class="['pill', dictationPrompt === 'bilingual' && 'isActive']" @tap="setDictationPrompt('bilingual')">
+            <text>中英文</text>
           </view>
         </view>
       </view>
@@ -964,7 +967,11 @@
           <view :class="['pill', dictationMode === 'paper' && 'isActive']" @tap="setDictationMode('paper')">
             <text>纸笔默写</text>
           </view>
-          <view :class="['pill', dictationMode === 'online' && 'isActive']" @tap="setDictationMode('online')">
+          <view
+            v-if="dictationPrompt !== 'bilingual'"
+            :class="['pill', dictationMode === 'online' && 'isActive']"
+            @tap="setDictationMode('online')"
+          >
             <text>在线输入</text>
           </view>
           <view
@@ -1162,7 +1169,7 @@
             {{ String(dictationIndex + 1).padStart(2, '0') }}
           </text>
           <view
-            v-if="dictationPrompt === 'chinese'"
+            v-if="dictationPrompt !== 'english'"
             :class="['dictationAudioMeaningBlock', dictationMode === 'paper' && 'isPaper']"
           >
             <view
@@ -1505,7 +1512,7 @@ import { useVisualTheme } from '@/app/useVisualTheme'
 import HomeRedesign from '@/components/home/HomeRedesign.vue'
 import TabBottomNav from '@/components/TabBottomNav.vue'
 import { trackAnalyticsEvent } from '@/core/analytics'
-import { getAudioUrl, hasPlayableAudio } from '@/core/audio'
+import { getAudioUrl, getDictationAudioUrls, hasPlayableAudio } from '@/core/audio'
 import { estimateDictationSeconds, formatEstimatedMinutes } from '@/core/dictation'
 import {
   buildTextbookCoverUrl,
@@ -1732,8 +1739,13 @@ let activeAudio: UniApp.InnerAudioContext | null = null
 let countdownTimer: ReturnType<typeof setInterval> | null = null
 let queuedPlaybackTimer: ReturnType<typeof setTimeout> | null = null
 let audioRepeatsLeft = 0
+let queuedAudioUrls: string[] = []
+let queuedAudioTimer: ReturnType<typeof setTimeout> | null = null
 let audioErrorShouldToast = false
 let lastPlaybackKey = ''
+let paperCountdownExpired = false
+let paperAudioCompleted = false
+let paperAudioPlaybackActive = false
 const isAudioPlaying = ref(false)
 const isAutoPaused = ref(false)
 const remainingSeconds = ref(0)
@@ -1997,6 +2009,9 @@ const isDictationRecognitionMode = computed(() => dictationMode.value === 'recog
 
 const dictationModeTipText = computed(() => {
   if (dictationMode.value === 'paper') {
+    if (dictationPrompt.value === 'bilingual') {
+      return '先播中文释义，再播英文单词，用纸笔完成默写。'
+    }
     return dictationPrompt.value === 'english'
       ? '播放英文发音，在纸上写出英文单词。'
       : '手机负责报词，用纸笔完成默写。'
@@ -2011,6 +2026,9 @@ const dictationModeTipText = computed(() => {
 
 const dictationPlayerInstruction = computed(() => {
   if (dictationMode.value === 'recognition') return '请想出这个单词的中文释义'
+  if (dictationMode.value === 'paper' && dictationPrompt.value === 'bilingual') {
+    return '先听中文释义和英文发音，在纸上写下英文单词'
+  }
   if (dictationMode.value === 'paper' && dictationPrompt.value === 'chinese') {
     return '听清释义，在纸上写下英文单词'
   }
@@ -2026,7 +2044,7 @@ const dictationSpokenPrompt = computed(() => {
 
 const currentDictationMeaningLines = computed(() => {
   const entry = currentDictationEntry.value
-  if (!entry || dictationPrompt.value !== 'chinese') return []
+  if (!entry || dictationPrompt.value === 'english') return []
   return splitMeaningByPartOfSpeech(entry.partOfSpeech, entry.meaning)
 })
 
@@ -2041,6 +2059,7 @@ const dictationTransportStatus = computed(() => {
   if (dictationMode.value === 'online') return '输入后提交判定'
   if (dictationMode.value === 'recognition') return '点认识或不认识继续'
   if (isAutoPaused.value) return '已暂停'
+  if (remainingSeconds.value === 0 && isAudioPlaying.value) return '当前播报结束后进入下一个'
   return `${remainingSeconds.value} 秒后自动进入下一个`
 })
 
@@ -2287,9 +2306,9 @@ function updateMiniProgramNavInset() {
   // #endif
 }
 
-function setDictationPrompt(value: 'chinese' | 'english') {
+function setDictationPrompt(value: 'chinese' | 'english' | 'bilingual') {
   dictationPrompt.value = value
-  if (value === 'chinese' && dictationMode.value === 'recognition') {
+  if (value === 'bilingual' || (value === 'chinese' && dictationMode.value === 'recognition')) {
     dictationMode.value = 'paper'
   }
 }
@@ -2307,6 +2326,7 @@ function setDictationRepeatCount(value: 1 | 2) {
 }
 
 function setDictationMode(value: 'paper' | 'online' | 'recognition') {
+  if (dictationPrompt.value === 'bilingual' && value !== 'paper') return
   if (value === 'recognition' && dictationPrompt.value !== 'english') return
   dictationMode.value = value
 }
@@ -2692,6 +2712,7 @@ function playWordDetailAudio(accent: Accent) {
   const url = getAudioUrl(entry, accent)
   const audio = ensureAudioContext(true)
   wordDetailPlayingAccent.value = accent
+  clearQueuedAudioPlayback()
   audioRepeatsLeft = 1
   audioErrorShouldToast = true
   audio.stop()
@@ -2715,6 +2736,7 @@ function playHomeRecommendedAudio() {
   }
 
   const audio = ensureAudioContext(true)
+  clearQueuedAudioPlayback()
   audioRepeatsLeft = 1
   audioErrorShouldToast = true
   audio.stop()
@@ -2737,6 +2759,7 @@ function playUnitEggAudio(keyword: string) {
   }
 
   const audio = ensureAudioContext(true)
+  clearQueuedAudioPlayback()
   audioRepeatsLeft = 1
   audioErrorShouldToast = true
   audio.stop()
@@ -3079,8 +3102,10 @@ function clearDictationTimers() {
 }
 
 function getCurrentPlaybackKey(): string {
-  if (activeScreen.value !== 'dictation' || screen.value !== 'dictation' || !currentDictationEntry.value || !dictationAudioUrl.value) return ''
-  return `${currentDictationEntry.value.id}|${dictationAudioUrl.value}|${dictationMode.value}`
+  if (activeScreen.value !== 'dictation' || screen.value !== 'dictation' || !currentDictationEntry.value || !dictationPlan.value) return ''
+  const audioUrls = getDictationAudioUrls(currentDictationEntry.value, dictationPlan.value)
+  if (audioUrls.some(url => !url)) return ''
+  return `${currentDictationEntry.value.id}|${audioUrls.join(',')}|${dictationMode.value}`
 }
 
 function isWeixinDevtoolsRuntime(): boolean {
@@ -3122,18 +3147,75 @@ function configureMiniProgramAudioPlayback() {
 }
 
 function stopActiveAudio() {
+  clearQueuedAudioPlayback()
+  paperAudioPlaybackActive = false
   if (!activeAudio) return
   activeAudio.stop()
   isAudioPlaying.value = false
 }
 
 function destroyActiveAudio() {
+  clearQueuedAudioPlayback()
+  paperCountdownExpired = false
+  paperAudioCompleted = false
+  paperAudioPlaybackActive = false
   if (!activeAudio) return
   activeAudio.stop()
   activeAudio.destroy()
   activeAudio = null
   audioRepeatsLeft = 0
   isAudioPlaying.value = false
+}
+
+function clearQueuedAudioPlayback() {
+  queuedAudioUrls = []
+  if (queuedAudioTimer) {
+    clearTimeout(queuedAudioTimer)
+    queuedAudioTimer = null
+  }
+}
+
+function playNextQueuedAudio() {
+  const nextUrl = queuedAudioUrls.shift()
+  if (!activeAudio || !nextUrl) {
+    isAudioPlaying.value = false
+    wordDetailPlayingAccent.value = null
+    return
+  }
+
+  activeAudio.src = nextUrl
+  try {
+    activeAudio.seek(0)
+  } catch {
+    // Some H5 runtimes only allow seek after metadata is ready.
+  }
+  activeAudio.play()
+}
+
+function advancePaperDictationWhenReady() {
+  if (
+    !paperCountdownExpired
+    || !paperAudioCompleted
+    || isAutoPaused.value
+    || dictationMode.value !== 'paper'
+    || activeScreen.value !== 'dictation'
+  ) return
+
+  paperCountdownExpired = false
+  paperAudioCompleted = false
+  paperAudioPlaybackActive = false
+  clearDictationTimers()
+  nextDictation()
+  if (activeScreen.value === 'dictation') {
+    startCurrentDictationPlayback()
+  }
+}
+
+function finishCurrentPaperAudioPlayback() {
+  if (!paperAudioPlaybackActive) return
+  paperAudioPlaybackActive = false
+  paperAudioCompleted = true
+  advancePaperDictationWhenReady()
 }
 
 function ensureAudioContext(showToast: boolean) {
@@ -3148,6 +3230,13 @@ function ensureAudioContext(showToast: boolean) {
     isAudioPlaying.value = true
   })
   activeAudio.onEnded(() => {
+    if (queuedAudioUrls.length > 0 && activeAudio) {
+      queuedAudioTimer = setTimeout(() => {
+        queuedAudioTimer = null
+        playNextQueuedAudio()
+      }, 180)
+      return
+    }
     audioRepeatsLeft -= 1
     if (audioRepeatsLeft > 0 && activeAudio) {
       setTimeout(() => {
@@ -3164,28 +3253,35 @@ function ensureAudioContext(showToast: boolean) {
     audioRepeatsLeft = 0
     isAudioPlaying.value = false
     wordDetailPlayingAccent.value = null
+    finishCurrentPaperAudioPlayback()
   })
   activeAudio.onStop(() => {
     isAudioPlaying.value = false
     wordDetailPlayingAccent.value = null
   })
   activeAudio.onError(() => {
+    const shouldToast = audioErrorShouldToast
+    clearQueuedAudioPlayback()
+    audioRepeatsLeft = 0
     isAudioPlaying.value = false
     wordDetailPlayingAccent.value = null
-    if (audioErrorShouldToast) {
+    if (shouldToast) {
       uni.showToast({
         title: '音频播放失败',
         icon: 'none'
       })
     }
+    finishCurrentPaperAudioPlayback()
   })
 
   return activeAudio
 }
 
 function playCurrentAudio(showToast = true, repeatTimes = 1) {
-  const url = dictationAudioUrl.value
-  if (!dictationAudioReady.value || !url) {
+  const entry = currentDictationEntry.value
+  const plan = dictationPlan.value
+  const audioUrls = entry && plan ? getDictationAudioUrls(entry, plan) : []
+  if (!dictationAudioReady.value || audioUrls.length === 0 || audioUrls.some(url => !url)) {
     if (showToast) {
       uni.showToast({
         title: '音频待生成',
@@ -3196,10 +3292,23 @@ function playCurrentAudio(showToast = true, repeatTimes = 1) {
   }
 
   const audio = ensureAudioContext(showToast)
-  audioRepeatsLeft = Math.max(1, repeatTimes)
   audioErrorShouldToast = showToast
+  clearQueuedAudioPlayback()
   audio.stop()
-  audio.src = url
+  const playbackUrls = Array.from(
+    { length: Math.max(1, repeatTimes) },
+    () => audioUrls
+  ).flat()
+  const firstUrl = playbackUrls.shift()
+  if (!firstUrl) return
+
+  queuedAudioUrls = playbackUrls
+  audioRepeatsLeft = 0
+  if (dictationMode.value === 'paper') {
+    paperAudioCompleted = false
+    paperAudioPlaybackActive = true
+  }
+  audio.src = firstUrl
   try {
     audio.seek(0)
   } catch {
@@ -3212,6 +3321,7 @@ function startPaperCountdown() {
   clearDictationTimers()
   if (dictationMode.value !== 'paper' || activeScreen.value !== 'dictation') return
 
+  paperCountdownExpired = false
   remainingSeconds.value = dictationPlan.value?.intervalSeconds ?? dictationIntervalSeconds.value
   countdownTimer = setInterval(() => {
     if (isAutoPaused.value) return
@@ -3219,11 +3329,12 @@ function startPaperCountdown() {
 
     if (remainingSeconds.value > 0) return
 
-    clearDictationTimers()
-    nextDictation()
-    if (activeScreen.value === 'dictation') {
-      startCurrentDictationPlayback()
+    if (countdownTimer) {
+      clearInterval(countdownTimer)
+      countdownTimer = null
     }
+    paperCountdownExpired = true
+    advancePaperDictationWhenReady()
   }, 1000)
 }
 
@@ -13883,6 +13994,17 @@ onBeforeUnmount(() => {
   height: 38px;
   padding: 0 14px;
   font-size: 14px;
+}
+
+.screen.isDictationSetupScreen .promptPillRow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.screen.isDictationSetupScreen .promptPillRow .pill {
+  min-width: 0;
+  padding: 0 2px;
 }
 
 .screen.isDictationSetupScreen .dictationModeTip {

@@ -135,6 +135,23 @@ describe('practice shell full-page layout', () => {
     expect(source).toContain('.screen.isDictationSetupScreen .resumeDictationButton')
   })
 
+  it('keeps bilingual dictation paper-only and announces Chinese before English', () => {
+    expect(source).toContain("setDictationPrompt('bilingual')")
+    expect(source).toContain('<text>中英文</text>')
+    expect(source).toContain('v-if="dictationPrompt !== \'bilingual\'"')
+    expect(source).toContain("if (dictationPrompt.value === 'bilingual' && value !== 'paper') return")
+    expect(source).toContain('先播中文释义，再播英文单词，用纸笔完成默写。')
+    expect(source).toContain('getDictationAudioUrls(currentDictationEntry.value, dictationPlan.value)')
+  })
+
+  it('waits for both the paper interval and the full audio sequence before advancing', () => {
+    expect(source).toContain('function advancePaperDictationWhenReady()')
+    expect(source).toContain('!paperCountdownExpired')
+    expect(source).toContain('|| !paperAudioCompleted')
+    expect(source).toContain('paperCountdownExpired = true')
+    expect(source).toContain('finishCurrentPaperAudioPlayback()')
+  })
+
   it('keeps unit-word meanings optional and uses quiet recognition states', () => {
     expect(source).toContain('const unitWordMeaningVisible = ref(false)')
     expect(source).toContain('role="switch"')

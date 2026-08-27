@@ -1,5 +1,5 @@
 export type Accent = 'uk' | 'us'
-export type DictationPrompt = 'english' | 'chinese'
+export type DictationPrompt = 'english' | 'chinese' | 'bilingual'
 export type DictationMode = 'paper' | 'online' | 'recognition'
 export type DictationOrder = 'sequence' | 'shuffle'
 export type DictationRepeatCount = 1 | 2

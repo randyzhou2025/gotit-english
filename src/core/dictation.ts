@@ -35,17 +35,18 @@ export function createDictationPlan(
   repeatCount: DictationRepeatCount = 1
 ): DictationPlan {
   const planWords = order === 'shuffle' ? shuffleWords(words) : [...words]
+  const resolvedMode = prompt === 'bilingual' ? 'paper' : mode
 
   return {
     id: createDictationSessionId(),
-    mode,
+    mode: resolvedMode,
     accent,
     prompt,
     intervalSeconds,
     order,
     repeatCount,
     words: planWords,
-    estimatedSeconds: estimateDictationSeconds(words.length, mode, intervalSeconds, repeatCount)
+    estimatedSeconds: estimateDictationSeconds(words.length, resolvedMode, intervalSeconds, repeatCount)
   }
 }
 

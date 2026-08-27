@@ -42,6 +42,7 @@ describe('dictation', () => {
     const online = createDictationPlan([word, word], 'online', 'us', 'english', 8, 'sequence', 1)
     const recognition = createDictationPlan([word, word], 'recognition', 'uk', 'english', 8, 'sequence', 1)
     const chinese = createDictationPlan([word, word], 'online', 'uk', 'chinese', 12, 'sequence', 2)
+    const bilingual = createDictationPlan([word, word], 'online', 'uk', 'bilingual', 8, 'sequence', 1)
 
     expect(paper.estimatedSeconds).toBe(16)
     expect(online.estimatedSeconds).toBe(36)
@@ -51,6 +52,9 @@ describe('dictation', () => {
     expect(chinese.intervalSeconds).toBe(12)
     expect(chinese.repeatCount).toBe(2)
     expect(chinese.estimatedSeconds).toBe(48)
+    expect(bilingual.prompt).toBe('bilingual')
+    expect(bilingual.mode).toBe('paper')
+    expect(bilingual.estimatedSeconds).toBe(16)
     expect(formatEstimatedMinutes(paper.estimatedSeconds)).toBe('1 分钟')
   })
 
