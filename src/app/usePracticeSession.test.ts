@@ -206,6 +206,62 @@ describe('practice session dictation navigation', () => {
       .toBeGreaterThan(0)
   })
 
+  it('restores the cloud textbook and unit after local storage was deleted', async () => {
+    resetPracticeSessionForTests()
+    resetWordbankCacheForTests()
+    storage.delete('gotit:courseSetupCompleted')
+    storage.delete('gotit:selectedUnitId')
+    storage.delete('gotit:masteredWordIds')
+    storage.delete('gotit:savedWeakWordIds')
+    seedWordbankTestCache(storage)
+    await ensureManifestReady()
+    const remoteWordId = 'rj:required-1:u1:teenage'
+    const runtime = uni as unknown as Record<string, unknown>
+    runtime.login = vi.fn((options: { success: (result: { code: string }) => void }) => {
+      options.success({ code: 'fresh-install-code' })
+    })
+    runtime.request = vi.fn(async (options: { url: string }) => {
+      if (options.url.endsWith('/api/weapp/session')) {
+        return {
+          statusCode: 200,
+          data: {
+            token: 'fresh-install-token',
+            user: {
+              nickname: 'Justin',
+              isDefaultNickname: false,
+              avatarUrl: '',
+              createdAt: '2026-08-01T00:00:00.000Z'
+            },
+            progress: {
+              masteredWordIds: [remoteWordId],
+              savedWeakWordIds: [],
+              selectedUnitId: 'rj:required-1:u1',
+              courseSetupCompleted: true,
+              updatedAt: '2026-08-27T00:00:00.000Z'
+            },
+            dashboard: {
+              todayWords: 0,
+              todayMinutes: 0,
+              streakDays: 0,
+              totalMastered: 1,
+              totalStudyDays: 0
+            }
+          }
+        }
+      }
+      return { statusCode: 200, data: {} }
+    })
+
+    const session = await ensurePracticeSessionReady()
+
+    await vi.waitFor(() => {
+      expect(session.courseSetupCompleted.value).toBe(true)
+      expect(session.selectedUnit.value?.unitId).toBe('rj:required-1:u1')
+      expect(session.unitWordCount.value).toBeGreaterThan(0)
+      expect(session.masteredUnitWordCount.value).toBe(1)
+    })
+  })
+
   it('restores unfinished progress after the session is recreated', async () => {
     const firstSession = await openSession()
     firstSession.openDictationSetup()

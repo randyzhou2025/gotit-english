@@ -1901,9 +1901,18 @@ function progressContentMatches(left: ProgressSnapshot, right: ProgressSnapshot)
     && left.courseSetupCompleted === right.courseSetupCompleted
 }
 
-function applyCloudProgress(session: PracticeSession, remote: ProgressSnapshot) {
+async function applyCloudProgress(session: PracticeSession, remote: ProgressSnapshot) {
   const merged = mergeProgress(readLocalProgressSnapshot(), remote)
   writeLocalProgressSnapshot(merged)
+
+  if (merged.selectedUnitId && !findUnit(session.units.value, merged.selectedUnitId)) {
+    const publisherId = publisherIdFromUnitId(merged.selectedUnitId)
+    if (publisherId) {
+      await ensurePublisherLoaded(publisherId)
+      session.adoptWords(await ensureWordbankLoaded())
+    }
+  }
+
   session.adoptProgress(merged)
   markProgressUpdatedAt(merged.updatedAt)
 
@@ -1913,11 +1922,13 @@ function applyCloudProgress(session: PracticeSession, remote: ProgressSnapshot) 
 }
 
 function attachPracticeSessionCloudSync(session: PracticeSession) {
-  void ensureUserSession().then((sessionPayload) => {
+  void ensureUserSession().then(async (sessionPayload) => {
     if (!sessionPayload) return
 
-    applyCloudProgress(session, sessionPayload.progress)
+    await applyCloudProgress(session, sessionPayload.progress)
     setCachedDashboard(sessionPayload.dashboard)
+  }).catch(error => {
+    console.warn('[usePracticeSession] cloud progress restore failed', error)
   })
 }
 
@@ -2081,7 +2092,7 @@ export async function flushPracticeCloudSync(): Promise<void> {
   const remote = await pullRemoteProgress() ?? sessionPayload?.progress ?? null
 
   if (remote) {
-    applyCloudProgress(session, remote)
+    await applyCloudProgress(session, remote)
   }
 
   await flushProgressUpload()
