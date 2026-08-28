@@ -145,7 +145,9 @@ describe('classmates page MVP', () => {
     expect(source).toContain('hover-class="buttonPressed" @tap="showShareHint(\'leaderboard\')"')
     expect(source).not.toContain('@keyframes')
     expect(source).not.toContain('setInterval')
-    expect(source).toContain('background-image: linear-gradient(var(--surface), var(--surface));')
+    expect(source).not.toContain('background-image: linear-gradient(var(--surface), var(--surface));')
+    expect(source).toMatch(/\.classmatesScreen\s*\{[^}]*background: var\(--page-bg\);/)
+    expect(source).toMatch(/\.classmatesChrome\s*\{[^}]*background: var\(--page-bg\);/)
   })
 
   it('hides native tab chrome when showing its own bottom navigation', () => {

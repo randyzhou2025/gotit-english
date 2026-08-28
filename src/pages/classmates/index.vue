@@ -494,7 +494,6 @@ onShow(() => {
   min-height: 100vh;
   min-height: 100dvh;
   background: var(--page-bg);
-  background-image: linear-gradient(var(--surface), var(--surface));
   color: var(--ink);
 }
 
@@ -507,7 +506,6 @@ onShow(() => {
   padding: calc(8px + env(safe-area-inset-top)) 20px 0;
   border-bottom: 1px solid var(--line);
   background: var(--page-bg);
-  background-image: linear-gradient(var(--surface), var(--surface));
 }
 
 .classmatesNav { display: flex; align-items: center; justify-content: center; height: var(--capsule-h, 32px); }

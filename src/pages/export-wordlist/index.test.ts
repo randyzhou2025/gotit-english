@@ -23,6 +23,7 @@ function setupExport() {
     exportPages: { value: [{}, {}] },
     exportProgress: { value: '正在生成…' },
     trackAnalyticsEvent: vi.fn(),
+    showRewardedVideoAd: vi.fn().mockResolvedValue(true),
     drawExportPage: vi.fn().mockResolvedValue(undefined),
     canvasToJpeg: vi.fn().mockResolvedValue('/tmp/export.jpg'),
     writeAndOpenPdf: vi.fn().mockResolvedValue(undefined),
@@ -37,6 +38,29 @@ function setupExport() {
 }
 
 describe('wordlist export learning power', () => {
+  it('shows the rewarded video before generating the PDF', async () => {
+    const page = setupExport()
+    await page.exportPdf()
+
+    expect(page.showRewardedVideoAd).toHaveBeenCalledOnce()
+    expect(page.showRewardedVideoAd.mock.invocationCallOrder[0])
+      .toBeLessThan(page.drawExportPage.mock.invocationCallOrder[0]!)
+  })
+
+  it('does not generate or award when the rewarded video is closed early', async () => {
+    const page = setupExport()
+    page.showRewardedVideoAd.mockResolvedValue(false)
+    await page.exportPdf()
+
+    expect(page.drawExportPage).not.toHaveBeenCalled()
+    expect(page.writeAndOpenPdf).not.toHaveBeenCalled()
+    expect(page.submitWordlistExport).not.toHaveBeenCalled()
+    expect(page.uni.showToast).toHaveBeenCalledWith({
+      title: '完整观看广告后即可导出 PDF', icon: 'none'
+    })
+    expect(page.exporting.value).toBe(false)
+  })
+
   it.each(['wordlist', 'chinese', 'english'])('awards once per successful %s export, not per PDF page', async mode => {
     const page = setupExport()
     page.exportMode.value = mode

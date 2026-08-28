@@ -95,6 +95,7 @@
 
 <script setup lang="ts">
 import { computed, getCurrentInstance, onBeforeMount, onMounted, ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 import {
   ensurePracticeSessionReady,
   isPracticeSessionReady,
@@ -126,6 +127,7 @@ const { activeVisualThemeStyle } = useVisualTheme()
 
 const CANVAS_ID = 'wordlistExportCanvas'
 const EXPORT_JPEG_QUALITY = 0.92
+const REWARDED_VIDEO_AD_UNIT_ID = 'adunit-879e65090e3fd1ed'
 const instance = getCurrentInstance()
 
 interface ExportCanvasNode {
@@ -134,7 +136,27 @@ interface ExportCanvasNode {
   getContext(contextType: '2d'): CanvasRenderingContext2D
 }
 
+interface RewardedVideoAdCloseResult {
+  isEnded?: boolean
+}
+
+interface RewardedVideoAd {
+  load(): Promise<void>
+  show(): Promise<void>
+  onLoad(callback: () => void): void
+  onError(callback: (error: unknown) => void): void
+  onClose(callback: (result?: RewardedVideoAdCloseResult) => void): void
+}
+
+const wechatRuntime = (globalThis as typeof globalThis & {
+  wx?: {
+    createRewardedVideoAd?: (options: { adUnitId: string }) => RewardedVideoAd
+  }
+}).wx
+
 let exportCanvas: ExportCanvasNode | null = null
+let videoAd: RewardedVideoAd | null = null
+let resolveVideoAdClose: ((completed: boolean) => void) | null = null
 
 const ready = ref(isPracticeSessionReady())
 const exporting = ref(false)
@@ -196,6 +218,45 @@ function updateMiniProgramNavInset() {
 
 function goBack() {
   uni.navigateBack()
+}
+
+function initializeRewardedVideoAd() {
+  if (!wechatRuntime?.createRewardedVideoAd) return
+
+  videoAd = wechatRuntime.createRewardedVideoAd({
+    adUnitId: REWARDED_VIDEO_AD_UNIT_ID
+  })
+  videoAd.onLoad(() => {})
+  videoAd.onError(error => {
+    console.error('[wordlist-export] rewarded video ad failed to load', error)
+  })
+  videoAd.onClose(result => {
+    const completed = result?.isEnded === undefined || result.isEnded
+    resolveVideoAdClose?.(completed)
+    resolveVideoAdClose = null
+  })
+}
+
+async function showRewardedVideoAd(): Promise<boolean> {
+  if (!videoAd) return true
+
+  return new Promise(resolve => {
+    resolveVideoAdClose = resolve
+    videoAd!.show().catch(async () => {
+      try {
+        await videoAd!.load()
+        await videoAd!.show()
+      } catch (error) {
+        console.error('[wordlist-export] rewarded video ad failed to show', error)
+        resolveVideoAdClose = null
+        uni.showToast({
+          title: '广告暂时无法播放，已为你继续导出',
+          icon: 'none'
+        })
+        resolve(true)
+      }
+    })
+  })
 }
 
 function shuffle<T>(items: T[]): T[] {
@@ -364,6 +425,16 @@ async function exportPdf() {
   exporting.value = true
   const imagePaths: string[] = []
   try {
+    exportProgress.value = '正在加载广告…'
+    const watchedAd = await showRewardedVideoAd()
+    if (!watchedAd) {
+      uni.showToast({
+        title: '完整观看广告后即可导出 PDF',
+        icon: 'none'
+      })
+      return
+    }
+
     for (let pageIndex = 0; pageIndex < exportPages.value.length; pageIndex += 1) {
       exportProgress.value = `正在生成 ${pageIndex + 1}/${exportPages.value.length} 页`
       await drawExportPage(pageIndex)
@@ -389,6 +460,10 @@ async function exportPdf() {
     exportProgress.value = '正在生成…'
   }
 }
+
+onLoad(() => {
+  initializeRewardedVideoAd()
+})
 
 onBeforeMount(async () => {
   if (ready.value) return
