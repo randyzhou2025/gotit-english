@@ -163,13 +163,12 @@
         :today-dictation-word-count="todayDictationWordCount"
         :unit-egg-audio-playing="isAudioPlaying"
         :visual-theme-name="activeVisualTheme.name"
-        :weak-word-count="savedWeakWords.length"
         @feedback="openFeedbackPage"
         @change-course="openCourseSetupPage"
         @open-unit-words="openUnitWordsPage()"
         @start-dictation="openDictationSetupPage"
         @export-wordlist="openWordlistExportPage"
-        @review-weak-words="openWeakbook"
+        @open-word-match="openWordMatchPage"
         @switch-theme="switchToNextVisualTheme"
         @play-unit-egg-audio="playUnitEggAudio"
         @book-cover-error="homeBookCoverFailed = true"
@@ -2813,6 +2812,19 @@ function openWordlistExportPage() {
   uni.navigateTo({
     url: '/pages/export-wordlist/index'
   })
+}
+
+function openWordMatchPage() {
+  const unit = selectedUnit.value
+  trackAnalyticsEvent('home_word_match_click', {
+    unitId: unit?.unitId,
+    bookId: unit?.bookId,
+    publisherName: unit?.publisherName,
+    bookName: unit?.bookName,
+    unitName: unit?.unitName,
+    wordCount: unit?.words.length
+  })
+  uni.navigateTo({ url: '/pages/word-match/index' })
 }
 
 function openFeedbackPage() {

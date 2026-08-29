@@ -7,6 +7,7 @@ import { appConfig, usageEvents } from "../db/schema.js";
 const analyticsEventNames = [
   "theme_selected",
   "home_export_click",
+  "home_word_match_click",
   "wordlist_export_click",
   "weakbook_click",
   "dictation_start",

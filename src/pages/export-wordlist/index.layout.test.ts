@@ -73,6 +73,16 @@ describe('wordlist export canvas layout', () => {
     expect(source).toContain('min-height: 46px;')
   })
 
+  it('fits the complete export action into narrow or low Android viewports', () => {
+    expect(source).toContain('height: 100dvh;')
+    expect(source).toContain('box-sizing: border-box;')
+    expect(source).toContain('@media (max-width: 380px), (max-height: 800px)')
+    expect(source).toContain('max-width: 300px;')
+    expect(source).toContain('padding: 14px 18px calc(14px + env(safe-area-inset-bottom));')
+    expect(source).toContain('min-height: 58px;')
+    expect(source).toContain('min-height: 44px; margin-top: 10px;')
+  })
+
   it('does not show the row and column count badge', () => {
     expect(source).not.toContain('paperBadge')
     expect(source).not.toContain('<text>2 列</text>')

@@ -75,6 +75,19 @@ describe('analytics queue', () => {
     ])
   })
 
+  it('queues the word match home entry as the only module-specific event', async () => {
+    const analytics = await import('./analytics')
+    analytics.trackAnalyticsEvent('home_word_match_click', {
+      unitId: 'rj:required-1:u1',
+      bookName: '必修第一册',
+      unitName: 'Unit 1'
+    })
+    await vi.advanceTimersByTimeAsync(0)
+
+    const queued = storage.get('gotit:analytics:queue:v1') as Array<{ name: string }>
+    expect(queued[queued.length - 1]?.name).toBe('home_word_match_click')
+  })
+
   it('clears pending events and stops uploads when disabled', async () => {
     storage.set('gotit:auth:token', 'token')
     const analytics = await import('./analytics')

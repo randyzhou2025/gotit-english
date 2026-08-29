@@ -1,6 +1,6 @@
 import { apiRequest, ensureUserSession, getAuthToken, isApiEnabled } from '@/core/userSession'
 
-export type ShareType = 'UNIT_INVITE' | 'DICTATION_RESULT' | 'CLASSMATE_INVITE'
+export type ShareType = 'UNIT_INVITE' | 'DICTATION_RESULT' | 'CLASSMATE_INVITE' | 'WORD_MATCH_CHALLENGE'
 
 export interface UnitShareContext {
   publisherId: string

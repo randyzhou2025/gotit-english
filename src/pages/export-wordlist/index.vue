@@ -484,9 +484,12 @@ onMounted(() => {
 <style scoped lang="scss">
 .exportScreen {
   position: relative;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   width: 100%;
+  height: 100vh;
+  height: 100dvh;
   min-height: 100vh;
   min-height: 100dvh;
   overflow: hidden;
@@ -824,6 +827,33 @@ onMounted(() => {
   font-size: 8.5px;
   line-height: 1.4;
   text-align: center;
+}
+
+@media (max-width: 380px), (max-height: 800px) {
+  .exportScroll { margin-top: 8px; }
+
+  .previewStage { padding: 10px 14px 12px; }
+
+  .previewPaper {
+    max-width: 300px;
+    padding: 11px 10px 9px;
+  }
+
+  .previewTables { margin-top: 6px; }
+  .paperFooter { margin-top: 6px; }
+
+  .exportControls { padding: 14px 18px calc(14px + env(safe-area-inset-bottom)); }
+  .modeOption { min-height: 58px; padding: 5px 4px; }
+  .modeSubtitle { margin-top: 4px; }
+
+  .shuffleRow {
+    min-height: 46px;
+    margin-top: 10px;
+    padding: 6px 12px;
+  }
+
+  .exportButton { min-height: 44px; margin-top: 10px; }
+  .exportHint { margin-top: 5px; }
 }
 
 /* Matches the Canvas 2D buffer 1:1 so the export crop reads the same whether the

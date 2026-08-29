@@ -9,6 +9,7 @@ import {
   pointsToEnterTopTen,
   pointsToOvertake,
   shanghaiWeekContext,
+  wordMatchRoundScore,
 } from "./learning-power.js";
 
 test("Shanghai week starts on Monday and switches without deleting history", () => {
@@ -56,6 +57,36 @@ test("unique keys make app opens, weekly words, sessions, daily bonuses and revi
   assert.equal(learningPowerUniqueKey({ ...base, type: "VALID_DICTATION", sessionId: "s1" }), "VALID_DICTATION:u1:s1");
   assert.equal(learningPowerUniqueKey({ ...base, type: "DAILY_BONUS" }), "DAILY_BONUS:u1:20260824");
   assert.equal(learningPowerUniqueKey({ ...base, type: "MISTAKE_REVIEW", wordId: "apple" }), "MISTAKE_REVIEW:u1:apple:20260824");
+});
+
+test("word match round rewards are unique per unit, round and Shanghai date", () => {
+  assert.equal(LEARNING_POWER_LIMITS.wordMatch, 20);
+  assert.equal(availableScore(0, LEARNING_POWER_LIMITS.wordMatch, 2), 2);
+  assert.equal(availableScore(19, LEARNING_POWER_LIMITS.wordMatch, 2), 1);
+  assert.equal(wordMatchRoundScore({ wordCount: 9, bestCombo: 9, errorCount: 0 }), 5);
+  assert.equal(wordMatchRoundScore({ wordCount: 5, bestCombo: 5, errorCount: 0 }), 5);
+  assert.equal(wordMatchRoundScore({ wordCount: 9, bestCombo: 8, errorCount: 0 }), 2);
+  assert.equal(wordMatchRoundScore({ wordCount: 9, bestCombo: 9, errorCount: 1 }), 2);
+  const input = {
+    type: "WORD_MATCH_ROUND" as const,
+    userId: "u1",
+    unitId: "rj:required-1:u1",
+    roundIndex: 2,
+    dateKey: "2026-08-29",
+    weekKey: "2026-W35",
+  };
+  assert.equal(
+    learningPowerUniqueKey(input),
+    "WORD_MATCH_ROUND:u1:rj:required-1:u1:2:20260829"
+  );
+  assert.notEqual(
+    learningPowerUniqueKey({ ...input, roundIndex: 3 }),
+    learningPowerUniqueKey(input)
+  );
+  assert.notEqual(
+    learningPowerUniqueKey({ ...input, dateKey: "2026-08-30" }),
+    learningPowerUniqueKey(input)
+  );
 });
 
 test("classmate pairs are normalized and overtake copy uses score plus one", () => {

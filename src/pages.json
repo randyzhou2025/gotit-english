@@ -57,6 +57,13 @@
       }
     },
     {
+      "path": "pages/word-match/index",
+      "style": {
+        "navigationBarTitleText": "单词消消乐",
+        "navigationStyle": "custom"
+      }
+    },
+    {
       "path": "pages/export-wordlist/index",
       "style": {
         "navigationBarTitleText": "导出词表",

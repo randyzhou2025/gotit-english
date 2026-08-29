@@ -2013,7 +2013,7 @@ export async function confirmCourseSetupAndEnter(): Promise<boolean> {
   return true
 }
 
-export async function openUnitDictationChallenge(unitId: string): Promise<boolean> {
+async function prepareUnitChallenge(unitId: string): Promise<boolean> {
   const normalizedUnitId = unitId.trim()
   await ensureManifestReady()
 
@@ -2050,8 +2050,20 @@ export async function openUnitDictationChallenge(unitId: string): Promise<boolea
   const session = practiceSession ?? await ensurePracticeSessionReady()
   session.adoptWords(words)
   session.setTemporaryUnit(unit)
+  return true
+}
+
+export async function openUnitDictationChallenge(unitId: string): Promise<boolean> {
+  const opened = await prepareUnitChallenge(unitId)
+  if (!opened) return false
+
+  const session = practiceSession ?? await ensurePracticeSessionReady()
   session.openDictationSetup({ scrollToTop: false })
   return true
+}
+
+export async function openUnitWordMatchChallenge(unitId: string): Promise<boolean> {
+  return prepareUnitChallenge(unitId)
 }
 
 export function resetPracticeSessionState() {

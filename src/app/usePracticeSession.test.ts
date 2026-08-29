@@ -4,6 +4,7 @@ import {
   createPracticeSession,
   ensurePracticeSessionReady,
   openUnitDictationChallenge,
+  openUnitWordMatchChallenge,
   resetPracticeSessionForTests,
   resetPracticeSessionState
 } from './usePracticeSession'
@@ -514,6 +515,19 @@ describe('confirmCourseSetupAndEnter', () => {
     expect(storage.get('gotit:selectedUnitId')).not.toBe(targetUnitId)
 
     session.backFromDictationSetup()
+    expect(session.screen.value).toBe('courseSetup')
+    expect(storage.get('gotit:selectedUnitId')).not.toBe(targetUnitId)
+  })
+
+  it('prepares a shared unit for word match without entering dictation', async () => {
+    const session = await ensurePracticeSessionReady()
+    const targetUnitId = 'rj:required-1:u1'
+
+    expect(await openUnitWordMatchChallenge(targetUnitId)).toBe(true)
+
+    expect(session.courseSetupCompleted.value).toBe(false)
+    expect(session.selectedUnit.value?.unitId).toBe(targetUnitId)
+    expect(session.unitWords.value.length).toBeGreaterThan(0)
     expect(session.screen.value).toBe('courseSetup')
     expect(storage.get('gotit:selectedUnitId')).not.toBe(targetUnitId)
   })

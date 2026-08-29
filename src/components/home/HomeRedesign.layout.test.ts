@@ -46,14 +46,14 @@ describe('redesigned home', () => {
     expect(homeSource).toContain('class="homeV2WordlistRow"')
   })
 
-  it('keeps all existing home destinations connected', () => {
+  it('keeps the retained home destinations and the word-match entry connected', () => {
     expect(homeSource).toContain("emit('change-course')")
     expect(homeSource).toContain("emit('open-unit-words')")
     expect(homeSource).toContain("emit('start-dictation')")
     expect(homeSource).toContain("emit('export-wordlist')")
-    expect(homeSource).toContain("emit('review-weak-words')")
+    expect(homeSource).toContain("emit('open-word-match')")
     expect(homeSource).toContain("emit('play-unit-egg-audio', $event)")
-    expect(shellSource).toContain('@review-weak-words="openWeakbook"')
+    expect(shellSource).toContain('@open-word-match="openWordMatchPage"')
     expect(shellSource).toContain('@play-unit-egg-audio="playUnitEggAudio"')
   })
 
@@ -77,10 +77,12 @@ describe('redesigned home', () => {
     expect(homeSource).toContain('导出｜打印词表')
     expect(homeSource).toContain('词汇表 · 默写表 ')
     expect(homeSource).toContain('一键生成')
+    expect(homeSource).toContain('中英配对 · 越玩越熟本 Unit 单词')
+    expect(homeSource).not.toContain('玩一轮得2学习力')
   })
 
   it('uses the same color treatment for both quick actions', () => {
-    expect(homeSource).toContain('.homeV2QuickCard.isExport,\n.homeV2QuickCard.isWeakbook {')
+    expect(homeSource).toContain('.homeV2QuickCard.isExport,\n.homeV2QuickCard.isWordMatch {')
     expect(homeSource).not.toContain('.homeV2QuickCard.isExport {\n  border-color: var(--accent);')
   })
 

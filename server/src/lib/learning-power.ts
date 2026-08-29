@@ -7,6 +7,7 @@ export const LEARNING_POWER_LIMITS = {
   streak: 5,
   mistakeReview: 20,
   wordlistExport: 20,
+  wordMatch: 20,
 } as const;
 
 export type LearningPowerEventType =
@@ -16,7 +17,8 @@ export type LearningPowerEventType =
   | "DAILY_BONUS"
   | "STREAK_BONUS"
   | "MISTAKE_REVIEW"
-  | "WORDLIST_EXPORT";
+  | "WORDLIST_EXPORT"
+  | "WORD_MATCH_ROUND";
 
 export interface ShanghaiWeekContext {
   dateKey: string;
@@ -84,6 +86,17 @@ export function availableScore(current: number, limit: number, requested: number
   return Math.max(0, Math.min(Math.max(0, requested), Math.max(0, limit - current)));
 }
 
+export function wordMatchRoundScore(input: {
+  wordCount: number;
+  bestCombo: number;
+  errorCount: number;
+}): number {
+  const perfectRound = input.wordCount > 0
+    && input.errorCount === 0
+    && input.bestCombo === input.wordCount;
+  return perfectRound ? 5 : 2;
+}
+
 export function pointsToOvertake(previousScore: number | null, myScore: number): number | null {
   if (previousScore === null) return null;
   return Math.max(1, previousScore - myScore + 1);
@@ -106,6 +119,8 @@ export function learningPowerUniqueKey(input: {
   wordId?: string;
   sessionId?: string;
   exportId?: string;
+  unitId?: string;
+  roundIndex?: number;
 }): string {
   switch (input.type) {
     case "APP_OPEN":
@@ -122,5 +137,7 @@ export function learningPowerUniqueKey(input: {
       return `MISTAKE_REVIEW:${input.userId}:${input.wordId ?? ""}:${input.dateKey.replaceAll("-", "")}`;
     case "WORDLIST_EXPORT":
       return `WORDLIST_EXPORT:${input.userId}:${input.exportId ?? ""}`;
+    case "WORD_MATCH_ROUND":
+      return `WORD_MATCH_ROUND:${input.userId}:${input.unitId ?? ""}:${input.roundIndex ?? ""}:${input.dateKey.replaceAll("-", "")}`;
   }
 }

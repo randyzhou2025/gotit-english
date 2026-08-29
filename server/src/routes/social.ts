@@ -11,6 +11,7 @@ import {
   recordDictationWordCompletion,
   recordMistakeReviews,
   recordWordlistExport,
+  recordWordMatchRound,
   removeClassmate,
   toggleFeedCheer,
 } from "../services/social.js";
@@ -20,7 +21,7 @@ const shareSchema = z.object({
   bookId: z.string().trim().min(1).max(128),
   unitId: z.string().trim().min(1).max(128),
   unitName: z.string().trim().min(1).max(128),
-  shareType: z.enum(["UNIT_INVITE", "DICTATION_RESULT", "CLASSMATE_INVITE"]),
+  shareType: z.enum(["UNIT_INVITE", "DICTATION_RESULT", "CLASSMATE_INVITE", "WORD_MATCH_CHALLENGE"]),
 });
 
 const shareTokenSchema = z.string().trim().min(16).max(64).regex(/^[A-Za-z0-9_-]+$/);
@@ -52,6 +53,14 @@ const mistakeReviewSchema = z.object({
 const wordlistExportSchema = z.object({
   exportId: z.string().trim().min(8).max(128),
   unitId: z.string().trim().min(1).max(128).optional(),
+});
+
+const wordMatchRoundSchema = z.object({
+  unitId: z.string().trim().min(1).max(128),
+  roundIndex: z.number().int().min(0).max(99),
+  wordCount: z.number().int().min(1).max(9),
+  bestCombo: z.number().int().min(0).max(9).default(0),
+  errorCount: z.number().int().min(0).max(999).default(1),
 });
 
 export async function registerSocialRoutes(
@@ -111,6 +120,13 @@ export async function registerSocialRoutes(
     if (!parsed.success) throw app.httpErrors.badRequest("Invalid wordlist export payload");
     const jwtUser = request.user as { sub: string };
     return recordWordlistExport(jwtUser.sub, parsed.data);
+  });
+
+  app.post("/api/learning-power/word-match-rounds", { preHandler: [authenticate] }, async (request: FastifyRequest) => {
+    const parsed = wordMatchRoundSchema.safeParse(request.body ?? {});
+    if (!parsed.success) throw app.httpErrors.badRequest("Invalid word match round payload");
+    const jwtUser = request.user as { sub: string };
+    return recordWordMatchRound(jwtUser.sub, parsed.data);
   });
 
   app.get("/api/classmates/feed", { preHandler: [authenticate] }, async (request: FastifyRequest) => {

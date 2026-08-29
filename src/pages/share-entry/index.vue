@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { openUnitDictationChallenge } from '@/app/usePracticeSession'
+import { openUnitDictationChallenge, openUnitWordMatchChallenge } from '@/app/usePracticeSession'
 import { readUnitChallengeId, type UnitChallengeQuery } from '@/app/unitChallenge'
 import { acceptClassmateShare } from '@/core/classmates'
 import { trackAnalyticsEvent } from '@/core/analytics'
@@ -39,14 +39,19 @@ onLoad(async (query: UnitChallengeQuery = {}) => {
 
   try {
     const context = await acceptClassmateShare(token)
-    trackAnalyticsEvent('share_accepted', {
-      shareType: context.shareType,
-      classmateCreated: context.classmateCreated,
-      selfShare: context.isSelfShare
-    })
-    const opened = await openUnitDictationChallenge(context.unitId)
+    const isWordMatchChallenge = context.shareType === 'WORD_MATCH_CHALLENGE'
+    if (!isWordMatchChallenge) {
+      trackAnalyticsEvent('share_accepted', {
+        shareType: context.shareType,
+        classmateCreated: context.classmateCreated,
+        selfShare: context.isSelfShare
+      })
+    }
+    const opened = isWordMatchChallenge
+      ? await openUnitWordMatchChallenge(context.unitId)
+      : await openUnitDictationChallenge(context.unitId)
     if (!opened) throw new Error('unit-unavailable')
-    uni.redirectTo({ url: '/pages/dictation/setup' })
+    uni.redirectTo({ url: isWordMatchChallenge ? '/pages/word-match/index' : '/pages/dictation/setup' })
   } catch (error) {
     console.warn('[share-entry] accept failed', error)
     errorMessage.value = error instanceof Error && error.message === '登录未完成'

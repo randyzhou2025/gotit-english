@@ -120,17 +120,12 @@
         <text class="homeV2QuickChevron">›</text>
       </view>
 
-      <view class="homeV2QuickCard isWeakbook" @tap="emit('review-weak-words')">
-        <view class="homeV2ReviewIcon" aria-hidden="true">
-          <view class="homeV2ReviewCheck one" />
-          <view class="homeV2ReviewCheck two" />
-          <view class="homeV2ReviewCheck three" />
-        </view>
+      <view class="homeV2QuickCard isWordMatch" @tap="emit('open-word-match')">
+        <view class="homeV2MatchIcon" aria-hidden="true"><text>消</text></view>
         <view class="homeV2QuickCopy">
-          <text class="homeV2QuickTitle">复习生词</text>
-          <text class="homeV2QuickMeta">听写正确后自动移除</text>
+          <text class="homeV2QuickTitle">单词消消乐</text>
+          <text class="homeV2QuickMeta">中英配对 · 越玩越熟本 Unit 单词</text>
         </view>
-        <text v-if="weakWordCount > 0" class="homeV2QuickBadge">{{ weakWordBadge }}</text>
         <text class="homeV2QuickChevron">›</text>
       </view>
     </view>
@@ -165,7 +160,6 @@ const props = defineProps<{
   todayDictationWordCount: number
   unitEggAudioPlaying: boolean
   visualThemeName: string
-  weakWordCount: number
 }>()
 
 const emit = defineEmits<{
@@ -174,7 +168,7 @@ const emit = defineEmits<{
   'open-unit-words': []
   'start-dictation': []
   'export-wordlist': []
-  'review-weak-words': []
+  'open-word-match': []
   'switch-theme': []
   'play-unit-egg-audio': [keyword: string]
   'book-cover-error': []
@@ -206,7 +200,6 @@ const remainingDictationMeta = computed(() => {
   const estimatedMinutes = formatEstimatedMinutes(estimatedSeconds).replace(' ', '')
   return `剩余${remainingWordCount.value}词 · 全部听写约${estimatedMinutes} · 自动播报`
 })
-const weakWordBadge = computed(() => String(Math.min(99, props.weakWordCount)))
 </script>
 
 <style scoped lang="scss">
@@ -684,7 +677,7 @@ const weakWordBadge = computed(() => String(Math.min(99, props.weakWordCount)))
 }
 
 .homeV2QuickCard.isExport,
-.homeV2QuickCard.isWeakbook {
+.homeV2QuickCard.isWordMatch {
   background: var(--accent-soft);
 }
 
@@ -723,22 +716,6 @@ const weakWordBadge = computed(() => String(Math.min(99, props.weakWordCount)))
   font-weight: 650;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
-}
-
-.homeV2QuickBadge {
-  position: absolute;
-  top: 5px;
-  right: 7px;
-  min-width: 23px;
-  margin-left: auto;
-  padding: 2px 7px;
-  border-radius: 999px;
-  background: var(--danger);
-  color: #fffdf8;
-  font-size: 11px;
-  line-height: 1.35;
-  font-weight: 900;
-  text-align: center;
 }
 
 .homeV2ExportIcon {
@@ -783,39 +760,19 @@ const weakWordBadge = computed(() => String(Math.min(99, props.weakWordCount)))
   transform-origin: bottom;
 }
 
-.homeV2ReviewIcon {
-  position: relative;
+.homeV2MatchIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 24px;
-  height: 27px;
+  height: 24px;
   border: 2px solid var(--accent);
-  border-radius: 4px;
+  border-radius: 7px;
+  color: var(--accent);
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 950;
 }
-
-.homeV2ReviewCheck {
-  position: absolute;
-  left: 5px;
-  width: 6px;
-  height: 3px;
-  border-bottom: 2px solid var(--accent);
-  border-left: 2px solid var(--accent);
-  transform: rotate(-45deg);
-}
-
-.homeV2ReviewCheck::after {
-  position: absolute;
-  top: 4px;
-  left: 10px;
-  width: 8px;
-  height: 2px;
-  border-radius: 999px;
-  background: var(--accent);
-  content: '';
-  transform: rotate(45deg);
-}
-
-.homeV2ReviewCheck.one { top: 3px; }
-.homeV2ReviewCheck.two { top: 10px; }
-.homeV2ReviewCheck.three { top: 17px; }
 
 @media (max-width: 375px) {
   .homeV2TitleGroup {

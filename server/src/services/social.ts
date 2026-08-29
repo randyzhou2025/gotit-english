@@ -35,11 +35,12 @@ import {
   pointsToOvertake,
   previousShanghaiDate,
   shanghaiWeekContext,
+  wordMatchRoundScore,
   type LearningPowerEventType,
 } from "../lib/learning-power.js";
 import { uniqueWordIds } from "../lib/utils.js";
 
-export type ShareType = "UNIT_INVITE" | "DICTATION_RESULT" | "CLASSMATE_INVITE";
+export type ShareType = "UNIT_INVITE" | "DICTATION_RESULT" | "CLASSMATE_INVITE" | "WORD_MATCH_CHALLENGE";
 
 export interface DictationCompletionInput {
   sessionId: string;
@@ -364,6 +365,94 @@ export async function recordWordlistExport(
     return { duplicate: false, earned: score };
   });
   return { ...result, weekKey: context.weekKey };
+}
+
+export async function recordWordMatchRound(
+  userId: string,
+  input: { unitId: string; roundIndex: number; wordCount: number; bestCombo: number; errorCount: number },
+  occurredAt = new Date()
+) {
+  const context = shanghaiWeekContext(occurredAt);
+  const result = await db.transaction(async (tx) => {
+    await tx
+      .insert(dailyLearningPowerStats)
+      .values(dailyStatDefaults(userId, context.dateKey))
+      .onConflictDoNothing({ target: [dailyLearningPowerStats.userId, dailyLearningPowerStats.statDate] });
+    const [daily] = await tx
+      .select()
+      .from(dailyLearningPowerStats)
+      .where(and(
+        eq(dailyLearningPowerStats.userId, userId),
+        eq(dailyLearningPowerStats.statDate, context.dateKey)
+      ))
+      .for("update")
+      .limit(1);
+    if (!daily) throw new Error("Daily learning power row was not created");
+
+    const [dailyMatch] = await tx
+      .select({ score: sql<number>`coalesce(sum(${learningPowerEvents.score}), 0)::int` })
+      .from(learningPowerEvents)
+      .where(and(
+        eq(learningPowerEvents.userId, userId),
+        eq(learningPowerEvents.eventDate, context.dateKey),
+        eq(learningPowerEvents.eventType, "WORD_MATCH_ROUND")
+      ));
+    const currentScore = Number(dailyMatch?.score ?? 0);
+    const requestedScore = wordMatchRoundScore(input);
+    const score = availableScore(currentScore, LEARNING_POWER_LIMITS.wordMatch, requestedScore);
+    const [event] = await tx
+      .insert(learningPowerEvents)
+      .values({
+        userId,
+        weekKey: context.weekKey,
+        eventDate: context.dateKey,
+        eventType: "WORD_MATCH_ROUND",
+        score,
+        unitId: input.unitId,
+        uniqueKey: learningPowerUniqueKey({
+          type: "WORD_MATCH_ROUND",
+          userId,
+          ...context,
+          unitId: input.unitId,
+          roundIndex: input.roundIndex,
+        }),
+        createdAt: occurredAt,
+      })
+      .onConflictDoNothing({ target: learningPowerEvents.uniqueKey })
+      .returning({ id: learningPowerEvents.id });
+    if (!event) return { duplicate: true, earned: 0, dailyEarned: currentScore };
+    if (score === 0) return { duplicate: false, earned: 0, dailyEarned: currentScore };
+
+    await tx
+      .update(dailyLearningPowerStats)
+      .set({
+        totalScore: daily.totalScore + score,
+        updatedAt: occurredAt,
+      })
+      .where(and(
+        eq(dailyLearningPowerStats.userId, userId),
+        eq(dailyLearningPowerStats.statDate, context.dateKey)
+      ));
+    await tx
+      .insert(weeklyLearningPower)
+      .values({ userId, weekKey: context.weekKey, learningPower: score, lastScoreAt: occurredAt, updatedAt: occurredAt })
+      .onConflictDoUpdate({
+        target: [weeklyLearningPower.userId, weeklyLearningPower.weekKey],
+        set: {
+          learningPower: sql`${weeklyLearningPower.learningPower} + ${score}`,
+          lastScoreAt: occurredAt,
+          updatedAt: occurredAt,
+        },
+      });
+    return { duplicate: false, earned: score, dailyEarned: currentScore + score };
+  });
+  const weekly = await currentLearningSnapshot(userId, context.weekKey);
+  return {
+    ...result,
+    dailyLimit: LEARNING_POWER_LIMITS.wordMatch,
+    weekKey: context.weekKey,
+    weeklyLearningPower: weekly?.learningPower ?? 0,
+  };
 }
 
 async function learningBreakdownForSession(
