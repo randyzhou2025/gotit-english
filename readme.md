@@ -13,10 +13,11 @@ pnpm release:weapp
 | 顺序 | 命令 | 做什么 |
 |------|------|--------|
 | 1 | `pnpm wordbank:build` | 从 Excel 生成词库 + manifest + CDN 文件 |
-| 2 | `pnpm typecheck` | TypeScript 类型检查 |
-| 3 | `pnpm test` | 单元测试 |
-| 4 | `pnpm audio:verify-cdn` | 校验 CDN 上的 mp3（release 脚本里默认跳过） |
-| 5 | `pnpm build:weapp` | 编译微信小程序到 `dist/build/mp-weixin` |
+| 2 | `pnpm unit-eggs:build` | 生成彩蛋清单和按出版社拆分的 CDN 文件 |
+| 3 | `pnpm typecheck` | TypeScript 类型检查 |
+| 4 | `pnpm test` | 单元测试 |
+| 5 | `pnpm audio:verify-cdn` | 校验 CDN 上的 mp3（release 脚本里默认跳过） |
+| 6 | `pnpm build:weapp` | 编译微信小程序到 `dist/build/mp-weixin` |
 
 发版前同步教材封面并上传 CDN：
 

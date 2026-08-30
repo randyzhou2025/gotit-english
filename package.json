@@ -23,7 +23,7 @@
     "build:app": "uni build -p app",
     "typecheck": "vue-tsc --noEmit",
     "test": "vitest run --config vitest.config.ts",
-    "verify": "pnpm wordbank:build && pnpm typecheck && pnpm test && pnpm build:h5"
+    "verify": "pnpm wordbank:build && pnpm unit-eggs:build && pnpm typecheck && pnpm test && pnpm build:h5"
   },
   "dependencies": {
     "@dcloudio/uni-app": "3.0.0-alpha-5020120260710001",

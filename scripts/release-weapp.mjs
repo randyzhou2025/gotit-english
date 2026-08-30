@@ -93,6 +93,18 @@ if (!process.env.VITE_COVERS_CDN_BASE_URL) {
   process.exit(1)
 }
 
+if (!process.env.VITE_UNIT_EGGS_CDN_BASE_URL) {
+  const wordbankBase = String(process.env.VITE_WORDBANK_CDN_BASE_URL || '').replace(/\/+$/, '')
+  if (wordbankBase.endsWith('/generated/wordbank')) {
+    process.env.VITE_UNIT_EGGS_CDN_BASE_URL = `${wordbankBase.slice(0, -'/generated/wordbank'.length)}/generated/unit-eggs`
+  }
+}
+
+if (!process.env.VITE_UNIT_EGGS_CDN_BASE_URL) {
+  console.error('VITE_UNIT_EGGS_CDN_BASE_URL is required in .env.production for release builds.')
+  process.exit(1)
+}
+
 assertProductionApiUrl(process.env.VITE_API_BASE_URL)
 
 if (!process.env.AUDIO_CDN_BASE_URL) {
@@ -102,6 +114,7 @@ if (!process.env.AUDIO_CDN_BASE_URL) {
 const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'
 
 runStep('Build wordbank', pnpm, ['wordbank:build'])
+runStep('Build unit eggs', pnpm, ['unit-eggs:build'])
 runStep('Typecheck', pnpm, ['typecheck'])
 runStep('Unit tests', pnpm, ['test'])
 //runStep('Verify audio CDN', pnpm, ['audio:verify-cdn'])
@@ -115,6 +128,17 @@ if (fs.existsSync(wordbankDir)) {
     console.log(`- ${path.join(wordbankDir, fileName)}`)
   }
   console.log('Upload them to your CDN under /generated/wordbank/ (see VITE_WORDBANK_CDN_BASE_URL).')
+  console.log('Include manifest.json — set Cache-Control: no-cache on CDN for that file.')
+}
+
+const unitEggsDir = path.join(root, 'generated', 'unit-eggs')
+if (fs.existsSync(unitEggsDir)) {
+  const unitEggFiles = fs.readdirSync(unitEggsDir).filter(name => name.endsWith('.json'))
+  console.log('\nUnit egg CDN files ready for upload:')
+  for (const fileName of unitEggFiles) {
+    console.log(`- ${path.join(unitEggsDir, fileName)}`)
+  }
+  console.log('Upload them to your CDN under /generated/unit-eggs/ (see VITE_UNIT_EGGS_CDN_BASE_URL).')
   console.log('Include manifest.json — set Cache-Control: no-cache on CDN for that file.')
 }
 

@@ -29,7 +29,9 @@ const workbookConfigs = [
   }
 ]
 const manifestPath = path.join(rootDir, 'src', 'data', 'wordbank.manifest.json')
-const outputPath = path.join(rootDir, 'src', 'data', 'unit-eggs.generated.json')
+const legacyOutputPath = path.join(rootDir, 'src', 'data', 'unit-eggs.generated.json')
+const manifestOutputPath = path.join(rootDir, 'src', 'data', 'unit-eggs.manifest.json')
+const cdnOutputDir = path.join(rootDir, 'generated', 'unit-eggs')
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
 const manifestPublishers = new Map(
   manifest.publishers.map(entry => [entry.publisher.id, entry])
@@ -146,5 +148,52 @@ const payload = {
   byUnit: sortedByUnit
 }
 
-fs.writeFileSync(outputPath, `${JSON.stringify(payload)}\n`)
-console.log(`Generated ${recordCount} unit eggs for ${payload.unitCount} units -> ${path.relative(rootDir, outputPath)}`)
+const publisherPayloads = new Map()
+for (const [unitId, eggs] of Object.entries(sortedByUnit)) {
+  const publisherId = unitId.split(':')[0]
+  if (!publisherPayloads.has(publisherId)) {
+    publisherPayloads.set(publisherId, {})
+  }
+  publisherPayloads.get(publisherId)[unitId] = eggs
+}
+
+const publishers = [...publisherPayloads.entries()]
+  .sort(([left], [right]) => left.localeCompare(right, 'en'))
+  .map(([publisherId, publisherUnits]) => ({
+    id: publisherId,
+    unitCount: Object.keys(publisherUnits).length,
+    recordCount: Object.values(publisherUnits).reduce((total, eggs) => total + eggs.length, 0)
+  }))
+
+const bundledManifest = {
+  version: payload.version,
+  source: payload.source,
+  unitCount: payload.unitCount,
+  recordCount: payload.recordCount,
+  publishers
+}
+
+fs.rmSync(cdnOutputDir, { recursive: true, force: true })
+fs.mkdirSync(cdnOutputDir, { recursive: true })
+fs.writeFileSync(manifestOutputPath, `${JSON.stringify(bundledManifest)}\n`)
+fs.writeFileSync(path.join(cdnOutputDir, 'manifest.json'), `${JSON.stringify(bundledManifest)}\n`)
+
+for (const [publisherId, publisherUnits] of publisherPayloads) {
+  const publisherPayload = {
+    version: payload.version,
+    publisherId,
+    byUnit: publisherUnits
+  }
+  fs.writeFileSync(
+    path.join(cdnOutputDir, `${publisherId}.json`),
+    `${JSON.stringify(publisherPayload)}\n`
+  )
+}
+
+fs.rmSync(legacyOutputPath, { force: true })
+
+console.log(
+  `Generated ${recordCount} unit eggs for ${payload.unitCount} units across ${publishers.length} publisher files`
+)
+console.log(`Bundled manifest -> ${path.relative(rootDir, manifestOutputPath)}`)
+console.log(`CDN files -> ${path.relative(rootDir, cdnOutputDir)}`)

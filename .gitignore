@@ -7,7 +7,9 @@ dist/
 unpackage/
 
 # Generated assets (regenerate via pnpm audio:generate)
-generated/
+generated/*
+!generated/unit-eggs/
+!generated/unit-eggs/*.json
 
 # Textbook covers are served from CDN; keep local copies untracked
 src/static/textbook-covers/

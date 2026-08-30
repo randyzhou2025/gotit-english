@@ -52,6 +52,14 @@ function localWordbankMiddleware(): Plugin {
   )
 }
 
+function localUnitEggsMiddleware(): Plugin {
+  return localAssetMiddleware(
+    path.resolve(__dirname, 'generated/unit-eggs'),
+    '/generated/unit-eggs',
+    'application/json; charset=utf-8'
+  )
+}
+
 function h5AssetCopyPlugin(sourceRoot: string, targetSuffix: string, name: string): Plugin {
   return {
     name,
@@ -82,6 +90,14 @@ function h5WordbankAssetPlugin(): Plugin {
     path.resolve(__dirname, 'generated/wordbank'),
     'generated/wordbank',
     'gotit-h5-wordbank-assets'
+  )
+}
+
+function h5UnitEggsAssetPlugin(): Plugin {
+  return h5AssetCopyPlugin(
+    path.resolve(__dirname, 'generated/unit-eggs'),
+    'generated/unit-eggs',
+    'gotit-h5-unit-eggs-assets'
   )
 }
 
@@ -124,8 +140,10 @@ export default defineConfig(({ mode }) => {
   plugins: [
     localAudioMiddleware(),
     localWordbankMiddleware(),
+    localUnitEggsMiddleware(),
     h5AudioAssetPlugin(),
     h5WordbankAssetPlugin(),
+    h5UnitEggsAssetPlugin(),
     weappPackageCleanupPlugin(coversCdnBaseUrl),
     uni()
   ],

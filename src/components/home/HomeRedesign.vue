@@ -140,7 +140,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { estimateDictationSeconds, formatEstimatedMinutes } from '@/core/dictation'
 import type { DictationMode, DictationRepeatCount, UnitGroup } from '@/core/types'
 import { getUnitEggForDate } from '@/core/unitEggs'
@@ -174,10 +174,23 @@ const emit = defineEmits<{
   'book-cover-error': []
 }>()
 
-const unitEgg = computed(() => {
-  const unitId = props.selectedUnit?.unitId
-  return unitId ? getUnitEggForDate(unitId) : null
-})
+const unitEgg = ref<Awaited<ReturnType<typeof getUnitEggForDate>>>(null)
+let unitEggLoadRevision = 0
+
+watch(
+  () => props.selectedUnit?.unitId,
+  async (unitId) => {
+    const revision = ++unitEggLoadRevision
+    unitEgg.value = null
+    if (!unitId) return
+
+    const nextUnitEgg = await getUnitEggForDate(unitId)
+    if (revision === unitEggLoadRevision) {
+      unitEgg.value = nextUnitEgg
+    }
+  },
+  { immediate: true }
+)
 
 const unitName = computed(() => props.selectedUnit?.unitName || '当前单元')
 const dictationHeadline = computed(() => {

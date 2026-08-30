@@ -4,6 +4,8 @@
 interface ImportMetaEnv {
   readonly VITE_AUDIO_CDN_BASE_URL?: string
   readonly VITE_WORDBANK_CDN_BASE_URL?: string
+  readonly VITE_UNIT_EGGS_CDN_BASE_URL?: string
+  readonly VITE_COVERS_CDN_BASE_URL?: string
   readonly VITE_API_BASE_URL?: string
 }
 
