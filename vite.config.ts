@@ -6,7 +6,9 @@ import { loadEnv } from 'vite'
 import uni from '@dcloudio/vite-plugin-uni'
 import type { Connect, Plugin, ViteDevServer } from 'vite'
 
-function localAssetMiddleware(rootDir: string, mountPath: string, contentType = 'application/octet-stream'): Plugin {
+type ContentType = string | ((assetPath: string) => string)
+
+function localAssetMiddleware(rootDir: string, mountPath: string, contentType: ContentType = 'application/octet-stream'): Plugin {
   return {
     name: `gotit-local-${mountPath.replace(/\W+/g, '-')}`,
     apply: 'serve' as const,
@@ -31,7 +33,7 @@ function localAssetMiddleware(rootDir: string, mountPath: string, contentType = 
             return
           }
 
-          response.setHeader('Content-Type', contentType)
+          response.setHeader('Content-Type', typeof contentType === 'function' ? contentType(assetPath) : contentType)
           response.setHeader('Content-Length', String(stat.size))
           fs.createReadStream(assetPath).pipe(response)
         })
@@ -57,6 +59,14 @@ function localUnitEggsMiddleware(): Plugin {
     path.resolve(__dirname, 'generated/unit-eggs'),
     '/generated/unit-eggs',
     'application/json; charset=utf-8'
+  )
+}
+
+function localThemeAssetsMiddleware(): Plugin {
+  return localAssetMiddleware(
+    path.resolve(__dirname, 'generated/themes'),
+    '/generated/themes',
+    assetPath => assetPath.endsWith('.webp') ? 'image/webp' : 'image/jpeg'
   )
 }
 
@@ -101,6 +111,14 @@ function h5UnitEggsAssetPlugin(): Plugin {
   )
 }
 
+function h5ThemeAssetsPlugin(): Plugin {
+  return h5AssetCopyPlugin(
+    path.resolve(__dirname, 'generated/themes'),
+    'generated/themes',
+    'gotit-h5-theme-assets'
+  )
+}
+
 function removeDsStoreFiles(rootDir: string): void {
   if (!fs.existsSync(rootDir)) return
 
@@ -141,9 +159,11 @@ export default defineConfig(({ mode }) => {
     localAudioMiddleware(),
     localWordbankMiddleware(),
     localUnitEggsMiddleware(),
+    localThemeAssetsMiddleware(),
     h5AudioAssetPlugin(),
     h5WordbankAssetPlugin(),
     h5UnitEggsAssetPlugin(),
+    h5ThemeAssetsPlugin(),
     weappPackageCleanupPlugin(coversCdnBaseUrl),
     uni()
   ],

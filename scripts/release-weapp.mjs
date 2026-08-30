@@ -100,6 +100,13 @@ if (!process.env.VITE_UNIT_EGGS_CDN_BASE_URL) {
   }
 }
 
+if (!process.env.VITE_THEME_CDN_BASE_URL) {
+  const wordbankBase = String(process.env.VITE_WORDBANK_CDN_BASE_URL || '').replace(/\/+$/, '')
+  if (wordbankBase.endsWith('/generated/wordbank')) {
+    process.env.VITE_THEME_CDN_BASE_URL = `${wordbankBase.slice(0, -'/generated/wordbank'.length)}/generated/themes`
+  }
+}
+
 if (!process.env.VITE_UNIT_EGGS_CDN_BASE_URL) {
   console.error('VITE_UNIT_EGGS_CDN_BASE_URL is required in .env.production for release builds.')
   process.exit(1)
@@ -150,6 +157,16 @@ if (fs.existsSync(coversDir)) {
     console.log(`- ${path.join(coversDir, fileName)}`)
   }
   console.log('Upload them to your CDN under /generated/textbook-covers/ (see VITE_COVERS_CDN_BASE_URL).')
+}
+
+const themesDir = path.join(root, 'generated', 'themes')
+if (fs.existsSync(themesDir)) {
+  const themeFiles = fs.readdirSync(themesDir).filter(name => /\.(?:jpg|webp)$/.test(name))
+  console.log('\nOptional theme CDN files ready for future non-core images:')
+  for (const fileName of themeFiles) {
+    console.log(`- ${path.join(themesDir, fileName)}`)
+  }
+  console.log('If used, upload them under /generated/themes/ (see VITE_THEME_CDN_BASE_URL).')
 }
 
 console.log('\nRelease build ready: dist/build/mp-weixin')

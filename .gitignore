@@ -10,6 +10,9 @@ unpackage/
 generated/*
 !generated/unit-eggs/
 !generated/unit-eggs/*.json
+!generated/themes/
+!generated/themes/*.jpg
+!generated/themes/*.webp
 
 # Textbook covers are served from CDN; keep local copies untracked
 src/static/textbook-covers/

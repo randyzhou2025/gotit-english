@@ -178,9 +178,15 @@ function alignSegmentsToTags(tags: string[], segments: string[]): WordMeaningLin
   const unreachable = Number.NEGATIVE_INFINITY
   const dp: number[][] = Array.from({ length: tagCount + 1 }, () => Array(segmentCount + 1).fill(unreachable))
   const prev: number[][] = Array.from({ length: tagCount + 1 }, () => Array(segmentCount + 1).fill(-1))
-  dp[0][0] = 0
+  const initialRow = dp[0]
+  if (!initialRow) return []
+  initialRow[0] = 0
 
   for (let tagIndex = 1; tagIndex <= tagCount; tagIndex += 1) {
+    const scoreRow = dp[tagIndex]
+    const previousIndexRow = prev[tagIndex]
+    if (!scoreRow || !previousIndexRow) continue
+
     for (let end = 0; end <= segmentCount; end += 1) {
       for (let start = 0; start <= end; start += 1) {
         const previous = dp[tagIndex - 1]?.[start]
@@ -196,10 +202,10 @@ function alignSegmentsToTags(tags: string[], segments: string[]): WordMeaningLin
         if (end > start) sliceScore += 0.4
 
         const candidate = previous + sliceScore
-        const current = dp[tagIndex]?.[end] ?? unreachable
-        if (candidate > current && dp[tagIndex]) {
-          dp[tagIndex][end] = candidate
-          prev[tagIndex][end] = start
+        const current = scoreRow[end] ?? unreachable
+        if (candidate > current) {
+          scoreRow[end] = candidate
+          previousIndexRow[end] = start
         }
       }
     }
