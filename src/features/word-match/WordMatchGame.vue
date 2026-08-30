@@ -14,6 +14,20 @@
     <view class="wordMatchNav">
       <view class="wordMatchBack" role="button" aria-label="返回" @tap="goBack"><text>‹</text></view>
       <text class="wordMatchTitle">单词消消乐</text>
+      <view
+        :class="['wordMatchSoundToggle', !soundEnabled && 'isMuted']"
+        role="button"
+        :aria-label="soundEnabled ? '关闭声音' : '打开声音'"
+        @tap="toggleSound"
+      >
+        <view class="wordMatchSpeaker" aria-hidden="true">
+          <view class="wordMatchSpeakerBody" />
+          <view class="wordMatchSpeakerCone" />
+          <view v-if="soundEnabled" class="wordMatchSpeakerWave" />
+          <view v-if="soundEnabled" class="wordMatchSpeakerWave isOuter" />
+          <view v-else class="wordMatchSpeakerSlash" />
+        </view>
+      </view>
     </view>
 
     <view v-if="!unit || rounds.length === 0" class="wordMatchEmpty">
@@ -186,8 +200,11 @@ import {
 } from './api'
 import {
   disposeWordMatchFeedback,
+  isWordMatchSoundEnabled,
   playWordMatchFeedback,
-  prepareWordMatchFeedback
+  prepareWordMatchFeedback,
+  setWordMatchSoundEnabled,
+  startWordMatchBackgroundMusic
 } from './feedback'
 import {
   clearPendingWordMatchReward,
@@ -225,6 +242,7 @@ const meaningPopover = ref<string | null>(null)
 const feedbackKind = ref<'wrong' | ''>('')
 const feedbackSerial = ref(0)
 const capsuleTop = ref(44)
+const soundEnabled = ref(isWordMatchSoundEnabled())
 const timers = new Set<ReturnType<typeof setTimeout>>()
 
 const currentRound = computed(() => rounds[currentRoundIndex.value])
@@ -300,6 +318,12 @@ function showMatchFeedback(kind: 'correct' | 'wrong') {
   later(() => {
     if (feedbackSerial.value === serial) feedbackKind.value = ''
   }, 480)
+}
+
+function toggleSound() {
+  soundEnabled.value = !soundEnabled.value
+  setWordMatchSoundEnabled(soundEnabled.value)
+  if (soundEnabled.value) startWordMatchBackgroundMusic()
 }
 
 function updateCapsuleTop() {
@@ -479,6 +503,7 @@ function showShareHint() {
 onMounted(() => {
   updateCapsuleTop()
   prepareWordMatchFeedback()
+  startWordMatchBackgroundMusic()
   void syncPendingWordMatchRewards()
   if (rounds.length > 0) startRound(currentRoundIndex.value)
 })
@@ -606,6 +631,79 @@ onBeforeUnmount(() => {
 
 .wordMatchTitle::before { margin-right: 10px; content: '✦'; }
 .wordMatchTitle::after { margin-left: 10px; content: '✦'; }
+
+.wordMatchSoundToggle {
+  position: absolute;
+  left: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid rgba(241, 218, 143, 0.42);
+  background: rgba(9, 49, 33, 0.52);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 5px 14px rgba(1, 22, 14, 0.18);
+}
+
+.wordMatchSoundToggle.isMuted { background: rgba(5, 34, 23, 0.72); }
+.wordMatchSoundToggle:active { transform: scale(0.92); }
+
+.wordMatchSpeaker {
+  position: relative;
+  width: 15px;
+  height: 12px;
+}
+
+.wordMatchSpeakerBody {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  width: 4px;
+  height: 5px;
+  border-radius: 2px 0 0 2px;
+  background: #fff5cf;
+}
+
+.wordMatchSpeakerCone {
+  position: absolute;
+  top: 1px;
+  left: 3px;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-right: 7px solid #fff5cf;
+  border-bottom: 5px solid transparent;
+}
+
+.wordMatchSpeakerWave {
+  position: absolute;
+  top: 3px;
+  right: 1px;
+  width: 3px;
+  height: 6px;
+  border-right: 1px solid #ffe48b;
+  border-radius: 0 8px 8px 0;
+}
+
+.wordMatchSpeakerWave.isOuter {
+  top: 0;
+  right: -1px;
+  width: 5px;
+  height: 12px;
+}
+
+.wordMatchSpeakerSlash {
+  position: absolute;
+  top: 5px;
+  left: -1px;
+  width: 17px;
+  height: 1.5px;
+  border-radius: 2px;
+  background: #f0c862;
+  box-shadow: 0 0 0 1px rgba(8, 44, 30, 0.7);
+  transform: rotate(42deg);
+}
 
 .wordMatchStatus {
   overflow: hidden;

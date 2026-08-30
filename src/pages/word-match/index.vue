@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeMount, ref } from 'vue'
-import { onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app'
+import { onHide, onShareAppMessage, onShareTimeline, onShow } from '@dcloudio/uni-app'
 import {
   ensurePracticeSessionReady,
   isPracticeSessionReady,
@@ -33,6 +33,10 @@ import {
 import { buildUnitChallengePath } from '@/app/unitChallenge'
 import { useVisualTheme } from '@/app/useVisualTheme'
 import { createClassmateShare } from '@/core/classmates'
+import {
+  startWordMatchBackgroundMusic,
+  stopWordMatchBackgroundMusic
+} from '@/features/word-match/feedback'
 import WordMatchGame from '@/features/word-match/WordMatchGame.vue'
 
 const ready = ref(isPracticeSessionReady())
@@ -73,6 +77,10 @@ async function prepareShare() {
 
 onShareAppMessage(() => buildWeappShareAppMessage(currentShare()))
 onShareTimeline(() => buildWeappShareTimeline(currentShare()))
+onShow(() => {
+  if (ready.value) startWordMatchBackgroundMusic()
+})
+onHide(stopWordMatchBackgroundMusic)
 
 onBeforeMount(async () => {
   try {

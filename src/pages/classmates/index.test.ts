@@ -36,6 +36,12 @@ describe('classmates page MVP', () => {
     expect(source).toContain('class="podiumMedal"')
   })
 
+  it('keeps only the full empty-state invite when there are no classmates', () => {
+    expect(source).toContain('<view v-if="classmates.length > 0" class="inviteCard">')
+    expect(source).toContain('<view v-else class="classmatesState isEmpty">')
+    expect(source).toContain('邀请第一位同学')
+  })
+
   it('keeps the first version focused on learning actions', () => {
     expect(source).not.toContain('聊天')
     expect(source).not.toContain('评论')

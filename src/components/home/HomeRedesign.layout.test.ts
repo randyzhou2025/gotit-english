@@ -123,6 +123,11 @@ describe('redesigned home', () => {
     expect(homeSource).not.toMatch(/\.homeV2ProgressBlock\s*\{[^}]*border-top:/s)
   })
 
+  it('keeps the unit label together on Android line breaks', () => {
+    expect(homeSource).toContain('{{ courseUnitName }}')
+    expect(homeSource).toContain("replace(/\\s+/g, '\\u00a0')")
+  })
+
   it('balances the dictation action without adding another illustration', () => {
     expect(homeSource).toMatch(/\.homeV2DictationContent\s*\{[^}]*text-align: center;/s)
     expect(homeSource).not.toContain('homeV2DictationRule')

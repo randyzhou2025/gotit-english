@@ -27,7 +27,7 @@
       </view>
 
       <template v-else-if="activeTab === 'feed'">
-        <view class="inviteCard">
+        <view v-if="classmates.length > 0" class="inviteCard">
           <view class="inviteCopy">
             <text class="inviteTitle">和同学一起把这个 Unit 学完</text>
             <text class="inviteMeta">{{ currentUnitLabel }}</text>

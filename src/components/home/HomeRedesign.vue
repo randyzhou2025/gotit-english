@@ -52,7 +52,7 @@
 
         <view class="homeV2CourseCopy">
           <text class="homeV2CourseLabel">当前教材</text>
-          <text class="homeV2CourseTitle">{{ selectedUnit?.bookName }} · {{ selectedUnit?.unitName }}</text>
+          <text class="homeV2CourseTitle">{{ selectedUnit?.bookName }} · {{ courseUnitName }}</text>
           <text class="homeV2CoursePublisher">{{ selectedUnit?.publisherName }}</text>
         </view>
 
@@ -193,6 +193,7 @@ watch(
 )
 
 const unitName = computed(() => props.selectedUnit?.unitName || '当前单元')
+const courseUnitName = computed(() => (props.selectedUnit?.unitName || '').replace(/\s+/g, '\u00a0'))
 const dictationHeadline = computed(() => {
   if (props.todayDictationWordCount > 0) return `今天已完成 ${props.todayDictationWordCount} 词 ✓`
   if (props.masteredUnitWordCount > 0) return `继续 ${unitName.value} 听写`

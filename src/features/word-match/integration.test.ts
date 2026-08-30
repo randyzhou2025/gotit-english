@@ -6,6 +6,12 @@ const pageSource = fs.readFileSync(new URL('../../pages/word-match/index.vue', i
 const shellSource = fs.readFileSync(new URL('../../components/PracticeShellInner.vue', import.meta.url), 'utf8')
 const pagesSource = fs.readFileSync(new URL('../../pages.json', import.meta.url), 'utf8')
 const shareEntrySource = fs.readFileSync(new URL('../../pages/share-entry/index.vue', import.meta.url), 'utf8')
+const wordMatchAssetUrls = [
+  new URL('../../static/themes/word-match-forest.jpg', import.meta.url),
+  new URL('../../static/audio/word-match-bgm.mp3', import.meta.url),
+  new URL('../../static/audio/word-match-correct.mp3', import.meta.url),
+  new URL('../../static/audio/word-match-wrong.mp3', import.meta.url)
+]
 
 describe('word match integration', () => {
   it('keeps the module behind one home entry event and a standalone route', () => {
@@ -55,6 +61,27 @@ describe('word match integration', () => {
     expect(gameSource).not.toContain('配对成功')
     expect(gameSource).toContain('wordMatchCardBurst')
     expect(gameSource).toContain('wordMatchEnergyFill')
+  })
+
+  it('starts quiet looping music for the game and stops it when the page hides', () => {
+    expect(gameSource).toContain('startWordMatchBackgroundMusic()')
+    expect(pageSource).toContain('onHide(stopWordMatchBackgroundMusic)')
+    expect(pageSource).toContain('if (ready.value) startWordMatchBackgroundMusic()')
+  })
+
+  it('offers a persistent sound toggle without disabling haptic feedback', () => {
+    expect(gameSource).toContain("soundEnabled ? '关闭声音' : '打开声音'")
+    expect(gameSource).toContain('setWordMatchSoundEnabled(soundEnabled.value)')
+    expect(gameSource).toContain('class="wordMatchSpeaker"')
+    expect(gameSource).toContain('wordMatchSpeakerSlash')
+    expect(gameSource).toContain('left: 46px;')
+    expect(gameSource).toContain('width: 26px;')
+    expect(gameSource).not.toContain('right: 84px;')
+  })
+
+  it('keeps the complete word-match image and audio bundle within 200 KB', () => {
+    const totalBytes = wordMatchAssetUrls.reduce((sum, url) => sum + fs.statSync(url).size, 0)
+    expect(totalBytes).toBeLessThanOrEqual(200_000)
   })
 
   it('fills combo energy against the real round size and exposes the perfect-round bonus', () => {
