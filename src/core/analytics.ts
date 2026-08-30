@@ -38,6 +38,7 @@ const RETRY_DELAY_MS = 15_000
 let memoryQueue: QueuedAnalyticsEvent[] | null = null
 let flushTimer: ReturnType<typeof setTimeout> | null = null
 let flushPromise: Promise<void> | null = null
+let networkFlushEnabled = false
 
 function analyticsEnabled(): boolean {
   try {
@@ -96,6 +97,7 @@ function persistQueue() {
 }
 
 function scheduleFlush(delayMs = FLUSH_DELAY_MS) {
+  if (!networkFlushEnabled) return
   if (flushTimer) clearTimeout(flushTimer)
   flushTimer = setTimeout(() => {
     flushTimer = null
@@ -137,6 +139,7 @@ export function trackAnalyticsEvent(name: AnalyticsEventName, properties: Analyt
 }
 
 async function performFlush(): Promise<void> {
+  if (!networkFlushEnabled) return
   if (!analyticsEnabled()) return
   const token = getAuthToken()
   const baseUrl = apiBaseUrl()
@@ -188,4 +191,8 @@ export function flushAnalyticsEvents(): Promise<void> {
     flushPromise = null
   })
   return flushPromise
+}
+
+export function enableAnalyticsNetworkFlush(): void {
+  networkFlushEnabled = true
 }

@@ -34,6 +34,7 @@ describe('analytics queue', () => {
 
     storage.set('gotit:auth:token', 'token')
     request.mockResolvedValue({ statusCode: 202, data: { accepted: 1 } })
+    analytics.enableAnalyticsNetworkFlush()
     await analytics.flushAnalyticsEvents()
 
     expect(request).toHaveBeenCalledTimes(1)
@@ -46,6 +47,7 @@ describe('analytics queue', () => {
     const analytics = await import('./analytics')
     analytics.trackAnalyticsEvent('weakbook_click', { source: 'tabbar' })
     await vi.advanceTimersByTimeAsync(0)
+    analytics.enableAnalyticsNetworkFlush()
     await analytics.flushAnalyticsEvents()
 
     const queued = storage.get('gotit:analytics:queue:v1') as unknown[]
@@ -101,5 +103,21 @@ describe('analytics queue', () => {
 
     expect(storage.get('gotit:analytics:queue:v1')).toEqual([])
     expect(request).not.toHaveBeenCalled()
+  })
+
+  it('does not upload queued events before the first page is ready', async () => {
+    storage.set('gotit:auth:token', 'token')
+    request.mockResolvedValue({ statusCode: 202, data: { accepted: 1 } })
+    const analytics = await import('./analytics')
+
+    analytics.trackAnalyticsEvent('home_export_click')
+    await vi.advanceTimersByTimeAsync(2_000)
+
+    expect(request).not.toHaveBeenCalled()
+
+    analytics.enableAnalyticsNetworkFlush()
+    await analytics.flushAnalyticsEvents()
+
+    expect(request).toHaveBeenCalledTimes(1)
   })
 })

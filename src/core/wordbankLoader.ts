@@ -65,8 +65,6 @@ const WORDBANK_VERSION_KEY = 'gotit:wordbank:version'
 const WORDBANK_MANIFEST_KEY = 'gotit:wordbank:manifest'
 const WORDBANK_PUBLISHER_IDS_KEY = 'gotit:wordbank:publisher-ids'
 const SELECTED_UNIT_ID_KEY = 'gotit:selectedUnitId'
-const SAVED_WEAK_WORD_IDS_KEY = 'gotit:savedWeakWordIds'
-const MASTERED_WORD_IDS_KEY = 'gotit:masteredWordIds'
 const LOCAL_WORDBANK_BASE_PATH = '/generated/wordbank'
 const BACKGROUND_LOAD_YIELD_MS = 48
 
@@ -82,7 +80,6 @@ let loadPromise: Promise<WordEntry[]> | null = null
 let fullLoadPromise: Promise<WordEntry[]> | null = null
 let refreshInFlight: Promise<boolean> | null = null
 let expansionListener: WordbankExpansionListener | null = null
-let manifestRefreshInFlight: Promise<void> | null = null
 
 function resolveWordbankCdnBaseUrl(): string {
   const explicit = String(import.meta.env.VITE_WORDBANK_CDN_BASE_URL || '').replace(/\/+$/, '')
@@ -203,16 +200,6 @@ function removeStorage(key: string) {
   }
 }
 
-function readStringArrayStorage(key: string): string[] {
-  try {
-    const saved = getRuntime()?.getStorageSync?.(key)
-    if (!Array.isArray(saved)) return []
-    return saved.filter((value): value is string => typeof value === 'string' && value.length > 0)
-  } catch {
-    return []
-  }
-}
-
 function resolveWordbankBasePath(): string {
   return wordbankCdnBaseUrl || LOCAL_WORDBANK_BASE_PATH
 }
@@ -319,32 +306,8 @@ async function fetchRemoteManifest(): Promise<WordbankManifest | null> {
   }
 }
 
-function refreshManifestInBackground(current: WordbankManifest) {
-  if (manifestRefreshInFlight) return
-
-  manifestRefreshInFlight = (async () => {
-    const remote = await fetchRemoteManifest()
-    if (!remote || remote.version === current.version) return
-    cacheManifest(remote)
-  })().finally(() => {
-    manifestRefreshInFlight = null
-  })
-}
-
 async function resolveManifest(): Promise<WordbankManifest> {
-  const cached = readCachedManifest()
-  if (cached) {
-    refreshManifestInBackground(cached)
-    return cached
-  }
-
-  const remote = await fetchRemoteManifest()
-  if (remote) {
-    cacheManifest(remote)
-    return remote
-  }
-
-  return bundledManifest
+  return resolveManifestFast()
 }
 
 function readStoredPublisherIds(): string[] {
@@ -383,23 +346,20 @@ function manifestPublisherIds(manifest: WordbankManifest): string[] {
   return manifest.publishers.map(entry => entry.publisher.id)
 }
 
+function selectedPublisherId(manifest: WordbankManifest): string {
+  const selectedUnitId = readStorage(SELECTED_UNIT_ID_KEY)
+  if (!selectedUnitId) return ''
+
+  const publisherId = publisherIdFromScopedId(selectedUnitId)
+  return manifest.publishers.some(entry => entry.publisher.id === publisherId)
+    ? publisherId
+    : ''
+}
+
 function collectPriorityPublisherIds(manifest: WordbankManifest): string[] {
   const ids = new Set<string>()
-  const knownIds = new Set(manifestPublisherIds(manifest))
-
-  const selectedUnitId = readStorage(SELECTED_UNIT_ID_KEY)
-  if (selectedUnitId) {
-    const publisherId = publisherIdFromScopedId(selectedUnitId)
-    if (knownIds.has(publisherId)) ids.add(publisherId)
-  }
-
-  for (const wordId of [
-    ...readStringArrayStorage(SAVED_WEAK_WORD_IDS_KEY),
-    ...readStringArrayStorage(MASTERED_WORD_IDS_KEY)
-  ]) {
-    const publisherId = publisherIdFromScopedId(wordId)
-    if (knownIds.has(publisherId)) ids.add(publisherId)
-  }
+  const selectedPublisher = selectedPublisherId(manifest)
+  if (selectedPublisher) ids.add(selectedPublisher)
 
   if (ids.size === 0) {
     const fallback = manifest.publishers[0]?.publisher.id
@@ -582,7 +542,6 @@ export function onWordbankExpanded(listener: WordbankExpansionListener) {
 export function resetWordbankCacheForTests() {
   clearWordbankMemoryCache()
   refreshInFlight = null
-  manifestRefreshInFlight = null
   expansionListener = null
   removeStorage(WORDBANK_VERSION_KEY)
   removeStorage(WORDBANK_MANIFEST_KEY)
@@ -641,7 +600,6 @@ export async function ensureWordbankLoaded(): Promise<WordEntry[]> {
 
       cachedWords = words
       writeStorage(WORDBANK_VERSION_KEY, manifest.version)
-      scheduleRemainingPublisherLoad(manifest)
       return cachedWords
     })()
   }
@@ -678,9 +636,12 @@ async function refreshWordbankIfUpdatedInternal(): Promise<boolean> {
     return false
   }
 
+  const selectedPublisher = selectedPublisherId(remote)
   cacheManifest(remote)
   clearWordbankMemoryCache()
-  await ensureWordbankLoaded()
+  if (selectedPublisher) {
+    await ensurePublisherLoaded(selectedPublisher)
+  }
   return true
 }
 

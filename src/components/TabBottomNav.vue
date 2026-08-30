@@ -96,7 +96,6 @@ function goProfile() {
 
 .bottomNav.isClassmates {
   background: var(--page-bg);
-  background-image: linear-gradient(var(--surface), var(--surface));
   box-shadow: none;
   backdrop-filter: none;
 }

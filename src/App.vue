@@ -6,46 +6,32 @@
 
 <script setup lang="ts">
 import { onLaunch, onHide, onShow } from '@dcloudio/uni-app'
+import { ensurePracticeSessionReady } from '@/app/usePracticeSession'
 import {
-  ensurePracticeSessionReady,
-  scheduleDeferredStartupSync
-} from '@/app/usePracticeSession'
+  beginAppForegroundCycle,
+  endAppForegroundCycle
+} from '@/app/appNetworkLifecycle'
 import { initializeVisualTheme } from '@/app/useVisualTheme'
-import { flushAnalyticsEvents, setAnalyticsEnabled } from '@/core/analytics'
+import { flushAnalyticsEvents } from '@/core/analytics'
 import { flushCloudSyncOnBackground } from '@/core/cloudSyncPolicy'
-import { submitAppOpen } from '@/core/classmates'
-import { fetchPublicConfig } from '@/core/userSession'
 import {
-  setCachedStreakDays,
   startStudyDurationPing,
   stopStudyDurationPing
 } from '@/core/studyStats'
 
 onLaunch(() => {
   initializeVisualTheme()
-  void fetchPublicConfig().then(config => {
-    setAnalyticsEnabled(config.analyticsEnabled)
-  })
-  void ensurePracticeSessionReady().finally(() => {
-    void flushAnalyticsEvents()
-  })
+  void ensurePracticeSessionReady()
 })
 
 onShow(() => {
   startStudyDurationPing()
-  scheduleDeferredStartupSync()
-  // #ifdef MP-WEIXIN
-  void submitAppOpen()
-    .then(result => {
-      if (result) setCachedStreakDays(result.streakDays)
-    })
-    .catch(() => {})
-  // #endif
-  void flushAnalyticsEvents()
+  beginAppForegroundCycle()
 })
 
 onHide(() => {
   stopStudyDurationPing()
+  if (!endAppForegroundCycle()) return
   flushCloudSyncOnBackground()
   void flushAnalyticsEvents()
 })

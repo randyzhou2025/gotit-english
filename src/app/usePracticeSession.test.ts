@@ -6,7 +6,8 @@ import {
   openUnitDictationChallenge,
   openUnitWordMatchChallenge,
   resetPracticeSessionForTests,
-  resetPracticeSessionState
+  resetPracticeSessionState,
+  restorePracticeCloudProgress
 } from './usePracticeSession'
 import { ensureManifestReady, ensureWordbankFullyLoaded, resetWordbankCacheForTests } from '@/core/wordbank'
 import { seedWordbankTestCache } from '@/test/wordbankTestCache'
@@ -254,6 +255,7 @@ describe('practice session dictation navigation', () => {
     })
 
     const session = await ensurePracticeSessionReady()
+    await restorePracticeCloudProgress()
 
     await vi.waitFor(() => {
       expect(session.courseSetupCompleted.value).toBe(true)

@@ -5,7 +5,6 @@ import {
   writeLocalProgressSnapshot
 } from '@/core/progressMerge'
 import { flushProgressUpload, markProgressDirty, pullRemoteProgress, scheduleProgressUpload } from '@/core/progressSync'
-import { flushCloudSyncOnForeground } from '@/core/cloudSyncPolicy'
 import { queueStudyWordIds, setCachedDashboard } from '@/core/studyStats'
 import { trackAnalyticsEvent } from '@/core/analytics'
 import { ensureUserSession, markProgressUpdatedAt, type ProgressSnapshot } from '@/core/userSession'
@@ -51,7 +50,6 @@ import {
 import {
   ensureManifestReady,
   ensurePublisherLoaded,
-  ensureWordbankFullyLoaded,
   ensureWordbankLoaded,
   findUnit,
   getDefaultUnit,
@@ -1884,10 +1882,8 @@ let practiceSession: PracticeSession | null = null
 let sessionInitPromise: Promise<PracticeSession> | null = null
 let sessionRefreshInFlight: Promise<boolean> | null = null
 let pendingScreenAfterRemount: AppScreen | null = null
-
-
-const STARTUP_WORDBANK_REFRESH_DELAY_MS = 3000
-const STARTUP_CLOUD_SYNC_DELAY_MS = 1500
+let cloudProgressRestoreInFlight: Promise<void> | null = null
+let cloudProgressRestored = false
 
 function progressContentMatches(left: ProgressSnapshot, right: ProgressSnapshot): boolean {
   const sameIds = (leftIds: string[], rightIds: string[]) => {
@@ -1922,34 +1918,49 @@ async function applyCloudProgress(session: PracticeSession, remote: ProgressSnap
   }
 }
 
-function attachPracticeSessionCloudSync(session: PracticeSession) {
-  void ensureUserSession().then(async (sessionPayload) => {
+export function restorePracticeCloudProgress(): Promise<void> {
+  if (cloudProgressRestored) return Promise.resolve()
+  if (cloudProgressRestoreInFlight) return cloudProgressRestoreInFlight
+
+  cloudProgressRestoreInFlight = (async () => {
+    const session = practiceSession ?? await ensurePracticeSessionReady()
+    const sessionPayload = await ensureUserSession()
     if (!sessionPayload) return
 
     await applyCloudProgress(session, sessionPayload.progress)
     setCachedDashboard(sessionPayload.dashboard)
-  }).catch(error => {
+    cloudProgressRestored = true
+  })().catch(error => {
     console.warn('[usePracticeSession] cloud progress restore failed', error)
+  }).finally(() => {
+    cloudProgressRestoreInFlight = null
   })
+
+  return cloudProgressRestoreInFlight
 }
 
 export async function expandPracticeSessionWordbankIfNeeded(): Promise<void> {
   const beforeCount = getLoadedWordCount()
-  const words = await ensureWordbankFullyLoaded()
+  const weakPublisherIds = new Set(
+    readLocalProgressSnapshot().savedWeakWordIds
+      .map(publisherIdFromUnitId)
+      .filter(Boolean)
+  )
+
+  for (const publisherId of weakPublisherIds) {
+    if (isPublisherLoaded(publisherId)) continue
+    try {
+      await ensurePublisherLoaded(publisherId)
+    } catch (error) {
+      console.warn('[usePracticeSession] weakbook publisher load failed', publisherId, error)
+    }
+  }
+
   if (getLoadedWordCount() <= beforeCount) return
 
+  const words = await ensureWordbankLoaded()
   const session = practiceSession ?? await ensurePracticeSessionReady()
   session.adoptWords(words)
-}
-
-export function scheduleDeferredStartupSync() {
-  setTimeout(() => {
-    void flushCloudSyncOnForeground()
-  }, STARTUP_CLOUD_SYNC_DELAY_MS)
-
-  setTimeout(() => {
-    void refreshPracticeSessionIfWordbankUpdated()
-  }, STARTUP_WORDBANK_REFRESH_DELAY_MS)
 }
 
 onWordbankExpanded(() => {
@@ -2070,6 +2081,8 @@ export function resetPracticeSessionState() {
   practiceSession = null
   sessionInitPromise = null
   pendingScreenAfterRemount = null
+  cloudProgressRestoreInFlight = null
+  cloudProgressRestored = false
 }
 
 export function resetPracticeSessionForTests() {
@@ -2090,8 +2103,6 @@ export async function ensurePracticeSessionReady(): Promise<PracticeSession> {
       }
 
       practiceSession = createPracticeSession(words)
-
-      attachPracticeSessionCloudSync(practiceSession)
 
       return practiceSession
     })()

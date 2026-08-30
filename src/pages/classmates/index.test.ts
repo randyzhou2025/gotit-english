@@ -90,6 +90,7 @@ describe('classmates page MVP', () => {
     expect(source).not.toContain('backdrop-filter: blur(')
     expect(tabNavSource).toContain(":class=\"{ isClassmates: active === 'classmates' }\"")
     expect(tabNavSource).toMatch(/\.bottomNav\.isClassmates\s*\{[^}]*background: var\(--page-bg\);[^}]*backdrop-filter: none;/)
+    expect(tabNavSource).not.toMatch(/\.bottomNav\.isClassmates\s*\{[^}]*background-image:/)
     expect(tabNavSource).toMatch(/\.bottomNav\s*\{[^}]*backdrop-filter: blur\(16px\);/)
   })
 

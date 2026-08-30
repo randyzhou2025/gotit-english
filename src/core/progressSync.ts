@@ -1,5 +1,7 @@
 import { readLocalProgressSnapshot } from '@/core/progressMerge'
 import {
+  clearAuthSession,
+  ensureUserSession,
   getAuthToken,
   isApiEnabled,
   markProgressUpdatedAt,
@@ -8,20 +10,27 @@ import {
 
 const DEFAULT_UPLOAD_DEBOUNCE_MS = 3000
 const UPDATED_AT_DEBOUNCE_MS = 800
+const UPLOAD_RETRY_DELAYS_MS = [5_000, 30_000, 120_000]
 
 let uploadTimer: ReturnType<typeof setTimeout> | null = null
 let updatedAtTimer: ReturnType<typeof setTimeout> | null = null
 let uploadDirty = false
 let pendingSnapshot: ProgressSnapshot | null = null
 let uploadInFlight: Promise<void> | null = null
+let uploadRetryAttempt = 0
+let uploadRetryScheduled = false
 
-async function putProgress(snapshot: ProgressSnapshot): Promise<void> {
-  if (!isApiEnabled() || !getAuthToken()) return
+class ProgressUploadHttpError extends Error {
+  constructor(readonly statusCode: number) {
+    super(`Progress upload failed (${statusCode})`)
+  }
+}
 
+async function requestProgressUpload(snapshot: ProgressSnapshot) {
   const baseUrl = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '')
-  if (!baseUrl) return
+  if (!baseUrl) return null
 
-  const response = await uni.request({
+  return uni.request({
     url: `${baseUrl}/api/user/progress`,
     method: 'PUT',
     header: {
@@ -30,11 +39,36 @@ async function putProgress(snapshot: ProgressSnapshot): Promise<void> {
     },
     data: snapshot
   })
+}
+
+async function putProgress(snapshot: ProgressSnapshot): Promise<void> {
+  if (!isApiEnabled() || !getAuthToken()) return
+
+  let response = await requestProgressUpload(snapshot)
+  if (!response) return
+
+  if (response.statusCode === 401) {
+    clearAuthSession()
+    const refreshedSession = await ensureUserSession()
+    if (refreshedSession?.token) {
+      response = await requestProgressUpload(snapshot)
+      if (!response) return
+    }
+  }
 
   const statusCode = response.statusCode ?? 0
   if (statusCode < 200 || statusCode >= 300) {
-    throw new Error(`Progress upload failed (${statusCode})`)
+    throw new ProgressUploadHttpError(statusCode)
   }
+}
+
+function isRetryableUploadError(error: unknown): boolean {
+  if (!(error instanceof ProgressUploadHttpError)) return true
+
+  return error.statusCode === 0
+    || error.statusCode === 408
+    || error.statusCode === 429
+    || error.statusCode >= 500
 }
 
 function resolvePendingSnapshot(): ProgressSnapshot {
@@ -57,12 +91,22 @@ function scheduleUpdatedAtPersist() {
   }, UPDATED_AT_DEBOUNCE_MS)
 }
 
-function queueUpload(debounceMs: number) {
+function queueUpload(debounceMs: number, retry = false) {
   if (uploadTimer) clearTimeout(uploadTimer)
+  uploadRetryScheduled = retry
   uploadTimer = setTimeout(() => {
     uploadTimer = null
+    uploadRetryScheduled = false
     void flushPendingUpload()
   }, debounceMs)
+}
+
+function scheduleUploadRetry() {
+  const delayMs = UPLOAD_RETRY_DELAYS_MS[uploadRetryAttempt]
+  if (delayMs === undefined) return
+
+  uploadRetryAttempt += 1
+  queueUpload(delayMs, true)
 }
 
 function flushPendingUpload(): Promise<void> {
@@ -76,19 +120,27 @@ function flushPendingUpload(): Promise<void> {
   uploadDirty = false
   const snapshot = resolvePendingSnapshot()
   pendingSnapshot = null
+  let succeeded = false
 
   uploadInFlight = putProgress(snapshot)
     .then(() => {
+      succeeded = true
+      uploadRetryAttempt = 0
       markProgressUpdatedAt(snapshot.updatedAt)
     })
     .catch(error => {
       console.warn('[progressSync] upload failed', error)
-      pendingSnapshot = snapshot
+      if (!uploadDirty && !pendingSnapshot) {
+        pendingSnapshot = snapshot
+      }
       uploadDirty = true
+      if (isRetryableUploadError(error)) {
+        scheduleUploadRetry()
+      }
     })
     .finally(() => {
       uploadInFlight = null
-      if (uploadDirty || pendingSnapshot) {
+      if (succeeded && (uploadDirty || pendingSnapshot)) {
         void flushPendingUpload()
       }
     })
@@ -100,9 +152,10 @@ function flushPendingUpload(): Promise<void> {
 export function markProgressDirty(debounceMs = DEFAULT_UPLOAD_DEBOUNCE_MS) {
   if (!isApiEnabled()) return
 
+  pendingSnapshot = null
   uploadDirty = true
   scheduleUpdatedAtPersist()
-  queueUpload(debounceMs)
+  if (!uploadRetryScheduled) queueUpload(debounceMs)
 }
 
 export function scheduleProgressUpload(snapshot: ProgressSnapshot, debounceMs = DEFAULT_UPLOAD_DEBOUNCE_MS) {
@@ -110,13 +163,15 @@ export function scheduleProgressUpload(snapshot: ProgressSnapshot, debounceMs = 
 
   pendingSnapshot = snapshot
   uploadDirty = true
-  queueUpload(debounceMs)
+  if (!uploadRetryScheduled) queueUpload(debounceMs)
 }
 
 export function flushProgressUpload(): Promise<void> {
+  uploadRetryAttempt = 0
   if (uploadTimer) {
     clearTimeout(uploadTimer)
     uploadTimer = null
+    uploadRetryScheduled = false
   }
   if (updatedAtTimer) {
     clearTimeout(updatedAtTimer)
