@@ -21,6 +21,9 @@ describe('word match multimodal feedback', () => {
   }))
   const vibrateShort = vi.fn()
   const setStorageSync = vi.fn()
+  const downloadFile = vi.fn()
+  const access = vi.fn()
+  const saveFile = vi.fn()
 
   beforeEach(() => {
     disposeWordMatchFeedback()
@@ -32,9 +35,21 @@ describe('word match multimodal feedback', () => {
     })
     vibrateShort.mockReset()
     setStorageSync.mockReset()
+    downloadFile.mockReset()
+    access.mockReset()
+    saveFile.mockReset()
+    access.mockImplementation(options => options.fail())
+    downloadFile.mockImplementation(options => options.success({
+      statusCode: 200,
+      tempFilePath: '/tmp/word-match-bgm.mp3'
+    }))
+    saveFile.mockImplementation(options => options.success({ savedFilePath: options.filePath }))
     let contextIndex = 0
     vi.stubGlobal('uni', {
       createInnerAudioContext: vi.fn(() => contexts[contextIndex++]!),
+      downloadFile,
+      env: { USER_DATA_PATH: '/user-data' },
+      getFileSystemManager: vi.fn(() => ({ access, saveFile })),
       setStorageSync,
       vibrateShort
     })
@@ -54,17 +69,34 @@ describe('word match multimodal feedback', () => {
     expect(vibrateShort).toHaveBeenLastCalledWith(expect.objectContaining({ type: 'medium' }))
   })
 
-  it('loops quiet background music without restarting it on repeated lifecycle calls', () => {
+  it('silently skips background music when the first download fails', async () => {
+    downloadFile.mockImplementation(options => options.fail())
+
+    startWordMatchBackgroundMusic()
+    await vi.waitFor(() => expect(downloadFile).toHaveBeenCalledOnce())
+
+    expect(uni.createInnerAudioContext).not.toHaveBeenCalled()
+  })
+
+  it('downloads, persists and loops quiet background music without duplicate requests', async () => {
     playWordMatchFeedback('correct')
     playWordMatchFeedback('wrong')
 
     startWordMatchBackgroundMusic()
     startWordMatchBackgroundMusic()
 
-    expect(contexts[2]!.src).toBe('/static/audio/word-match-bgm.mp3')
+    await vi.waitFor(() => expect(contexts[2]!.play).toHaveBeenCalledOnce())
+    expect(downloadFile).toHaveBeenCalledOnce()
+    expect(downloadFile).toHaveBeenCalledWith(expect.objectContaining({
+      url: expect.stringContaining('/generated/audio/word-match/bgm-v1.mp3')
+    }))
+    expect(saveFile).toHaveBeenCalledWith(expect.objectContaining({
+      tempFilePath: '/tmp/word-match-bgm.mp3',
+      filePath: '/user-data/word-match-bgm-v1.mp3'
+    }))
+    expect(contexts[2]!.src).toBe('/user-data/word-match-bgm-v1.mp3')
     expect(contexts[2]!.loop).toBe(true)
     expect(contexts[2]!.volume).toBe(0.12)
-    expect(contexts[2]!.play).toHaveBeenCalledOnce()
 
     stopWordMatchBackgroundMusic()
     expect(contexts[2]!.stop).toHaveBeenCalledOnce()

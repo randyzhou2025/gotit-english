@@ -8,6 +8,11 @@ unpackage/
 
 # Generated assets (regenerate via pnpm audio:generate)
 generated/*
+!generated/audio/
+generated/audio/*
+!generated/audio/word-match/
+generated/audio/word-match/*
+!generated/audio/word-match/bgm-v1.mp3
 !generated/unit-eggs/
 !generated/unit-eggs/*.json
 !generated/themes/

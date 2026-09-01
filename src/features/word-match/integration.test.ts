@@ -6,9 +6,9 @@ const pageSource = fs.readFileSync(new URL('../../pages/word-match/index.vue', i
 const shellSource = fs.readFileSync(new URL('../../components/PracticeShellInner.vue', import.meta.url), 'utf8')
 const pagesSource = fs.readFileSync(new URL('../../pages.json', import.meta.url), 'utf8')
 const shareEntrySource = fs.readFileSync(new URL('../../pages/share-entry/index.vue', import.meta.url), 'utf8')
+const feedbackSource = fs.readFileSync(new URL('./feedback.ts', import.meta.url), 'utf8')
 const wordMatchAssetUrls = [
   new URL('../../static/themes/word-match-forest.jpg', import.meta.url),
-  new URL('../../static/audio/word-match-bgm.mp3', import.meta.url),
   new URL('../../static/audio/word-match-correct.mp3', import.meta.url),
   new URL('../../static/audio/word-match-wrong.mp3', import.meta.url)
 ]
@@ -67,6 +67,11 @@ describe('word match integration', () => {
     expect(gameSource).toContain('startWordMatchBackgroundMusic()')
     expect(pageSource).toContain('onHide(stopWordMatchBackgroundMusic)')
     expect(pageSource).toContain('if (ready.value) startWordMatchBackgroundMusic()')
+    expect(feedbackSource).toContain("${audioCdnBaseUrl}/word-match/bgm-v1.mp3")
+    expect(feedbackSource).toContain('word-match-bgm-v1.mp3')
+    expect(feedbackSource).toContain('getFileSystemManager')
+    expect(feedbackSource).toContain('downloadBackgroundMusic')
+    expect(feedbackSource).not.toContain("'/static/audio/word-match-bgm.mp3'")
   })
 
   it('offers a persistent sound toggle without disabling haptic feedback', () => {
@@ -79,7 +84,7 @@ describe('word match integration', () => {
     expect(gameSource).not.toContain('right: 84px;')
   })
 
-  it('keeps the complete word-match image and audio bundle within 200 KB', () => {
+  it('keeps packaged word-match media within 200 KB while BGM stays on CDN', () => {
     const totalBytes = wordMatchAssetUrls.reduce((sum, url) => sum + fs.statSync(url).size, 0)
     expect(totalBytes).toBeLessThanOrEqual(200_000)
   })
