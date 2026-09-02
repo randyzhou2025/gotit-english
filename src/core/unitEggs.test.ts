@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import unitEggManifest from '@/data/unit-eggs.manifest.json'
 import {
   getUnitEggContrastNotes,
   getUnitEggForDate,
@@ -68,8 +69,39 @@ describe('unit egg publisher loading', () => {
   })
 
   it('keeps the generated dataset totals in the bundled manifest', () => {
-    expect(unitEggDatasetMeta.recordCount).toBe(1815)
-    expect(unitEggDatasetMeta.unitCount).toBe(366)
+    const manifest = unitEggManifest as { publishers: Array<{ id: string }> }
+    expect(unitEggDatasetMeta.recordCount).toBeGreaterThan(1815)
+    expect(unitEggDatasetMeta.unitCount).toBeGreaterThan(366)
+    expect(manifest.publishers.some(entry => entry.id === 'bb-junior')).toBe(true)
+    expect(manifest.publishers.some(entry => entry.id === 'bb-senior')).toBe(true)
+  })
+
+  it('loads bb publisher eggs by unit id', async () => {
+    requestMock.mockImplementationOnce((options: { success: (response: { statusCode: number, data: unknown }) => void }) => {
+      options.success({
+        statusCode: 200,
+        data: {
+          version: unitEggDatasetMeta.version,
+          publisherId: 'bb-senior',
+          byUnit: {
+            'bb-senior:alpha:u01': [{
+              template: 'A',
+              keyword: 'accept',
+              title: 'Accept',
+              core: 'accept',
+              explanation: '主动接受',
+              memory: '',
+              compare: '',
+              phonetic: '/əkˈsept/'
+            }]
+          }
+        }
+      })
+    })
+
+    const eggs = await getUnitEggs('bb-senior:alpha:u01')
+    expect(eggs).toHaveLength(1)
+    expect(requestMock.mock.calls[0]?.[0].url).toMatch(/\/bb-senior\.json\?v=/)
   })
 
   it('loads only the publisher for the selected unit and caches it', async () => {

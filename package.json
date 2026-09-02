@@ -6,7 +6,7 @@
   "scripts": {
     "wordbank:build": "node scripts/build-wordbank.mjs && node scripts/build-bb-wordbank.mjs",
     "wordbank:bb": "node scripts/build-bb-wordbank.mjs",
-    "unit-eggs:build": "node scripts/build-unit-eggs.mjs",
+    "unit-eggs:build": "node scripts/build-unit-eggs.mjs && node scripts/build-bb-unit-eggs.mjs",
     "audio:generate": "node scripts/generate-audio-assets.mjs",
     "audio:verify-cdn": "node scripts/verify-audio-cdn.mjs",
     "covers:sync": "node scripts/sync-textbook-covers.mjs",
