@@ -93,7 +93,7 @@ const SELECTED_UNIT_ID_KEY = 'gotit:selectedUnitId'
 const COURSE_SETUP_COMPLETED_KEY = 'gotit:courseSetupCompleted'
 const UNFINISHED_DICTATION_KEY = 'gotit:unfinishedDictation'
 const SCHOOL_STAGE_OPTIONS: SchoolStage[] = ['初中', '高中']
-const JUNIOR_GRADE_OPTIONS = ['六年级', '七年级', '八年级', '九年级']
+const JUNIOR_GRADE_OPTIONS = ['六年级', '七年级', '八年级', '九年级', '中考']
 
 interface SavedDictationProgress {
   plan: DictationPlan
@@ -229,11 +229,11 @@ function sampleWords<T>(items: T[], count: number): T[] {
 }
 
 function inferSchoolStage(unit: UnitGroup): SchoolStage {
-  return /初中|六年级|七年级|八年级|九年级/.test(unit.bookName) ? '初中' : '高中'
+  return inferSchoolStageFromBookName(unit.bookName)
 }
 
 function inferJuniorGrade(unit: UnitGroup): string {
-  return JUNIOR_GRADE_OPTIONS.find(grade => unit.bookName.includes(grade)) ?? ''
+  return inferJuniorGradeFromBookName(unit.bookName)
 }
 
 function computeMasteryPercent(wordIds: string[], masteredSet: Set<string>): number | null {

@@ -158,6 +158,12 @@ function getPublisherBlocks(raw) {
   return []
 }
 
+function resolveWordRecord(block, rawWord) {
+  if (Array.isArray(rawWord)) return rawWord
+  if (typeof rawWord !== 'string') return null
+  return block.lexicon?.[rawWord] ?? null
+}
+
 function flattenWords(raw) {
   const entries = []
 
@@ -166,15 +172,24 @@ function flattenWords(raw) {
     for (const book of block.books) {
       for (const unit of book.units) {
         const segment = unitSegment(unit)
-        for (const [word, , , meaning, , slug] of unit.words) {
-          const cdnKey = `${block.publisher.id}/${book.id}/unit-${segment}/${slug}`
+        for (const rawWord of unit.words) {
+          const tuple = resolveWordRecord(block, rawWord)
+          if (!tuple) continue
+          const [word, , , meaning, , slug] = tuple
+          const audioCdnKey = tuple[14]
+          if (audioCdnKey) continue
+          const cdnKey = block.publisher.id.startsWith('bb-')
+            ? `bb/shared/${slug}`
+            : `${block.publisher.id}/${book.id}/unit-${segment}/${slug}`
           entries.push({ word, meaning, cdnKey })
         }
       }
     }
   }
 
-  return entries
+  return entries.filter((entry, index, all) => (
+    all.findIndex(candidate => candidate.cdnKey === entry.cdnKey) === index
+  ))
 }
 
 function audioUrl(cdnKey, variant) {

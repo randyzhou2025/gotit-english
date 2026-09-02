@@ -35,6 +35,77 @@ describe('expandPublisherBlock word ids', () => {
       'ylj:grade-7-1:u5:sweet@25'
     ])
   })
+
+  it('reuses textbook audio when a compact record provides audioCdnKey', () => {
+    const entries = expandPublisherBlock({
+      publisher: { id: 'bb-senior', name: '高考3500词' },
+      sourceWorkbook: 'bb.xlsx',
+      books: [{
+        id: 'alpha',
+        name: '高考3500词·顺序',
+        order: 1,
+        units: [{
+          number: 1,
+          key: '01',
+          label: 'Unit 1',
+          words: [
+            ['abandon', '', '', '放弃', 1, 'abandon', 1, undefined, undefined, undefined, undefined, undefined, undefined, undefined, 'rj/required-1/unit-1/abandon']
+          ]
+        }]
+      }]
+    })
+
+    expect(entries[0]?.audio.cdnKey).toBe('rj/required-1/unit-1/abandon')
+    expect(entries[0]?.audio.ukUrl).toContain('rj/required-1/unit-1/abandon/uk.mp3')
+  })
+
+  it('expands bb lexicon slug references into word entries', () => {
+    const entries = expandPublisherBlock({
+      publisher: { id: 'bb-junior', name: '中考2000词' },
+      sourceWorkbook: 'bb.xlsx',
+      lexicon: {
+        a: ['a', '/ə/', 'art.', '一个', 1, 'a', 5],
+        able: ['able', '/ˈeɪbl/', 'adj.', '能够', 1, 'able', 8],
+        about: ['about', '/əˈbaʊt/', 'prep.', '关于', 1, 'about', 9]
+      },
+      books: [{
+        id: 'alpha',
+        name: '中考2000词·顺序',
+        order: 1,
+        units: [{
+          number: 1,
+          key: '01',
+          label: 'Unit 1',
+          words: ['a', 'able', 'about']
+        }]
+      }]
+    })
+
+    expect(entries.map(entry => entry.word)).toEqual(['a', 'able', 'about'])
+    expect(entries[1]?.phonetic).toBe('/ˈeɪbl/')
+  })
+
+  it('uses shared bb audio keys for words without a textbook reuse key', () => {
+    const entries = expandPublisherBlock({
+      publisher: { id: 'bb-junior', name: '中考2000词' },
+      sourceWorkbook: 'bb.xlsx',
+      books: [{
+        id: 'alpha',
+        name: '中考2000词·顺序',
+        order: 1,
+        units: [{
+          number: 1,
+          key: '01',
+          label: 'Unit 1',
+          words: [
+            ['absolute', '', '', '完全的', 1, 'absolute', 1]
+          ]
+        }]
+      }]
+    })
+
+    expect(entries[0]?.audio.cdnKey).toBe('bb/shared/absolute')
+  })
 })
 
 describe('wordbankLoader manifest resolution', () => {

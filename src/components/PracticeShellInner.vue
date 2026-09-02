@@ -109,7 +109,7 @@
               :class="['courseChip', book.masteryPercent != null && 'hasMeta', courseSetupBookId === book.id && 'isActive']"
               @tap="setCourseSetupBook(book.id)"
             >
-              <text class="courseChipLabel">{{ book.name }}</text>
+              <text class="courseChipLabel">{{ formatCourseSetupBookName(book.name) }}</text>
               <text v-if="book.masteryPercent != null" class="courseChipMeta">{{ Math.max(1, book.masteryPercent) }}% 掌握</text>
             </view>
           </view>
@@ -1510,6 +1510,7 @@ import { HOME_REDESIGN_V2_ENABLED, VISUAL_THEME_ENABLED } from '@/app/featureFla
 import { useVisualTheme } from '@/app/useVisualTheme'
 import HomeRedesign from '@/components/home/HomeRedesign.vue'
 import TabBottomNav from '@/components/TabBottomNav.vue'
+import { formatCourseSetupBookName } from '@/core/courseSetupCatalog'
 import { trackAnalyticsEvent } from '@/core/analytics'
 import { getAudioUrl, getDictationAudioUrls, hasPlayableAudio } from '@/core/audio'
 import { estimateDictationSeconds, formatEstimatedMinutes } from '@/core/dictation'

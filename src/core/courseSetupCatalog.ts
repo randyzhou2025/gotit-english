@@ -5,12 +5,18 @@ export type SchoolStage = '初中' | '高中'
 const JUNIOR_GRADE_PATTERN = /六年级|七年级|八年级|九年级/
 
 export function inferSchoolStageFromBookName(bookName: string): SchoolStage {
-  return /初中|六年级|七年级|八年级|九年级/.test(bookName) ? '初中' : '高中'
+  return /中考|初中|六年级|七年级|八年级|九年级/.test(bookName) ? '初中' : '高中'
 }
 
 export function inferJuniorGradeFromBookName(bookName: string): string {
+  if (bookName.includes('中考')) return '中考'
   const match = bookName.match(JUNIOR_GRADE_PATTERN)
   return match?.[0] ?? ''
+}
+
+export function formatCourseSetupBookName(bookName: string): string {
+  const match = bookName.match(/^(?:中考2000词|高考3500词)·(.+)$/)
+  return match?.[1] ?? bookName
 }
 
 export function buildUnitId(

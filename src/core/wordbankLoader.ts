@@ -16,14 +16,17 @@ export type CompactWordRecord = [
   wordForms?: string,
   etymology?: string,
   cognates?: string,
-  antonyms?: string
+  antonyms?: string,
+  audioCdnKey?: string
 ]
+
+export type CompactUnitWordRef = CompactWordRecord | string
 
 export interface CompactUnit {
   number: number
   key?: string
   label?: string
-  words: CompactWordRecord[]
+  words: CompactUnitWordRef[]
 }
 
 export interface CompactPublisherBlock {
@@ -32,6 +35,7 @@ export interface CompactPublisherBlock {
     name: string
   }
   sourceWorkbook: string
+  lexicon?: Record<string, CompactWordRecord>
   books: Array<{
     id: string
     name: string
@@ -105,6 +109,15 @@ function unitDisplayName(unit: CompactUnit): string {
   return unit.label ?? (unit.number === 0 ? 'Welcome Unit' : `Unit ${unit.number}`)
 }
 
+function resolveCompactWordRecord(
+  block: CompactPublisherBlock,
+  rawWord: CompactUnitWordRef
+): CompactWordRecord | null {
+  if (Array.isArray(rawWord)) return rawWord
+  if (typeof rawWord !== 'string') return null
+  return block.lexicon?.[rawWord] ?? null
+}
+
 export function expandPublisherBlock(block: CompactPublisherBlock): WordEntry[] {
   const entries: WordEntry[] = []
 
@@ -114,7 +127,11 @@ export function expandPublisherBlock(block: CompactPublisherBlock): WordEntry[] 
       const unitId = `${block.publisher.id}:${book.id}:u${segment}`
       const seenSlugs = new Set<string>()
 
-      for (const [
+      for (const rawWord of unit.words) {
+        const record = resolveCompactWordRecord(block, rawWord)
+        if (!record) continue
+
+        const [
         word,
         phonetic,
         partOfSpeech,
@@ -128,11 +145,16 @@ export function expandPublisherBlock(block: CompactPublisherBlock): WordEntry[] 
         wordForms,
         etymology,
         cognates,
-        antonyms
-      ] of unit.words) {
+        antonyms,
+        audioCdnKey
+      ] = record
         if (isPhraseEntry(word)) continue
 
-        const cdnKey = `${block.publisher.id}/${book.id}/unit-${segment}/${slug}`
+        const cdnKey = audioCdnKey || (
+          block.publisher.id.startsWith('bb-')
+            ? `bb/shared/${slug}`
+            : `${block.publisher.id}/${book.id}/unit-${segment}/${slug}`
+        )
         const idKey = seenSlugs.has(slug) ? `${slug}@${rowNumber}` : slug
         seenSlugs.add(slug)
 

@@ -9,7 +9,7 @@
     "us": "en-US-JennyNeural",
     "zh": "zh-CN-XiaoxiaoNeural"
   },
-  "generatedAt": "2026-08-17T23:46:13.801Z",
+  "generatedAt": "2026-09-02T01:10:29.950Z",
   "items": {
     "shj/required-1/unit-1/digital": {
       "status": "ready",
@@ -122649,6 +122649,4632 @@
       "ukUrl": "/generated/audio/ylj/grade-9-1/unit-8/ring/uk.mp3",
       "usUrl": "",
       "zhUrl": "/generated/audio/ylj/grade-9-1/unit-8/ring/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/a": {
+      "ukUrl": "/generated/audio/bb/shared/a/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/a/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/absolute": {
+      "ukUrl": "/generated/audio/bb/shared/absolute/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/absolute/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/absorption": {
+      "ukUrl": "/generated/audio/bb/shared/absorption/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/absorption/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/acquaintance": {
+      "ukUrl": "/generated/audio/bb/shared/acquaintance/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/acquaintance/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/adjacent": {
+      "ukUrl": "/generated/audio/bb/shared/adjacent/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/adjacent/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/agitation": {
+      "ukUrl": "/generated/audio/bb/shared/agitation/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/agitation/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/aide": {
+      "ukUrl": "/generated/audio/bb/shared/aide/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/aide/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/alliance": {
+      "ukUrl": "/generated/audio/bb/shared/alliance/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/alliance/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/amendment": {
+      "ukUrl": "/generated/audio/bb/shared/amendment/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/amendment/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/an": {
+      "ukUrl": "/generated/audio/bb/shared/an/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/an/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/angrily": {
+      "ukUrl": "/generated/audio/bb/shared/angrily/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/angrily/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/animated": {
+      "ukUrl": "/generated/audio/bb/shared/animated/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/animated/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/anti": {
+      "ukUrl": "/generated/audio/bb/shared/anti/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/anti/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/apology": {
+      "ukUrl": "/generated/audio/bb/shared/apology/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/apology/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/are": {
+      "ukUrl": "/generated/audio/bb/shared/are/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/are/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/arm": {
+      "ukUrl": "/generated/audio/bb/shared/arm/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/arm/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/armchair": {
+      "ukUrl": "/generated/audio/bb/shared/armchair/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/armchair/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/assembly": {
+      "ukUrl": "/generated/audio/bb/shared/assembly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/assembly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/baby": {
+      "ukUrl": "/generated/audio/bb/shared/baby/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/baby/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/baggage": {
+      "ukUrl": "/generated/audio/bb/shared/baggage/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/baggage/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/bald": {
+      "ukUrl": "/generated/audio/bb/shared/bald/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/bald/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/ballot": {
+      "ukUrl": "/generated/audio/bb/shared/ballot/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/ballot/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/bicycle": {
+      "ukUrl": "/generated/audio/bb/shared/bicycle/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/bicycle/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/bookshelf": {
+      "ukUrl": "/generated/audio/bb/shared/bookshelf/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/bookshelf/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/breathing": {
+      "ukUrl": "/generated/audio/bb/shared/breathing/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/breathing/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/bullet": {
+      "ukUrl": "/generated/audio/bb/shared/bullet/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/bullet/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/cafe": {
+      "ukUrl": "/generated/audio/bb/shared/cafe/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/cafe/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/cannot": {
+      "ukUrl": "/generated/audio/bb/shared/cannot/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/cannot/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/cavalry": {
+      "ukUrl": "/generated/audio/bb/shared/cavalry/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/cavalry/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/catch": {
+      "ukUrl": "/generated/audio/bb/shared/catch/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/catch/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/cellular": {
+      "ukUrl": "/generated/audio/bb/shared/cellular/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/cellular/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/center": {
+      "ukUrl": "/generated/audio/bb/shared/center/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/center/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/cervical": {
+      "ukUrl": "/generated/audio/bb/shared/cervical/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/cervical/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/chiefly": {
+      "ukUrl": "/generated/audio/bb/shared/chiefly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/chiefly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/chronic": {
+      "ukUrl": "/generated/audio/bb/shared/chronic/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/chronic/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/clever": {
+      "ukUrl": "/generated/audio/bb/shared/clever/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/clever/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/cloak": {
+      "ukUrl": "/generated/audio/bb/shared/cloak/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/cloak/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/clock": {
+      "ukUrl": "/generated/audio/bb/shared/clock/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/clock/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/clot": {
+      "ukUrl": "/generated/audio/bb/shared/clot/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/clot/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/coachman": {
+      "ukUrl": "/generated/audio/bb/shared/coachman/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/coachman/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/colonel": {
+      "ukUrl": "/generated/audio/bb/shared/colonel/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/colonel/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/colony": {
+      "ukUrl": "/generated/audio/bb/shared/colony/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/colony/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/color": {
+      "ukUrl": "/generated/audio/bb/shared/color/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/color/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/colour": {
+      "ukUrl": "/generated/audio/bb/shared/colour/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/colour/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/commission": {
+      "ukUrl": "/generated/audio/bb/shared/commission/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/commission/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/commonly": {
+      "ukUrl": "/generated/audio/bb/shared/commonly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/commonly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/companion": {
+      "ukUrl": "/generated/audio/bb/shared/companion/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/companion/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/comparatively": {
+      "ukUrl": "/generated/audio/bb/shared/comparatively/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/comparatively/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/conception": {
+      "ukUrl": "/generated/audio/bb/shared/conception/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/conception/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/compression": {
+      "ukUrl": "/generated/audio/bb/shared/compression/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/compression/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/congress": {
+      "ukUrl": "/generated/audio/bb/shared/congress/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/congress/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/conscious": {
+      "ukUrl": "/generated/audio/bb/shared/conscious/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/conscious/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/consciousness": {
+      "ukUrl": "/generated/audio/bb/shared/consciousness/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/consciousness/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/consent": {
+      "ukUrl": "/generated/audio/bb/shared/consent/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/consent/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/conservative": {
+      "ukUrl": "/generated/audio/bb/shared/conservative/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/conservative/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/constitutional": {
+      "ukUrl": "/generated/audio/bb/shared/constitutional/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/constitutional/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/continental": {
+      "ukUrl": "/generated/audio/bb/shared/continental/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/continental/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/contempt": {
+      "ukUrl": "/generated/audio/bb/shared/contempt/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/contempt/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/contraction": {
+      "ukUrl": "/generated/audio/bb/shared/contraction/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/contraction/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/convention": {
+      "ukUrl": "/generated/audio/bb/shared/convention/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/convention/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/conviction": {
+      "ukUrl": "/generated/audio/bb/shared/conviction/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/conviction/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/corps": {
+      "ukUrl": "/generated/audio/bb/shared/corps/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/corps/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/crown": {
+      "ukUrl": "/generated/audio/bb/shared/crown/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/crown/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/cyst": {
+      "ukUrl": "/generated/audio/bb/shared/cyst/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/cyst/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/deeply": {
+      "ukUrl": "/generated/audio/bb/shared/deeply/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/deeply/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/dancing": {
+      "ukUrl": "/generated/audio/bb/shared/dancing/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/dancing/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/defense": {
+      "ukUrl": "/generated/audio/bb/shared/defense/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/defense/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/definite": {
+      "ukUrl": "/generated/audio/bb/shared/definite/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/definite/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/deformity": {
+      "ukUrl": "/generated/audio/bb/shared/deformity/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/deformity/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/degeneration": {
+      "ukUrl": "/generated/audio/bb/shared/degeneration/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/degeneration/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/democracy": {
+      "ukUrl": "/generated/audio/bb/shared/democracy/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/democracy/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/democratic": {
+      "ukUrl": "/generated/audio/bb/shared/democratic/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/democratic/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/dense": {
+      "ukUrl": "/generated/audio/bb/shared/dense/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/dense/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/devil": {
+      "ukUrl": "/generated/audio/bb/shared/devil/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/devil/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/diffuse": {
+      "ukUrl": "/generated/audio/bb/shared/diffuse/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/diffuse/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/discharge": {
+      "ukUrl": "/generated/audio/bb/shared/discharge/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/discharge/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/disturbance": {
+      "ukUrl": "/generated/audio/bb/shared/disturbance/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/disturbance/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/dispute": {
+      "ukUrl": "/generated/audio/bb/shared/dispute/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/dispute/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/doctrine": {
+      "ukUrl": "/generated/audio/bb/shared/doctrine/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/doctrine/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/don": {
+      "ukUrl": "/generated/audio/bb/shared/don/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/don/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/dreadful": {
+      "ukUrl": "/generated/audio/bb/shared/dreadful/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/dreadful/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/dressing": {
+      "ukUrl": "/generated/audio/bb/shared/dressing/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/dressing/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/duke": {
+      "ukUrl": "/generated/audio/bb/shared/duke/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/duke/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/eh": {
+      "ukUrl": "/generated/audio/bb/shared/eh/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/eh/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/elastic": {
+      "ukUrl": "/generated/audio/bb/shared/elastic/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/elastic/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/enlargement": {
+      "ukUrl": "/generated/audio/bb/shared/enlargement/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/enlargement/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/epidermis": {
+      "ukUrl": "/generated/audio/bb/shared/epidermis/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/epidermis/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/equality": {
+      "ukUrl": "/generated/audio/bb/shared/equality/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/equality/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/equally": {
+      "ukUrl": "/generated/audio/bb/shared/equally/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/equally/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/evident": {
+      "ukUrl": "/generated/audio/bb/shared/evident/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/evident/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/executive": {
+      "ukUrl": "/generated/audio/bb/shared/executive/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/executive/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/existence": {
+      "ukUrl": "/generated/audio/bb/shared/existence/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/existence/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/explanation": {
+      "ukUrl": "/generated/audio/bb/shared/explanation/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/explanation/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/extensive": {
+      "ukUrl": "/generated/audio/bb/shared/extensive/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/extensive/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/extremity": {
+      "ukUrl": "/generated/audio/bb/shared/extremity/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/extremity/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/farther": {
+      "ukUrl": "/generated/audio/bb/shared/farther/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/farther/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/favor": {
+      "ukUrl": "/generated/audio/bb/shared/favor/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/favor/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/favorite": {
+      "ukUrl": "/generated/audio/bb/shared/favorite/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/favorite/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/favourite": {
+      "ukUrl": "/generated/audio/bb/shared/favourite/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/favourite/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/federal": {
+      "ukUrl": "/generated/audio/bb/shared/federal/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/federal/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/federation": {
+      "ukUrl": "/generated/audio/bb/shared/federation/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/federation/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/feeble": {
+      "ukUrl": "/generated/audio/bb/shared/feeble/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/feeble/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/flank": {
+      "ukUrl": "/generated/audio/bb/shared/flank/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/flank/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/fluid": {
+      "ukUrl": "/generated/audio/bb/shared/fluid/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/fluid/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/formerly": {
+      "ukUrl": "/generated/audio/bb/shared/formerly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/formerly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/forth": {
+      "ukUrl": "/generated/audio/bb/shared/forth/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/forth/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/freely": {
+      "ukUrl": "/generated/audio/bb/shared/freely/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/freely/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/fracture": {
+      "ukUrl": "/generated/audio/bb/shared/fracture/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/fracture/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/goodbye": {
+      "ukUrl": "/generated/audio/bb/shared/goodbye/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/goodbye/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/gauze": {
+      "ukUrl": "/generated/audio/bb/shared/gauze/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/gauze/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/gown": {
+      "ukUrl": "/generated/audio/bb/shared/gown/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/gown/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/governor": {
+      "ukUrl": "/generated/audio/bb/shared/governor/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/governor/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/gray": {
+      "ukUrl": "/generated/audio/bb/shared/gray/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/gray/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/hastily": {
+      "ukUrl": "/generated/audio/bb/shared/hastily/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/hastily/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/haven": {
+      "ukUrl": "/generated/audio/bb/shared/haven/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/haven/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/hay": {
+      "ukUrl": "/generated/audio/bb/shared/hay/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/hay/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/headquarters": {
+      "ukUrl": "/generated/audio/bb/shared/headquarters/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/headquarters/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/heal": {
+      "ukUrl": "/generated/audio/bb/shared/heal/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/heal/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/healing": {
+      "ukUrl": "/generated/audio/bb/shared/healing/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/healing/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/holy": {
+      "ukUrl": "/generated/audio/bb/shared/holy/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/holy/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/hurrah": {
+      "ukUrl": "/generated/audio/bb/shared/hurrah/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/hurrah/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/hurriedly": {
+      "ukUrl": "/generated/audio/bb/shared/hurriedly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/hurriedly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/icon": {
+      "ukUrl": "/generated/audio/bb/shared/icon/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/icon/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/illustration": {
+      "ukUrl": "/generated/audio/bb/shared/illustration/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/illustration/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/incomprehensible": {
+      "ukUrl": "/generated/audio/bb/shared/incomprehensible/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/incomprehensible/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/inevitability": {
+      "ukUrl": "/generated/audio/bb/shared/inevitability/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/inevitability/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/inevitable": {
+      "ukUrl": "/generated/audio/bb/shared/inevitable/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/inevitable/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/infantry": {
+      "ukUrl": "/generated/audio/bb/shared/infantry/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/infantry/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/inflamed": {
+      "ukUrl": "/generated/audio/bb/shared/inflamed/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/inflamed/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/interference": {
+      "ukUrl": "/generated/audio/bb/shared/interference/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/interference/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/interior": {
+      "ukUrl": "/generated/audio/bb/shared/interior/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/interior/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/intimate": {
+      "ukUrl": "/generated/audio/bb/shared/intimate/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/intimate/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/involuntarily": {
+      "ukUrl": "/generated/audio/bb/shared/involuntarily/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/involuntarily/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/irregular": {
+      "ukUrl": "/generated/audio/bb/shared/irregular/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/irregular/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/irritation": {
+      "ukUrl": "/generated/audio/bb/shared/irritation/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/irritation/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/jersey": {
+      "ukUrl": "/generated/audio/bb/shared/jersey/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/jersey/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/junction": {
+      "ukUrl": "/generated/audio/bb/shared/junction/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/junction/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/kindly": {
+      "ukUrl": "/generated/audio/bb/shared/kindly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/kindly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/lad": {
+      "ukUrl": "/generated/audio/bb/shared/lad/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/lad/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/labor": {
+      "ukUrl": "/generated/audio/bb/shared/labor/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/labor/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/legislation": {
+      "ukUrl": "/generated/audio/bb/shared/legislation/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/legislation/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/legislature": {
+      "ukUrl": "/generated/audio/bb/shared/legislature/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/legislature/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/liable": {
+      "ukUrl": "/generated/audio/bb/shared/liable/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/liable/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/lesson": {
+      "ukUrl": "/generated/audio/bb/shared/lesson/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/lesson/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/lightly": {
+      "ukUrl": "/generated/audio/bb/shared/lightly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/lightly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/liver": {
+      "ukUrl": "/generated/audio/bb/shared/liver/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/liver/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/lodge": {
+      "ukUrl": "/generated/audio/bb/shared/lodge/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/lodge/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/lord": {
+      "ukUrl": "/generated/audio/bb/shared/lord/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/lord/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/longer": {
+      "ukUrl": "/generated/audio/bb/shared/longer/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/longer/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/loving": {
+      "ukUrl": "/generated/audio/bb/shared/loving/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/loving/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/maid": {
+      "ukUrl": "/generated/audio/bb/shared/maid/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/maid/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/math": {
+      "ukUrl": "/generated/audio/bb/shared/math/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/math/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/marshal": {
+      "ukUrl": "/generated/audio/bb/shared/marshal/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/marshal/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/militia": {
+      "ukUrl": "/generated/audio/bb/shared/militia/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/militia/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/midst": {
+      "ukUrl": "/generated/audio/bb/shared/midst/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/midst/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/moist": {
+      "ukUrl": "/generated/audio/bb/shared/moist/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/moist/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/mustache": {
+      "ukUrl": "/generated/audio/bb/shared/mustache/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/mustache/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/namely": {
+      "ukUrl": "/generated/audio/bb/shared/namely/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/namely/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/naturally": {
+      "ukUrl": "/generated/audio/bb/shared/naturally/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/naturally/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/naval": {
+      "ukUrl": "/generated/audio/bb/shared/naval/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/naval/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/newly": {
+      "ukUrl": "/generated/audio/bb/shared/newly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/newly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/occurrence": {
+      "ukUrl": "/generated/audio/bb/shared/occurrence/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/occurrence/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/operative": {
+      "ukUrl": "/generated/audio/bb/shared/operative/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/operative/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/opposition": {
+      "ukUrl": "/generated/audio/bb/shared/opposition/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/opposition/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/ought": {
+      "ukUrl": "/generated/audio/bb/shared/ought/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/ought/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/overlying": {
+      "ukUrl": "/generated/audio/bb/shared/overlying/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/overlying/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/owing": {
+      "ukUrl": "/generated/audio/bb/shared/owing/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/owing/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/parliament": {
+      "ukUrl": "/generated/audio/bb/shared/parliament/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/parliament/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/partly": {
+      "ukUrl": "/generated/audio/bb/shared/partly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/partly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/peculiar": {
+      "ukUrl": "/generated/audio/bb/shared/peculiar/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/peculiar/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/peripheral": {
+      "ukUrl": "/generated/audio/bb/shared/peripheral/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/peripheral/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/photo": {
+      "ukUrl": "/generated/audio/bb/shared/photo/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/photo/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/photograph": {
+      "ukUrl": "/generated/audio/bb/shared/photograph/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/photograph/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/pistol": {
+      "ukUrl": "/generated/audio/bb/shared/pistol/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/pistol/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/porch": {
+      "ukUrl": "/generated/audio/bb/shared/porch/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/porch/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/powder": {
+      "ukUrl": "/generated/audio/bb/shared/powder/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/powder/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/prayer": {
+      "ukUrl": "/generated/audio/bb/shared/prayer/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/prayer/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/presence": {
+      "ukUrl": "/generated/audio/bb/shared/presence/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/presence/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/previously": {
+      "ukUrl": "/generated/audio/bb/shared/previously/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/previously/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/proclamation": {
+      "ukUrl": "/generated/audio/bb/shared/proclamation/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/proclamation/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/progressive": {
+      "ukUrl": "/generated/audio/bb/shared/progressive/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/progressive/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/protective": {
+      "ukUrl": "/generated/audio/bb/shared/protective/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/protective/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/provision": {
+      "ukUrl": "/generated/audio/bb/shared/provision/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/provision/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/rapidity": {
+      "ukUrl": "/generated/audio/bb/shared/rapidity/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/rapidity/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/readily": {
+      "ukUrl": "/generated/audio/bb/shared/readily/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/readily/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/reading": {
+      "ukUrl": "/generated/audio/bb/shared/reading/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/reading/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/reception": {
+      "ukUrl": "/generated/audio/bb/shared/reception/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/reception/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/reconstruction": {
+      "ukUrl": "/generated/audio/bb/shared/reconstruction/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/reconstruction/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/regiment": {
+      "ukUrl": "/generated/audio/bb/shared/regiment/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/regiment/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/removal": {
+      "ukUrl": "/generated/audio/bb/shared/removal/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/removal/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/republican": {
+      "ukUrl": "/generated/audio/bb/shared/republican/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/republican/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/resolute": {
+      "ukUrl": "/generated/audio/bb/shared/resolute/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/resolute/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/revolutionary": {
+      "ukUrl": "/generated/audio/bb/shared/revolutionary/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/revolutionary/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/rupture": {
+      "ukUrl": "/generated/audio/bb/shared/rupture/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/rupture/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/sake": {
+      "ukUrl": "/generated/audio/bb/shared/sake/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/sake/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/saddle": {
+      "ukUrl": "/generated/audio/bb/shared/saddle/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/saddle/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/satisfactory": {
+      "ukUrl": "/generated/audio/bb/shared/satisfactory/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/satisfactory/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/sarcoma": {
+      "ukUrl": "/generated/audio/bb/shared/sarcoma/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/sarcoma/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/senate": {
+      "ukUrl": "/generated/audio/bb/shared/senate/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/senate/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/scarcely": {
+      "ukUrl": "/generated/audio/bb/shared/scarcely/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/scarcely/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/sensation": {
+      "ukUrl": "/generated/audio/bb/shared/sensation/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/sensation/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/senator": {
+      "ukUrl": "/generated/audio/bb/shared/senator/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/senator/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/sensibility": {
+      "ukUrl": "/generated/audio/bb/shared/sensibility/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/sensibility/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/separation": {
+      "ukUrl": "/generated/audio/bb/shared/separation/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/separation/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/serum": {
+      "ukUrl": "/generated/audio/bb/shared/serum/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/serum/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/sergeant": {
+      "ukUrl": "/generated/audio/bb/shared/sergeant/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/sergeant/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/settlement": {
+      "ukUrl": "/generated/audio/bb/shared/settlement/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/settlement/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/seventy": {
+      "ukUrl": "/generated/audio/bb/shared/seventy/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/seventy/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/severity": {
+      "ukUrl": "/generated/audio/bb/shared/severity/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/severity/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/sheath": {
+      "ukUrl": "/generated/audio/bb/shared/sheath/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/sheath/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/shed": {
+      "ukUrl": "/generated/audio/bb/shared/shed/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/shed/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/silently": {
+      "ukUrl": "/generated/audio/bb/shared/silently/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/silently/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/slavery": {
+      "ukUrl": "/generated/audio/bb/shared/slavery/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/slavery/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/sixth": {
+      "ukUrl": "/generated/audio/bb/shared/sixth/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/sixth/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/softly": {
+      "ukUrl": "/generated/audio/bb/shared/softly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/softly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/sole": {
+      "ukUrl": "/generated/audio/bb/shared/sole/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/sole/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/sovereign": {
+      "ukUrl": "/generated/audio/bb/shared/sovereign/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/sovereign/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/spinal": {
+      "ukUrl": "/generated/audio/bb/shared/spinal/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/spinal/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/spite": {
+      "ukUrl": "/generated/audio/bb/shared/spite/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/spite/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/squadron": {
+      "ukUrl": "/generated/audio/bb/shared/squadron/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/squadron/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/st": {
+      "ukUrl": "/generated/audio/bb/shared/st/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/st/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/stern": {
+      "ukUrl": "/generated/audio/bb/shared/stern/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/stern/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/stout": {
+      "ukUrl": "/generated/audio/bb/shared/stout/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/stout/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/sternly": {
+      "ukUrl": "/generated/audio/bb/shared/sternly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/sternly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/strongly": {
+      "ukUrl": "/generated/audio/bb/shared/strongly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/strongly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/stupid": {
+      "ukUrl": "/generated/audio/bb/shared/stupid/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/stupid/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/suite": {
+      "ukUrl": "/generated/audio/bb/shared/suite/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/suite/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/suffrage": {
+      "ukUrl": "/generated/audio/bb/shared/suffrage/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/suffrage/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/superficial": {
+      "ukUrl": "/generated/audio/bb/shared/superficial/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/superficial/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/supper": {
+      "ukUrl": "/generated/audio/bb/shared/supper/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/supper/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/sword": {
+      "ukUrl": "/generated/audio/bb/shared/sword/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/sword/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/tariff": {
+      "ukUrl": "/generated/audio/bb/shared/tariff/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/tariff/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/telephone": {
+      "ukUrl": "/generated/audio/bb/shared/telephone/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/telephone/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/television": {
+      "ukUrl": "/generated/audio/bb/shared/television/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/television/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/terror": {
+      "ukUrl": "/generated/audio/bb/shared/terror/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/terror/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/th": {
+      "ukUrl": "/generated/audio/bb/shared/th/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/th/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/thirty": {
+      "ukUrl": "/generated/audio/bb/shared/thirty/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/thirty/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/thrust": {
+      "ukUrl": "/generated/audio/bb/shared/thrust/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/thrust/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/toilet": {
+      "ukUrl": "/generated/audio/bb/shared/toilet/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/toilet/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/toward": {
+      "ukUrl": "/generated/audio/bb/shared/toward/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/toward/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/traumatic": {
+      "ukUrl": "/generated/audio/bb/shared/traumatic/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/traumatic/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/treaty": {
+      "ukUrl": "/generated/audio/bb/shared/treaty/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/treaty/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/unexpectedly": {
+      "ukUrl": "/generated/audio/bb/shared/unexpectedly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/unexpectedly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/useless": {
+      "ukUrl": "/generated/audio/bb/shared/useless/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/useless/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/valet": {
+      "ukUrl": "/generated/audio/bb/shared/valet/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/valet/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/vein": {
+      "ukUrl": "/generated/audio/bb/shared/vein/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/vein/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/vice": {
+      "ukUrl": "/generated/audio/bb/shared/vice/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/vice/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/vicinity": {
+      "ukUrl": "/generated/audio/bb/shared/vicinity/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/vicinity/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/vigorous": {
+      "ukUrl": "/generated/audio/bb/shared/vigorous/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/vigorous/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/warfare": {
+      "ukUrl": "/generated/audio/bb/shared/warfare/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/warfare/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/william": {
+      "ukUrl": "/generated/audio/bb/shared/william/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/william/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/abdomen": {
+      "ukUrl": "/generated/audio/bb/shared/abdomen/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/abdomen/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/abolition": {
+      "ukUrl": "/generated/audio/bb/shared/abolition/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/abolition/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/abruptly": {
+      "ukUrl": "/generated/audio/bb/shared/abruptly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/abruptly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/abundant": {
+      "ukUrl": "/generated/audio/bb/shared/abundant/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/abundant/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/accord": {
+      "ukUrl": "/generated/audio/bb/shared/accord/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/accord/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/accordance": {
+      "ukUrl": "/generated/audio/bb/shared/accordance/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/accordance/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/accordingly": {
+      "ukUrl": "/generated/audio/bb/shared/accordingly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/accordingly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/accumulation": {
+      "ukUrl": "/generated/audio/bb/shared/accumulation/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/accumulation/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/accurately": {
+      "ukUrl": "/generated/audio/bb/shared/accurately/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/accurately/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/additional": {
+      "ukUrl": "/generated/audio/bb/shared/additional/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/additional/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/adherent": {
+      "ukUrl": "/generated/audio/bb/shared/adherent/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/adherent/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/adoption": {
+      "ukUrl": "/generated/audio/bb/shared/adoption/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/adoption/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/advantageous": {
+      "ukUrl": "/generated/audio/bb/shared/advantageous/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/advantageous/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/afterward": {
+      "ukUrl": "/generated/audio/bb/shared/afterward/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/afterward/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/agreeable": {
+      "ukUrl": "/generated/audio/bb/shared/agreeable/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/agreeable/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/allegiance": {
+      "ukUrl": "/generated/audio/bb/shared/allegiance/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/allegiance/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/alter": {
+      "ukUrl": "/generated/audio/bb/shared/alter/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/alter/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/alteration": {
+      "ukUrl": "/generated/audio/bb/shared/alteration/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/alteration/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/amiable": {
+      "ukUrl": "/generated/audio/bb/shared/amiable/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/amiable/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/anaesthesia": {
+      "ukUrl": "/generated/audio/bb/shared/anaesthesia/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/anaesthesia/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/analyze": {
+      "ukUrl": "/generated/audio/bb/shared/analyze/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/analyze/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/anatomical": {
+      "ukUrl": "/generated/audio/bb/shared/anatomical/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/anatomical/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/anatomy": {
+      "ukUrl": "/generated/audio/bb/shared/anatomy/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/anatomy/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/anterior": {
+      "ukUrl": "/generated/audio/bb/shared/anterior/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/anterior/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/anthrax": {
+      "ukUrl": "/generated/audio/bb/shared/anthrax/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/anthrax/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/antiseptic": {
+      "ukUrl": "/generated/audio/bb/shared/antiseptic/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/antiseptic/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/aorta": {
+      "ukUrl": "/generated/audio/bb/shared/aorta/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/aorta/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/apparatus": {
+      "ukUrl": "/generated/audio/bb/shared/apparatus/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/apparatus/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/applicable": {
+      "ukUrl": "/generated/audio/bb/shared/applicable/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/applicable/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/arbitrary": {
+      "ukUrl": "/generated/audio/bb/shared/arbitrary/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/arbitrary/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/arbitration": {
+      "ukUrl": "/generated/audio/bb/shared/arbitration/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/arbitration/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/archive": {
+      "ukUrl": "/generated/audio/bb/shared/archive/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/archive/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/aristocracy": {
+      "ukUrl": "/generated/audio/bb/shared/aristocracy/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/aristocracy/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/arterial": {
+      "ukUrl": "/generated/audio/bb/shared/arterial/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/arterial/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/assurance": {
+      "ukUrl": "/generated/audio/bb/shared/assurance/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/assurance/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/astonishment": {
+      "ukUrl": "/generated/audio/bb/shared/astonishment/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/astonishment/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/atrophy": {
+      "ukUrl": "/generated/audio/bb/shared/atrophy/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/atrophy/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/attentive": {
+      "ukUrl": "/generated/audio/bb/shared/attentive/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/attentive/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/attentively": {
+      "ukUrl": "/generated/audio/bb/shared/attentively/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/attentively/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/audible": {
+      "ukUrl": "/generated/audio/bb/shared/audible/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/audible/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/avail": {
+      "ukUrl": "/generated/audio/bb/shared/avail/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/avail/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/avenue": {
+      "ukUrl": "/generated/audio/bb/shared/avenue/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/avenue/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/axis": {
+      "ukUrl": "/generated/audio/bb/shared/axis/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/axis/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/bachelor": {
+      "ukUrl": "/generated/audio/bb/shared/bachelor/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/bachelor/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/backward": {
+      "ukUrl": "/generated/audio/bb/shared/backward/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/backward/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/ballroom": {
+      "ukUrl": "/generated/audio/bb/shared/ballroom/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/ballroom/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/barn": {
+      "ukUrl": "/generated/audio/bb/shared/barn/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/barn/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/bass": {
+      "ukUrl": "/generated/audio/bb/shared/bass/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/bass/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/beloved": {
+      "ukUrl": "/generated/audio/bb/shared/beloved/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/beloved/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/benefactor": {
+      "ukUrl": "/generated/audio/bb/shared/benefactor/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/benefactor/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/binding": {
+      "ukUrl": "/generated/audio/bb/shared/binding/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/binding/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/birch": {
+      "ukUrl": "/generated/audio/bb/shared/birch/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/birch/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/blockade": {
+      "ukUrl": "/generated/audio/bb/shared/blockade/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/blockade/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/bluish": {
+      "ukUrl": "/generated/audio/bb/shared/bluish/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/bluish/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/boldly": {
+      "ukUrl": "/generated/audio/bb/shared/boldly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/boldly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/breach": {
+      "ukUrl": "/generated/audio/bb/shared/breach/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/breach/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/bony": {
+      "ukUrl": "/generated/audio/bb/shared/bony/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/bony/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/briefly": {
+      "ukUrl": "/generated/audio/bb/shared/briefly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/briefly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/briskly": {
+      "ukUrl": "/generated/audio/bb/shared/briskly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/briskly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/brotherhood": {
+      "ukUrl": "/generated/audio/bb/shared/brotherhood/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/brotherhood/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/brow": {
+      "ukUrl": "/generated/audio/bb/shared/brow/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/brow/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/bureau": {
+      "ukUrl": "/generated/audio/bb/shared/bureau/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/bureau/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/cab": {
+      "ukUrl": "/generated/audio/bb/shared/cab/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/cab/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/cabinet": {
+      "ukUrl": "/generated/audio/bb/shared/cabinet/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/cabinet/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/cadet": {
+      "ukUrl": "/generated/audio/bb/shared/cadet/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/cadet/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/calamity": {
+      "ukUrl": "/generated/audio/bb/shared/calamity/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/calamity/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/candle": {
+      "ukUrl": "/generated/audio/bb/shared/candle/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/candle/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/capillary": {
+      "ukUrl": "/generated/audio/bb/shared/capillary/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/capillary/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/caution": {
+      "ukUrl": "/generated/audio/bb/shared/caution/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/caution/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/cellar": {
+      "ukUrl": "/generated/audio/bb/shared/cellar/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/cellar/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/charter": {
+      "ukUrl": "/generated/audio/bb/shared/charter/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/charter/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/childish": {
+      "ukUrl": "/generated/audio/bb/shared/childish/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/childish/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/childlike": {
+      "ukUrl": "/generated/audio/bb/shared/childlike/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/childlike/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/chill": {
+      "ukUrl": "/generated/audio/bb/shared/chill/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/chill/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/circular": {
+      "ukUrl": "/generated/audio/bb/shared/circular/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/circular/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/circumscribed": {
+      "ukUrl": "/generated/audio/bb/shared/circumscribed/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/circumscribed/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/clash": {
+      "ukUrl": "/generated/audio/bb/shared/clash/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/clash/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/clergy": {
+      "ukUrl": "/generated/audio/bb/shared/clergy/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/clergy/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/clinically": {
+      "ukUrl": "/generated/audio/bb/shared/clinically/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/clinically/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/coldly": {
+      "ukUrl": "/generated/audio/bb/shared/coldly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/coldly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/collateral": {
+      "ukUrl": "/generated/audio/bb/shared/collateral/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/collateral/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/coloured": {
+      "ukUrl": "/generated/audio/bb/shared/coloured/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/coloured/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/commons": {
+      "ukUrl": "/generated/audio/bb/shared/commons/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/commons/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/compact": {
+      "ukUrl": "/generated/audio/bb/shared/compact/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/compact/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/compensation": {
+      "ukUrl": "/generated/audio/bb/shared/compensation/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/compensation/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/compliance": {
+      "ukUrl": "/generated/audio/bb/shared/compliance/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/compliance/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/comply": {
+      "ukUrl": "/generated/audio/bb/shared/comply/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/comply/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/conceal": {
+      "ukUrl": "/generated/audio/bb/shared/conceal/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/conceal/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/confederacy": {
+      "ukUrl": "/generated/audio/bb/shared/confederacy/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/confederacy/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/confess": {
+      "ukUrl": "/generated/audio/bb/shared/confess/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/confess/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/congenital": {
+      "ukUrl": "/generated/audio/bb/shared/congenital/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/congenital/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/conquest": {
+      "ukUrl": "/generated/audio/bb/shared/conquest/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/conquest/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/conscience": {
+      "ukUrl": "/generated/audio/bb/shared/conscience/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/conscience/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/considerably": {
+      "ukUrl": "/generated/audio/bb/shared/considerably/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/considerably/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/consideration": {
+      "ukUrl": "/generated/audio/bb/shared/consideration/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/consideration/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/consistence": {
+      "ukUrl": "/generated/audio/bb/shared/consistence/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/consistence/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/consolation": {
+      "ukUrl": "/generated/audio/bb/shared/consolation/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/consolation/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/constitute": {
+      "ukUrl": "/generated/audio/bb/shared/constitute/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/constitute/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/contemptuous": {
+      "ukUrl": "/generated/audio/bb/shared/contemptuous/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/contemptuous/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/contemptuously": {
+      "ukUrl": "/generated/audio/bb/shared/contemptuously/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/contemptuously/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/continuity": {
+      "ukUrl": "/generated/audio/bb/shared/continuity/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/continuity/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/contradiction": {
+      "ukUrl": "/generated/audio/bb/shared/contradiction/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/contradiction/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/controversy": {
+      "ukUrl": "/generated/audio/bb/shared/controversy/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/controversy/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/convoy": {
+      "ukUrl": "/generated/audio/bb/shared/convoy/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/convoy/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/copper": {
+      "ukUrl": "/generated/audio/bb/shared/copper/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/copper/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/corporal": {
+      "ukUrl": "/generated/audio/bb/shared/corporal/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/corporal/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/courier": {
+      "ukUrl": "/generated/audio/bb/shared/courier/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/courier/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/crackling": {
+      "ukUrl": "/generated/audio/bb/shared/crackling/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/crackling/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/cunning": {
+      "ukUrl": "/generated/audio/bb/shared/cunning/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/cunning/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/curved": {
+      "ukUrl": "/generated/audio/bb/shared/curved/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/curved/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/customary": {
+      "ukUrl": "/generated/audio/bb/shared/customary/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/customary/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/cystic": {
+      "ukUrl": "/generated/audio/bb/shared/cystic/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/cystic/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/decisive": {
+      "ukUrl": "/generated/audio/bb/shared/decisive/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/decisive/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/decree": {
+      "ukUrl": "/generated/audio/bb/shared/decree/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/decree/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/defective": {
+      "ukUrl": "/generated/audio/bb/shared/defective/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/defective/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/deliberate": {
+      "ukUrl": "/generated/audio/bb/shared/deliberate/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/deliberate/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/delirium": {
+      "ukUrl": "/generated/audio/bb/shared/delirium/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/delirium/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/den": {
+      "ukUrl": "/generated/audio/bb/shared/den/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/den/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/dependence": {
+      "ukUrl": "/generated/audio/bb/shared/dependence/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/dependence/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/dependent": {
+      "ukUrl": "/generated/audio/bb/shared/dependent/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/dependent/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/deprive": {
+      "ukUrl": "/generated/audio/bb/shared/deprive/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/deprive/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/detachment": {
+      "ukUrl": "/generated/audio/bb/shared/detachment/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/detachment/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/differential": {
+      "ukUrl": "/generated/audio/bb/shared/differential/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/differential/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/dim": {
+      "ukUrl": "/generated/audio/bb/shared/dim/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/dim/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/diminish": {
+      "ukUrl": "/generated/audio/bb/shared/diminish/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/diminish/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/diphtheria": {
+      "ukUrl": "/generated/audio/bb/shared/diphtheria/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/diphtheria/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/dimly": {
+      "ukUrl": "/generated/audio/bb/shared/dimly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/dimly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/diplomacy": {
+      "ukUrl": "/generated/audio/bb/shared/diplomacy/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/diplomacy/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/diseased": {
+      "ukUrl": "/generated/audio/bb/shared/diseased/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/diseased/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/dislocation": {
+      "ukUrl": "/generated/audio/bb/shared/dislocation/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/dislocation/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/dismay": {
+      "ukUrl": "/generated/audio/bb/shared/dismay/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/dismay/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/disorder": {
+      "ukUrl": "/generated/audio/bb/shared/disorder/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/disorder/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/dispatch": {
+      "ukUrl": "/generated/audio/bb/shared/dispatch/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/dispatch/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/disperse": {
+      "ukUrl": "/generated/audio/bb/shared/disperse/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/disperse/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/displacement": {
+      "ukUrl": "/generated/audio/bb/shared/displacement/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/displacement/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/disposition": {
+      "ukUrl": "/generated/audio/bb/shared/disposition/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/disposition/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/dissatisfaction": {
+      "ukUrl": "/generated/audio/bb/shared/dissatisfaction/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/dissatisfaction/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/dissatisfied": {
+      "ukUrl": "/generated/audio/bb/shared/dissatisfied/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/dissatisfied/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/dissolution": {
+      "ukUrl": "/generated/audio/bb/shared/dissolution/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/dissolution/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/distal": {
+      "ukUrl": "/generated/audio/bb/shared/distal/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/distal/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/distinction": {
+      "ukUrl": "/generated/audio/bb/shared/distinction/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/distinction/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/distinctly": {
+      "ukUrl": "/generated/audio/bb/shared/distinctly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/distinctly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/distress": {
+      "ukUrl": "/generated/audio/bb/shared/distress/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/distress/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/divine": {
+      "ukUrl": "/generated/audio/bb/shared/divine/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/divine/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/dominion": {
+      "ukUrl": "/generated/audio/bb/shared/dominion/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/dominion/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/dose": {
+      "ukUrl": "/generated/audio/bb/shared/dose/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/dose/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/downward": {
+      "ukUrl": "/generated/audio/bb/shared/downward/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/downward/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/drain": {
+      "ukUrl": "/generated/audio/bb/shared/drain/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/drain/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/drainage": {
+      "ukUrl": "/generated/audio/bb/shared/drainage/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/drainage/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/drastic": {
+      "ukUrl": "/generated/audio/bb/shared/drastic/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/drastic/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/drift": {
+      "ukUrl": "/generated/audio/bb/shared/drift/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/drift/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/drinking": {
+      "ukUrl": "/generated/audio/bb/shared/drinking/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/drinking/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/drunk": {
+      "ukUrl": "/generated/audio/bb/shared/drunk/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/drunk/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/duct": {
+      "ukUrl": "/generated/audio/bb/shared/duct/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/duct/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/drunken": {
+      "ukUrl": "/generated/audio/bb/shared/drunken/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/drunken/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/eighteenth": {
+      "ukUrl": "/generated/audio/bb/shared/eighteenth/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/eighteenth/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/duel": {
+      "ukUrl": "/generated/audio/bb/shared/duel/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/duel/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/electoral": {
+      "ukUrl": "/generated/audio/bb/shared/electoral/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/electoral/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/eighth": {
+      "ukUrl": "/generated/audio/bb/shared/eighth/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/eighth/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/employment": {
+      "ukUrl": "/generated/audio/bb/shared/employment/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/employment/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/emancipation": {
+      "ukUrl": "/generated/audio/bb/shared/emancipation/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/emancipation/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/en": {
+      "ukUrl": "/generated/audio/bb/shared/en/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/en/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/enchanting": {
+      "ukUrl": "/generated/audio/bb/shared/enchanting/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/enchanting/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/enforce": {
+      "ukUrl": "/generated/audio/bb/shared/enforce/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/enforce/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/enforcement": {
+      "ukUrl": "/generated/audio/bb/shared/enforcement/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/enforcement/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/enjoyment": {
+      "ukUrl": "/generated/audio/bb/shared/enjoyment/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/enjoyment/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/ensue": {
+      "ukUrl": "/generated/audio/bb/shared/ensue/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/ensue/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/epoch": {
+      "ukUrl": "/generated/audio/bb/shared/epoch/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/epoch/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/epiphysis": {
+      "ukUrl": "/generated/audio/bb/shared/epiphysis/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/epiphysis/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/erect": {
+      "ukUrl": "/generated/audio/bb/shared/erect/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/erect/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/erysipelas": {
+      "ukUrl": "/generated/audio/bb/shared/erysipelas/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/erysipelas/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/escort": {
+      "ukUrl": "/generated/audio/bb/shared/escort/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/escort/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/essentially": {
+      "ukUrl": "/generated/audio/bb/shared/essentially/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/essentially/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/eternal": {
+      "ukUrl": "/generated/audio/bb/shared/eternal/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/eternal/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/exact": {
+      "ukUrl": "/generated/audio/bb/shared/exact/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/exact/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/exceedingly": {
+      "ukUrl": "/generated/audio/bb/shared/exceedingly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/exceedingly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/exception": {
+      "ukUrl": "/generated/audio/bb/shared/exception/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/exception/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/excise": {
+      "ukUrl": "/generated/audio/bb/shared/excise/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/excise/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/excision": {
+      "ukUrl": "/generated/audio/bb/shared/excision/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/excision/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/exclusively": {
+      "ukUrl": "/generated/audio/bb/shared/exclusively/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/exclusively/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/execute": {
+      "ukUrl": "/generated/audio/bb/shared/execute/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/execute/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/exertion": {
+      "ukUrl": "/generated/audio/bb/shared/exertion/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/exertion/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/externally": {
+      "ukUrl": "/generated/audio/bb/shared/externally/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/externally/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/fatty": {
+      "ukUrl": "/generated/audio/bb/shared/fatty/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/fatty/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/favorable": {
+      "ukUrl": "/generated/audio/bb/shared/favorable/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/favorable/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/federalist": {
+      "ukUrl": "/generated/audio/bb/shared/federalist/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/federalist/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/feminine": {
+      "ukUrl": "/generated/audio/bb/shared/feminine/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/feminine/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/fertile": {
+      "ukUrl": "/generated/audio/bb/shared/fertile/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/fertile/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/feverish": {
+      "ukUrl": "/generated/audio/bb/shared/feverish/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/feverish/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/fifteenth": {
+      "ukUrl": "/generated/audio/bb/shared/fifteenth/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/fifteenth/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/firmness": {
+      "ukUrl": "/generated/audio/bb/shared/firmness/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/firmness/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/fitting": {
+      "ukUrl": "/generated/audio/bb/shared/fitting/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/fitting/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/fluctuation": {
+      "ukUrl": "/generated/audio/bb/shared/fluctuation/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/fluctuation/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/foe": {
+      "ukUrl": "/generated/audio/bb/shared/foe/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/foe/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/folly": {
+      "ukUrl": "/generated/audio/bb/shared/folly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/folly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/foremost": {
+      "ukUrl": "/generated/audio/bb/shared/foremost/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/foremost/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/formidable": {
+      "ukUrl": "/generated/audio/bb/shared/formidable/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/formidable/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/fort": {
+      "ukUrl": "/generated/audio/bb/shared/fort/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/fort/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/fortnight": {
+      "ukUrl": "/generated/audio/bb/shared/fortnight/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/fortnight/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/foul": {
+      "ukUrl": "/generated/audio/bb/shared/foul/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/foul/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/fourteenth": {
+      "ukUrl": "/generated/audio/bb/shared/fourteenth/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/fourteenth/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/frankly": {
+      "ukUrl": "/generated/audio/bb/shared/frankly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/frankly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/fulfill": {
+      "ukUrl": "/generated/audio/bb/shared/fulfill/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/fulfill/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/furnish": {
+      "ukUrl": "/generated/audio/bb/shared/furnish/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/furnish/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/fury": {
+      "ukUrl": "/generated/audio/bb/shared/fury/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/fury/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/gaily": {
+      "ukUrl": "/generated/audio/bb/shared/gaily/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/gaily/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/ganglion": {
+      "ukUrl": "/generated/audio/bb/shared/ganglion/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/ganglion/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/gentry": {
+      "ukUrl": "/generated/audio/bb/shared/gentry/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/gentry/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/glimpse": {
+      "ukUrl": "/generated/audio/bb/shared/glimpse/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/glimpse/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/gloom": {
+      "ukUrl": "/generated/audio/bb/shared/gloom/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/gloom/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/gracious": {
+      "ukUrl": "/generated/audio/bb/shared/gracious/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/gracious/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/groin": {
+      "ukUrl": "/generated/audio/bb/shared/groin/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/groin/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/graft": {
+      "ukUrl": "/generated/audio/bb/shared/graft/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/graft/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/groom": {
+      "ukUrl": "/generated/audio/bb/shared/groom/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/groom/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/gross": {
+      "ukUrl": "/generated/audio/bb/shared/gross/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/gross/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/halt": {
+      "ukUrl": "/generated/audio/bb/shared/halt/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/halt/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/habitual": {
+      "ukUrl": "/generated/audio/bb/shared/habitual/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/habitual/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/hare": {
+      "ukUrl": "/generated/audio/bb/shared/hare/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/hare/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/haste": {
+      "ukUrl": "/generated/audio/bb/shared/haste/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/haste/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/hatred": {
+      "ukUrl": "/generated/audio/bb/shared/hatred/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/hatred/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/heap": {
+      "ukUrl": "/generated/audio/bb/shared/heap/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/heap/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/heroic": {
+      "ukUrl": "/generated/audio/bb/shared/heroic/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/heroic/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/highroad": {
+      "ukUrl": "/generated/audio/bb/shared/highroad/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/highroad/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/hitherto": {
+      "ukUrl": "/generated/audio/bb/shared/hitherto/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/hitherto/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/hive": {
+      "ukUrl": "/generated/audio/bb/shared/hive/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/hive/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/homestead": {
+      "ukUrl": "/generated/audio/bb/shared/homestead/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/homestead/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/hoarse": {
+      "ukUrl": "/generated/audio/bb/shared/hoarse/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/hoarse/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/hopeless": {
+      "ukUrl": "/generated/audio/bb/shared/hopeless/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/hopeless/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/honorable": {
+      "ukUrl": "/generated/audio/bb/shared/honorable/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/honorable/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/hostility": {
+      "ukUrl": "/generated/audio/bb/shared/hostility/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/hostility/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/hum": {
+      "ukUrl": "/generated/audio/bb/shared/hum/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/hum/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/idle": {
+      "ukUrl": "/generated/audio/bb/shared/idle/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/idle/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/iliac": {
+      "ukUrl": "/generated/audio/bb/shared/iliac/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/iliac/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/impending": {
+      "ukUrl": "/generated/audio/bb/shared/impending/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/impending/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/imperfectly": {
+      "ukUrl": "/generated/audio/bb/shared/imperfectly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/imperfectly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/importation": {
+      "ukUrl": "/generated/audio/bb/shared/importation/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/importation/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/incessantly": {
+      "ukUrl": "/generated/audio/bb/shared/incessantly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/incessantly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/incomplete": {
+      "ukUrl": "/generated/audio/bb/shared/incomplete/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/incomplete/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/indefinite": {
+      "ukUrl": "/generated/audio/bb/shared/indefinite/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/indefinite/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/index": {
+      "ukUrl": "/generated/audio/bb/shared/index/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/index/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/indication": {
+      "ukUrl": "/generated/audio/bb/shared/indication/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/indication/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/indifference": {
+      "ukUrl": "/generated/audio/bb/shared/indifference/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/indifference/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/indifferent": {
+      "ukUrl": "/generated/audio/bb/shared/indifferent/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/indifferent/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/indolent": {
+      "ukUrl": "/generated/audio/bb/shared/indolent/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/indolent/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/induce": {
+      "ukUrl": "/generated/audio/bb/shared/induce/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/induce/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/infant": {
+      "ukUrl": "/generated/audio/bb/shared/infant/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/infant/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/infiltration": {
+      "ukUrl": "/generated/audio/bb/shared/infiltration/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/infiltration/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/inn": {
+      "ukUrl": "/generated/audio/bb/shared/inn/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/inn/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/infinite": {
+      "ukUrl": "/generated/audio/bb/shared/infinite/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/infinite/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/innumerable": {
+      "ukUrl": "/generated/audio/bb/shared/innumerable/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/innumerable/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/inquiring": {
+      "ukUrl": "/generated/audio/bb/shared/inquiring/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/inquiring/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/insane": {
+      "ukUrl": "/generated/audio/bb/shared/insane/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/insane/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/insignificant": {
+      "ukUrl": "/generated/audio/bb/shared/insignificant/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/insignificant/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/insufficient": {
+      "ukUrl": "/generated/audio/bb/shared/insufficient/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/insufficient/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/insult": {
+      "ukUrl": "/generated/audio/bb/shared/insult/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/insult/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/intact": {
+      "ukUrl": "/generated/audio/bb/shared/intact/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/intact/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/intellect": {
+      "ukUrl": "/generated/audio/bb/shared/intellect/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/intellect/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/interstate": {
+      "ukUrl": "/generated/audio/bb/shared/interstate/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/interstate/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/intercourse": {
+      "ukUrl": "/generated/audio/bb/shared/intercourse/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/intercourse/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/intestine": {
+      "ukUrl": "/generated/audio/bb/shared/intestine/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/intestine/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/intimacy": {
+      "ukUrl": "/generated/audio/bb/shared/intimacy/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/intimacy/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/invade": {
+      "ukUrl": "/generated/audio/bb/shared/invade/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/invade/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/invariably": {
+      "ukUrl": "/generated/audio/bb/shared/invariably/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/invariably/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/involuntary": {
+      "ukUrl": "/generated/audio/bb/shared/involuntary/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/involuntary/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/iodine": {
+      "ukUrl": "/generated/audio/bb/shared/iodine/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/iodine/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/irony": {
+      "ukUrl": "/generated/audio/bb/shared/irony/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/irony/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/irresistible": {
+      "ukUrl": "/generated/audio/bb/shared/irresistible/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/irresistible/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/irrigation": {
+      "ukUrl": "/generated/audio/bb/shared/irrigation/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/irrigation/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/jealous": {
+      "ukUrl": "/generated/audio/bb/shared/jealous/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/jealous/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/jealousy": {
+      "ukUrl": "/generated/audio/bb/shared/jealousy/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/jealousy/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/jest": {
+      "ukUrl": "/generated/audio/bb/shared/jest/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/jest/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/judicial": {
+      "ukUrl": "/generated/audio/bb/shared/judicial/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/judicial/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/judgment": {
+      "ukUrl": "/generated/audio/bb/shared/judgment/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/judgment/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/jury": {
+      "ukUrl": "/generated/audio/bb/shared/jury/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/jury/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/jurisdiction": {
+      "ukUrl": "/generated/audio/bb/shared/jurisdiction/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/jurisdiction/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/lateral": {
+      "ukUrl": "/generated/audio/bb/shared/lateral/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/lateral/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/legislative": {
+      "ukUrl": "/generated/audio/bb/shared/legislative/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/legislative/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/lest": {
+      "ukUrl": "/generated/audio/bb/shared/lest/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/lest/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/liability": {
+      "ukUrl": "/generated/audio/bb/shared/liability/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/liability/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/liberal": {
+      "ukUrl": "/generated/audio/bb/shared/liberal/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/liberal/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/lieutenant": {
+      "ukUrl": "/generated/audio/bb/shared/lieutenant/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/lieutenant/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/linen": {
+      "ukUrl": "/generated/audio/bb/shared/linen/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/linen/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/lime": {
+      "ukUrl": "/generated/audio/bb/shared/lime/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/lime/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/lotion": {
+      "ukUrl": "/generated/audio/bb/shared/lotion/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/lotion/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/lofty": {
+      "ukUrl": "/generated/audio/bb/shared/lofty/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/lofty/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/machinery": {
+      "ukUrl": "/generated/audio/bb/shared/machinery/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/machinery/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/lumen": {
+      "ukUrl": "/generated/audio/bb/shared/lumen/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/lumen/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/majestic": {
+      "ukUrl": "/generated/audio/bb/shared/majestic/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/majestic/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/manhood": {
+      "ukUrl": "/generated/audio/bb/shared/manhood/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/manhood/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/manufacture": {
+      "ukUrl": "/generated/audio/bb/shared/manufacture/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/manufacture/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/manifest": {
+      "ukUrl": "/generated/audio/bb/shared/manifest/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/manifest/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/manufacturing": {
+      "ukUrl": "/generated/audio/bb/shared/manufacturing/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/manufacturing/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/mason": {
+      "ukUrl": "/generated/audio/bb/shared/mason/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/mason/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/meadow": {
+      "ukUrl": "/generated/audio/bb/shared/meadow/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/meadow/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/massage": {
+      "ukUrl": "/generated/audio/bb/shared/massage/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/massage/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/meantime": {
+      "ukUrl": "/generated/audio/bb/shared/meantime/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/meantime/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/meaningless": {
+      "ukUrl": "/generated/audio/bb/shared/meaningless/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/meaningless/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/median": {
+      "ukUrl": "/generated/audio/bb/shared/median/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/median/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/merit": {
+      "ukUrl": "/generated/audio/bb/shared/merit/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/merit/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/mill": {
+      "ukUrl": "/generated/audio/bb/shared/mill/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/mill/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/micro": {
+      "ukUrl": "/generated/audio/bb/shared/micro/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/micro/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/misery": {
+      "ukUrl": "/generated/audio/bb/shared/misery/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/misery/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/mistress": {
+      "ukUrl": "/generated/audio/bb/shared/mistress/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/mistress/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/monarchy": {
+      "ukUrl": "/generated/audio/bb/shared/monarchy/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/monarchy/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/mob": {
+      "ukUrl": "/generated/audio/bb/shared/mob/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/mob/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/moonlight": {
+      "ukUrl": "/generated/audio/bb/shared/moonlight/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/moonlight/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/motionless": {
+      "ukUrl": "/generated/audio/bb/shared/motionless/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/motionless/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/movable": {
+      "ukUrl": "/generated/audio/bb/shared/movable/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/movable/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/municipal": {
+      "ukUrl": "/generated/audio/bb/shared/municipal/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/municipal/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/naked": {
+      "ukUrl": "/generated/audio/bb/shared/naked/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/naked/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/naive": {
+      "ukUrl": "/generated/audio/bb/shared/naive/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/naive/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/nationalism": {
+      "ukUrl": "/generated/audio/bb/shared/nationalism/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/nationalism/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/narrative": {
+      "ukUrl": "/generated/audio/bb/shared/narrative/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/narrative/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/neighbor": {
+      "ukUrl": "/generated/audio/bb/shared/neighbor/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/neighbor/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/natured": {
+      "ukUrl": "/generated/audio/bb/shared/natured/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/natured/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/nobility": {
+      "ukUrl": "/generated/audio/bb/shared/nobility/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/nobility/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/nineteenth": {
+      "ukUrl": "/generated/audio/bb/shared/nineteenth/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/nineteenth/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/oak": {
+      "ukUrl": "/generated/audio/bb/shared/oak/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/oak/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/oath": {
+      "ukUrl": "/generated/audio/bb/shared/oath/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/oath/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/offense": {
+      "ukUrl": "/generated/audio/bb/shared/offense/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/offense/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/occasional": {
+      "ukUrl": "/generated/audio/bb/shared/occasional/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/occasional/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/offensive": {
+      "ukUrl": "/generated/audio/bb/shared/offensive/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/offensive/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/offering": {
+      "ukUrl": "/generated/audio/bb/shared/offering/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/offering/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/ointment": {
+      "ukUrl": "/generated/audio/bb/shared/ointment/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/ointment/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/onset": {
+      "ukUrl": "/generated/audio/bb/shared/onset/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/onset/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/opium": {
+      "ukUrl": "/generated/audio/bb/shared/opium/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/opium/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/oppressed": {
+      "ukUrl": "/generated/audio/bb/shared/oppressed/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/oppressed/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/osseous": {
+      "ukUrl": "/generated/audio/bb/shared/osseous/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/osseous/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/ossification": {
+      "ukUrl": "/generated/audio/bb/shared/ossification/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/ossification/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/overcoat": {
+      "ukUrl": "/generated/audio/bb/shared/overcoat/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/overcoat/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/ownership": {
+      "ukUrl": "/generated/audio/bb/shared/ownership/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/ownership/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/pad": {
+      "ukUrl": "/generated/audio/bb/shared/pad/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/pad/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/painfully": {
+      "ukUrl": "/generated/audio/bb/shared/painfully/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/painfully/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/partial": {
+      "ukUrl": "/generated/audio/bb/shared/partial/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/partial/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/passionately": {
+      "ukUrl": "/generated/audio/bb/shared/passionately/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/passionately/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/pathological": {
+      "ukUrl": "/generated/audio/bb/shared/pathological/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/pathological/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/patriot": {
+      "ukUrl": "/generated/audio/bb/shared/patriot/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/patriot/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/patriotism": {
+      "ukUrl": "/generated/audio/bb/shared/patriotism/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/patriotism/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/pavement": {
+      "ukUrl": "/generated/audio/bb/shared/pavement/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/pavement/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/pelvis": {
+      "ukUrl": "/generated/audio/bb/shared/pelvis/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/pelvis/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/penetrating": {
+      "ukUrl": "/generated/audio/bb/shared/penetrating/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/penetrating/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/perpetual": {
+      "ukUrl": "/generated/audio/bb/shared/perpetual/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/perpetual/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/perplexity": {
+      "ukUrl": "/generated/audio/bb/shared/perplexity/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/perplexity/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/personally": {
+      "ukUrl": "/generated/audio/bb/shared/personally/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/personally/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/petition": {
+      "ukUrl": "/generated/audio/bb/shared/petition/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/petition/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/petty": {
+      "ukUrl": "/generated/audio/bb/shared/petty/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/petty/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/plantation": {
+      "ukUrl": "/generated/audio/bb/shared/plantation/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/plantation/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/plea": {
+      "ukUrl": "/generated/audio/bb/shared/plea/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/plea/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/plump": {
+      "ukUrl": "/generated/audio/bb/shared/plump/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/plump/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/poetic": {
+      "ukUrl": "/generated/audio/bb/shared/poetic/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/poetic/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/poisoning": {
+      "ukUrl": "/generated/audio/bb/shared/poisoning/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/poisoning/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/porter": {
+      "ukUrl": "/generated/audio/bb/shared/porter/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/porter/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/preferred": {
+      "ukUrl": "/generated/audio/bb/shared/preferred/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/preferred/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/posterior": {
+      "ukUrl": "/generated/audio/bb/shared/posterior/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/posterior/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/presidency": {
+      "ukUrl": "/generated/audio/bb/shared/presidency/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/presidency/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/presidential": {
+      "ukUrl": "/generated/audio/bb/shared/presidential/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/presidential/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/pretext": {
+      "ukUrl": "/generated/audio/bb/shared/pretext/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/pretext/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/priest": {
+      "ukUrl": "/generated/audio/bb/shared/priest/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/priest/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/probable": {
+      "ukUrl": "/generated/audio/bb/shared/probable/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/probable/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/profoundly": {
+      "ukUrl": "/generated/audio/bb/shared/profoundly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/profoundly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/profuse": {
+      "ukUrl": "/generated/audio/bb/shared/profuse/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/profuse/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/promptly": {
+      "ukUrl": "/generated/audio/bb/shared/promptly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/promptly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/proprietary": {
+      "ukUrl": "/generated/audio/bb/shared/proprietary/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/proprietary/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/proprietor": {
+      "ukUrl": "/generated/audio/bb/shared/proprietor/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/proprietor/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/provincial": {
+      "ukUrl": "/generated/audio/bb/shared/provincial/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/provincial/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/providence": {
+      "ukUrl": "/generated/audio/bb/shared/providence/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/providence/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/purification": {
+      "ukUrl": "/generated/audio/bb/shared/purification/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/purification/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/pulsation": {
+      "ukUrl": "/generated/audio/bb/shared/pulsation/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/pulsation/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/quarrel": {
+      "ukUrl": "/generated/audio/bb/shared/quarrel/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/quarrel/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/radiant": {
+      "ukUrl": "/generated/audio/bb/shared/radiant/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/radiant/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/radical": {
+      "ukUrl": "/generated/audio/bb/shared/radical/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/radical/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/rage": {
+      "ukUrl": "/generated/audio/bb/shared/rage/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/rage/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/rattle": {
+      "ukUrl": "/generated/audio/bb/shared/rattle/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/rattle/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/ratification": {
+      "ukUrl": "/generated/audio/bb/shared/ratification/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/ratification/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/realm": {
+      "ukUrl": "/generated/audio/bb/shared/realm/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/realm/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/rear": {
+      "ukUrl": "/generated/audio/bb/shared/rear/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/rear/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/recourse": {
+      "ukUrl": "/generated/audio/bb/shared/recourse/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/recourse/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/recur": {
+      "ukUrl": "/generated/audio/bb/shared/recur/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/recur/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/recurrent": {
+      "ukUrl": "/generated/audio/bb/shared/recurrent/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/recurrent/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/recurrence": {
+      "ukUrl": "/generated/audio/bb/shared/recurrence/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/recurrence/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/referendum": {
+      "ukUrl": "/generated/audio/bb/shared/referendum/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/referendum/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/redoubt": {
+      "ukUrl": "/generated/audio/bb/shared/redoubt/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/redoubt/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/refrain": {
+      "ukUrl": "/generated/audio/bb/shared/refrain/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/refrain/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/refund": {
+      "ukUrl": "/generated/audio/bb/shared/refund/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/refund/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/regeneration": {
+      "ukUrl": "/generated/audio/bb/shared/regeneration/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/regeneration/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/refusal": {
+      "ukUrl": "/generated/audio/bb/shared/refusal/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/refusal/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/relapse": {
+      "ukUrl": "/generated/audio/bb/shared/relapse/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/relapse/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/reign": {
+      "ukUrl": "/generated/audio/bb/shared/reign/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/reign/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/remarkably": {
+      "ukUrl": "/generated/audio/bb/shared/remarkably/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/remarkably/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/reluctantly": {
+      "ukUrl": "/generated/audio/bb/shared/reluctantly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/reluctantly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/remedy": {
+      "ukUrl": "/generated/audio/bb/shared/remedy/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/remedy/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/render": {
+      "ukUrl": "/generated/audio/bb/shared/render/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/render/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/repeal": {
+      "ukUrl": "/generated/audio/bb/shared/repeal/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/repeal/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/reproach": {
+      "ukUrl": "/generated/audio/bb/shared/reproach/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/reproach/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/respiration": {
+      "ukUrl": "/generated/audio/bb/shared/respiration/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/respiration/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/restless": {
+      "ukUrl": "/generated/audio/bb/shared/restless/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/restless/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/restrain": {
+      "ukUrl": "/generated/audio/bb/shared/restrain/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/restrain/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/restraint": {
+      "ukUrl": "/generated/audio/bb/shared/restraint/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/restraint/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/retain": {
+      "ukUrl": "/generated/audio/bb/shared/retain/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/retain/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/revenue": {
+      "ukUrl": "/generated/audio/bb/shared/revenue/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/revenue/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/revolt": {
+      "ukUrl": "/generated/audio/bb/shared/revolt/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/revolt/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/revision": {
+      "ukUrl": "/generated/audio/bb/shared/revision/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/revision/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/ridicule": {
+      "ukUrl": "/generated/audio/bb/shared/ridicule/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/ridicule/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/robbery": {
+      "ukUrl": "/generated/audio/bb/shared/robbery/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/robbery/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/rodent": {
+      "ukUrl": "/generated/audio/bb/shared/rodent/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/rodent/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/rosy": {
+      "ukUrl": "/generated/audio/bb/shared/rosy/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/rosy/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/rum": {
+      "ukUrl": "/generated/audio/bb/shared/rum/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/rum/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/rustle": {
+      "ukUrl": "/generated/audio/bb/shared/rustle/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/rustle/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/scandal": {
+      "ukUrl": "/generated/audio/bb/shared/scandal/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/scandal/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/scarlet": {
+      "ukUrl": "/generated/audio/bb/shared/scarlet/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/scarlet/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/scheme": {
+      "ukUrl": "/generated/audio/bb/shared/scheme/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/scheme/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/scotch": {
+      "ukUrl": "/generated/audio/bb/shared/scotch/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/scotch/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/seaboard": {
+      "ukUrl": "/generated/audio/bb/shared/seaboard/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/seaboard/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/sedition": {
+      "ukUrl": "/generated/audio/bb/shared/sedition/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/sedition/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/segment": {
+      "ukUrl": "/generated/audio/bb/shared/segment/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/segment/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/sentiment": {
+      "ukUrl": "/generated/audio/bb/shared/sentiment/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/sentiment/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/senseless": {
+      "ukUrl": "/generated/audio/bb/shared/senseless/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/senseless/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/serene": {
+      "ukUrl": "/generated/audio/bb/shared/serene/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/serene/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/servitude": {
+      "ukUrl": "/generated/audio/bb/shared/servitude/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/servitude/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/seventh": {
+      "ukUrl": "/generated/audio/bb/shared/seventh/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/seventh/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/shaven": {
+      "ukUrl": "/generated/audio/bb/shared/shaven/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/shaven/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/shawl": {
+      "ukUrl": "/generated/audio/bb/shared/shawl/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/shawl/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/sill": {
+      "ukUrl": "/generated/audio/bb/shared/sill/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/sill/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/similarly": {
+      "ukUrl": "/generated/audio/bb/shared/similarly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/similarly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/simplicity": {
+      "ukUrl": "/generated/audio/bb/shared/simplicity/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/simplicity/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/simultaneously": {
+      "ukUrl": "/generated/audio/bb/shared/simultaneously/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/simultaneously/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/singular": {
+      "ukUrl": "/generated/audio/bb/shared/singular/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/singular/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/skeleton": {
+      "ukUrl": "/generated/audio/bb/shared/skeleton/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/skeleton/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/skilled": {
+      "ukUrl": "/generated/audio/bb/shared/skilled/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/skilled/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/slender": {
+      "ukUrl": "/generated/audio/bb/shared/slender/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/slender/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/smilingly": {
+      "ukUrl": "/generated/audio/bb/shared/smilingly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/smilingly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/slough": {
+      "ukUrl": "/generated/audio/bb/shared/slough/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/slough/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/smoking": {
+      "ukUrl": "/generated/audio/bb/shared/smoking/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/smoking/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/solemnly": {
+      "ukUrl": "/generated/audio/bb/shared/solemnly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/solemnly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/solitary": {
+      "ukUrl": "/generated/audio/bb/shared/solitary/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/solitary/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/southwest": {
+      "ukUrl": "/generated/audio/bb/shared/southwest/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/southwest/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/sovereignty": {
+      "ukUrl": "/generated/audio/bb/shared/sovereignty/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/sovereignty/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/spiritual": {
+      "ukUrl": "/generated/audio/bb/shared/spiritual/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/spiritual/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/stain": {
+      "ukUrl": "/generated/audio/bb/shared/stain/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/stain/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/stake": {
+      "ukUrl": "/generated/audio/bb/shared/stake/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/stake/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/stiffness": {
+      "ukUrl": "/generated/audio/bb/shared/stiffness/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/stiffness/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/strangely": {
+      "ukUrl": "/generated/audio/bb/shared/strangely/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/strangely/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/strategic": {
+      "ukUrl": "/generated/audio/bb/shared/strategic/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/strategic/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/straw": {
+      "ukUrl": "/generated/audio/bb/shared/straw/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/straw/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/strictly": {
+      "ukUrl": "/generated/audio/bb/shared/strictly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/strictly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/stump": {
+      "ukUrl": "/generated/audio/bb/shared/stump/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/stump/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/sub": {
+      "ukUrl": "/generated/audio/bb/shared/sub/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/sub/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/submission": {
+      "ukUrl": "/generated/audio/bb/shared/submission/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/submission/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/successive": {
+      "ukUrl": "/generated/audio/bb/shared/successive/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/successive/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/successor": {
+      "ukUrl": "/generated/audio/bb/shared/successor/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/successor/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/suction": {
+      "ukUrl": "/generated/audio/bb/shared/suction/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/suction/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/sufficiently": {
+      "ukUrl": "/generated/audio/bb/shared/sufficiently/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/sufficiently/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/supremacy": {
+      "ukUrl": "/generated/audio/bb/shared/supremacy/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/supremacy/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/surrender": {
+      "ukUrl": "/generated/audio/bb/shared/surrender/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/surrender/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/suspicion": {
+      "ukUrl": "/generated/audio/bb/shared/suspicion/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/suspicion/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/suture": {
+      "ukUrl": "/generated/audio/bb/shared/suture/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/suture/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/swift": {
+      "ukUrl": "/generated/audio/bb/shared/swift/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/swift/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/swiftly": {
+      "ukUrl": "/generated/audio/bb/shared/swiftly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/swiftly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/teaching": {
+      "ukUrl": "/generated/audio/bb/shared/teaching/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/teaching/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/taxation": {
+      "ukUrl": "/generated/audio/bb/shared/taxation/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/taxation/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/temporarily": {
+      "ukUrl": "/generated/audio/bb/shared/temporarily/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/temporarily/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/tenderly": {
+      "ukUrl": "/generated/audio/bb/shared/tenderly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/tenderly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/tenth": {
+      "ukUrl": "/generated/audio/bb/shared/tenth/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/tenth/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/tenure": {
+      "ukUrl": "/generated/audio/bb/shared/tenure/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/tenure/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/terminal": {
+      "ukUrl": "/generated/audio/bb/shared/terminal/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/terminal/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/territorial": {
+      "ukUrl": "/generated/audio/bb/shared/territorial/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/territorial/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/theater": {
+      "ukUrl": "/generated/audio/bb/shared/theater/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/theater/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/thereby": {
+      "ukUrl": "/generated/audio/bb/shared/thereby/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/thereby/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/thigh": {
+      "ukUrl": "/generated/audio/bb/shared/thigh/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/thigh/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/threshold": {
+      "ukUrl": "/generated/audio/bb/shared/threshold/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/threshold/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/timidly": {
+      "ukUrl": "/generated/audio/bb/shared/timidly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/timidly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/tiptoe": {
+      "ukUrl": "/generated/audio/bb/shared/tiptoe/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/tiptoe/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/toe": {
+      "ukUrl": "/generated/audio/bb/shared/toe/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/toe/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/toll": {
+      "ukUrl": "/generated/audio/bb/shared/toll/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/toll/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/toxic": {
+      "ukUrl": "/generated/audio/bb/shared/toxic/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/toxic/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/trademark": {
+      "ukUrl": "/generated/audio/bb/shared/trademark/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/trademark/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/trading": {
+      "ukUrl": "/generated/audio/bb/shared/trading/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/trading/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/trail": {
+      "ukUrl": "/generated/audio/bb/shared/trail/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/trail/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/traitor": {
+      "ukUrl": "/generated/audio/bb/shared/traitor/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/traitor/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/tranquil": {
+      "ukUrl": "/generated/audio/bb/shared/tranquil/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/tranquil/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/tranquillity": {
+      "ukUrl": "/generated/audio/bb/shared/tranquillity/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/tranquillity/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/transverse": {
+      "ukUrl": "/generated/audio/bb/shared/transverse/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/transverse/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/treason": {
+      "ukUrl": "/generated/audio/bb/shared/treason/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/treason/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/treasury": {
+      "ukUrl": "/generated/audio/bb/shared/treasury/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/treasury/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/tribute": {
+      "ukUrl": "/generated/audio/bb/shared/tribute/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/tribute/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/troubled": {
+      "ukUrl": "/generated/audio/bb/shared/troubled/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/troubled/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/trot": {
+      "ukUrl": "/generated/audio/bb/shared/trot/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/trot/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/truce": {
+      "ukUrl": "/generated/audio/bb/shared/truce/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/truce/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/uncertain": {
+      "ukUrl": "/generated/audio/bb/shared/uncertain/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/uncertain/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/unconsciously": {
+      "ukUrl": "/generated/audio/bb/shared/unconsciously/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/unconsciously/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/undertaking": {
+      "ukUrl": "/generated/audio/bb/shared/undertaking/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/undertaking/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/uneasily": {
+      "ukUrl": "/generated/audio/bb/shared/uneasily/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/uneasily/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/unnatural": {
+      "ukUrl": "/generated/audio/bb/shared/unnatural/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/unnatural/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/upstairs": {
+      "ukUrl": "/generated/audio/bb/shared/upstairs/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/upstairs/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/upward": {
+      "ukUrl": "/generated/audio/bb/shared/upward/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/upward/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/urine": {
+      "ukUrl": "/generated/audio/bb/shared/urine/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/urine/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/utmost": {
+      "ukUrl": "/generated/audio/bb/shared/utmost/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/utmost/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/vague": {
+      "ukUrl": "/generated/audio/bb/shared/vague/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/vague/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/utterly": {
+      "ukUrl": "/generated/audio/bb/shared/utterly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/utterly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/vain": {
+      "ukUrl": "/generated/audio/bb/shared/vain/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/vain/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/vainly": {
+      "ukUrl": "/generated/audio/bb/shared/vainly/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/vainly/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/vanguard": {
+      "ukUrl": "/generated/audio/bb/shared/vanguard/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/vanguard/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/vanity": {
+      "ukUrl": "/generated/audio/bb/shared/vanity/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/vanity/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/velvet": {
+      "ukUrl": "/generated/audio/bb/shared/velvet/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/velvet/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/venture": {
+      "ukUrl": "/generated/audio/bb/shared/venture/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/venture/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/vicious": {
+      "ukUrl": "/generated/audio/bb/shared/vicious/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/vicious/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/vigorously": {
+      "ukUrl": "/generated/audio/bb/shared/vigorously/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/vigorously/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/virgin": {
+      "ukUrl": "/generated/audio/bb/shared/virgin/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/virgin/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/vodka": {
+      "ukUrl": "/generated/audio/bb/shared/vodka/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/vodka/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/void": {
+      "ukUrl": "/generated/audio/bb/shared/void/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/void/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/waistcoat": {
+      "ukUrl": "/generated/audio/bb/shared/waistcoat/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/waistcoat/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/wake": {
+      "ukUrl": "/generated/audio/bb/shared/wake/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/wake/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/wax": {
+      "ukUrl": "/generated/audio/bb/shared/wax/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/wax/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/westward": {
+      "ukUrl": "/generated/audio/bb/shared/westward/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/westward/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/whence": {
+      "ukUrl": "/generated/audio/bb/shared/whence/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/whence/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/withdrawal": {
+      "ukUrl": "/generated/audio/bb/shared/withdrawal/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/withdrawal/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/wretched": {
+      "ukUrl": "/generated/audio/bb/shared/wretched/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/wretched/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/wrath": {
+      "ukUrl": "/generated/audio/bb/shared/wrath/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/wrath/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/wrung": {
+      "ukUrl": "/generated/audio/bb/shared/wrung/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/wrung/zh.mp3",
+      "status": "ready"
+    },
+    "bb/shared/zeal": {
+      "ukUrl": "/generated/audio/bb/shared/zeal/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/bb/shared/zeal/zh.mp3",
       "status": "ready"
     }
   }
