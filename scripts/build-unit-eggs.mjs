@@ -26,6 +26,14 @@ const workbookConfigs = [
       沪外教版: 'swj',
       沪教版: 'shj'
     }
+  },
+  {
+    path: path.join(rootDir, 'doc', '课本单词通_五版初中英语_本单元彩蛋数据_补充沪教外研九上.xlsx'),
+    publisherIds: {
+      外研社版: 'wyx',
+      沪教版: 'shjx'
+    },
+    bookNames: ['九年级上册']
   }
 ]
 const manifestPath = path.join(rootDir, 'src', 'data', 'wordbank.manifest.json')
@@ -62,14 +70,17 @@ let recordCount = 0
 for (const workbookConfig of workbookConfigs) {
   const workbook = XLSX.readFile(workbookConfig.path)
 
-  for (const sheetName of workbook.SheetNames) {
+  for (const sheetName of Object.keys(workbookConfig.publisherIds)) {
     const publisherId = workbookConfig.publisherIds[sheetName]
-    if (!publisherId) throw new Error(`Unknown publisher sheet: ${sheetName}`)
+    const sheet = workbook.Sheets[sheetName]
+    if (!sheet) {
+      throw new Error(`Missing sheet ${sheetName} in ${path.basename(workbookConfig.path)}`)
+    }
 
     const publisher = manifestPublishers.get(publisherId)
     if (!publisher) throw new Error(`Publisher missing from wordbank manifest: ${publisherId}`)
 
-    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {
+    const rows = XLSX.utils.sheet_to_json(sheet, {
       defval: '',
       range: 4
     })
@@ -78,6 +89,7 @@ for (const workbookConfig of workbookConfigs) {
       const bookName = normalizeBookName(row['册次'])
       const unitName = text(row['单元'])
       if (!bookName || !unitName) continue
+      if (workbookConfig.bookNames?.length && !workbookConfig.bookNames.includes(bookName)) continue
 
       const book = publisher.books.find(item => item.name === bookName)
       if (!book) {

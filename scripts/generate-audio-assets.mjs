@@ -38,6 +38,10 @@ const publisherIds = (process.env.AUDIO_PUBLISHER_IDS || '')
   .split(',')
   .map(value => value.trim())
   .filter(Boolean)
+const bookIds = (process.env.AUDIO_BOOK_IDS || '')
+  .split(',')
+  .map(value => value.trim())
+  .filter(Boolean)
 
 const variantConfig = {
   uk: { voice: voiceUk, text: entry => entry.word },
@@ -170,6 +174,7 @@ function flattenWords(raw) {
   for (const block of getPublisherBlocks(raw)) {
     if (publisherIds.length > 0 && !publisherIds.includes(block.publisher.id)) continue
     for (const book of block.books) {
+      if (bookIds.length > 0 && !bookIds.includes(book.id)) continue
       for (const unit of book.units) {
         const segment = unitSegment(unit)
         for (const rawWord of unit.words) {
