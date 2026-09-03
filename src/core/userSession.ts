@@ -42,6 +42,11 @@ export interface DashboardSnapshot {
   totalStudyDays: number
   weeklyMinutes?: number[]
   weeklyTotalMinutes?: number
+  recent30Days?: Array<{
+    date: string
+    minutes: number
+    studied: boolean
+  }>
 }
 
 export interface PublicAppConfig {

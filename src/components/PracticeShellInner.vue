@@ -1903,7 +1903,7 @@ const learningPowerBreakdownText = computed(() => {
     ['听写单词', breakdown.dictationWordScore],
     ['完整听写', breakdown.validDictationScore],
     ['每日学习', breakdown.dailyBonusScore],
-    ['连续学习', breakdown.streakScore],
+    ['连续打卡', breakdown.streakScore],
     ['错词复习', breakdown.mistakeReviewScore]
   ] as const
   return items

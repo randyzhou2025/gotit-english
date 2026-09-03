@@ -83,30 +83,47 @@
         </text>
       </view>
 
-      <view class="weeklyStudyCard">
-        <view class="weeklyStudyHeader">
-          <view class="weeklyStudyHeading">
-            <view class="weeklyStudyMark" />
-            <text class="weeklyStudyTitle">本周学习</text>
+      <view class="studyCalendarCard">
+        <view class="studyCalendarHeader">
+          <view class="studyCalendarHeading">
+            <view class="studyCalendarMark" />
+            <text class="studyCalendarTitle">学习日历</text>
           </view>
-          <text class="weeklyStudyTotal">共 {{ weeklyStudyTotal }} 分钟</text>
+          <text class="studyCalendarSummary">近 30 天学习 {{ recentStudyDays }} 天</text>
         </view>
-        <view class="weeklyStudyChart">
+        <view class="calendarWeekHeader">
+          <text v-for="label in calendarWeekLabels" :key="label" class="calendarWeekLabel">
+            {{ label }}
+          </text>
+        </view>
+        <view class="studyCalendarGrid">
           <view
-            v-for="(item, index) in weeklyStudyItems"
-            :key="item.label"
-            class="weeklyStudyDay"
+            v-for="index in calendarStartOffset"
+            :key="'spacer-' + index"
+            class="calendarDay isSpacer"
+          />
+          <view
+            v-for="item in studyCalendarItems"
+            :key="item.date"
+            :class="[
+              'calendarDay',
+              'level' + item.level,
+              { 'isToday': item.isToday }
+            ]"
+            role="img"
+            :aria-label="item.ariaLabel"
           >
-            <view class="weeklyStudyBarTrack">
-              <view
-                :class="['weeklyStudyBar', index === currentWeekdayIndex && 'isToday']"
-                :style="{ height: item.height + 'px' }"
-              />
-            </view>
-            <text :class="['weeklyStudyLabel', index === currentWeekdayIndex && 'isToday']">
-              {{ item.label }}
-            </text>
+            <text class="calendarDayLabel">{{ item.isToday ? '今' : item.dayLabel }}</text>
           </view>
+        </view>
+        <view class="studyCalendarLegend">
+          <text class="calendarLegendLabel">少</text>
+          <view
+            v-for="level in calendarLegendLevels"
+            :key="level"
+            :class="['calendarLegendSwatch', 'level' + level]"
+          />
+          <text class="calendarLegendLabel">多</text>
         </view>
       </view>
 
@@ -118,6 +135,17 @@
               <view class="toolGlyph toolGlyphCourse" />
             </view>
             <text class="toolLabel">切换教材</text>
+          </view>
+          <view
+            class="toolItem"
+            role="button"
+            :aria-label="`切换主题，当前${activeVisualTheme.name}`"
+            @tap="switchToNextVisualTheme"
+          >
+            <view class="toolIcon toolThemeIcon">
+              <view class="toolThemeSwatch" />
+            </view>
+            <text class="toolLabel">主题</text>
           </view>
           <view v-if="apiEnabled" class="toolItem" @tap="syncProgress">
             <view class="toolIcon">
@@ -213,37 +241,94 @@ const apiEnabled = isApiEnabled()
 const customerServiceEnabled = false
 
 const { savedWeakWords } = usePracticeSession()
-const { activeVisualThemeStyle } = useVisualTheme()
+const { activeVisualTheme, activeVisualThemeStyle, switchToNextVisualTheme } = useVisualTheme()
 
 const weakbookCount = computed(() => savedWeakWords.value.length)
 const weakbookBadge = computed(() => String(Math.min(weakbookCount.value, 99)))
 const localMasteredCount = computed(() => readLocalProgressSnapshot().masteredWordIds.length)
-const weekLabels = ['一', '二', '三', '四', '五', '六', '日']
-const currentWeekdayIndex = computed(() => {
-  const day = new Date().getDay()
+const calendarWeekLabels = ['一', '二', '三', '四', '五', '六', '日']
+const calendarLegendLevels = [1, 2, 3, 4]
+
+function localDateKey(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+function recentDateKeys(): string[] {
+  const today = new Date()
+  return Array.from({ length: 30 }, (_, index) => {
+    const date = new Date(today)
+    date.setHours(12, 0, 0, 0)
+    date.setDate(today.getDate() - 29 + index)
+    return localDateKey(date)
+  })
+}
+
+function legacyWeeklyStudyByDate(): Map<string, number> {
+  const result = new Map<string, number>()
+  const values = dashboard.value?.weeklyMinutes
+  if (!Array.isArray(values) || values.length !== 7) return result
+
+  const today = new Date()
+  const todayIndex = today.getDay() === 0 ? 6 : today.getDay() - 1
+  const monday = new Date(today)
+  monday.setHours(12, 0, 0, 0)
+  monday.setDate(today.getDate() - todayIndex)
+
+  values.slice(0, todayIndex + 1).forEach((value, index) => {
+    const date = new Date(monday)
+    date.setDate(monday.getDate() + index)
+    result.set(localDateKey(date), Math.max(0, Math.round(Number(value) || 0)))
+  })
+  return result
+}
+
+const recentStudyData = computed(() => {
+  const apiData = new Map(
+    (dashboard.value?.recent30Days ?? []).map((item) => [item.date, item])
+  )
+  const legacyData = legacyWeeklyStudyByDate()
+
+  return recentDateKeys().map((date, index) => {
+    const apiItem = apiData.get(date)
+    const minutes = apiItem
+      ? Math.max(0, Math.round(Number(apiItem.minutes) || 0))
+      : legacyData.get(date) ?? (index === 29 ? dashboard.value?.todayMinutes ?? 0 : 0)
+    return {
+      date,
+      minutes,
+      studied: apiItem?.studied ?? minutes > 0
+    }
+  })
+})
+
+function calendarIntensity(minutes: number, studied: boolean): number {
+  if (!studied) return 0
+  if (minutes <= 5) return 1
+  if (minutes <= 15) return 2
+  if (minutes <= 30) return 3
+  return 4
+}
+
+const recentStudyDays = computed(() => recentStudyData.value.filter((item) => item.studied).length)
+const calendarStartOffset = computed(() => {
+  const firstDate = new Date(`${recentStudyData.value[0]?.date}T12:00:00`)
+  const day = firstDate.getDay()
   return day === 0 ? 6 : day - 1
 })
-const weeklyStudyMinutes = computed(() => {
-  const values = dashboard.value?.weeklyMinutes
-  if (Array.isArray(values) && values.length === 7) {
-    return values.map((value) => Math.max(0, Math.round(Number(value) || 0)))
-  }
-  const fallback = Array(7).fill(0) as number[]
-  fallback[currentWeekdayIndex.value] = dashboard.value?.todayMinutes ?? 0
-  return fallback
-})
-const weeklyStudyTotal = computed(() => (
-  dashboard.value?.weeklyTotalMinutes
-  ?? weeklyStudyMinutes.value.reduce((sum, minutes) => sum + minutes, 0)
-))
-const weeklyStudyItems = computed(() => {
-  const maxMinutes = Math.max(1, ...weeklyStudyMinutes.value)
-  return weekLabels.map((label, index) => {
-    const minutes = weeklyStudyMinutes.value[index] ?? 0
+const studyCalendarItems = computed(() => {
+  const todayKey = localDateKey(new Date())
+  return recentStudyData.value.map((item) => {
+    const [, month = '', day = ''] = item.date.split('-')
+    const dayNumber = Number(day)
     return {
-      label,
-      minutes,
-      height: minutes > 0 ? Math.round(12 + (minutes / maxMinutes) * 52) : 8
+      ...item,
+      dayLabel: dayNumber === 1 ? `${Number(month)}/1` : String(dayNumber),
+      level: calendarIntensity(item.minutes, item.studied),
+      isToday: item.date === todayKey,
+      ariaLabel: `${Number(month)}月${dayNumber}日，${item.studied ? `学习 ${item.minutes} 分钟` : '未学习'}`
     }
   })
 })
@@ -833,93 +918,148 @@ onShow(() => {
   line-height: 1.5;
 }
 
-.weeklyStudyCard {
+.studyCalendarCard {
   margin-bottom: 12px;
-  padding: 17px 16px 14px;
+  padding: 17px 16px 15px;
   border: 1px solid var(--line);
   border-radius: 18px;
   background: var(--surface);
   box-shadow: var(--shadow-soft);
 }
 
-.weeklyStudyHeader,
-.weeklyStudyHeading {
+.studyCalendarHeader,
+.studyCalendarHeading {
   display: flex;
   align-items: center;
 }
 
-.weeklyStudyHeader {
+.studyCalendarHeader {
   justify-content: space-between;
   gap: 12px;
 }
 
-.weeklyStudyHeading {
+.studyCalendarHeading {
   gap: 10px;
 }
 
-.weeklyStudyMark {
+.studyCalendarMark {
   width: 4px;
   height: 20px;
   border-radius: 999px;
   background: var(--accent);
 }
 
-.weeklyStudyTitle {
+.studyCalendarTitle {
   color: var(--ink);
   font-size: 16px;
   font-weight: 850;
   line-height: 1.2;
 }
 
-.weeklyStudyTotal {
+.studyCalendarSummary {
   color: var(--muted);
   font-size: 11px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
-.weeklyStudyChart {
+.calendarWeekHeader,
+.studyCalendarGrid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 14px;
+  column-gap: 6px;
 }
 
-.weeklyStudyDay {
+.calendarWeekHeader {
+  margin-top: 16px;
+  margin-bottom: 7px;
+}
+
+.calendarWeekLabel {
+  color: var(--muted-light);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+}
+
+.studyCalendarGrid {
+  row-gap: 6px;
+}
+
+.calendarDay {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  min-width: 0;
-}
-
-.weeklyStudyBarTrack {
-  display: flex;
-  align-items: flex-end;
   justify-content: center;
-  width: 100%;
-  height: 68px;
+  height: 34px;
+  border: 1px solid transparent;
+  border-radius: 9px;
 }
 
-.weeklyStudyBar {
-  width: 13px;
-  min-height: 8px;
-  border-radius: 6px 6px 2px 2px;
-  background: var(--line-strong);
+.calendarDay.isSpacer {
+  visibility: hidden;
 }
 
-.weeklyStudyBar.isToday {
-  background: var(--accent);
+.calendarDay.level0 {
+  border-color: rgba(221, 217, 206, 0.72);
+  background: var(--surface-soft);
 }
 
-.weeklyStudyLabel {
-  margin-top: 7px;
-  color: var(--muted);
+.calendarDay.level1,
+.calendarLegendSwatch.level1 {
+  background: var(--calendar-level-1);
+}
+
+.calendarDay.level2,
+.calendarLegendSwatch.level2 {
+  background: var(--calendar-level-2);
+}
+
+.calendarDay.level3,
+.calendarLegendSwatch.level3 {
+  background: var(--calendar-level-3);
+}
+
+.calendarDay.level4,
+.calendarLegendSwatch.level4 {
+  background: var(--calendar-level-4);
+}
+
+.calendarDay.isToday {
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px var(--accent);
+}
+
+.calendarDayLabel {
+  color: var(--ink-soft);
   font-size: 10px;
   font-weight: 700;
   line-height: 1;
 }
 
-.weeklyStudyLabel.isToday {
-  color: #a8661f;
+.calendarDay.level3 .calendarDayLabel,
+.calendarDay.level4 .calendarDayLabel {
+  color: var(--surface);
+}
+
+.studyCalendarLegend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-top: 14px;
+}
+
+.calendarLegendLabel {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.calendarLegendSwatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
 }
 
 .toolGrid {
@@ -943,6 +1083,20 @@ onShow(() => {
   height: 46px;
   border-radius: 999px;
   background: #f3f5f7;
+}
+
+.toolThemeIcon {
+  background: var(--surface-soft);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.toolThemeSwatch {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--surface);
+  border-radius: 999px;
+  background: var(--theme-switch-swatch);
+  box-shadow: 0 3px 8px var(--accent-shadow);
 }
 
 .toolGlyph {
@@ -1278,7 +1432,7 @@ onShow(() => {
 }
 
 .toolGrid {
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .toolIcon {

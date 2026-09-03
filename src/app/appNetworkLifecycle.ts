@@ -5,7 +5,6 @@ import {
 import { enableAnalyticsNetworkFlush, flushAnalyticsEvents, setAnalyticsEnabled } from '@/core/analytics'
 import { submitAppOpen } from '@/core/classmates'
 import { flushCloudSyncOnForeground } from '@/core/cloudSyncPolicy'
-import { setCachedStreakDays } from '@/core/studyStats'
 import { ensureUserSession, fetchPublicConfig } from '@/core/userSession'
 import { setFeatureAnnouncementsEnabled } from '@/features/feature-announcements/remoteConfig'
 
@@ -33,8 +32,7 @@ function scheduleCycleTask(cycleId: number, delayMs: number, task: () => void) {
 
 async function submitWeappOpen() {
   // #ifdef MP-WEIXIN
-  const result = await submitAppOpen().catch(() => null)
-  if (result) setCachedStreakDays(result.streakDays)
+  await submitAppOpen().catch(() => null)
   // #endif
 }
 

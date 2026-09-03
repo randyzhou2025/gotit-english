@@ -36,6 +36,15 @@ describe('visual themes', () => {
     expect(inkPearl.tokens['--theme-home-scrim']).toContain('linear-gradient')
   })
 
+  it('gives every theme a complete calendar intensity scale', () => {
+    for (const theme of VISUAL_THEMES) {
+      const levels = [1, 2, 3, 4].map(level => theme.tokens[`--calendar-level-${level}`])
+      expect(levels.every(Boolean)).toBe(true)
+      expect(new Set(levels)).toHaveLength(4)
+      expect(levels[3]).toBe(theme.tokens['--accent-strong'])
+    }
+  })
+
   it('defaults to morning mint, restores a saved theme, and cycles predictably on tap', () => {
     expect(getVisualTheme('').id).toBe(DEFAULT_VISUAL_THEME_ID)
     expect(getVisualTheme('cloudfield-sky').id).toBe('cloudfield-sky')

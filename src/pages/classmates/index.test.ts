@@ -36,6 +36,11 @@ describe('classmates page MVP', () => {
     expect(source).toContain('class="podiumMedal"')
   })
 
+  it('labels app-open streak activity as check-ins instead of study days', () => {
+    expect(source).toContain('已经连续打卡')
+    expect(source).not.toContain('已经连续学习')
+  })
+
   it('keeps only the full empty-state invite when there are no classmates', () => {
     expect(source).toContain('<view v-if="classmates.length > 0" class="inviteCard">')
     expect(source).toContain('<view v-else class="classmatesState isEmpty">')

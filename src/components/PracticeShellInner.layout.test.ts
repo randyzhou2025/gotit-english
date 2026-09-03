@@ -4,6 +4,11 @@ import { describe, expect, it } from 'vitest'
 const source = fs.readFileSync(new URL('./PracticeShellInner.vue', import.meta.url), 'utf8')
 
 describe('practice shell full-page layout', () => {
+  it('labels the app-open streak bonus as consecutive check-ins', () => {
+    expect(source).toContain("['连续打卡', breakdown.streakScore]")
+    expect(source).not.toContain("['连续学习', breakdown.streakScore]")
+  })
+
   it('keeps every routed practice screen on the paper background', () => {
     const routedScreenClasses = [
       'isHomeScreen',

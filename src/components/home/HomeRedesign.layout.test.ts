@@ -29,7 +29,7 @@ describe('redesigned home', () => {
   })
 
   it('applies the active palette across the main standalone pages and bottom navigation', () => {
-    expect(profileSource).toContain('const { activeVisualThemeStyle } = useVisualTheme()')
+    expect(profileSource).toMatch(/const \{[^}]*activeVisualThemeStyle[^}]*\} = useVisualTheme\(\)/)
     expect(profileSource).toContain('let style = activeVisualThemeStyle.value')
     expect(exportSource).toContain('`${activeVisualThemeStyle.value} padding-top:')
     expect(feedbackSource).toContain('`${activeVisualThemeStyle.value} padding-top:')

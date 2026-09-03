@@ -1,7 +1,12 @@
-import { and, count, desc, eq, gte } from "drizzle-orm";
+import { and, count, desc, eq, gt, gte, or } from "drizzle-orm";
 import { db } from "../db/index.js";
-import { appConfig, learningPowerEvents, userDailyStats, userProgress } from "../db/schema.js";
-import { shanghaiDateString, uniqueWordIds } from "../lib/utils.js";
+import { appConfig, userDailyStats, userProgress } from "../db/schema.js";
+import {
+  countConsecutiveShanghaiDates,
+  recentShanghaiDateStrings,
+  shanghaiDateString,
+  uniqueWordIds,
+} from "../lib/utils.js";
 
 export interface DashboardSnapshot {
   todayWords: number;
@@ -11,6 +16,11 @@ export interface DashboardSnapshot {
   totalStudyDays: number;
   weeklyMinutes: number[];
   weeklyTotalMinutes: number;
+  recent30Days: Array<{
+    date: string;
+    minutes: number;
+    studied: boolean;
+  }>;
 }
 
 function currentWeekDates(): string[] {
@@ -71,41 +81,24 @@ export async function recordStudyEvent(
   });
 }
 
-async function countConsecutiveStudyDays(userId: string): Promise<number> {
+async function countConsecutiveStudyDays(userId: string, today: string): Promise<number> {
   const rows = await db
-    .select({ statDate: learningPowerEvents.eventDate })
-    .from(learningPowerEvents)
+    .select({ statDate: userDailyStats.statDate })
+    .from(userDailyStats)
     .where(and(
-      eq(learningPowerEvents.userId, userId),
-      eq(learningPowerEvents.eventType, "APP_OPEN")
+      eq(userDailyStats.userId, userId),
+      or(gt(userDailyStats.studySeconds, 0), gt(userDailyStats.wordsStudied, 0))
     ))
-    .orderBy(desc(learningPowerEvents.eventDate));
+    .orderBy(desc(userDailyStats.statDate));
 
-  if (rows.length === 0) return 0;
-
-  const dateSet = new Set(rows.map((r) => String(r.statDate)));
-  let cursor = shanghaiDateString();
-  if (!dateSet.has(cursor)) {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    cursor = shanghaiDateString(yesterday);
-  }
-
-  let streak = 0;
-  while (dateSet.has(cursor)) {
-    streak += 1;
-    const d = new Date(`${cursor}T12:00:00+08:00`);
-    d.setDate(d.getDate() - 1);
-    cursor = shanghaiDateString(d);
-  }
-
-  return streak;
+  return countConsecutiveShanghaiDates(rows.map((row) => String(row.statDate)), today);
 }
 
 export async function getDashboard(userId: string): Promise<DashboardSnapshot> {
   const today = shanghaiDateString();
   const weekDates = currentWeekDates();
-  const [[todayRow], [progressRow], [studyDaysRow], streakDays, weekRows] = await Promise.all([
+  const recent30Dates = recentShanghaiDateStrings(30);
+  const [[todayRow], [progressRow], [studyDaysRow], streakDays, recentRows] = await Promise.all([
     db
       .select()
       .from(userDailyStats)
@@ -115,24 +108,36 @@ export async function getDashboard(userId: string): Promise<DashboardSnapshot> {
     db
       .select({ total: count() })
       .from(userDailyStats)
-      .where(eq(userDailyStats.userId, userId)),
-    countConsecutiveStudyDays(userId),
+      .where(and(
+        eq(userDailyStats.userId, userId),
+        or(gt(userDailyStats.studySeconds, 0), gt(userDailyStats.wordsStudied, 0))
+      )),
+    countConsecutiveStudyDays(userId, today),
     db
       .select({
         statDate: userDailyStats.statDate,
         studySeconds: userDailyStats.studySeconds,
+        wordsStudied: userDailyStats.wordsStudied,
       })
       .from(userDailyStats)
-      .where(and(eq(userDailyStats.userId, userId), gte(userDailyStats.statDate, weekDates[0]!))),
+      .where(and(eq(userDailyStats.userId, userId), gte(userDailyStats.statDate, recent30Dates[0]!))),
   ]);
 
   const mastered = progressRow?.masteredWordIds ?? [];
-  const secondsByDate = new Map(
-    weekRows.map((row) => [String(row.statDate), row.studySeconds])
+  const statsByDate = new Map(
+    recentRows.map((row) => [String(row.statDate), row])
   );
   const weeklyMinutes = weekDates.map((date) =>
-    Math.round((secondsByDate.get(date) ?? 0) / 60)
+    Math.round((statsByDate.get(date)?.studySeconds ?? 0) / 60)
   );
+  const recent30Days = recent30Dates.map((date) => {
+    const row = statsByDate.get(date);
+    return {
+      date,
+      minutes: Math.round((row?.studySeconds ?? 0) / 60),
+      studied: Boolean(row && (row.studySeconds > 0 || row.wordsStudied > 0)),
+    };
+  });
 
   return {
     todayWords: todayRow?.wordsStudied ?? 0,
@@ -142,6 +147,7 @@ export async function getDashboard(userId: string): Promise<DashboardSnapshot> {
     totalStudyDays: Number(studyDaysRow?.total ?? 0),
     weeklyMinutes,
     weeklyTotalMinutes: weeklyMinutes.reduce((sum, minutes) => sum + minutes, 0),
+    recent30Days,
   };
 }
 

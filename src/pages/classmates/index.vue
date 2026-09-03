@@ -414,7 +414,7 @@ function relativeTime(value: string): string {
 function feedCopy(item: FeedItem): string {
   if (item.activityType === 'DICTATION_COMPLETED') return `完成了 ${item.unitName || '当前 Unit'} 听写`
   if (item.activityType === 'DAILY_STUDY') return `今天已经学习了 ${item.countValue ?? 0} 个单词`
-  if (item.activityType === 'STREAK') return `已经连续学习 ${item.countValue ?? 0} 天`
+  if (item.activityType === 'STREAK') return `已经连续打卡 ${item.countValue ?? 0} 天`
   return `本周升到了第 ${item.rankValue ?? '-'} 名`
 }
 

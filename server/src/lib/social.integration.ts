@@ -76,7 +76,7 @@ async function main() {
     assert.equal(duplicateOpen.duplicate, true);
     assert.equal(consecutiveOpen.earned, 5);
     assert.equal(consecutiveOpen.streakDays, 2);
-    assert.equal((await getDashboard(streakUser)).streakDays, 2);
+    assert.equal((await getDashboard(streakUser)).streakDays, 0);
     assert.equal(brokenStreakOpen.earned, 0);
     assert.equal(brokenStreakOpen.streakDays, 1);
 

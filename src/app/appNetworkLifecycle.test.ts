@@ -84,6 +84,7 @@ describe('deferred app network lifecycle', () => {
     expect(mocks.setFeatureAnnouncementsEnabled).toHaveBeenCalledWith(true)
     expect(mocks.enableAnalyticsNetworkFlush).toHaveBeenCalledTimes(1)
     expect(mocks.submitAppOpen).toHaveBeenCalledTimes(1)
+    expect(mocks.setCachedStreakDays).not.toHaveBeenCalled()
     expect(mocks.restorePracticeCloudProgress).toHaveBeenCalledTimes(1)
     expect(mocks.flushAnalyticsEvents).toHaveBeenCalledTimes(1)
     expect(mocks.refreshPracticeSessionIfWordbankUpdated).not.toHaveBeenCalled()

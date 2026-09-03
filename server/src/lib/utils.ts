@@ -3,6 +3,43 @@ export function shanghaiDateString(d = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai" }).format(d);
 }
 
+export function recentShanghaiDateStrings(days: number, now = new Date()): string[] {
+  const count = Math.max(0, Math.floor(days));
+  const today = shanghaiDateString(now);
+  const cursor = new Date(`${today}T12:00:00+08:00`);
+  cursor.setUTCDate(cursor.getUTCDate() - count + 1);
+
+  return Array.from({ length: count }, (_, index) => {
+    const date = new Date(cursor);
+    date.setUTCDate(cursor.getUTCDate() + index);
+    return shanghaiDateString(date);
+  });
+}
+
+export function countConsecutiveShanghaiDates(
+  dates: string[],
+  today = shanghaiDateString()
+): number {
+  const dateSet = new Set(dates);
+  let cursor = today;
+
+  if (!dateSet.has(cursor)) {
+    const yesterday = new Date(`${cursor}T12:00:00+08:00`);
+    yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+    cursor = shanghaiDateString(yesterday);
+  }
+
+  let streak = 0;
+  while (dateSet.has(cursor)) {
+    streak += 1;
+    const previousDay = new Date(`${cursor}T12:00:00+08:00`);
+    previousDay.setUTCDate(previousDay.getUTCDate() - 1);
+    cursor = shanghaiDateString(previousDay);
+  }
+
+  return streak;
+}
+
 export function uniqueWordIds(ids: string[]): string[] {
   return Array.from(new Set(ids.filter((id) => typeof id === "string" && id.length > 0)));
 }
