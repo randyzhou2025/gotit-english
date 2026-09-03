@@ -7,6 +7,7 @@ import { submitAppOpen } from '@/core/classmates'
 import { flushCloudSyncOnForeground } from '@/core/cloudSyncPolicy'
 import { setCachedStreakDays } from '@/core/studyStats'
 import { ensureUserSession, fetchPublicConfig } from '@/core/userSession'
+import { setFeatureAnnouncementsEnabled } from '@/features/feature-announcements/remoteConfig'
 
 const POST_READY_NETWORK_DELAY_MS = 100
 const FOREGROUND_SYNC_DELAY_MS = 1_500
@@ -16,7 +17,6 @@ let firstPageReady = false
 let foregroundActive = false
 let foregroundCycleId = 0
 let scheduledCycleId = 0
-let publicConfigRequested = false
 const cycleTimers = new Set<ReturnType<typeof setTimeout>>()
 
 function isActiveCycle(cycleId: number): boolean {
@@ -39,12 +39,10 @@ async function submitWeappOpen() {
 }
 
 function runPostReadyNetworkTasks(cycleId: number) {
-  if (!publicConfigRequested) {
-    publicConfigRequested = true
-    void fetchPublicConfig().then(config => {
-      setAnalyticsEnabled(config.analyticsEnabled)
-    })
-  }
+  void fetchPublicConfig().then(config => {
+    setAnalyticsEnabled(config.analyticsEnabled)
+    setFeatureAnnouncementsEnabled(config.featureAnnouncementsEnabled)
+  })
 
   enableAnalyticsNetworkFlush()
   void ensureUserSession().then(async session => {
@@ -106,5 +104,4 @@ export function resetAppNetworkLifecycleForTests() {
   foregroundActive = false
   foregroundCycleId = 0
   scheduledCycleId = 0
-  publicConfigRequested = false
 }

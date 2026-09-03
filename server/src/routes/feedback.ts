@@ -44,6 +44,7 @@ export async function registerFeedbackRoutes(
       customerServiceQrUrl: config.customer_service_qr_url ?? "",
       icpNumber: config.icp_number ?? "",
       analyticsEnabled: config.analytics_enabled !== "false",
+      featureAnnouncementsEnabled: config.feature_announcements_enabled !== "false",
     };
   });
 }

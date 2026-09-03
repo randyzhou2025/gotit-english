@@ -1,11 +1,12 @@
 {
   "name": "gotit-english",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "private": true,
   "description": "课本单词通：专注课本单词的体检与自动听写",
   "scripts": {
     "wordbank:build": "node scripts/build-wordbank.mjs && node scripts/build-bb-wordbank.mjs",
     "wordbank:bb": "node scripts/build-bb-wordbank.mjs",
+    "wordbank:patch-ylj-g9-upper": "node scripts/patch-ylj-grade-9-1-wordbank.mjs",
     "unit-eggs:build": "node scripts/build-unit-eggs.mjs && node scripts/build-bb-unit-eggs.mjs",
     "audio:generate": "node scripts/generate-audio-assets.mjs",
     "audio:verify-cdn": "node scripts/verify-audio-cdn.mjs",

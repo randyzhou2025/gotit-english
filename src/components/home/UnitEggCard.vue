@@ -208,7 +208,8 @@ const isDense = computed(() => {
 })
 
 const showOrnament = computed(() => {
-  if (!['C', 'D', 'H'].includes(props.egg.template)) return false
+  const isShortPhrase = props.egg.template === 'F' && focusWord.value.length <= 24
+  if (!['C', 'D', 'H'].includes(props.egg.template) && !isShortPhrase) return false
   return props.egg.core.length + noteText.value.length < 58
 })
 </script>

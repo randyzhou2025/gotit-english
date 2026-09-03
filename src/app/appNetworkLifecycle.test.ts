@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   refreshPracticeSessionIfWordbankUpdated: vi.fn(),
   restorePracticeCloudProgress: vi.fn(),
   setAnalyticsEnabled: vi.fn(),
+  setFeatureAnnouncementsEnabled: vi.fn(),
   setCachedStreakDays: vi.fn(),
   submitAppOpen: vi.fn()
 }))
@@ -34,12 +35,19 @@ vi.mock('@/core/userSession', () => ({
   fetchPublicConfig: mocks.fetchPublicConfig
 }))
 
+vi.mock('@/features/feature-announcements/remoteConfig', () => ({
+  setFeatureAnnouncementsEnabled: mocks.setFeatureAnnouncementsEnabled
+}))
+
 describe('deferred app network lifecycle', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     for (const mock of Object.values(mocks)) mock.mockReset()
     mocks.ensureUserSession.mockResolvedValue({ token: 'token' })
-    mocks.fetchPublicConfig.mockResolvedValue({ analyticsEnabled: true })
+    mocks.fetchPublicConfig.mockResolvedValue({
+      analyticsEnabled: true,
+      featureAnnouncementsEnabled: true
+    })
     mocks.flushAnalyticsEvents.mockResolvedValue(undefined)
     mocks.refreshPracticeSessionIfWordbankUpdated.mockResolvedValue(false)
     mocks.restorePracticeCloudProgress.mockResolvedValue(undefined)
@@ -73,6 +81,7 @@ describe('deferred app network lifecycle', () => {
     await vi.advanceTimersByTimeAsync(100)
 
     expect(mocks.fetchPublicConfig).toHaveBeenCalledTimes(1)
+    expect(mocks.setFeatureAnnouncementsEnabled).toHaveBeenCalledWith(true)
     expect(mocks.enableAnalyticsNetworkFlush).toHaveBeenCalledTimes(1)
     expect(mocks.submitAppOpen).toHaveBeenCalledTimes(1)
     expect(mocks.restorePracticeCloudProgress).toHaveBeenCalledTimes(1)
@@ -102,7 +111,7 @@ describe('deferred app network lifecycle', () => {
     lifecycle.beginAppForegroundCycle()
     await vi.advanceTimersByTimeAsync(4_000)
 
-    expect(mocks.fetchPublicConfig).toHaveBeenCalledTimes(1)
+    expect(mocks.fetchPublicConfig).toHaveBeenCalledTimes(2)
     expect(mocks.submitAppOpen).toHaveBeenCalledTimes(2)
     expect(mocks.flushCloudSyncOnForeground).toHaveBeenCalledTimes(1)
     expect(mocks.refreshPracticeSessionIfWordbankUpdated).toHaveBeenCalledTimes(1)

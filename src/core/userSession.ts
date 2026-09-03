@@ -48,6 +48,7 @@ export interface PublicAppConfig {
   customerServiceQrUrl: string
   icpNumber: string
   analyticsEnabled: boolean
+  featureAnnouncementsEnabled: boolean
 }
 
 export type FeedbackCategory = 'bug' | 'malfunction' | 'experience' | 'feature' | 'other'
@@ -272,13 +273,27 @@ export async function uploadAvatar(filePath: string): Promise<string | null> {
 
 export async function fetchPublicConfig(): Promise<PublicAppConfig> {
   if (!isApiEnabled()) {
-    return { customerServiceQrUrl: '', icpNumber: '', analyticsEnabled: false }
+    return {
+      customerServiceQrUrl: '',
+      icpNumber: '',
+      analyticsEnabled: false,
+      featureAnnouncementsEnabled: import.meta.env.DEV
+    }
   }
 
   try {
-    return await apiRequest<PublicAppConfig>('/api/config/public', { auth: false })
+    const config = await apiRequest<PublicAppConfig>('/api/config/public', { auth: false })
+    return {
+      ...config,
+      featureAnnouncementsEnabled: config.featureAnnouncementsEnabled !== false
+    }
   } catch {
-    return { customerServiceQrUrl: '', icpNumber: '', analyticsEnabled: true }
+    return {
+      customerServiceQrUrl: '',
+      icpNumber: '',
+      analyticsEnabled: true,
+      featureAnnouncementsEnabled: false
+    }
   }
 }
 

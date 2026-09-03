@@ -106,6 +106,27 @@ describe('expandPublisherBlock word ids', () => {
 
     expect(entries[0]?.audio.cdnKey).toBe('bb/shared/absolute')
   })
+
+  it('ignores retiredWords when expanding active vocabulary', () => {
+    const entries = expandPublisherBlock({
+      publisher: { id: 'ylj', name: '译林版' },
+      sourceWorkbook: 'test.xlsx',
+      books: [{
+        id: 'grade-9-1',
+        name: '九年级上册',
+        order: 1,
+        units: [{
+          number: 1,
+          key: '1',
+          label: 'Unit 1',
+          words: [['active', '', '', '活跃的', 1, 'active', 1]],
+          retiredWords: [['retired', '', '', '已下线', 1, 'retired', 2]]
+        }]
+      }]
+    })
+
+    expect(entries.map(entry => entry.word)).toEqual(['active'])
+  })
 })
 
 describe('wordbankLoader manifest resolution', () => {

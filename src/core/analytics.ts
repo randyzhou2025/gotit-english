@@ -2,6 +2,9 @@ import { getAuthToken, isApiEnabled } from '@/core/userSession'
 
 export type AnalyticsEventName =
   | 'theme_selected'
+  | 'feature_announcement_view'
+  | 'feature_announcement_dismiss'
+  | 'feature_announcement_action'
   | 'home_export_click'
   | 'home_word_match_click'
   | 'wordlist_export_click'

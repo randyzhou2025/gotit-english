@@ -1495,9 +1495,16 @@
     </view>
 
     <TabBottomNav
-      v-if="showBottomNav"
+      v-if="showBottomNav && !activeFeatureAnnouncement"
       :active="bottomNavActive"
       :weakbook-count="savedWeakWords.length"
+    />
+
+    <FeatureAnnouncementSheet
+      v-if="activeFeatureAnnouncement"
+      :announcement="activeFeatureAnnouncement"
+      @dismiss="handleFeatureAnnouncementDismiss"
+      @primary="handleFeatureAnnouncementPrimary"
     />
   </view>
 </template>
@@ -1510,6 +1517,14 @@ import { HOME_REDESIGN_V2_ENABLED, VISUAL_THEME_ENABLED } from '@/app/featureFla
 import { useVisualTheme } from '@/app/useVisualTheme'
 import HomeRedesign from '@/components/home/HomeRedesign.vue'
 import TabBottomNav from '@/components/TabBottomNav.vue'
+import FeatureAnnouncementSheet from '@/features/feature-announcements/FeatureAnnouncementSheet.vue'
+import { FEATURE_ANNOUNCEMENTS } from '@/features/feature-announcements/catalog'
+import { useFeatureAnnouncementRemoteConfig } from '@/features/feature-announcements/remoteConfig'
+import type {
+  FeatureAnnouncement,
+  FeatureAnnouncementDismissReason
+} from '@/features/feature-announcements/types'
+import { useFeatureAnnouncements } from '@/features/feature-announcements/useFeatureAnnouncements'
 import { formatCourseSetupBookName } from '@/core/courseSetupCatalog'
 import { trackAnalyticsEvent } from '@/core/analytics'
 import { getAudioUrl, getDictationAudioUrls, hasPlayableAudio } from '@/core/audio'
@@ -1534,6 +1549,13 @@ const props = defineProps<{
 }>()
 
 const { activeVisualTheme, activeVisualThemeStyle, switchToNextVisualTheme } = useVisualTheme()
+const { featureAnnouncementsEnabled } = useFeatureAnnouncementRemoteConfig()
+const {
+  activeFeatureAnnouncement,
+  cancelFeatureAnnouncementShow,
+  hideActiveFeatureAnnouncement,
+  scheduleFeatureAnnouncementShow
+} = useFeatureAnnouncements(FEATURE_ANNOUNCEMENTS)
 
 const choiceKeys = ['A', 'B', 'C', 'D']
 const rewardParticles = [
@@ -2345,17 +2367,23 @@ function canSyncNativeTabBar(): boolean {
   return isNativeTabBarPage()
 }
 
+function hideNativeTabBarIfAvailable() {
+  if (!canSyncNativeTabBar()) return
+
+  try {
+    uni.hideTabBar({ animation: false, fail: () => {} })
+  } catch {
+    // Native tabBar can be unavailable before tab pages mount.
+  }
+}
+
 function syncNativeTabBar() {
   if (!canSyncNativeTabBar()) return
 
   // #ifdef MP-WEIXIN
   // The native tabBar is replaced by an in-page custom nav (larger icons/labels),
   // so keep the native one hidden on tab root screens only.
-  try {
-    uni.hideTabBar({ animation: false })
-  } catch {
-    // Native tabBar can be unavailable before tab pages mount.
-  }
+  hideNativeTabBarIfAvailable()
   return
   // #endif
 
@@ -2590,6 +2618,39 @@ function openDictationSetup() {
 function openCourseSetupPage() {
   openCourseSetupScreen()
   navigateToRoute('courseSetup')
+}
+
+function handleFeatureAnnouncementDismiss(
+  reason: FeatureAnnouncementDismissReason,
+  announcement: FeatureAnnouncement
+) {
+  hideActiveFeatureAnnouncement()
+  trackAnalyticsEvent('feature_announcement_dismiss', {
+    announcementId: announcement.id,
+    reason
+  })
+}
+
+function handleFeatureAnnouncementPrimary(announcement: FeatureAnnouncement) {
+  hideActiveFeatureAnnouncement()
+  const action = announcement.primaryAction
+  trackAnalyticsEvent('feature_announcement_action', {
+    announcementId: announcement.id,
+    actionType: action.type,
+    destination: action.url
+  })
+
+  if (action.type === 'switchTab') {
+    switchNativeTab(action.url)
+    return
+  }
+
+  if (action.url === ROUTE_BY_SCREEN.courseSetup) {
+    openCourseSetupPage()
+    return
+  }
+
+  uni.navigateTo({ url: action.url })
 }
 
 function openUnitWordsPage(masteredFirst = false) {
@@ -3508,6 +3569,37 @@ watch(
   }
 )
 
+watch(
+  () => (
+    props.tabScreen === 'home'
+    && shellVisible.value
+    && activeScreen.value === 'home'
+    && courseSetupCompleted.value
+    && featureAnnouncementsEnabled.value
+  ),
+  eligible => {
+    if (eligible) {
+      scheduleFeatureAnnouncementShow()
+      return
+    }
+    cancelFeatureAnnouncementShow()
+    hideActiveFeatureAnnouncement()
+  },
+  { immediate: true }
+)
+
+watch(activeFeatureAnnouncement, announcement => {
+  if (!announcement) {
+    syncNativeTabBar()
+    return
+  }
+
+  hideNativeTabBarIfAvailable()
+  trackAnalyticsEvent('feature_announcement_view', {
+    announcementId: announcement.id
+  })
+})
+
 onMounted(() => {
   unsubscribeCoverManifest = subscribeTextbookCoverRevision(() => {
     coverManifestRevision.value = getTextbookCoverRevision()
@@ -3527,6 +3619,8 @@ onShow(() => {
 })
 
 onHide(() => {
+  cancelFeatureAnnouncementShow()
+  hideActiveFeatureAnnouncement()
   clearDictationTimers()
   destroyActiveAudio()
 
@@ -3541,6 +3635,7 @@ onHide(() => {
 })
 
 onBeforeUnmount(() => {
+  cancelFeatureAnnouncementShow()
   unsubscribeCoverManifest?.()
   unsubscribeCoverManifest = null
   clearDictationTimers()

@@ -56,7 +56,7 @@ const yljJuniorBookMeta = [
   ['译林版初中英语七年级下册_词汇表.xlsx', '七年级下册', 'grade-7-2'],
   ['译林版初中英语八年级上册_词汇表.xlsx', '八年级上册', 'grade-8-1'],
   ['译林版初中英语八年级下册_词汇表.xlsx', '八年级下册', 'grade-8-2'],
-  ['译林版初中英语九年级上册_词汇表.xlsx', '九年级上册', 'grade-9-1'],
+    ['译林版初中英语九年级上册_词汇表_新版.xlsx', '九年级上册', 'grade-9-1'],
   ['译林版初中英语九年级下册_词汇表.xlsx', '九年级下册', 'grade-9-2']
 ]
 
@@ -814,6 +814,12 @@ function buildRjPublisher() {
 function countWords(publisherBlock) {
   return publisherBlock.books.reduce((sum, book) => (
     sum + book.units.reduce((unitSum, unit) => unitSum + unit.words.length, 0)
+  ), 0)
+}
+
+function countRetiredWords(publisherBlock) {
+  return publisherBlock.books.reduce((sum, book) => (
+    sum + book.units.reduce((unitSum, unit) => unitSum + (unit.retiredWords?.length ?? 0), 0)
   ), 0)
 }
 

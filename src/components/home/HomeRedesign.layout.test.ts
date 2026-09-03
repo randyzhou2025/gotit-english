@@ -140,6 +140,8 @@ describe('redesigned home', () => {
   it('adds decoration only when content has room and removes it on narrow screens', () => {
     expect(eggSource).toContain('showOrnament')
     expect(eggSource).toContain("['C', 'D', 'H'].includes")
+    expect(eggSource).toContain("props.egg.template === 'F'")
+    expect(eggSource).toContain('focusWord.value.length <= 24')
     expect(eggSource).toContain('.unitEggCard.hasOrnament')
     expect(eggSource).toContain('.unitEggOrnament')
     expect(eggSource).toContain('display: none;')

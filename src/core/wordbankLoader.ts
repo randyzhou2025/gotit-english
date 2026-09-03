@@ -27,6 +27,7 @@ export interface CompactUnit {
   key?: string
   label?: string
   words: CompactUnitWordRef[]
+  retiredWords?: CompactWordRecord[]
 }
 
 export interface CompactPublisherBlock {

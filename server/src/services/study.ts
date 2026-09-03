@@ -148,7 +148,10 @@ export async function getDashboard(userId: string): Promise<DashboardSnapshot> {
 export async function ensureAppConfigDefaults() {
   await db
     .insert(appConfig)
-    .values({ key: "analytics_enabled", value: "true" })
+    .values([
+      { key: "analytics_enabled", value: "true" },
+      { key: "feature_announcements_enabled", value: "true" },
+    ])
     .onConflictDoNothing({ target: appConfig.key });
 
   const defaults: Record<string, string> = {
