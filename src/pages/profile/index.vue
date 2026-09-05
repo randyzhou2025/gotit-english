@@ -10,9 +10,23 @@ import { onBeforeMount, ref } from 'vue'
 import { ensurePracticeSessionReady, isPracticeSessionReady } from '@/app/usePracticeSession'
 import { useVisualTheme } from '@/app/useVisualTheme'
 import { useWeappShare } from '@/app/useWeappShare'
+import { getCachedDashboard } from '@/core/studyStats'
 import ProfileScreen from '@/components/ProfileScreen.vue'
 
-useWeappShare()
+useWeappShare(() => {
+  const dashboard = getCachedDashboard()
+  let imageUrl = ''
+  try {
+    imageUrl = String(uni.getStorageSync('gotit:profile:scorePoster') || '')
+  } catch {
+    // 分享图片仍未生成时使用小程序默认分享图。
+  }
+  return {
+    title: `我今天学了 ${dashboard?.todayWords ?? 0} 个单词，已坚持 ${dashboard?.streakDays ?? 0} 天`,
+    path: '/pages/index/index',
+    imageUrl
+  }
+})
 
 const ready = ref(isPracticeSessionReady())
 const { activeVisualThemeStyle } = useVisualTheme()

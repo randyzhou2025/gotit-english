@@ -105,6 +105,17 @@ docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T gotit_pos
 docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build gotit_api
 ```
 
+### 学习提醒迁移
+
+项目已添加微信模板「学习任务通知」，复制 `deploy/env.example` 中的 template ID 和字段配置到 `.env.prod`。普通一次性模板使用 `WECHAT_STUDY_REMINDER_MODE=one_time`；只有已获长期订阅权限的模板才能改为 `long_term`。
+
+```bash
+docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T gotit_postgres \
+  psql -U gotit -d gotit -v ON_ERROR_STOP=1 < server/drizzle/0002_learning_reminders.sql
+
+docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build gotit_api
+```
+
 ### 验证 API
 
 ```bash

@@ -33,21 +33,14 @@
         </view>
       </view>
 
-      <view class="promoBanner" @tap="goHome">
-        <view class="promoCopy">
-          <text class="promoBadge">学习</text>
-          <text class="promoLine">
-            今日已学 {{ dashboard?.todayWords ?? 0 }} 词 · 连续 {{ dashboard?.streakDays ?? 0 }} 天
-          </text>
-        </view>
-        <view class="promoAction">
-          <text>去练习</text>
-          <view class="promoArrow" />
-        </view>
-      </view>
-
       <view class="sectionCard">
-        <text class="sectionTitle">我的学习</text>
+        <view class="sectionHeader">
+          <text class="sectionTitle">我的学习</text>
+          <view class="scoreShareButton" role="button" aria-label="晒成绩" @tap="openScoreShare">
+            <text class="scoreShareSpark">↗</text>
+            <text>晒成绩</text>
+          </view>
+        </view>
         <view class="learnGrid">
           <view class="learnItem" @tap="goWeakbook">
             <view class="learnIcon learnIconBlue">
@@ -84,12 +77,20 @@
       </view>
 
       <view class="studyCalendarCard">
-        <view class="studyCalendarHeader">
+        <view
+          class="studyCalendarHeader"
+          role="button"
+          :aria-label="calendarExpanded ? '折叠学习日历' : '展开学习日历'"
+          @tap="calendarExpanded = !calendarExpanded"
+        >
           <view class="studyCalendarHeading">
             <view class="studyCalendarMark" />
             <text class="studyCalendarTitle">学习日历</text>
           </view>
-          <text class="studyCalendarSummary">近 30 天学习 {{ recentStudyDays }} 天</text>
+          <view class="studyCalendarHeaderMeta">
+            <text class="studyCalendarSummary">近 30 天学习 {{ recentStudyDays }} 天</text>
+            <view :class="['calendarToggleArrow', { isExpanded: calendarExpanded }]" />
+          </view>
         </view>
         <view class="calendarWeekHeader">
           <text v-for="label in calendarWeekLabels" :key="label" class="calendarWeekLabel">
@@ -98,17 +99,17 @@
         </view>
         <view class="studyCalendarGrid">
           <view
-            v-for="index in calendarStartOffset"
+            v-for="index in displayedCalendarStartOffset"
             :key="'spacer-' + index"
             class="calendarDay isSpacer"
           />
           <view
-            v-for="item in studyCalendarItems"
+            v-for="item in displayedCalendarItems"
             :key="item.date"
             :class="[
               'calendarDay',
               'level' + item.level,
-              { 'isToday': item.isToday }
+              { 'isToday': item.isToday, 'isFuture': item.isFuture }
             ]"
             role="img"
             :aria-label="item.ariaLabel"
@@ -124,6 +125,20 @@
             :class="['calendarLegendSwatch', 'level' + level]"
           />
           <text class="calendarLegendLabel">多</text>
+        </view>
+      </view>
+
+      <view class="reminderStrip" role="button" aria-label="设置学习提醒" @tap="openReminderSettings">
+        <view class="reminderStripIcon"><view class="toolGlyph toolGlyphReminder" /></view>
+        <view class="reminderStripCopy">
+          <text class="reminderStripTitle">学习提醒</text>
+          <text class="reminderStripDesc">
+            {{ reminder.enabled ? `已预约 ${reminder.reminderTime} 微信通知` : '每天固定时间，提醒自己开始听写' }}
+          </text>
+        </view>
+        <view class="reminderStripAction">
+          <text>{{ reminder.enabled ? reminder.reminderTime : '未开启' }}</text>
+          <view class="rowArrow" />
         </view>
       </view>
 
@@ -203,15 +218,84 @@
         </view>
       </view>
     </view>
+
+    <canvas
+      id="scorePosterCanvas"
+      canvas-id="scorePosterCanvas"
+      class="scorePosterCanvas"
+      :width="scorePosterWidth"
+      :height="scorePosterHeight"
+    />
+
+    <view v-if="showScoreModal" class="modalMask" @tap="closeScoreShare">
+      <view class="scorePanel" @tap.stop>
+        <view class="modalHeader">
+          <text class="modalTitle">晒成绩</text>
+          <view class="modalClose" @tap="closeScoreShare"><text>×</text></view>
+        </view>
+        <view class="scorePreview">
+          <image v-if="scorePosterPath" class="scorePosterImage" :src="scorePosterPath" mode="aspectFit" />
+          <view v-else class="scorePosterLoading"><text>{{ scorePosterGenerating ? '成绩海报生成中…' : '海报生成失败，请重试' }}</text></view>
+        </view>
+        <view class="scoreActions">
+          <button class="secondaryModalButton" @tap="saveScorePoster">保存图片</button>
+          <button class="primaryModalButton" open-type="share">微信分享</button>
+        </view>
+        <text class="modalFootnote">海报数据来自当前学习记录</text>
+      </view>
+    </view>
+
+    <view v-if="showReminderModal" class="modalMask" @tap="closeReminderSettings">
+      <view class="reminderPanel" @tap.stop>
+        <view class="modalHeader">
+          <text class="modalTitle">学习提醒</text>
+          <view class="modalClose" @tap="closeReminderSettings"><text>×</text></view>
+        </view>
+        <view class="reminderHero">
+          <view class="reminderHeroIcon"><view class="toolGlyph toolGlyphReminder" /></view>
+          <view class="reminderHeroCopy">
+            <text class="reminderHeroTitle">每天按时开始听写</text>
+            <text class="reminderHeroDesc">到点后通过微信服务通知提醒你</text>
+          </view>
+        </view>
+        <picker mode="time" :value="reminderDraftTime" @change="onReminderTimeChange">
+          <view class="reminderTimeRow">
+            <text class="reminderTimeLabel">提醒时间</text>
+            <view class="reminderTimeValue">
+              <text>{{ reminderDraftTime }}</text>
+              <view class="rowArrow" />
+            </view>
+          </view>
+        </picker>
+        <text class="reminderModeNote">
+          {{ reminder.mode === 'long_term'
+            ? '开启后每天推送；可随时回来修改时间或关闭。'
+            : '微信当前提供单次订阅：本次提醒发送后，需要再次授权下一次提醒。' }}
+        </text>
+        <button class="primaryModalButton reminderPrimaryButton" :loading="reminderSaving" @tap="enableOrSaveReminder">
+          {{ reminder.enabled ? '保存提醒时间' : '授权并开启提醒' }}
+        </button>
+        <button v-if="reminder.enabled" class="reminderDisableButton" :disabled="reminderSaving" @tap="disableReminder">
+          关闭提醒
+        </button>
+      </view>
+    </view>
   </view>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, getCurrentInstance, nextTick, onMounted, ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { flushPracticeCloudSync, usePracticeSession } from '@/app/usePracticeSession'
 import { useVisualTheme } from '@/app/useVisualTheme'
 import { readLocalProgressSnapshot } from '@/core/progressMerge'
+import { formatScorePosterDate, pickScorePosterQuote } from '@/core/scorePosterCopy'
+import {
+  DEFAULT_LEARNING_REMINDER,
+  fetchLearningReminder,
+  saveLearningReminder,
+  type LearningReminderSettings
+} from '@/core/learningReminder'
 import TabBottomNav from '@/components/TabBottomNav.vue'
 import { flushStudyEvents, getCachedDashboard, refreshDashboard, setCachedDashboard } from '@/core/studyStats'
 import {
@@ -237,6 +321,20 @@ const showServiceModal = ref(false)
 const editingNickname = ref(false)
 const nicknameDraft = ref('')
 const syncing = ref(false)
+const calendarExpanded = ref(false)
+const showScoreModal = ref(false)
+const scorePosterGenerating = ref(false)
+const scorePosterPath = ref('')
+const scorePosterQuoteIndex = ref(-1)
+const showReminderModal = ref(false)
+const reminderSaving = ref(false)
+const reminder = ref<LearningReminderSettings>({ ...DEFAULT_LEARNING_REMINDER })
+const reminderDraftTime = ref('19:00')
+const instance = getCurrentInstance()
+const scorePosterWidth = 375
+const scorePosterHeight = 530
+const scorePosterExportWidth = 750
+const scorePosterExportHeight = 1060
 const apiEnabled = isApiEnabled()
 const customerServiceEnabled = false
 
@@ -328,10 +426,44 @@ const studyCalendarItems = computed(() => {
       dayLabel: dayNumber === 1 ? `${Number(month)}/1` : String(dayNumber),
       level: calendarIntensity(item.minutes, item.studied),
       isToday: item.date === todayKey,
+      isFuture: false,
       ariaLabel: `${Number(month)}月${dayNumber}日，${item.studied ? `学习 ${item.minutes} 分钟` : '未学习'}`
     }
   })
 })
+const currentWeekCalendarItems = computed(() => {
+  const today = new Date()
+  today.setHours(12, 0, 0, 0)
+  const todayIndex = today.getDay() === 0 ? 6 : today.getDay() - 1
+  const monday = new Date(today)
+  monday.setDate(today.getDate() - todayIndex)
+  const studyByDate = new Map(recentStudyData.value.map((item) => [item.date, item]))
+  const todayKey = localDateKey(today)
+
+  return Array.from({ length: 7 }, (_, index) => {
+    const dateValue = new Date(monday)
+    dateValue.setDate(monday.getDate() + index)
+    const date = localDateKey(dateValue)
+    const study = studyByDate.get(date) ?? { date, minutes: 0, studied: false }
+    const month = dateValue.getMonth() + 1
+    const day = dateValue.getDate()
+    const isFuture = date > todayKey
+    return {
+      ...study,
+      dayLabel: day === 1 ? `${month}/1` : String(day),
+      level: calendarIntensity(study.minutes, study.studied),
+      isToday: date === todayKey,
+      isFuture,
+      ariaLabel: `${month}月${day}日，${isFuture ? '尚未到来' : study.studied ? `学习 ${study.minutes} 分钟` : '未学习'}`
+    }
+  })
+})
+const displayedCalendarItems = computed(() => (
+  calendarExpanded.value ? studyCalendarItems.value : currentWeekCalendarItems.value
+))
+const displayedCalendarStartOffset = computed(() => (
+  calendarExpanded.value ? calendarStartOffset.value : 0
+))
 const avatarPreviewUrl = ref('')
 const avatarDisplayUrl = computed(() => (
   avatarPreviewUrl.value
@@ -440,6 +572,15 @@ async function refreshProfileDataInBackground() {
   if (user.value?.avatarUrl) {
     await cacheAvatarForDisplay(user.value.avatarUrl)
   }
+
+  if (apiEnabled && getAuthToken()) {
+    try {
+      reminder.value = await fetchLearningReminder()
+      reminderDraftTime.value = reminder.value.reminderTime
+    } catch (error) {
+      console.warn('[ProfileScreen] reminder refresh failed', error)
+    }
+  }
 }
 
 function startNicknameEdit() {
@@ -531,6 +672,269 @@ function closeCustomerService() {
 
 function openCourseSetup() {
   uni.navigateTo({ url: '/pages/course/index' })
+}
+
+function drawPosterRoundedRect(
+  context: ReturnType<typeof uni.createCanvasContext>,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number
+) {
+  context.beginPath()
+  context.moveTo(x + radius, y)
+  context.lineTo(x + width - radius, y)
+  context.arcTo(x + width, y, x + width, y + radius, radius)
+  context.lineTo(x + width, y + height - radius)
+  context.arcTo(x + width, y + height, x + width - radius, y + height, radius)
+  context.lineTo(x + radius, y + height)
+  context.arcTo(x, y + height, x, y + height - radius, radius)
+  context.lineTo(x, y + radius)
+  context.arcTo(x, y, x + radius, y, radius)
+  context.closePath()
+}
+
+async function generateScorePoster() {
+  if (scorePosterGenerating.value) return
+  scorePosterGenerating.value = true
+  scorePosterPath.value = ''
+  await nextTick()
+
+  try {
+    const context = uni.createCanvasContext('scorePosterCanvas', instance?.proxy)
+    const todayWords = dashboard.value?.todayWords ?? 0
+    const streakDays = dashboard.value?.streakDays ?? 0
+    const totalMastered = dashboard.value?.totalMastered ?? localMasteredCount.value
+    const studyDays = dashboard.value?.totalStudyDays ?? 0
+    const nickname = (user.value?.nickname || '课本单词通同学').slice(0, 14)
+    const selectedQuote = pickScorePosterQuote(scorePosterQuoteIndex.value)
+    scorePosterQuoteIndex.value = selectedQuote.index
+
+    context.scale(0.5, 0.5)
+    context.setFillStyle('#e8f3ed')
+    context.fillRect(0, 0, scorePosterExportWidth, scorePosterExportHeight)
+    context.setFillStyle('#d3e7dc')
+    context.beginPath()
+    context.arc(650, 120, 220, 0, Math.PI * 2)
+    context.fill()
+    context.setFillStyle('#b9d7ca')
+    context.beginPath()
+    context.arc(90, 580, 260, 0, Math.PI * 2)
+    context.fill()
+
+    context.setFillStyle('#174c3b')
+    context.setFontSize(28)
+    context.fillText('DAILY LEARNING NOTE', 64, 82)
+    context.setFontSize(48)
+    context.fillText(`“${selectedQuote.quote.lines[0]}`, 64, 190)
+    context.fillText(`${selectedQuote.quote.lines[1]}”`, 64, 258)
+    context.setFillStyle('#4f7468')
+    context.setFontSize(25)
+    context.fillText(`— ${selectedQuote.quote.author}`, 66, 330)
+
+    context.setFillStyle('#ffffff')
+    drawPosterRoundedRect(context, 48, 430, 654, 490, 34)
+    context.fill()
+
+    context.setFillStyle('#174c3b')
+    context.setFontSize(34)
+    context.fillText(nickname, 82, 505)
+    context.setFillStyle('#7a8d86')
+    context.setFontSize(23)
+    context.fillText(formatScorePosterDate(new Date()), 82, 548)
+
+    const stats = [
+      { value: todayWords, label: '今日学习 / 词', x: 84, y: 665 },
+      { value: streakDays, label: '连续学习 / 天', x: 398, y: 665 },
+      { value: totalMastered, label: '累计掌握 / 词', x: 84, y: 815 },
+      { value: studyDays, label: '累计学习 / 天', x: 398, y: 815 }
+    ]
+    stats.forEach((stat) => {
+      context.setFillStyle('#174c3b')
+      context.setFontSize(58)
+      context.fillText(String(stat.value), stat.x, stat.y)
+      context.setFillStyle('#7a8d86')
+      context.setFontSize(22)
+      context.fillText(stat.label, stat.x, stat.y + 42)
+    })
+
+    context.setStrokeStyle('#e3ebe6')
+    context.setLineWidth(2)
+    context.beginPath()
+    context.moveTo(375, 600)
+    context.lineTo(375, 840)
+    context.stroke()
+
+    context.setFillStyle('#174c3b')
+    context.setFontSize(26)
+    context.fillText('KEEP GOING.', 64, 1000)
+    context.setFillStyle('#6f8b81')
+    context.setFontSize(20)
+    context.fillText('A RECORD OF TODAY’S LEARNING', 64, 1034)
+
+    await new Promise<void>((resolve) => context.draw(false, resolve))
+    const path = await new Promise<string>((resolve, reject) => {
+      uni.canvasToTempFilePath({
+        canvasId: 'scorePosterCanvas',
+        width: scorePosterWidth,
+        height: scorePosterHeight,
+        destWidth: scorePosterExportWidth,
+        destHeight: scorePosterExportHeight,
+        fileType: 'png',
+        success: (result) => resolve(result.tempFilePath),
+        fail: reject
+      }, instance?.proxy)
+    })
+    scorePosterPath.value = path
+    uni.setStorageSync('gotit:profile:scorePoster', path)
+  } catch (error) {
+    console.warn('[ProfileScreen] score poster generation failed', error)
+    uni.showToast({ title: '海报生成失败，请重试', icon: 'none' })
+  } finally {
+    scorePosterGenerating.value = false
+  }
+}
+
+function openScoreShare() {
+  showScoreModal.value = true
+  void generateScorePoster()
+}
+
+function closeScoreShare() {
+  showScoreModal.value = false
+}
+
+async function saveScorePoster() {
+  if (!scorePosterPath.value) {
+    await generateScorePoster()
+  }
+  if (!scorePosterPath.value) return
+  try {
+    await new Promise<void>((resolve, reject) => {
+      uni.saveImageToPhotosAlbum({
+        filePath: scorePosterPath.value,
+        success: () => resolve(),
+        fail: reject
+      })
+    })
+    uni.showToast({ title: '已保存到相册', icon: 'success' })
+  } catch (error) {
+    const message = String((error as { errMsg?: string }).errMsg ?? '')
+    if (message.includes('auth deny') || message.includes('authorize')) {
+      uni.showModal({
+        title: '需要相册权限',
+        content: '请在设置中允许保存图片到相册。',
+        confirmText: '去设置',
+        success: (result) => {
+          if (result.confirm) uni.openSetting({})
+        }
+      })
+      return
+    }
+    uni.showToast({ title: '保存失败，请重试', icon: 'none' })
+  }
+}
+
+async function openReminderSettings() {
+  showReminderModal.value = true
+  reminderDraftTime.value = reminder.value.reminderTime
+  if (!apiEnabled || !getAuthToken()) return
+  try {
+    reminder.value = await fetchLearningReminder()
+    reminderDraftTime.value = reminder.value.reminderTime
+  } catch (error) {
+    console.warn('[ProfileScreen] reminder load failed', error)
+  }
+}
+
+function closeReminderSettings() {
+  showReminderModal.value = false
+}
+
+function onReminderTimeChange(event: Event) {
+  const value = (event as unknown as { detail?: { value?: string } }).detail?.value
+  if (value) reminderDraftTime.value = value
+}
+
+function requestReminderSubscription(templateId: string): Promise<boolean> {
+  // #ifdef MP-WEIXIN
+  const runtime = uni as typeof uni & {
+    requestSubscribeMessage?: (options: {
+      tmplIds: string[]
+      success: (result: Record<string, string>) => void
+      fail: (error: unknown) => void
+    }) => void
+  }
+  if (typeof runtime.requestSubscribeMessage === 'function') {
+    return new Promise((resolve, reject) => {
+      runtime.requestSubscribeMessage!({
+        tmplIds: [templateId],
+        success: (result) => {
+          const statuses = result as unknown as Record<string, string>
+          resolve(statuses[templateId] === 'accept')
+        },
+        fail: reject
+      })
+    })
+  }
+  // #endif
+  return Promise.resolve(false)
+}
+
+async function enableOrSaveReminder() {
+  if (reminderSaving.value) return
+  if (!apiEnabled || !getAuthToken()) {
+    uni.showToast({ title: '请在微信小程序中设置提醒', icon: 'none' })
+    return
+  }
+  if (!reminder.value.available || !reminder.value.templateId) {
+    uni.showToast({ title: '提醒服务配置中，请稍后再试', icon: 'none' })
+    return
+  }
+
+  reminderSaving.value = true
+  try {
+    if (!reminder.value.enabled) {
+      const accepted = await requestReminderSubscription(reminder.value.templateId)
+      if (!accepted) {
+        uni.showToast({ title: '未获得微信通知授权', icon: 'none' })
+        return
+      }
+    }
+    reminder.value = await saveLearningReminder({
+      enabled: true,
+      reminderTime: reminderDraftTime.value
+    })
+    uni.showToast({
+      title: reminder.value.mode === 'long_term' ? '每日提醒已开启' : '本次提醒已预约',
+      icon: 'success'
+    })
+    showReminderModal.value = false
+  } catch (error) {
+    console.warn('[ProfileScreen] reminder save failed', error)
+    uni.showToast({ title: '提醒设置失败，请重试', icon: 'none' })
+  } finally {
+    reminderSaving.value = false
+  }
+}
+
+async function disableReminder() {
+  if (reminderSaving.value) return
+  reminderSaving.value = true
+  try {
+    reminder.value = await saveLearningReminder({
+      enabled: false,
+      reminderTime: reminderDraftTime.value
+    })
+    uni.showToast({ title: '学习提醒已关闭', icon: 'none' })
+    showReminderModal.value = false
+  } catch (error) {
+    console.warn('[ProfileScreen] reminder disable failed', error)
+    uni.showToast({ title: '关闭失败，请重试', icon: 'none' })
+  } finally {
+    reminderSaving.value = false
+  }
 }
 
 async function syncProgress() {
@@ -707,65 +1111,6 @@ onShow(() => {
     linear-gradient(#b8c0c6, #b8c0c6) 3px 8px / 4px 1px no-repeat;
 }
 
-.promoBanner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 14px;
-  padding: 16px 18px;
-  border-radius: 16px;
-  background: linear-gradient(90deg, #ffb45c 0%, #ffd08a 100%);
-  box-shadow: 0 10px 24px rgba(255, 148, 64, 0.22);
-}
-
-.promoCopy {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-}
-
-.promoBadge {
-  align-self: flex-start;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.28);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-}
-
-.promoLine {
-  color: #fff;
-  font-size: 14px;
-  font-weight: 800;
-  line-height: 1.45;
-}
-
-.promoAction {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: #fff;
-  color: #f08a24;
-  font-size: 13px;
-  font-weight: 900;
-}
-
-.promoArrow {
-  width: 7px;
-  height: 7px;
-  border-top: 2px solid #f08a24;
-  border-right: 2px solid #f08a24;
-  transform: rotate(45deg);
-}
-
 .sectionCard {
   margin-bottom: 14px;
   padding: 18px 16px 16px;
@@ -779,6 +1124,38 @@ onShow(() => {
   margin-bottom: 16px;
   color: #1f2933;
   font-size: 16px;
+  font-weight: 900;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.sectionHeader .sectionTitle {
+  margin-bottom: 0;
+}
+
+.scoreShareButton {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.scoreShareSpark {
+  font-size: 14px;
   font-weight: 900;
 }
 
@@ -942,6 +1319,25 @@ onShow(() => {
   gap: 10px;
 }
 
+.studyCalendarHeaderMeta {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.calendarToggleArrow {
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 180ms ease;
+}
+
+.calendarToggleArrow.isExpanded {
+  transform: rotate(225deg) translate(-1px, -1px);
+}
+
 .studyCalendarMark {
   width: 4px;
   height: 20px;
@@ -1029,6 +1425,10 @@ onShow(() => {
   box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px var(--accent);
 }
 
+.calendarDay.isFuture {
+  opacity: 0.46;
+}
+
 .calendarDayLabel {
   color: var(--ink-soft);
   font-size: 10px;
@@ -1060,6 +1460,63 @@ onShow(() => {
   width: 12px;
   height: 12px;
   border-radius: 4px;
+}
+
+.reminderStrip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.reminderStripIcon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: #faeee2;
+}
+
+.reminderStripCopy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.reminderStripTitle {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 850;
+}
+
+.reminderStripDesc {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reminderStripAction {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 850;
 }
 
 .toolGrid {
@@ -1097,6 +1554,35 @@ onShow(() => {
   border-radius: 999px;
   background: var(--theme-switch-swatch);
   box-shadow: 0 3px 8px var(--accent-shadow);
+}
+
+.toolGlyphReminder {
+  width: 18px;
+  height: 17px;
+  border: 2px solid #c8733c;
+  border-radius: 10px 10px 5px 5px;
+}
+
+.toolGlyphReminder::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 6px;
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: #c8733c;
+}
+
+.toolGlyphReminder::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 5px;
+  width: 6px;
+  height: 3px;
+  border-radius: 0 0 999px 999px;
+  background: #c8733c;
 }
 
 .toolGlyph {
@@ -1306,6 +1792,242 @@ onShow(() => {
   font-weight: 900;
 }
 
+.scorePosterCanvas {
+  position: fixed;
+  top: 0;
+  left: -1200px;
+  width: 375px;
+  height: 530px;
+  pointer-events: none;
+}
+
+.modalMask {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 18px;
+  background: rgba(23, 52, 44, 0.5);
+}
+
+.scorePanel,
+.reminderPanel {
+  box-sizing: border-box;
+  width: min(100%, 360px);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--surface);
+  box-shadow: 0 24px 64px rgba(23, 52, 44, 0.24);
+}
+
+.scorePanel {
+  padding: 18px;
+}
+
+.reminderPanel {
+  padding: 20px;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 34px;
+}
+
+.modalTitle {
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.modalClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.scorePreview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48vh;
+  min-height: 320px;
+  max-height: 480px;
+  margin-top: 14px;
+  overflow: hidden;
+  border-radius: 18px;
+  background: var(--surface-soft);
+}
+
+.scorePosterImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.scorePosterLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 360px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.scoreActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.primaryModalButton,
+.secondaryModalButton,
+.reminderDisableButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 46px;
+  padding: 0 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.primaryModalButton::after,
+.secondaryModalButton::after,
+.reminderDisableButton::after {
+  border: 0;
+}
+
+.primaryModalButton {
+  background: var(--accent);
+  color: var(--surface);
+}
+
+.secondaryModalButton {
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
+  color: var(--ink);
+}
+
+.modalFootnote,
+.reminderModeNote {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.55;
+}
+
+.modalFootnote {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.reminderHero {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 15px;
+  border-radius: 16px;
+  background: #faeee2;
+}
+
+.reminderHeroIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.reminderHeroCopy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.reminderHeroTitle {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 850;
+}
+
+.reminderHeroDesc {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.reminderTimeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding: 16px 2px;
+  border-bottom: 1px solid var(--line);
+}
+
+.reminderTimeLabel {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.reminderTimeValue {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--accent);
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.rowArrow {
+  width: 7px;
+  height: 7px;
+  border-top: 2px solid var(--muted);
+  border-right: 2px solid var(--muted);
+  transform: rotate(45deg);
+}
+
+.reminderModeNote {
+  margin-top: 12px;
+}
+
+.reminderPrimaryButton {
+  width: 100%;
+  margin-top: 18px;
+}
+
+.reminderDisableButton {
+  width: 100%;
+  margin-top: 8px;
+  background: transparent;
+  color: var(--muted);
+}
+
 /* V3 paper editorial UI */
 .screen {
   color: var(--ink);
@@ -1358,22 +2080,6 @@ onShow(() => {
 .userIdText,
 .userSubline {
   color: var(--muted);
-}
-
-.promoBanner {
-  margin-bottom: 12px;
-  border: 1px solid var(--accent-strong);
-  border-radius: 16px;
-  background: var(--accent);
-  box-shadow: 0 9px 20px var(--accent-shadow);
-}
-
-.promoAction {
-  color: var(--accent);
-}
-
-.promoArrow {
-  border-color: var(--accent);
 }
 
 .sectionCard {

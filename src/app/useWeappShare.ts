@@ -8,15 +8,18 @@ export interface WeappShareOptions {
   title?: string
   path?: string
   timelineTitle?: string
+  imageUrl?: string
 }
 
 export type WeappShareOptionsSource = WeappShareOptions | (() => WeappShareOptions)
 
 export function buildWeappShareAppMessage(options: WeappShareOptions = {}) {
-  return {
+  const result: { title: string; path: string; imageUrl?: string } = {
     title: options.title ?? WEAPP_SHARE_TITLE,
     path: options.path ?? WEAPP_SHARE_PATH
   }
+  if (options.imageUrl) result.imageUrl = options.imageUrl
+  return result
 }
 
 export function buildWeappShareTimeline(options: WeappShareOptions = {}) {

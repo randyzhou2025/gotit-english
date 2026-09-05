@@ -41,8 +41,8 @@ describe('classmates page MVP', () => {
     expect(source).not.toContain('已经连续学习')
   })
 
-  it('keeps only the full empty-state invite when there are no classmates', () => {
-    expect(source).toContain('<view v-if="classmates.length > 0" class="inviteCard">')
+  it('keeps one invite visible whether the feed has activity or is empty', () => {
+    expect(source).toContain('<view v-if="feedItems.length > 0" class="inviteCard">')
     expect(source).toContain('<view v-else class="classmatesState isEmpty">')
     expect(source).toContain('邀请第一位同学')
   })

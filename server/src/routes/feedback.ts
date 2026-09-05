@@ -2,6 +2,7 @@ import type { FastifyInstance, FastifyRequest, preHandlerHookHandler } from "fas
 import { z } from "zod";
 import { db } from "../db/index.js";
 import { appConfig, feedbacks } from "../db/schema.js";
+import { readStudyReminderConfig } from "../services/learning-reminder.js";
 
 const feedbackCategories = ["bug", "malfunction", "experience", "feature", "other"] as const;
 
@@ -40,11 +41,14 @@ export async function registerFeedbackRoutes(
       config[row.key] = row.value;
     }
 
+    const reminderConfig = readStudyReminderConfig();
     return {
       customerServiceQrUrl: config.customer_service_qr_url ?? "",
       icpNumber: config.icp_number ?? "",
       analyticsEnabled: config.analytics_enabled !== "false",
       featureAnnouncementsEnabled: config.feature_announcements_enabled !== "false",
+      studyReminderTemplateId: reminderConfig.templateId,
+      studyReminderMode: reminderConfig.mode,
     };
   });
 }

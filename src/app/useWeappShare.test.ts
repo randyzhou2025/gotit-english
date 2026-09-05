@@ -24,6 +24,14 @@ describe('useWeappShare', () => {
     })
   })
 
+  it('includes a generated poster when one is available', () => {
+    expect(buildWeappShareAppMessage({ imageUrl: 'wxfile://score-poster.png' })).toEqual({
+      title: WEAPP_SHARE_TITLE,
+      path: WEAPP_SHARE_PATH,
+      imageUrl: 'wxfile://score-poster.png'
+    })
+  })
+
   it('uses timeline title override when provided', () => {
     expect(buildWeappShareTimeline({
       title: '朋友标题',

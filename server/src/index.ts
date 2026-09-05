@@ -17,6 +17,7 @@ import { registerUploadRoutes } from "./routes/upload.js";
 import { registerUserRoutes } from "./routes/user.js";
 import { ensureAppConfigDefaults } from "./services/study.js";
 import { ensureSocialConfigDefaults } from "./services/social.js";
+import { startLearningReminderScheduler } from "./services/learning-reminder.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.join(__dirname, "..", "data", "uploads");
@@ -68,6 +69,9 @@ await registerUploadRoutes(app, authenticate, uploadsDir);
 
 await ensureAppConfigDefaults();
 await ensureSocialConfigDefaults();
+
+const stopLearningReminderScheduler = startLearningReminderScheduler(app.log);
+app.addHook("onClose", async () => stopLearningReminderScheduler());
 
 try {
   await app.listen({ port, host });

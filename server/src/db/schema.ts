@@ -55,6 +55,19 @@ export const userDailyStats = pgTable(
   (t) => [primaryKey({ columns: [t.userId, t.statDate] })]
 );
 
+export const learningReminders = pgTable("learning_reminders", {
+  userId: uuid("user_id")
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  enabled: boolean("enabled").notNull().default(false),
+  reminderTime: varchar("reminder_time", { length: 5 }).notNull().default("19:00"),
+  timezone: varchar("timezone", { length: 64 }).notNull().default("Asia/Shanghai"),
+  lastAttemptDate: date("last_attempt_date"),
+  lastSentDate: date("last_sent_date"),
+  lastDeliveryStatus: varchar("last_delivery_status", { length: 16 }),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const feedbacks = pgTable("feedbacks", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id")

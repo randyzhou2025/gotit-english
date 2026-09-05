@@ -54,6 +54,8 @@ export interface PublicAppConfig {
   icpNumber: string
   analyticsEnabled: boolean
   featureAnnouncementsEnabled: boolean
+  studyReminderTemplateId?: string
+  studyReminderMode?: 'one_time' | 'long_term'
 }
 
 export type FeedbackCategory = 'bug' | 'malfunction' | 'experience' | 'feature' | 'other'
