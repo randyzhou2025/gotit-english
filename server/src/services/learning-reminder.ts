@@ -1,4 +1,4 @@
-import { and, eq, isNull, ne, or } from "drizzle-orm";
+import { and, eq, gt, isNull, ne, or, sql } from "drizzle-orm";
 import type { FastifyBaseLogger } from "fastify";
 import { db } from "../db/index.js";
 import { learningReminders, users } from "../db/schema.js";
@@ -55,8 +55,35 @@ export async function saveLearningReminder(userId: string, input: {
       target: learningReminders.userId,
       set: {
         enabled: input.enabled,
+        ...(!input.enabled ? { remainingCredits: 0 } : {}),
         reminderTime: input.reminderTime,
         ...(reactivating ? { lastAttemptDate: null, lastDeliveryStatus: null } : {}),
+        updatedAt: new Date(),
+      },
+    })
+    .returning();
+  return row!;
+}
+
+export async function renewLearningReminder(userId: string, reminderTime: string) {
+  const [row] = await db
+    .insert(learningReminders)
+    .values({
+      userId,
+      enabled: true,
+      remainingCredits: 1,
+      reminderTime,
+      timezone: "Asia/Shanghai",
+      lastDeliveryStatus: null,
+      updatedAt: new Date(),
+    })
+    .onConflictDoUpdate({
+      target: learningReminders.userId,
+      set: {
+        enabled: true,
+        remainingCredits: sql`${learningReminders.remainingCredits} + 1`,
+        reminderTime,
+        lastDeliveryStatus: null,
         updatedAt: new Date(),
       },
     })
@@ -78,6 +105,7 @@ export async function dispatchDueLearningReminders(logger: FastifyBaseLogger, no
   let sent = 0;
   for (const row of rows) {
     const clock = zonedReminderClock(now, row.reminder.timezone);
+    if (config.mode === "one_time" && row.reminder.remainingCredits <= 0) continue;
     if (clock.time < row.reminder.reminderTime || row.reminder.lastAttemptDate === clock.dateKey) continue;
 
     const [claimed] = await db
@@ -86,6 +114,7 @@ export async function dispatchDueLearningReminders(logger: FastifyBaseLogger, no
       .where(and(
         eq(learningReminders.userId, row.reminder.userId),
         eq(learningReminders.enabled, true),
+        ...(config.mode === "one_time" ? [gt(learningReminders.remainingCredits, 0)] : []),
         or(
           isNull(learningReminders.lastAttemptDate),
           ne(learningReminders.lastAttemptDate, clock.dateKey)
@@ -107,7 +136,9 @@ export async function dispatchDueLearningReminders(logger: FastifyBaseLogger, no
       await db
         .update(learningReminders)
         .set({
-          enabled: config.mode === "long_term",
+          remainingCredits: config.mode === "one_time"
+            ? sql`greatest(${learningReminders.remainingCredits} - 1, 0)`
+            : row.reminder.remainingCredits,
           lastSentDate: clock.dateKey,
           lastDeliveryStatus: "sent",
           updatedAt: new Date(),
@@ -119,7 +150,7 @@ export async function dispatchDueLearningReminders(logger: FastifyBaseLogger, no
       await db
         .update(learningReminders)
         .set({
-          enabled: config.mode === "one_time" && code === 43101 ? false : true,
+          ...(config.mode === "one_time" && code === 43101 ? { remainingCredits: 0 } : {}),
           lastDeliveryStatus: "failed",
           updatedAt: new Date(),
         })

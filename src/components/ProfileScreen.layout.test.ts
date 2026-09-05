@@ -48,9 +48,12 @@ describe('profile screen layout', () => {
     expect(source).toContain('class="reminderStrip" role="button" aria-label="设置学习提醒" @tap="openReminderSettings"')
     expect(source.indexOf('class="reminderStrip"')).toBeLessThan(source.indexOf('<text class="sectionTitle">工具和服务</text>'))
     expect(source).not.toContain('class="toolIcon toolReminderIcon"')
-    expect(source).toContain('requestSubscribeMessage')
+    expect(source).toContain('requestLearningReminderSubscription')
     expect(source).toContain('saveLearningReminder')
     expect(source).toContain("reminder.mode === 'long_term'")
+    expect(source).toContain('续期提醒（再授权 1 天）')
+    expect(source).toContain('勾选“总是保持以上选择”')
+    expect(source).toContain('renewLearningReminder')
   })
 
   it('keeps avatar and nickname editable without decorative affordances', () => {

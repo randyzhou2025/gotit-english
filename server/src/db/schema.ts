@@ -60,6 +60,7 @@ export const learningReminders = pgTable("learning_reminders", {
     .primaryKey()
     .references(() => users.id, { onDelete: "cascade" }),
   enabled: boolean("enabled").notNull().default(false),
+  remainingCredits: integer("remaining_credits").notNull().default(0),
   reminderTime: varchar("reminder_time", { length: 5 }).notNull().default("19:00"),
   timezone: varchar("timezone", { length: 64 }).notNull().default("Asia/Shanghai"),
   lastAttemptDate: date("last_attempt_date"),

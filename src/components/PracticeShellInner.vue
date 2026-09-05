@@ -1530,6 +1530,12 @@ import { trackAnalyticsEvent } from '@/core/analytics'
 import { getAudioUrl, getDictationAudioUrls, hasPlayableAudio } from '@/core/audio'
 import { estimateDictationSeconds, formatEstimatedMinutes } from '@/core/dictation'
 import {
+  fetchLearningReminder,
+  getCachedLearningReminder,
+  renewLearningReminder,
+  requestLearningReminderSubscription
+} from '@/core/learningReminder'
+import {
   buildTextbookCoverUrl,
   ensureTextbookCoverVersion,
   getTextbookCoverRevision,
@@ -1558,6 +1564,7 @@ const {
 } = useFeatureAnnouncements(FEATURE_ANNOUNCEMENTS)
 
 const choiceKeys = ['A', 'B', 'C', 'D']
+const reminderRenewalHandled = ref(false)
 const rewardParticles = [
   { id: 'p1', className: 'rewardParticle toneGold bar leftFar' },
   { id: 'p2', className: 'rewardParticle toneTeal dot leftMid' },
@@ -3048,7 +3055,28 @@ function isDictationQuickOptionActive(option: { count: number, isAll: boolean })
     && selectedDictationWordCount.value === option.count
 }
 
-function finishDictationRewardAndReturnHome() {
+async function renewReminderAfterDictationIfEnabled() {
+  if (reminderRenewalHandled.value) return
+  const reminder = getCachedLearningReminder()
+  if (!reminder.enabled || !reminder.available || !reminder.templateId || reminder.mode !== 'one_time') return
+
+  reminderRenewalHandled.value = true
+  try {
+    const accepted = await requestLearningReminderSubscription(reminder.templateId)
+    if (accepted) {
+      await renewLearningReminder(reminder.reminderTime)
+      uni.showToast({ title: '学习提醒已续期 1 天', icon: 'success' })
+    } else {
+      uni.showToast({ title: '本次提醒未续期', icon: 'none' })
+    }
+  } catch (error) {
+    console.warn('[PracticeShellInner] reminder auto renewal failed', error)
+    uni.showToast({ title: '提醒续期失败，可稍后手动续期', icon: 'none' })
+  }
+}
+
+async function finishDictationRewardAndReturnHome() {
+  await renewReminderAfterDictationIfEnabled()
   finishDictationRewardInSession()
   switchNativeTab('/pages/index/index')
 }
@@ -3069,13 +3097,15 @@ function trackRewardInviteClick() {
   })
 }
 
-function finishDictationRewardAndOpenWeakbook() {
+async function finishDictationRewardAndOpenWeakbook() {
   trackAnalyticsEvent('weakbook_click', { source: 'dictation_reward' })
+  await renewReminderAfterDictationIfEnabled()
   finishDictationRewardInSession()
   navigateToWeakbook()
 }
 
-function restartDictationFromReward() {
+async function restartDictationFromReward() {
+  await renewReminderAfterDictationIfEnabled()
   if (dictationReward.value?.forgottenCount) {
     startForgottenDictationPage()
     return
@@ -3509,6 +3539,11 @@ watch(
   () => [activeScreen.value, dictationReward.value?.afterPercent],
   () => {
     if (activeScreen.value !== 'dictationReward' || !dictationReward.value) return
+
+    reminderRenewalHandled.value = false
+    void fetchLearningReminder().catch((error) => {
+      console.warn('[PracticeShellInner] reminder preload failed', error)
+    })
 
     rewardProgressPercent.value = dictationReward.value.beforePercent
     setTimeout(() => {

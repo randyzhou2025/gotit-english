@@ -4,6 +4,7 @@ import { getProgress, saveProgress, serializeUser, updateUserProfile } from "../
 import {
   getLearningReminder,
   readStudyReminderConfig,
+  renewLearningReminder,
   saveLearningReminder,
 } from "../services/learning-reminder.js";
 import { uniqueWordIds } from "../lib/utils.js";
@@ -25,6 +26,22 @@ const reminderSchema = z.object({
   enabled: z.boolean(),
   reminderTime: z.string().regex(/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/),
 });
+
+const reminderRenewSchema = z.object({
+  reminderTime: z.string().regex(/^(?:[01][0-9]|2[0-3]):[0-5][0-9]$/),
+});
+
+function serializeReminder(row: Awaited<ReturnType<typeof getLearningReminder>>, config: ReturnType<typeof readStudyReminderConfig>) {
+  return {
+    enabled: row?.enabled ?? false,
+    remainingCredits: config.mode === "long_term" ? null : row?.remainingCredits ?? 0,
+    reminderTime: row?.reminderTime ?? "19:00",
+    lastDeliveryStatus: row?.lastDeliveryStatus ?? "",
+    mode: config.mode,
+    templateId: config.templateId,
+    available: Boolean(config.templateId),
+  };
+}
 
 export async function registerUserRoutes(app: FastifyInstance, authenticate: preHandlerHookHandler) {
   app.patch("/api/user/me", { preHandler: [authenticate] }, async (request: FastifyRequest) => {
@@ -77,16 +94,7 @@ export async function registerUserRoutes(app: FastifyInstance, authenticate: pre
     const jwtUser = request.user as { sub: string };
     const row = await getLearningReminder(jwtUser.sub);
     const config = readStudyReminderConfig();
-    return {
-      reminder: {
-        enabled: row?.enabled ?? false,
-        reminderTime: row?.reminderTime ?? "19:00",
-        lastDeliveryStatus: row?.lastDeliveryStatus ?? "",
-        mode: config.mode,
-        templateId: config.templateId,
-        available: Boolean(config.templateId),
-      },
-    };
+    return { reminder: serializeReminder(row, config) };
   });
 
   app.put("/api/user/reminder", { preHandler: [authenticate] }, async (request: FastifyRequest) => {
@@ -99,15 +107,17 @@ export async function registerUserRoutes(app: FastifyInstance, authenticate: pre
       throw app.httpErrors.serviceUnavailable("微信提醒模板尚未配置");
     }
     const row = await saveLearningReminder(jwtUser.sub, parsed.data);
-    return {
-      reminder: {
-        enabled: row.enabled,
-        reminderTime: row.reminderTime,
-        lastDeliveryStatus: row.lastDeliveryStatus ?? "",
-        mode: config.mode,
-        templateId: config.templateId,
-        available: Boolean(config.templateId),
-      },
-    };
+    return { reminder: serializeReminder(row, config) };
+  });
+
+  app.post("/api/user/reminder/renew", { preHandler: [authenticate] }, async (request: FastifyRequest) => {
+    const jwtUser = request.user as { sub: string };
+    const parsed = reminderRenewSchema.safeParse(request.body ?? {});
+    if (!parsed.success) throw app.httpErrors.badRequest("Invalid reminder renewal payload");
+
+    const config = readStudyReminderConfig();
+    if (!config.templateId) throw app.httpErrors.serviceUnavailable("微信提醒模板尚未配置");
+    const row = await renewLearningReminder(jwtUser.sub, parsed.data.reminderTime);
+    return { reminder: serializeReminder(row, config) };
   });
 }

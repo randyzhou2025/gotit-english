@@ -133,7 +133,9 @@
         <view class="reminderStripCopy">
           <text class="reminderStripTitle">学习提醒</text>
           <text class="reminderStripDesc">
-            {{ reminder.enabled ? `已预约 ${reminder.reminderTime} 微信通知` : '每天固定时间，提醒自己开始听写' }}
+            {{ reminder.enabled
+              ? `每天 ${reminder.reminderTime} · ${reminder.mode === 'long_term' ? '长期提醒' : `剩余 ${reminder.remainingCredits ?? 0} 次`}`
+              : '每天固定时间，提醒自己开始听写' }}
           </text>
         </view>
         <view class="reminderStripAction">
@@ -270,10 +272,15 @@
         <text class="reminderModeNote">
           {{ reminder.mode === 'long_term'
             ? '开启后每天推送；可随时回来修改时间或关闭。'
-            : '微信当前提供单次订阅：本次提醒发送后，需要再次授权下一次提醒。' }}
+            : reminder.enabled
+              ? `当前剩余 ${reminder.remainingCredits ?? 0} 次通知；每次完成听写后会自动续期 1 天。`
+              : '微信当前提供单次订阅：每授权一次，可预约一次学习提醒。' }}
         </text>
+        <view v-if="reminder.mode === 'one_time'" class="reminderPermissionHint">
+          <text>开启时请在微信授权弹窗中选择“允许”，并勾选“总是保持以上选择”，以后完成听写即可自动续期。</text>
+        </view>
         <button class="primaryModalButton reminderPrimaryButton" :loading="reminderSaving" @tap="enableOrSaveReminder">
-          {{ reminder.enabled ? '保存提醒时间' : '授权并开启提醒' }}
+          {{ reminder.enabled && reminder.mode === 'one_time' ? '续期提醒（再授权 1 天）' : reminder.enabled ? '保存提醒时间' : '授权并开启提醒' }}
         </button>
         <button v-if="reminder.enabled" class="reminderDisableButton" :disabled="reminderSaving" @tap="disableReminder">
           关闭提醒
@@ -293,6 +300,8 @@ import { formatScorePosterDate, pickScorePosterQuote } from '@/core/scorePosterC
 import {
   DEFAULT_LEARNING_REMINDER,
   fetchLearningReminder,
+  renewLearningReminder,
+  requestLearningReminderSubscription,
   saveLearningReminder,
   type LearningReminderSettings
 } from '@/core/learningReminder'
@@ -857,29 +866,16 @@ function onReminderTimeChange(event: Event) {
   if (value) reminderDraftTime.value = value
 }
 
-function requestReminderSubscription(templateId: string): Promise<boolean> {
-  // #ifdef MP-WEIXIN
-  const runtime = uni as typeof uni & {
-    requestSubscribeMessage?: (options: {
-      tmplIds: string[]
-      success: (result: Record<string, string>) => void
-      fail: (error: unknown) => void
-    }) => void
-  }
-  if (typeof runtime.requestSubscribeMessage === 'function') {
-    return new Promise((resolve, reject) => {
-      runtime.requestSubscribeMessage!({
-        tmplIds: [templateId],
-        success: (result) => {
-          const statuses = result as unknown as Record<string, string>
-          resolve(statuses[templateId] === 'accept')
-        },
-        fail: reject
-      })
+function confirmReminderAutoRenew(): Promise<boolean> {
+  return new Promise((resolve) => {
+    uni.showModal({
+      title: '开启学习提醒',
+      content: '请在接下来的微信授权弹窗中选择“允许”，并勾选“总是保持以上选择”。以后每次完成听写时，系统才能自动为提醒续期 1 天。',
+      confirmText: '继续开启',
+      success: (result) => resolve(Boolean(result.confirm)),
+      fail: () => resolve(false)
     })
-  }
-  // #endif
-  return Promise.resolve(false)
+  })
 }
 
 async function enableOrSaveReminder() {
@@ -895,21 +891,27 @@ async function enableOrSaveReminder() {
 
   reminderSaving.value = true
   try {
-    if (!reminder.value.enabled) {
-      const accepted = await requestReminderSubscription(reminder.value.templateId)
+    if (!reminder.value.enabled && reminder.value.mode === 'one_time') {
+      const confirmed = await confirmReminderAutoRenew()
+      if (!confirmed) return
+    }
+
+    if (reminder.value.mode === 'one_time' || !reminder.value.enabled) {
+      const accepted = await requestLearningReminderSubscription(reminder.value.templateId)
       if (!accepted) {
         uni.showToast({ title: '未获得微信通知授权', icon: 'none' })
         return
       }
+      const wasEnabled = reminder.value.enabled
+      reminder.value = await renewLearningReminder(reminderDraftTime.value)
+      uni.showToast({ title: wasEnabled ? '提醒已续期 1 天' : '学习提醒已开启', icon: 'success' })
+    } else {
+      reminder.value = await saveLearningReminder({
+        enabled: true,
+        reminderTime: reminderDraftTime.value
+      })
+      uni.showToast({ title: '提醒时间已保存', icon: 'success' })
     }
-    reminder.value = await saveLearningReminder({
-      enabled: true,
-      reminderTime: reminderDraftTime.value
-    })
-    uni.showToast({
-      title: reminder.value.mode === 'long_term' ? '每日提醒已开启' : '本次提醒已预约',
-      icon: 'success'
-    })
     showReminderModal.value = false
   } catch (error) {
     console.warn('[ProfileScreen] reminder save failed', error)
@@ -2014,6 +2016,17 @@ onShow(() => {
 
 .reminderModeNote {
   margin-top: 12px;
+}
+
+.reminderPermissionHint {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.55;
 }
 
 .reminderPrimaryButton {
