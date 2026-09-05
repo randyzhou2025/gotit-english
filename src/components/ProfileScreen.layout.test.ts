@@ -39,9 +39,26 @@ describe('profile screen layout', () => {
     expect(source).toContain('微信分享')
     expect(source).toContain('pickScorePosterQuote')
     expect(source).toContain('formatScorePosterDate(new Date())')
+    expect(source).toContain('canvas-id="scoreShareCanvas"')
+    expect(source).toContain("uni.setStorageSync('gotit:profile:scoreShareImage', sharePath)")
+    expect(source).toContain('scoreShareExportWidth = 750')
+    expect(source).toContain('scoreShareExportHeight = 600')
+    expect(source).toContain(':disabled="scorePosterGenerating || !scorePosterPath"')
     expect(source).not.toContain('发给同学')
     expect(source).not.toContain('今天也认真')
     expect(source).not.toContain('零准备 · 纸笔听写')
+  })
+
+  it('checks privacy and album permission before saving the score poster', () => {
+    expect(source).toContain('requireScorePosterPrivacyAuthorization')
+    expect(source).toContain('uni.requirePrivacyAuthorize')
+    expect(source).toContain('getAlbumPermissionState')
+    expect(source).toContain('uni.getSetting')
+    expect(source).toContain("scope: 'scope.writePhotosAlbum'")
+    expect(source).toContain('showAlbumPermissionSettings')
+    expect(source).toContain("console.warn('[ProfileScreen] score poster save failed', error)")
+    expect(source).toContain("message.includes('not declared')")
+    expect(source).toContain('code === 1101005')
   })
 
   it('requires subscription authorization before enabling a timed reminder', () => {

@@ -196,8 +196,8 @@
           </view>
         </view>
 
-        <view v-if="leaderboard.myEntry && leaderboard.pointsToEnterTopTen" class="overtakeCard">
-          <text>距离上榜还差 {{ leaderboard.pointsToEnterTopTen }} 学习力</text>
+        <view v-if="leaderboard.pointsToEnterTopTen !== null" class="overtakeCard">
+          <text>我的本周学习力 {{ leaderboard.myLearningPower }} · 距离上榜还差 {{ leaderboard.pointsToEnterTopTen }} 学习力</text>
         </view>
 
         <view v-else-if="leaderboard.myRank && leaderboard.pointsToOvertakePrevious" class="overtakeCard">

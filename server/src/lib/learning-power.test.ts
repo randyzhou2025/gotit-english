@@ -98,5 +98,6 @@ test("classmate pairs are normalized and overtake copy uses score plus one", () 
 test("top-ten gap allows a newly reached tie to enter ahead of an older score", () => {
   assert.equal(pointsToEnterTopTen(215, 203), 12);
   assert.equal(pointsToEnterTopTen(203, 203), 1);
+  assert.equal(pointsToEnterTopTen(54, 0), 54);
   assert.equal(pointsToEnterTopTen(null, 203), null);
 });

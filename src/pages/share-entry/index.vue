@@ -22,7 +22,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { openUnitDictationChallenge, openUnitWordMatchChallenge } from '@/app/usePracticeSession'
+import {
+  openSharedUnitHome,
+  openUnitDictationChallenge,
+  openUnitWordMatchChallenge
+} from '@/app/usePracticeSession'
 import { readUnitChallengeId, type UnitChallengeQuery } from '@/app/unitChallenge'
 import { acceptClassmateShare } from '@/core/classmates'
 import { trackAnalyticsEvent } from '@/core/analytics'
@@ -47,10 +51,17 @@ onLoad(async (query: UnitChallengeQuery = {}) => {
         selfShare: context.isSelfShare
       })
     }
+    const isClassmateInvite = context.shareType === 'CLASSMATE_INVITE'
     const opened = isWordMatchChallenge
       ? await openUnitWordMatchChallenge(context.unitId)
-      : await openUnitDictationChallenge(context.unitId)
+      : isClassmateInvite
+        ? await openSharedUnitHome(context.unitId)
+        : await openUnitDictationChallenge(context.unitId)
     if (!opened) throw new Error('unit-unavailable')
+    if (isClassmateInvite) {
+      uni.switchTab({ url: '/pages/index/index' })
+      return
+    }
     uni.redirectTo({ url: isWordMatchChallenge ? '/pages/word-match/index' : '/pages/dictation/setup' })
   } catch (error) {
     console.warn('[share-entry] accept failed', error)

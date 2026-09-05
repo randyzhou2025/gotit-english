@@ -2024,13 +2024,13 @@ export async function confirmCourseSetupAndEnter(): Promise<boolean> {
   return true
 }
 
-async function prepareUnitChallenge(unitId: string): Promise<boolean> {
+async function loadSharedUnit(unitId: string): Promise<{ session: PracticeSession; unit: UnitGroup } | null> {
   const normalizedUnitId = unitId.trim()
   await ensureManifestReady()
 
   if (!normalizedUnitId || !isUnitIdInCatalog(getWordbankManifest(), normalizedUnitId)) {
     uni.showToast({ title: '这个单元暂时无法打开', icon: 'none' })
-    return false
+    return null
   }
 
   const publisherId = publisherIdFromUnitId(normalizedUnitId)
@@ -2047,7 +2047,7 @@ async function prepareUnitChallenge(unitId: string): Promise<boolean> {
     if (showsLoading) uni.hideLoading()
     console.warn('[usePracticeSession] challenge wordbank download failed', publisherId, error)
     uni.showToast({ title: '挑战加载失败，请检查网络', icon: 'none' })
-    return false
+    return null
   }
 
   const unit = findUnit(groupUnits(words), normalizedUnitId)
@@ -2055,12 +2055,19 @@ async function prepareUnitChallenge(unitId: string): Promise<boolean> {
 
   if (!unit) {
     uni.showToast({ title: '这个单元暂时无法打开', icon: 'none' })
-    return false
+    return null
   }
 
   const session = practiceSession ?? await ensurePracticeSessionReady()
   session.adoptWords(words)
-  session.setTemporaryUnit(unit)
+  return { session, unit }
+}
+
+async function prepareUnitChallenge(unitId: string): Promise<boolean> {
+  const loaded = await loadSharedUnit(unitId)
+  if (!loaded) return false
+
+  loaded.session.setTemporaryUnit(loaded.unit)
   return true
 }
 
@@ -2070,6 +2077,19 @@ export async function openUnitDictationChallenge(unitId: string): Promise<boolea
 
   const session = practiceSession ?? await ensurePracticeSessionReady()
   session.openDictationSetup({ scrollToTop: false })
+  return true
+}
+
+export async function openSharedUnitHome(unitId: string): Promise<boolean> {
+  const loaded = await loadSharedUnit(unitId)
+  if (!loaded) return false
+
+  const { session, unit } = loaded
+  session.setSelectedUnit(unit)
+  saveCourseSetupCompleted()
+  markProgressUpdatedAt(new Date().toISOString())
+  session.courseSetupCompleted.value = true
+  session.screen.value = 'home'
   return true
 }
 

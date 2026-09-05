@@ -3,6 +3,7 @@ import { runInNewContext } from 'node:vm'
 import { describe, expect, it } from 'vitest'
 
 const source = fs.readFileSync(new URL('./index.vue', import.meta.url), 'utf8')
+const shareEntrySource = fs.readFileSync(new URL('../share-entry/index.vue', import.meta.url), 'utf8')
 const tabNavSource = fs.readFileSync(new URL('../../components/TabBottomNav.vue', import.meta.url), 'utf8')
 const pages = JSON.parse(fs.readFileSync(new URL('../../pages.json', import.meta.url), 'utf8')) as {
   tabBar: { list: Array<{ pagePath: string; text: string; iconPath: string }> }
@@ -32,7 +33,9 @@ describe('classmates page MVP', () => {
     expect(source).toContain("showShareHint('classmates_empty')")
     expect(source).toContain("showShareHint('leaderboard')")
     expect(source).toContain('再获得 {{ leaderboard.pointsToOvertakePrevious }} 学习力，就能超过上一名')
-    expect(source).toContain('距离上榜还差 {{ leaderboard.pointsToEnterTopTen }} 学习力')
+    expect(source).toContain('v-if="leaderboard.pointsToEnterTopTen !== null"')
+    expect(source).toContain('我的本周学习力 {{ leaderboard.myLearningPower }} · 距离上榜还差 {{ leaderboard.pointsToEnterTopTen }} 学习力')
+    expect(source).not.toContain('leaderboard.myEntry && leaderboard.pointsToEnterTopTen')
     expect(source).toContain('class="podiumMedal"')
   })
 
@@ -45,6 +48,12 @@ describe('classmates page MVP', () => {
     expect(source).toContain('<view v-if="feedItems.length > 0" class="inviteCard">')
     expect(source).toContain('<view v-else class="classmatesState isEmpty">')
     expect(source).toContain('邀请第一位同学')
+  })
+
+  it('opens a classmate invite on the shared Unit home instead of dictation setup', () => {
+    expect(shareEntrySource).toContain("context.shareType === 'CLASSMATE_INVITE'")
+    expect(shareEntrySource).toContain('await openSharedUnitHome(context.unitId)')
+    expect(shareEntrySource).toMatch(/if \(isClassmateInvite\) \{\s*uni\.switchTab\(\{ url: '\/pages\/index\/index' \}\)/)
   })
 
   it('keeps the first version focused on learning actions', () => {

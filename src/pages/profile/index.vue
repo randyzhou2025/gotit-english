@@ -6,18 +6,24 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, ref } from 'vue'
+import { onBeforeMount, onMounted, ref } from 'vue'
+import { onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app'
 import { ensurePracticeSessionReady, isPracticeSessionReady } from '@/app/usePracticeSession'
 import { useVisualTheme } from '@/app/useVisualTheme'
-import { useWeappShare } from '@/app/useWeappShare'
+import {
+  buildWeappShareAppMessage,
+  buildWeappShareTimeline,
+  showWeappShareMenu,
+  type WeappShareOptions
+} from '@/app/useWeappShare'
 import { getCachedDashboard } from '@/core/studyStats'
 import ProfileScreen from '@/components/ProfileScreen.vue'
 
-useWeappShare(() => {
+function currentScoreShare(): WeappShareOptions {
   const dashboard = getCachedDashboard()
   let imageUrl = ''
   try {
-    imageUrl = String(uni.getStorageSync('gotit:profile:scorePoster') || '')
+    imageUrl = String(uni.getStorageSync('gotit:profile:scoreShareImage') || '')
   } catch {
     // 分享图片仍未生成时使用小程序默认分享图。
   }
@@ -26,7 +32,11 @@ useWeappShare(() => {
     path: '/pages/index/index',
     imageUrl
   }
-})
+}
+
+onShareAppMessage(() => buildWeappShareAppMessage(currentScoreShare()))
+onShareTimeline(() => buildWeappShareTimeline(currentScoreShare()))
+onMounted(showWeappShareMenu)
 
 const ready = ref(isPracticeSessionReady())
 const { activeVisualThemeStyle } = useVisualTheme()
@@ -58,10 +68,3 @@ onBeforeMount(async () => {
   font-weight: 700;
 }
 </style>
-
-<script lang="ts">
-export default {
-  onShareAppMessage() {},
-  onShareTimeline() {}
-}
-</script>

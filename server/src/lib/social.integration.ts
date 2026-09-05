@@ -58,7 +58,8 @@ async function main() {
   const rankingUserIds = await Promise.all(
     Array.from({ length: 11 }, (_, index) => createTestUser(`${suffix}-rank-${index}`))
   );
-  const userIds = [...coreUserIds, ...rankingUserIds];
+  const unrankedUser = await createTestUser(`${suffix}-unranked`);
+  const userIds = [...coreUserIds, ...rankingUserIds, unrankedUser];
   const [duplicateUser, wordCapUser, validCapUser, reviewCapUser, streakUser, exportUser, exportRouteUser] = coreUserIds as [string, string, string, string, string, string, string];
   const context = shanghaiWeekContext();
 
@@ -339,6 +340,11 @@ async function main() {
     assert.equal(leaderboard.myRank, 11);
     assert.equal(leaderboard.myEntry?.userId, rankingUserIds[10]!);
     assert.equal(leaderboard.pointsToEnterTopTen, 1);
+
+    const unrankedLeaderboard = await getLeaderboard(unrankedUser);
+    assert.equal(unrankedLeaderboard.myRank, null);
+    assert.equal(unrankedLeaderboard.myLearningPower, 0);
+    assert.equal(unrankedLeaderboard.pointsToEnterTopTen, 100);
 
     console.log("social integration: scoring, wordlist exports, daily caps, social permissions, and top-ten leaderboard ordering passed");
   } finally {

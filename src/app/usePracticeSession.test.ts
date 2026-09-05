@@ -3,6 +3,7 @@ import {
   confirmCourseSetupAndEnter,
   createPracticeSession,
   ensurePracticeSessionReady,
+  openSharedUnitHome,
   openUnitDictationChallenge,
   openUnitWordMatchChallenge,
   resetPracticeSessionForTests,
@@ -519,6 +520,21 @@ describe('confirmCourseSetupAndEnter', () => {
     session.backFromDictationSetup()
     expect(session.screen.value).toBe('courseSetup')
     expect(storage.get('gotit:selectedUnitId')).not.toBe(targetUnitId)
+  })
+
+  it('sets a classmate invite unit as current and opens its home for a new user', async () => {
+    const session = await ensurePracticeSessionReady()
+    expect(session.units.value.length).toBe(0)
+
+    const targetUnitId = 'rj:required-1:u1'
+    expect(await openSharedUnitHome(targetUnitId)).toBe(true)
+
+    expect(session.courseSetupCompleted.value).toBe(true)
+    expect(session.selectedUnit.value?.unitId).toBe(targetUnitId)
+    expect(session.unitWords.value.length).toBeGreaterThan(0)
+    expect(session.screen.value).toBe('home')
+    expect(storage.get('gotit:courseSetupCompleted')).toBe(true)
+    expect(storage.get('gotit:selectedUnitId')).toBe(targetUnitId)
   })
 
   it('prepares a shared unit for word match without entering dictation', async () => {

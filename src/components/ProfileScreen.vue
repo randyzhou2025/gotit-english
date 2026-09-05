@@ -228,6 +228,13 @@
       :width="scorePosterWidth"
       :height="scorePosterHeight"
     />
+    <canvas
+      id="scoreShareCanvas"
+      canvas-id="scoreShareCanvas"
+      class="scoreShareCanvas"
+      :width="scoreShareWidth"
+      :height="scoreShareHeight"
+    />
 
     <view v-if="showScoreModal" class="modalMask" @tap="closeScoreShare">
       <view class="scorePanel" @tap.stop>
@@ -241,7 +248,7 @@
         </view>
         <view class="scoreActions">
           <button class="secondaryModalButton" @tap="saveScorePoster">保存图片</button>
-          <button class="primaryModalButton" open-type="share">微信分享</button>
+          <button class="primaryModalButton" open-type="share" :disabled="scorePosterGenerating || !scorePosterPath">微信分享</button>
         </view>
         <text class="modalFootnote">海报数据来自当前学习记录</text>
       </view>
@@ -344,6 +351,10 @@ const scorePosterWidth = 375
 const scorePosterHeight = 530
 const scorePosterExportWidth = 750
 const scorePosterExportHeight = 1060
+const scoreShareWidth = 375
+const scoreShareHeight = 300
+const scoreShareExportWidth = 750
+const scoreShareExportHeight = 600
 const apiEnabled = isApiEnabled()
 const customerServiceEnabled = false
 
@@ -704,6 +715,27 @@ function drawPosterRoundedRect(
   context.closePath()
 }
 
+function exportScoreCanvas(
+  canvasId: string,
+  width: number,
+  height: number,
+  destWidth: number,
+  destHeight: number
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    uni.canvasToTempFilePath({
+      canvasId,
+      width,
+      height,
+      destWidth,
+      destHeight,
+      fileType: 'png',
+      success: (result) => resolve(result.tempFilePath),
+      fail: reject
+    }, instance?.proxy)
+  })
+}
+
 async function generateScorePoster() {
   if (scorePosterGenerating.value) return
   scorePosterGenerating.value = true
@@ -783,20 +815,60 @@ async function generateScorePoster() {
     context.fillText('A RECORD OF TODAY’S LEARNING', 64, 1034)
 
     await new Promise<void>((resolve) => context.draw(false, resolve))
-    const path = await new Promise<string>((resolve, reject) => {
-      uni.canvasToTempFilePath({
-        canvasId: 'scorePosterCanvas',
-        width: scorePosterWidth,
-        height: scorePosterHeight,
-        destWidth: scorePosterExportWidth,
-        destHeight: scorePosterExportHeight,
-        fileType: 'png',
-        success: (result) => resolve(result.tempFilePath),
-        fail: reject
-      }, instance?.proxy)
-    })
+    const path = await exportScoreCanvas(
+      'scorePosterCanvas',
+      scorePosterWidth,
+      scorePosterHeight,
+      scorePosterExportWidth,
+      scorePosterExportHeight
+    )
+
+    const shareContext = uni.createCanvasContext('scoreShareCanvas', instance?.proxy)
+    shareContext.scale(0.5, 0.5)
+    shareContext.setFillStyle('#e8f3ed')
+    shareContext.fillRect(0, 0, scoreShareExportWidth, scoreShareExportHeight)
+    shareContext.setFillStyle('#d3e7dc')
+    shareContext.beginPath()
+    shareContext.arc(665, 72, 165, 0, Math.PI * 2)
+    shareContext.fill()
+    shareContext.setFillStyle('#174c3b')
+    shareContext.setFontSize(25)
+    shareContext.fillText('DAILY LEARNING NOTE', 54, 64)
+    shareContext.setFontSize(40)
+    shareContext.fillText(`“${selectedQuote.quote.lines[0]}`, 54, 138)
+    shareContext.fillText(`${selectedQuote.quote.lines[1]}”`, 54, 192)
+    shareContext.setFillStyle('#4f7468')
+    shareContext.setFontSize(21)
+    shareContext.fillText(`— ${selectedQuote.quote.author}`, 56, 232)
+
+    shareContext.setFillStyle('#ffffff')
+    drawPosterRoundedRect(shareContext, 46, 274, 658, 270, 30)
+    shareContext.fill()
+    shareContext.setFillStyle('#174c3b')
+    shareContext.setFontSize(28)
+    shareContext.fillText(nickname, 78, 332)
+    shareContext.setFillStyle('#7a8d86')
+    shareContext.setFontSize(19)
+    shareContext.fillText(formatScorePosterDate(new Date()), 78, 369)
+    shareContext.setFillStyle('#174c3b')
+    shareContext.setFontSize(50)
+    shareContext.fillText(String(todayWords), 78, 458)
+    shareContext.fillText(String(streakDays), 398, 458)
+    shareContext.setFillStyle('#7a8d86')
+    shareContext.setFontSize(20)
+    shareContext.fillText('今日学习 / 词', 78, 496)
+    shareContext.fillText('连续学习 / 天', 398, 496)
+
+    await new Promise<void>((resolve) => shareContext.draw(false, resolve))
+    const sharePath = await exportScoreCanvas(
+      'scoreShareCanvas',
+      scoreShareWidth,
+      scoreShareHeight,
+      scoreShareExportWidth,
+      scoreShareExportHeight
+    )
     scorePosterPath.value = path
-    uni.setStorageSync('gotit:profile:scorePoster', path)
+    uni.setStorageSync('gotit:profile:scoreShareImage', sharePath)
   } catch (error) {
     console.warn('[ProfileScreen] score poster generation failed', error)
     uni.showToast({ title: '海报生成失败，请重试', icon: 'none' })
@@ -814,12 +886,76 @@ function closeScoreShare() {
   showScoreModal.value = false
 }
 
+type AlbumSaveError = {
+  errCode?: number
+  errno?: number
+  errMsg?: string
+}
+
+async function requireScorePosterPrivacyAuthorization() {
+  // #ifdef MP-WEIXIN
+  if (typeof uni.requirePrivacyAuthorize !== 'function') return
+  await new Promise<void>((resolve, reject) => {
+    uni.requirePrivacyAuthorize({
+      success: () => resolve(),
+      fail: reject
+    })
+  })
+  // #endif
+}
+
+async function getAlbumPermissionState(): Promise<boolean | undefined> {
+  return new Promise((resolve) => {
+    uni.getSetting({
+      success: (result) => resolve(result.authSetting['scope.writePhotosAlbum']),
+      fail: () => resolve(undefined)
+    })
+  })
+}
+
+async function requestAlbumPermission() {
+  await new Promise<void>((resolve, reject) => {
+    uni.authorize({
+      scope: 'scope.writePhotosAlbum',
+      success: () => resolve(),
+      fail: reject
+    })
+  })
+}
+
+function showAlbumPermissionSettings() {
+  uni.showModal({
+    title: '需要相册权限',
+    content: '请在小程序设置中允许保存到相册。若仍失败，请在手机系统设置中允许微信访问照片。',
+    confirmText: '去设置',
+    success: (result) => {
+      if (!result.confirm) return
+      uni.openSetting({
+        success: (setting) => {
+          if (setting.authSetting?.['scope.writePhotosAlbum'] === true) {
+            void saveScorePoster()
+          }
+        }
+      })
+    }
+  })
+}
+
 async function saveScorePoster() {
   if (!scorePosterPath.value) {
     await generateScorePoster()
   }
   if (!scorePosterPath.value) return
   try {
+    await requireScorePosterPrivacyAuthorization()
+    const albumPermission = await getAlbumPermissionState()
+    if (albumPermission === false) {
+      showAlbumPermissionSettings()
+      return
+    }
+    if (albumPermission !== true) {
+      await requestAlbumPermission()
+    }
     await new Promise<void>((resolve, reject) => {
       uni.saveImageToPhotosAlbum({
         filePath: scorePosterPath.value,
@@ -829,16 +965,28 @@ async function saveScorePoster() {
     })
     uni.showToast({ title: '已保存到相册', icon: 'success' })
   } catch (error) {
-    const message = String((error as { errMsg?: string }).errMsg ?? '')
-    if (message.includes('auth deny') || message.includes('authorize')) {
+    console.warn('[ProfileScreen] score poster save failed', error)
+    const detail = error as AlbumSaveError
+    const code = detail?.errCode ?? detail?.errno
+    const message = String(detail?.errMsg ?? '').toLowerCase()
+    if (message.includes('not declared') || message.includes('privacy agreement') || message.includes('privacy config')) {
       uni.showModal({
-        title: '需要相册权限',
-        content: '请在设置中允许保存图片到相册。',
-        confirmText: '去设置',
-        success: (result) => {
-          if (result.confirm) uni.openSetting({})
-        }
+        title: '暂时无法保存',
+        content: '当前版本尚未完成相册保存的隐私配置，请先使用微信分享。',
+        showCancel: false
       })
+      return
+    }
+    if (message.includes('privacy') && message.includes('not authorized')) {
+      uni.showToast({ title: '请先同意隐私保护指引', icon: 'none' })
+      return
+    }
+    if (code === 1101005
+      || message.includes('auth deny')
+      || message.includes('authorize')
+      || message.includes('permission denied')
+      || message.includes('writephotosalbum')) {
+      showAlbumPermissionSettings()
       return
     }
     uni.showToast({ title: '保存失败，请重试', icon: 'none' })
@@ -1794,13 +1942,22 @@ onShow(() => {
   font-weight: 900;
 }
 
-.scorePosterCanvas {
+.scorePosterCanvas,
+.scoreShareCanvas {
   position: fixed;
   top: 0;
   left: -1200px;
+  pointer-events: none;
+}
+
+.scorePosterCanvas {
   width: 375px;
   height: 530px;
-  pointer-events: none;
+}
+
+.scoreShareCanvas {
+  width: 375px;
+  height: 300px;
 }
 
 .modalMask {

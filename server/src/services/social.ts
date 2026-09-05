@@ -1137,6 +1137,12 @@ export async function getLeaderboard(userId: string) {
   const me = myIndex >= 0 ? serialized[myIndex]! : null;
   const previous = myIndex > 0 ? serialized[myIndex - 1]! : null;
   const tenth = serialized[9] ?? null;
+  const outsideTopTen = !me || me.rank > limit;
+  const pointsToEnter = outsideTopTen && serialized.length > 0
+    ? serialized.length < limit
+      ? 1
+      : pointsToEnterTopTen(tenth?.learningPower ?? null, me?.learningPower ?? 0)
+    : null;
 
   return {
     weekKey: context.weekKey,
@@ -1147,9 +1153,7 @@ export async function getLeaderboard(userId: string) {
     myLearningPower: me?.learningPower ?? 0,
     myRank: me?.rank ?? null,
     pointsToOvertakePrevious: pointsToOvertake(previous?.learningPower ?? null, me?.learningPower ?? 0),
-    pointsToEnterTopTen: me && me.rank > 10
-      ? pointsToEnterTopTen(tenth?.learningPower ?? null, me.learningPower)
-      : null,
+    pointsToEnterTopTen: pointsToEnter,
     ranking: serialized.slice(0, limit),
     myEntry: me && me.rank > limit ? me : null,
   };
