@@ -47,6 +47,12 @@ describe('profile screen layout', () => {
     expect(source).not.toContain('发给同学')
     expect(source).not.toContain('今天也认真')
     expect(source).not.toContain('零准备 · 纸笔听写')
+    expect(source).not.toContain('DAILY LEARNING NOTE')
+    expect(source).not.toContain('KEEP GOING.')
+    expect(source).not.toContain('A RECORD OF TODAY’S LEARNING')
+    expect(source).not.toContain('— ${selectedQuote.quote.author}')
+    expect(source).not.toContain("context.fillText('课本单词通', 64, 82)")
+    expect(source).not.toContain("shareContext.fillText('课本单词通', 54, 64)")
   })
 
   it('checks privacy and album permission before saving the score poster', () => {
