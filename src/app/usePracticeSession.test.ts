@@ -385,6 +385,40 @@ describe('practice session dictation navigation', () => {
     expect(session.unitWords.value.length).toBeGreaterThan(0)
   })
 
+  it('keeps the selected publisher when the target junior grade supports it', async () => {
+    const session = await openSession()
+    session.openCourseSetup()
+    session.setCourseSetupStage('初中')
+    session.setCourseSetupGrade('七年级')
+    session.setCourseSetupPublisher('kp')
+
+    session.setCourseSetupGrade('八年级')
+
+    expect(session.courseSetupPublisherId.value).toBe('kp')
+    expect(session.courseSetupPublisherOptions.value.some(option => option.id === 'kp')).toBe(true)
+    expect(session.courseSetupBookOptions.value.length).toBeGreaterThan(0)
+    expect(session.courseSetupUnitOptions.value.length).toBeGreaterThan(0)
+    expect(session.courseSetupCanConfirm.value).toBe(true)
+  })
+
+  it('falls back to an available publisher when the target junior grade does not support it', async () => {
+    const session = await openSession()
+    session.openCourseSetup()
+    session.setCourseSetupStage('初中')
+    session.setCourseSetupGrade('七年级')
+    session.setCourseSetupPublisher('kp')
+
+    session.setCourseSetupGrade('六年级')
+
+    expect(session.courseSetupPublisherId.value).not.toBe('kp')
+    expect(session.courseSetupPublisherOptions.value.some(option => (
+      option.id === session.courseSetupPublisherId.value
+    ))).toBe(true)
+    expect(session.courseSetupBookOptions.value.length).toBeGreaterThan(0)
+    expect(session.courseSetupUnitOptions.value.length).toBeGreaterThan(0)
+    expect(session.courseSetupCanConfirm.value).toBe(true)
+  })
+
   it('keeps publisher selection visible after switching from junior to senior stage', async () => {
     const session = await openSession()
     session.openCourseSetup()

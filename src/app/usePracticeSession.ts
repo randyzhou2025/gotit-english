@@ -723,7 +723,7 @@ export function createPracticeSession(initialWords: WordEntry[]) {
     syncCourseSetupSelectionFromUnitId(unit.unitId)
   }
 
-  function setCourseDraftToFirstUnit(stage: CatalogSchoolStage) {
+  function setCourseDraftToFirstUnit(stage: CatalogSchoolStage, preferredPublisherId = '') {
     const grade = stage === '初中' ? courseSetupGrade.value : ''
     const publishers = buildCourseSetupPublisherOptions(getWordbankManifest(), stage, grade)
     if (publishers.length === 0) {
@@ -733,7 +733,9 @@ export function createPracticeSession(initialWords: WordEntry[]) {
       return
     }
 
-    courseSetupPublisherId.value = publishers[0]!.id
+    courseSetupPublisherId.value = publishers.some(publisher => publisher.id === preferredPublisherId)
+      ? preferredPublisherId
+      : publishers[0]!.id
     const books = buildCourseSetupBookOptions(
       getWordbankManifest(),
       stage,
@@ -800,8 +802,9 @@ export function createPracticeSession(initialWords: WordEntry[]) {
   }
 
   function setCourseSetupGrade(grade: string) {
+    const preferredPublisherId = courseSetupPublisherId.value
     courseSetupGrade.value = grade
-    setCourseDraftToFirstUnit('初中')
+    setCourseDraftToFirstUnit('初中', preferredPublisherId)
   }
 
   function setCourseSetupPublisher(publisherId: string) {

@@ -42,19 +42,17 @@
         <text class="navTitle">教材选择</text>
       </view>
 
-      <view class="courseIntro">
-        <text class="courseIntroTitle">选择你正在学的课本</text>
-        <text class="courseIntroText">选择会自动保存，下次从这里继续。</text>
-      </view>
-
       <view class="coursePanel">
-        <view class="courseSection">
-          <text class="courseSectionTitle">学段</text>
-          <view class="courseChipGrid two">
+        <view class="courseV2Section">
+          <view class="courseV2SectionHeader">
+            <text class="courseV2SectionTitle">学段</text>
+            <text class="courseV2SectionHint">先选择当前学段</text>
+          </view>
+          <view class="courseV2Segmented">
             <view
               v-for="stage in courseSetupStageOptions"
               :key="stage"
-              :class="['courseChip', courseSetupStage === stage && 'isActive']"
+              :class="['courseV2Segment', courseSetupStage === stage && 'isActive']"
               @tap="setCourseSetupStage(stage)"
             >
               <text>{{ stage }}</text>
@@ -62,88 +60,130 @@
           </view>
         </view>
 
-        <view v-if="courseSetupStage === '初中'" class="courseSection">
-          <text class="courseSectionTitle">年级</text>
-          <view class="courseChipGrid">
+        <view v-if="courseSetupStage === '初中'" class="courseV2Section">
+          <view class="courseV2SectionHeader">
+            <text class="courseV2SectionTitle">年级</text>
+          </view>
+          <view class="courseV2GradeRail">
             <view
               v-for="grade in courseSetupGradeOptions"
               :key="grade"
-              :class="['courseChip', courseSetupGrade === grade && 'isActive']"
+              :class="['courseV2GradeItem', courseSetupGrade === grade && 'isActive']"
               @tap="setCourseSetupGrade(grade)"
             >
-              <text>{{ grade }}</text>
+              <view class="courseV2GradeMark">
+                <text>{{ grade === '中考' ? '考' : grade.slice(0, 1) }}</text>
+              </view>
+              <text class="courseV2GradeLabel">{{ grade }}</text>
             </view>
           </view>
         </view>
 
-        <view v-if="courseSetupStage === '高中' || courseSetupGrade" class="courseSection">
-          <text class="courseSectionTitle">教材版本</text>
-          <view v-if="courseSetupPublisherOptions.length > 0" class="courseChipGrid" :key="courseSetupStage">
+        <view v-if="courseSetupStage === '高中' || courseSetupGrade" class="courseV2Section">
+          <view class="courseV2SectionHeader">
+            <text class="courseV2SectionTitle">教材版本</text>
+            <text class="courseV2SectionHint">选择课本上的出版社</text>
+          </view>
+          <view
+            v-if="courseSetupPublisherOptions.length > 0"
+            :class="['courseV2PublisherList', courseSetupPublisherOptions.length === 1 && 'isSingle']"
+            :key="courseSetupStage"
+          >
             <view
               v-for="publisher in courseSetupPublisherOptions"
               :key="`${courseSetupStage}-${publisher.id}`"
-              :class="['courseChip', courseSetupPublisherId === publisher.id && 'isActive']"
-              :style="courseSetupPublisherId === publisher.id ? courseChipActiveStyle : undefined"
+              :class="['courseV2Publisher', courseSetupPublisherId === publisher.id && 'isActive']"
               @tap="setCourseSetupPublisher(publisher.id)"
             >
-              <view class="courseChipPublisherLabel">
-                <text
-                  v-for="(line, lineIndex) in publisherChipLines(publisher.name)"
-                  :key="lineIndex"
-                  :class="lineIndex > 0 ? 'courseChipPublisherSuffix' : 'courseChipPublisherMain'"
-                >{{ line }}</text>
+              <view class="courseV2PublisherMark">
+                <text>{{ publisher.name.slice(0, 1) }}</text>
+              </view>
+              <text class="courseV2PublisherName">{{ publisher.name }}</text>
+              <view class="courseV2PublisherSelect">
+                <text v-if="courseSetupPublisherId === publisher.id">✓</text>
               </view>
             </view>
           </view>
-          <view v-else class="courseUnavailable">
+          <view v-else class="courseV2Unavailable">
             <text>当前词库暂未上线</text>
           </view>
         </view>
 
-        <view v-if="courseSetupPublisherOptions.length > 0" class="courseSection">
-          <text class="courseSectionTitle">册</text>
-          <view v-if="courseSetupBookOptions.length > 0" class="courseChipGrid two">
-            <view
-              v-for="book in courseSetupBookOptions"
-              :key="book.id"
-              :class="['courseChip', book.masteryPercent != null && 'hasMeta', courseSetupBookId === book.id && 'isActive']"
-              @tap="setCourseSetupBook(book.id)"
-            >
-              <text class="courseChipLabel">{{ formatCourseSetupBookName(book.name) }}</text>
-              <text v-if="book.masteryPercent != null" class="courseChipMeta">{{ Math.max(1, book.masteryPercent) }}% 掌握</text>
-            </view>
+        <view v-if="courseSetupPublisherOptions.length > 0" class="courseV2Section courseV2BookSection">
+          <view class="courseV2SectionHeader">
+            <text class="courseV2SectionTitle">选择课本</text>
+            <text class="courseV2SectionHint">左右滑动查看更多</text>
           </view>
-          <view v-else class="courseUnavailable">
+          <scroll-view v-if="courseSetupBookOptions.length > 0" class="courseV2BookScroller" scroll-x>
+            <view class="courseV2BookRow">
+              <view
+                v-for="book in courseSetupBookOptions"
+                :key="`${courseSetupPublisherId}-${book.id}`"
+                :class="['courseV2BookCard', courseSetupBookId === book.id && 'isActive']"
+                @tap="setCourseSetupBook(book.id)"
+              >
+                <view class="courseV2CoverFrame">
+                  <view class="courseV2CoverFallback">
+                    <text class="courseV2CoverPublisher">{{ courseSetupPublisherName }}</text>
+                    <text class="courseV2CoverBook">{{ formatCourseSetupBookName(book.name) }}</text>
+                  </view>
+                  <image
+                    v-if="!courseBookCoverFailed(book.id)"
+                    class="courseV2CoverImage"
+                    :src="courseBookCoverSource(book.id)"
+                    mode="aspectFit"
+                    @error="markCourseBookCoverFailed(book.id)"
+                  />
+                  <view v-if="courseSetupBookId === book.id" class="courseV2CoverCheck">
+                    <text>✓</text>
+                  </view>
+                </view>
+                <text class="courseV2BookName">{{ formatCourseSetupBookName(book.name) }}</text>
+                <text v-if="book.masteryPercent != null" class="courseV2BookMastery">{{ Math.max(1, book.masteryPercent) }}% 掌握</text>
+                <text v-else class="courseV2BookStatus">未开始</text>
+              </view>
+            </view>
+          </scroll-view>
+          <view v-else class="courseV2Unavailable">
             <text>先选择已上线的教材版本</text>
           </view>
         </view>
 
-        <view v-if="courseSetupBookOptions.length > 0" class="courseSection">
-          <text class="courseSectionTitle">Unit</text>
-          <view v-if="courseSetupUnitOptions.length > 0" class="courseUnitGrid">
+        <view v-if="courseSetupBookOptions.length > 0" class="courseV2Section">
+          <view class="courseV2SectionHeader">
+            <text class="courseV2SectionTitle">Unit</text>
+            <text class="courseV2SectionHint">从当前单元继续</text>
+          </view>
+          <view v-if="courseSetupUnitOptions.length > 0" class="courseV2UnitGrid">
             <view
               v-for="unit in courseSetupUnitOptions"
               :key="unit.id"
-              :class="['courseUnitChip', courseSetupUnitId === unit.id && 'isActive']"
+              :class="['courseV2UnitCard', courseSetupUnitId === unit.id && 'isActive']"
               @tap="setCourseSetupUnit(unit.id)"
             >
-              <text class="courseUnitName">{{ unit.name }}</text>
-              <text class="courseUnitCount">
-                {{ unit.count }} 词<text v-if="unit.masteryPercent != null" class="courseUnitMastery"> · {{ Math.max(1, unit.masteryPercent) }}% 掌握</text>
-              </text>
+              <view class="courseV2UnitTop">
+                <text class="courseV2UnitName">{{ unit.name }}</text>
+                <view v-if="courseSetupUnitId === unit.id" class="courseV2UnitCheck"><text>✓</text></view>
+              </view>
+              <view class="courseV2UnitMeta">
+                <text class="courseV2UnitCount">{{ unit.count }} 词</text>
+                <text v-if="unit.masteryPercent != null" class="courseV2UnitMastery">{{ Math.max(1, unit.masteryPercent) }}% 掌握</text>
+              </view>
             </view>
           </view>
-          <view v-else class="courseUnavailable">
+          <view v-else class="courseV2Unavailable">
             <text>该册暂无 Unit 词库</text>
           </view>
         </view>
       </view>
 
-      <text v-if="courseSetupCanConfirm" class="courseSelectionNote">
-        已选择：{{ courseSetupSelectionLabel }}
-      </text>
-      <view :class="['courseConfirmButton', !courseSetupCanConfirm && 'isDisabled']" @tap="confirmCourseSetupPage">
-        <text>{{ courseSetupCanConfirm ? '进入学习' : '暂未上线' }}</text>
+      <view class="courseV2Footer">
+        <text v-if="courseSetupCanConfirm" class="courseSelectionNote">
+          已选择：{{ courseSetupSelectionLabel }}
+        </text>
+        <view :class="['courseConfirmButton', !courseSetupCanConfirm && 'isDisabled']" @tap="confirmCourseSetupPage">
+          <text>{{ courseSetupConfirmLabel }}</text>
+        </view>
       </view>
     </view>
 
@@ -1729,24 +1769,6 @@ const {
   wordDetailProgressLabel,
 } = usePracticeSession()
 
-const courseChipActiveStyle = {
-  borderWidth: '2px',
-  borderStyle: 'solid',
-  borderColor: '#84d8ff',
-  borderBottomWidth: '4px',
-  borderBottomStyle: 'solid',
-  borderBottomColor: '#1cb0f6',
-  backgroundColor: '#e8f6ff',
-  color: '#1cb0f6',
-  fontWeight: '900'
-} as const
-
-function publisherChipLines(name: string): string[] {
-  const parenIndex = name.indexOf('(')
-  if (parenIndex <= 0) return [name]
-  return [name.slice(0, parenIndex), name.slice(parenIndex)]
-}
-
 const wordDetailPlayingAccent = ref<Accent | null>(null)
 type UnitWordFilter = 'all' | 'learning' | 'review' | 'mastered'
 
@@ -1755,6 +1777,7 @@ const unitWordAlphabetical = ref(false)
 const unitWordMeaningVisible = ref(false)
 const homeRecommendedWordId = ref('')
 const homeBookCoverFailed = ref(false)
+const courseBookCoverFailedKeys = ref<string[]>([])
 const coverManifestRevision = ref(getTextbookCoverRevision())
 let unsubscribeCoverManifest: (() => void) | null = null
 const unitWordFilterOptions: Array<{ value: UnitWordFilter; label: string }> = [
@@ -2209,6 +2232,35 @@ const courseSetupSelectionLabel = computed(() => {
   return [book, publisher, unit].filter(Boolean).join(' · ')
 })
 
+const courseSetupPublisherName = computed(() => (
+  courseSetupPublisherOptions.value.find(item => item.id === courseSetupPublisherId.value)?.name ?? '英语教材'
+))
+
+const courseSetupConfirmLabel = computed(() => {
+  if (!courseSetupCanConfirm.value) return '暂未上线'
+  const unit = courseSetupUnitOptions.value.find(item => item.id === courseSetupUnitId.value)?.name
+  return unit ? `进入 ${unit}` : '进入学习'
+})
+
+function courseBookCoverKey(bookId: string): string {
+  return `${courseSetupPublisherId.value}:${bookId}`
+}
+
+function courseBookCoverFailed(bookId: string): boolean {
+  return courseBookCoverFailedKeys.value.includes(courseBookCoverKey(bookId))
+}
+
+function courseBookCoverSource(bookId: string): string {
+  void coverManifestRevision.value
+  return buildTextbookCoverUrl(courseSetupPublisherId.value, bookId)
+}
+
+function markCourseBookCoverFailed(bookId: string) {
+  const key = courseBookCoverKey(bookId)
+  if (courseBookCoverFailedKeys.value.includes(key)) return
+  courseBookCoverFailedKeys.value = [...courseBookCoverFailedKeys.value, key]
+}
+
 function chooseRandomHomeRecommendedWord(avoidCurrent: boolean) {
   const words = homeRecommendationPool.value
   if (words.length === 0) {
@@ -2239,6 +2291,18 @@ watch(
   ([publisherId, bookId]) => {
     if (!publisherId || !bookId) return
     void ensureTextbookCoverVersion(publisherId, bookId)
+  },
+  { immediate: true },
+)
+
+watch(
+  () => `${courseSetupPublisherId.value}|${courseSetupBookOptions.value.map(book => book.id).join('|')}`,
+  () => {
+    const publisherId = courseSetupPublisherId.value
+    if (!publisherId) return
+    for (const book of courseSetupBookOptions.value) {
+      void ensureTextbookCoverVersion(publisherId, book.id)
+    }
   },
   { immediate: true },
 )
@@ -15014,6 +15078,601 @@ onBeforeUnmount(() => {
     background: var(--page-bg);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
+  }
+}
+
+/* Course selector V2: light card UI with real textbook covers. */
+.screen.isCourseSetupScreen {
+  --page-bg: #eff9f4;
+  --surface: #ffffff;
+  --line: #dcebe4;
+  --ink: #123c31;
+  --ink-soft: #315b50;
+  --muted: #78978d;
+  --accent: #16815f;
+  --accent-strong: #0e6b4e;
+  --accent-soft: #e1f5eb;
+}
+
+.screen.isCourseSetupScreen > .courseSetupScreen {
+  gap: 14px;
+  padding-bottom: calc(126px + env(safe-area-inset-bottom));
+}
+
+.screen.isCourseSetupScreen .dictationNav {
+  margin-bottom: 0;
+}
+
+.screen.isCourseSetupScreen .navTitle {
+  color: #123c31;
+  font-size: 18px;
+  font-weight: 850;
+}
+
+.courseV2SectionTitle,
+.courseV2SectionHint,
+.courseV2PublisherName,
+.courseV2CoverPublisher,
+.courseV2CoverBook,
+.courseV2BookName,
+.courseV2BookMastery,
+.courseV2BookStatus,
+.courseV2UnitName,
+.courseV2UnitCount,
+.courseV2UnitMastery {
+  display: block;
+}
+
+.screen.isCourseSetupScreen .coursePanel {
+  display: block;
+  margin: 0 -2px;
+  padding: 2px 2px 12px;
+}
+
+.courseV2Section {
+  margin-bottom: 12px;
+  padding: 16px;
+  border: 1px solid rgba(218, 234, 226, 0.92);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 7px 18px rgba(39, 91, 70, 0.055);
+  box-sizing: border-box;
+}
+
+.courseV2SectionHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.courseV2SectionTitle {
+  flex: 0 0 auto;
+  color: #123c31;
+  font-size: 16px;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.courseV2SectionHint {
+  overflow: hidden;
+  color: #8ba49b;
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 1.2;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.courseV2Segmented {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+  padding: 4px;
+  border: 1px solid #e2eee8;
+  border-radius: 14px;
+  background: #f4f8f6;
+}
+
+.courseV2Segment,
+.courseV2GradeItem,
+.courseV2Publisher,
+.courseV2BookCard,
+.courseV2UnitCard {
+  transition: transform 0.14s ease, border-color 0.14s ease, background-color 0.14s ease;
+}
+
+.courseV2Segment:active,
+.courseV2GradeItem:active,
+.courseV2Publisher:active,
+.courseV2BookCard:active,
+.courseV2UnitCard:active {
+  transform: scale(0.98);
+}
+
+.courseV2Segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  border-radius: 10px;
+  color: #759087;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.courseV2Segment.isActive {
+  background: #16815f;
+  color: #fff;
+  box-shadow: 0 4px 11px rgba(22, 129, 95, 0.18);
+}
+
+.courseV2GradeRail {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 2px 0;
+}
+
+.courseV2GradeRail::before {
+  position: absolute;
+  top: 22px;
+  right: 27px;
+  left: 27px;
+  height: 1px;
+  background: #dfeae5;
+  content: '';
+}
+
+.courseV2GradeItem {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 48px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 7px;
+  color: #789188;
+  font-size: 10px;
+  font-weight: 750;
+  text-align: center;
+}
+
+.courseV2GradeMark {
+  display: flex;
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #dbe8e2;
+  border-radius: 50%;
+  background: #fff;
+  color: #315b50;
+  font-size: 15px;
+  font-weight: 850;
+  box-shadow: 0 3px 9px rgba(39, 91, 70, 0.05);
+  box-sizing: border-box;
+}
+
+.courseV2GradeItem.isActive {
+  color: #0f6f51;
+}
+
+.courseV2GradeItem.isActive .courseV2GradeMark {
+  border-color: #16815f;
+  background: #16815f;
+  color: #fff;
+  box-shadow: 0 5px 12px rgba(22, 129, 95, 0.2);
+}
+
+.courseV2GradeLabel {
+  line-height: 1.15;
+}
+
+.courseV2PublisherList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.courseV2PublisherList.isSingle {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.courseV2Publisher {
+  display: flex;
+  min-width: 0;
+  min-height: 58px;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 8px;
+  border: 1px solid #dde9e3;
+  border-radius: 14px;
+  background: #fbfdfc;
+  color: #315b50;
+  box-sizing: border-box;
+}
+
+.courseV2Publisher.isActive {
+  border-color: rgba(22, 129, 95, 0.55);
+  background: #edf8f3;
+  color: #0f6f51;
+}
+
+.courseV2PublisherMark {
+  display: flex;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #edf4f1;
+  color: #56746a;
+  font-size: 13px;
+  font-weight: 900;
+  box-sizing: border-box;
+}
+
+.courseV2Publisher.isActive .courseV2PublisherMark {
+  background: #16815f;
+  color: #fff;
+}
+
+.courseV2PublisherName {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.courseV2PublisherSelect {
+  display: flex;
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d5e4dd;
+  border-radius: 50%;
+  background: #fff;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+  box-sizing: border-box;
+}
+
+.courseV2Publisher.isActive .courseV2PublisherSelect {
+  border-color: #16815f;
+  background: #16815f;
+}
+
+.courseV2BookSection {
+  padding-right: 0;
+}
+
+.courseV2BookSection .courseV2SectionHeader {
+  padding-right: 16px;
+}
+
+.courseV2BookScroller {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.courseV2BookRow {
+  display: inline-flex;
+  gap: 10px;
+  padding: 1px 16px 4px 0;
+  vertical-align: top;
+}
+
+.courseV2BookCard {
+  display: inline-flex;
+  flex: 0 0 108px;
+  width: 108px;
+  min-width: 108px;
+  flex-direction: column;
+  padding: 8px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: #f8fbf9;
+  vertical-align: top;
+  box-sizing: border-box;
+}
+
+.courseV2BookCard.isActive {
+  border-color: #16815f;
+  background: #e9f8f0;
+  box-shadow: 0 7px 16px rgba(22, 129, 95, 0.12);
+}
+
+.courseV2CoverFrame {
+  position: relative;
+  width: 90px;
+  height: 118px;
+  overflow: hidden;
+  border: 1px solid #dce7e2;
+  border-radius: 8px;
+  background: #eef5f1;
+  box-shadow: 0 5px 12px rgba(46, 83, 68, 0.12);
+  box-sizing: border-box;
+}
+
+.courseV2CoverFallback,
+.courseV2CoverImage {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.courseV2CoverFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 7px;
+  background: linear-gradient(145deg, #dff2e8, #f7fbf9);
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.courseV2CoverPublisher {
+  color: #176b50;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.25;
+  white-space: normal;
+}
+
+.courseV2CoverBook {
+  color: #5f7d72;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.3;
+  white-space: normal;
+}
+
+.courseV2CoverImage {
+  z-index: 1;
+  background: #fff;
+}
+
+.courseV2CoverCheck {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 23px;
+  height: 23px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #16815f;
+  color: #fff;
+  box-shadow: 0 3px 8px rgba(16, 91, 67, 0.22);
+  font-size: 13px;
+  font-weight: 900;
+  box-sizing: border-box;
+}
+
+.courseV2BookName {
+  width: 100%;
+  margin-top: 8px;
+  overflow: hidden;
+  color: #244b40;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.courseV2BookMastery,
+.courseV2BookStatus {
+  margin-top: 4px;
+  font-size: 9px;
+  font-weight: 750;
+  line-height: 1;
+  text-align: center;
+}
+
+.courseV2BookMastery {
+  color: #3a9f33;
+}
+
+.courseV2BookStatus {
+  color: #9aada6;
+}
+
+.courseV2UnitGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.courseV2UnitCard {
+  min-width: 0;
+  min-height: 72px;
+  padding: 12px;
+  border: 1px solid #dde9e3;
+  border-radius: 14px;
+  background: #fbfdfc;
+  box-sizing: border-box;
+}
+
+.courseV2UnitCard.isActive {
+  border-color: #16815f;
+  background: #e8f7ef;
+  box-shadow: 0 6px 14px rgba(22, 129, 95, 0.1);
+}
+
+.courseV2UnitTop,
+.courseV2UnitMeta {
+  display: flex;
+  align-items: center;
+}
+
+.courseV2UnitTop {
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.courseV2UnitName {
+  min-width: 0;
+  overflow: hidden;
+  color: #193f34;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.courseV2UnitCheck {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #16815f;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.courseV2UnitMeta {
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.courseV2UnitCount,
+.courseV2UnitMastery {
+  font-size: 10px;
+  font-weight: 750;
+  line-height: 1;
+}
+
+.courseV2UnitCount {
+  color: #159fd4;
+}
+
+.courseV2UnitMastery {
+  color: #3a9f33;
+}
+
+.courseV2Unavailable {
+  display: flex;
+  align-items: center;
+  min-height: 46px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #f4f8f6;
+  color: #8aa097;
+  font-size: 12px;
+  font-weight: 650;
+  box-sizing: border-box;
+}
+
+.courseV2Footer {
+  position: fixed;
+  right: auto;
+  bottom: 0;
+  left: 50%;
+  z-index: 30;
+  width: calc(100% - 36px);
+  max-width: 394px;
+  padding: 14px 6px calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(239, 249, 244, 0), #eff9f4 24%);
+  transform: translateX(-50%);
+  box-sizing: border-box;
+}
+
+.courseV2Footer .courseSelectionNote {
+  width: 100%;
+  padding: 0 8px 8px;
+  overflow: hidden;
+  color: #78978d;
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.courseV2Footer .courseConfirmButton {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  width: 100%;
+  max-width: none;
+  min-height: 54px;
+  border-radius: 16px;
+  background: #16815f;
+  color: #fff;
+  box-shadow: 0 9px 20px rgba(22, 129, 95, 0.2);
+  transform: none;
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.courseV2Footer .courseConfirmButton:active {
+  background: #0e6b4e;
+  transform: translateY(1px);
+}
+
+.courseV2Footer .courseConfirmButton.isDisabled {
+  background: #dfe9e4;
+  color: #91a69d;
+  box-shadow: none;
+}
+
+@media (max-width: 360px) {
+  .courseV2Section {
+    padding: 14px;
+  }
+
+  .courseV2BookSection {
+    padding-right: 0;
+  }
+
+  .courseV2BookSection .courseV2SectionHeader {
+    padding-right: 14px;
+  }
+
+  .courseV2GradeItem {
+    width: 44px;
+  }
+
+  .courseV2GradeMark {
+    width: 38px;
+    height: 38px;
+  }
+
+  .courseV2GradeRail::before {
+    top: 20px;
+    right: 25px;
+    left: 25px;
   }
 }
 </style>
