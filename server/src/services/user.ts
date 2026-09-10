@@ -1,6 +1,6 @@
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { db } from "../db/index.js";
-import { userProgress, userWeakWordHistory, users } from "../db/schema.js";
+import { userProgress, userWeakWordHistory, userWordMastery, users } from "../db/schema.js";
 import { generateNickname, shouldGenerateDefaultNickname } from "../lib/nickname.js";
 import {
   emptyProgress,
@@ -97,9 +97,15 @@ export async function getProgress(userId: string): Promise<ProgressSnapshot> {
   return serializeProgress(row);
 }
 
-export async function saveProgress(userId: string, snapshot: ProgressSnapshot) {
+export async function saveProgress(
+  userId: string,
+  snapshot: ProgressSnapshot,
+  masteryEvents: Array<{ wordId: string; masteredAt: string }> = []
+) {
   const now = new Date();
   const row = await db.transaction(async (tx) => {
+    // 同一用户的多端同步串行合并，避免重试或并发把旧词重新算成首次掌握。
+    await tx.select({ id: users.id }).from(users).where(eq(users.id, userId)).for("update");
     const [existingRow] = await tx
       .select()
       .from(userProgress)
@@ -109,6 +115,41 @@ export async function saveProgress(userId: string, snapshot: ProgressSnapshot) {
       ? mergeProgressForSave(serializeProgress(existingRow), snapshot)
       : snapshot;
     const updatedAt = savedSnapshot.updatedAt ? new Date(savedSnapshot.updatedAt) : now;
+
+    const existingMastered = new Set(existingRow?.masteredWordIds ?? []);
+    const eventWordIds = new Set(masteryEvents.map(event => event.wordId));
+    const knownEventWords = [...existingMastered].filter(wordId => eventWordIds.has(wordId));
+    if (knownEventWords.length > 0) {
+      await tx.insert(userWordMastery)
+        .values(knownEventWords.map(wordId => ({ userId, wordId, firstMasteredAt: null })))
+        .onConflictDoNothing();
+    }
+    const events = new Map<string, Date>();
+    for (const event of masteryEvents) {
+      const time = new Date(Math.min(Date.parse(event.masteredAt), now.getTime()));
+      const previous = events.get(event.wordId);
+      if (!previous || time < previous) events.set(event.wordId, time);
+    }
+    if (events.size > 0) {
+      await tx.insert(userWordMastery)
+        .values([...events].map(([wordId, firstMasteredAt]) => ({ userId, wordId, firstMasteredAt })))
+        .onConflictDoUpdate({
+          target: [userWordMastery.userId, userWordMastery.wordId],
+          set: {
+            // 存量 NULL 始终保持未知；离线事件乱序抵达时保留最早的真实动作时间。
+            firstMasteredAt: sql`case when ${userWordMastery.firstMasteredAt} is null then null
+              else least(${userWordMastery.firstMasteredAt}, excluded.first_mastered_at) end`,
+          },
+        });
+    }
+    const importedWords = [...new Set(savedSnapshot.masteredWordIds)]
+      .filter(wordId => !existingMastered.has(wordId) && !eventWordIds.has(wordId));
+    if (importedWords.length > 0) {
+      // 旧客户端或导入的全量进度没有动作时间，只入存量，不计周榜。
+      await tx.insert(userWordMastery)
+        .values(importedWords.map(wordId => ({ userId, wordId, firstMasteredAt: null })))
+        .onConflictDoNothing();
+    }
 
     const [saved] = await tx
       .insert(userProgress)

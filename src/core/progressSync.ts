@@ -1,4 +1,5 @@
 import { readLocalProgressSnapshot } from '@/core/progressMerge'
+import { acknowledgeMasteryEvents, readPendingMasteryEvents, type MasteryEvent } from '@/core/masteryEvents'
 import {
   clearAuthSession,
   ensureUserSession,
@@ -26,7 +27,7 @@ class ProgressUploadHttpError extends Error {
   }
 }
 
-async function requestProgressUpload(snapshot: ProgressSnapshot) {
+async function requestProgressUpload(snapshot: ProgressSnapshot, masteryEvents: MasteryEvent[]) {
   const baseUrl = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '')
   if (!baseUrl) return null
 
@@ -37,21 +38,22 @@ async function requestProgressUpload(snapshot: ProgressSnapshot) {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${getAuthToken()}`
     },
-    data: snapshot
+    data: { ...snapshot, masteryEvents }
   })
 }
 
 async function putProgress(snapshot: ProgressSnapshot): Promise<void> {
   if (!isApiEnabled() || !getAuthToken()) return
 
-  let response = await requestProgressUpload(snapshot)
+  const masteryEvents = readPendingMasteryEvents()
+  let response = await requestProgressUpload(snapshot, masteryEvents)
   if (!response) return
 
   if (response.statusCode === 401) {
     clearAuthSession()
     const refreshedSession = await ensureUserSession()
     if (refreshedSession?.token) {
-      response = await requestProgressUpload(snapshot)
+      response = await requestProgressUpload(snapshot, masteryEvents)
       if (!response) return
     }
   }
@@ -59,6 +61,9 @@ async function putProgress(snapshot: ProgressSnapshot): Promise<void> {
   const statusCode = response.statusCode ?? 0
   if (statusCode < 200 || statusCode >= 300) {
     throw new ProgressUploadHttpError(statusCode)
+  }
+  if ((response.data as { masteryEventsSaved?: boolean })?.masteryEventsSaved) {
+    acknowledgeMasteryEvents(masteryEvents)
   }
 }
 
@@ -167,6 +172,7 @@ export function scheduleProgressUpload(snapshot: ProgressSnapshot, debounceMs = 
 }
 
 export function flushProgressUpload(): Promise<void> {
+  if (readPendingMasteryEvents().length > 0) uploadDirty = true
   uploadRetryAttempt = 0
   if (uploadTimer) {
     clearTimeout(uploadTimer)

@@ -6,6 +6,7 @@ import {
 } from '@/core/progressMerge'
 import { flushProgressUpload, markProgressDirty, pullRemoteProgress, scheduleProgressUpload } from '@/core/progressSync'
 import { queueStudyWordIds, setCachedDashboard } from '@/core/studyStats'
+import { recordMasteryEvents } from '@/core/masteryEvents'
 import { trackAnalyticsEvent } from '@/core/analytics'
 import { ensureUserSession, markProgressUpdatedAt, type ProgressSnapshot } from '@/core/userSession'
 import { getDictationAudioUrl, getDictationPromptLabel, hasPlayableDictationAudio } from '@/core/audio'
@@ -1041,6 +1042,7 @@ export function createPracticeSession(initialWords: WordEntry[]) {
   function recordMasteredWords(wordIds: string[]) {
     if (wordIds.length === 0) return
 
+    recordMasteryEvents(wordIds.filter(id => !masteredWordIdSet.value.has(id)))
     const nextIds = Array.from(new Set([...masteredWordIds.value, ...wordIds]))
     masteredWordIds.value = nextIds
     saveWordIds(MASTERED_WORD_IDS_KEY, nextIds, wordIds)

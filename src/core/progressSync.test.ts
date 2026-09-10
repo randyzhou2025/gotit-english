@@ -61,6 +61,22 @@ describe('progress upload safety', () => {
     expect(request).toHaveBeenCalledTimes(2)
   })
 
+  it('retains mastery event times through failure and clears only an explicit server acknowledgement', async () => {
+    const { recordMasteryEvents, readPendingMasteryEvents } = await import('./masteryEvents')
+    const { flushProgressUpload, markProgressDirty } = await import('./progressSync')
+    recordMasteryEvents(['hello'], new Date('2026-09-06T15:59:59Z'))
+    request.mockResolvedValueOnce({ statusCode: 500 }).mockResolvedValueOnce({ statusCode: 200, data: {} })
+      .mockResolvedValueOnce({ statusCode: 200, data: { masteryEventsSaved: true } })
+    markProgressDirty()
+    await flushProgressUpload()
+    expect(readPendingMasteryEvents()).toHaveLength(1)
+    await flushProgressUpload()
+    expect(readPendingMasteryEvents()).toHaveLength(1)
+    await flushProgressUpload()
+    expect(readPendingMasteryEvents()).toHaveLength(0)
+    expect(request.mock.calls[2]?.[0]?.data.masteryEvents[0].masteredAt).toBe('2026-09-06T15:59:59.000Z')
+  })
+
   it('waits before retrying a failed upload instead of spinning immediately', async () => {
     vi.useFakeTimers()
     request

@@ -20,6 +20,10 @@ const progressSchema = z.object({
   selectedUnitId: z.string().default(""),
   courseSetupCompleted: z.boolean().default(false),
   updatedAt: z.string().optional(),
+  masteryEvents: z.array(z.object({
+    wordId: z.string().min(1).max(500),
+    masteredAt: z.string().datetime({ offset: true }),
+  })).default([]),
 });
 
 const reminderSchema = z.object({
@@ -85,9 +89,9 @@ export async function registerUserRoutes(app: FastifyInstance, authenticate: pre
       selectedUnitId: parsed.data.selectedUnitId,
       courseSetupCompleted: parsed.data.courseSetupCompleted,
       updatedAt: parsed.data.updatedAt || new Date().toISOString(),
-    });
+    }, parsed.data.masteryEvents);
 
-    return { progress };
+    return { progress, masteryEventsSaved: true };
   });
 
   app.get("/api/user/reminder", { preHandler: [authenticate] }, async (request: FastifyRequest) => {

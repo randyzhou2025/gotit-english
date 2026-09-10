@@ -1,5 +1,6 @@
 import type { FastifyInstance, FastifyRequest, preHandlerHookHandler } from "fastify";
 import { z } from "zod";
+import { getMetricLeaderboard } from "../services/leaderboard.js";
 import {
   acceptShare,
   createShare,
@@ -145,6 +146,15 @@ export async function registerSocialRoutes(
 
   app.get("/api/classmates/leaderboard", { preHandler: [authenticate] }, async (request: FastifyRequest) => {
     const jwtUser = request.user as { sub: string };
+    const query = z.object({
+      metric: z.enum(["time", "words", "power"]).optional(),
+      period: z.enum(["week", "total"]).optional(),
+    }).safeParse(request.query);
+    if (!query.success) throw app.httpErrors.badRequest("Invalid leaderboard query");
+    if (query.data.metric || query.data.period) {
+      return getMetricLeaderboard(jwtUser.sub, query.data.metric ?? "power", query.data.period ?? "week");
+    }
+    // 保留无参数响应，兼容尚未更新的小程序版本。
     return getLeaderboard(jwtUser.sub);
   });
 

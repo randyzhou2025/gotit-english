@@ -1,6 +1,6 @@
 <template>
   <page-meta page-style="overflow: visible;" />
-  <view class="classmatesScreen hasBottomNav" :style="activeVisualThemeStyle" @tap="closeLearningPowerHelp">
+  <view class="classmatesScreen hasBottomNav" :class="{ isLeaderboard: activeTab === 'leaderboard' }" :style="classmatesScreenStyle">
     <view class="classmatesChrome" :style="classmatesChromeStyle">
       <view class="classmatesNav"><text class="classmatesTitle">同学</text></view>
       <view class="classmatesTabs">
@@ -8,19 +8,19 @@
           <text>同学动态</text>
         </view>
         <view :class="['classmatesTab', activeTab === 'leaderboard' && 'isActive']" @tap="setActiveTab('leaderboard')">
-          <text>全国排行榜</text>
+          <text>排行榜</text>
         </view>
       </view>
     </view>
 
     <view class="classmatesContent">
-      <view v-if="loading" class="classmatesLoading">
+      <view v-if="loading && activeTab === 'feed'" class="classmatesLoading">
         <view class="skeletonLine isTitle" />
         <view class="skeletonCard" />
         <view class="skeletonCard isShort" />
       </view>
 
-      <view v-else-if="loadError" class="classmatesState">
+      <view v-else-if="loadError && activeTab === 'feed'" class="classmatesState">
         <text class="classmatesStateTitle">暂时没有加载出来</text>
         <text class="classmatesStateCopy">检查网络后再试一次</text>
         <view class="stateAction" @tap="loadPageData"><text>重新加载</text></view>
@@ -101,33 +101,31 @@
       </template>
 
       <template v-else>
-        <view class="leaderboardHeader">
-          <view>
-            <text class="leaderboardTitle">本周 Top 10</text>
-            <view class="learningPowerHelpAnchor" @tap.stop>
-              <text class="leaderboardMeta">按本周学习力排名 · 仅展示前10名</text>
-              <view
-                v-if="learningPowerHelpEnabled"
-                class="learningPowerHelpButton"
-                role="button"
-                :aria-label="showLearningPowerHelp ? '关闭学习力计算规则' : '查看学习力计算规则'"
-                @tap.stop="toggleLearningPowerHelp"
-              >
-                <text>?</text>
-              </view>
-              <view v-if="learningPowerHelpEnabled && showLearningPowerHelp" class="learningPowerHelpPopover" role="note" @tap.stop>
-                <text class="learningPowerHelpTitle">学习力计算</text>
-                <text class="learningPowerHelpRule">本周首次听写该词：每词 +1，每日最多 20</text>
-                <text class="learningPowerHelpRule">完成有效听写：每次 +5，每日最多 20</text>
-                <text class="learningPowerHelpRule">当天首次有效听写：额外 +10</text>
-                <text class="learningPowerHelpRule">连续打开：从第 2 天起，每天 +5</text>
-                <text class="learningPowerHelpRule">错词听写或标记认识：每词 +1，每日最多 20</text>
-                <text class="learningPowerHelpRule">成功导出词表：每次 +2，每日最多 20</text>
-              </view>
-            </view>
+        <view class="leaderboardHeader"><text class="leaderboardTitle">让坚持被看见</text></view>
+        <view class="leaderboardMetrics" role="tablist" aria-label="榜单类型">
+          <view v-for="metric in LEADERBOARD_METRICS" :key="metric.id"
+            :class="['leaderboardMetric', selectedMetric === metric.id && 'isActive']"
+            role="tab" :aria-selected="selectedMetric === metric.id" @tap="selectMetric(metric.id)">
+            <text>{{ metric.label }}</text>
           </view>
         </view>
-
+        <view class="leaderboardPeriodRow">
+          <view class="leaderboardPeriods" role="tablist" aria-label="统计周期">
+            <view :class="['leaderboardPeriod', selectedPeriod === 'week' && 'isActive']" role="tab"
+              :aria-selected="selectedPeriod === 'week'" @tap="selectPeriod('week')"><text>周榜</text></view>
+            <view :class="['leaderboardPeriod', selectedPeriod === 'total' && 'isActive']" role="tab"
+              :aria-selected="selectedPeriod === 'total'" @tap="selectPeriod('total')"><text>总榜</text></view>
+          </view>
+          <text v-if="!rankingLoading && !rankingError" class="leaderboardDate">{{ rankingDate }}</text>
+        </view>
+        <view v-if="rankingLoading" class="classmatesLoading"><view class="skeletonCard" /><view class="skeletonCard isShort" /></view>
+        <view v-else-if="rankingError" class="classmatesState">
+          <text class="classmatesStateTitle">榜单暂时没有加载出来</text>
+          <text class="classmatesStateCopy">检查网络后再试一次</text>
+          <view class="stateAction" @tap="loadLeaderboard"><text>重新加载</text></view>
+        </view>
+        <template v-else>
+        <view class="rankingListHeader"><text>前 10 名</text><text>{{ rankingMeasure }}</text></view>
         <view v-if="topThree.length > 0" class="podium">
           <view
             v-for="entry in podiumEntries"
@@ -135,14 +133,6 @@
             :class="['podiumEntry', `rank${entry.rank}`, entry.isMe && 'isMe']"
           >
             <view class="podiumPortrait">
-              <view v-if="entry.rank === 1" class="championLaurel" aria-hidden="true">
-                <view class="laurelBranch isLeft">
-                  <view v-for="leaf in 7" :key="leaf" :class="['laurelLeaf', `leaf${leaf}`]" />
-                </view>
-                <view class="laurelBranch isRight">
-                  <view v-for="leaf in 7" :key="leaf" :class="['laurelLeaf', `leaf${leaf}`]" />
-                </view>
-              </view>
               <view class="podiumAvatar">
                 <image v-if="entry.avatarUrl" class="avatarImage" :src="entry.avatarUrl" mode="aspectFill" />
                 <text v-else>{{ avatarInitial(entry.nickname) }}</text>
@@ -159,13 +149,11 @@
               <text class="podiumName">{{ entry.nickname }}</text>
               <text v-if="entry.isMe" class="meTag">我</text>
             </view>
-            <text class="podiumPower">{{ entry.learningPower }}</text>
-            <text class="podiumUnit">学习力</text>
+            <view class="podiumScore"><text class="podiumPower">{{ formatLeaderboardValue(entry.value, selectedMetric) }}</text><text class="podiumUnit">{{ rankingUnit }}</text></view>
           </view>
         </view>
 
         <view v-if="regularRanking.length > 0" class="rankingList">
-          <view class="rankingListHeader"><text>排名</text><text>学习力</text></view>
           <view v-for="entry in regularRanking" :key="entry.userId" :class="['rankingRow', entry.isMe && 'isMe']">
             <text class="rankingIndex">{{ String(entry.rank).padStart(2, '0') }}</text>
             <view class="avatar isRanking">
@@ -176,37 +164,13 @@
               <text class="rankingName">{{ entry.nickname }}</text>
               <text v-if="entry.isMe" class="meTag">我</text>
             </view>
-            <text class="rankingPower">{{ entry.learningPower }}</text>
+            <view class="rankingScore"><text class="rankingPower">{{ formatLeaderboardValue(entry.value, selectedMetric) }}</text><text class="rankingUnit">{{ rankingUnit }}</text></view>
           </view>
-        </view>
-
-        <view v-if="leaderboard.myEntry" class="myRankSection">
-          <text class="sectionHeading">我的排名</text>
-          <view class="rankingRow isMe">
-            <text class="rankingIndex">{{ leaderboard.myEntry.rank }}</text>
-            <view class="avatar isRanking">
-              <image v-if="leaderboard.myEntry.avatarUrl" class="avatarImage" :src="leaderboard.myEntry.avatarUrl" mode="aspectFill" />
-              <text v-else>{{ avatarInitial(leaderboard.myEntry.nickname) }}</text>
-            </view>
-            <view class="rankingNameWrap">
-              <text class="rankingName">{{ leaderboard.myEntry.nickname }}</text>
-              <text class="meTag">我</text>
-            </view>
-            <text class="rankingPower">{{ leaderboard.myEntry.learningPower }}</text>
-          </view>
-        </view>
-
-        <view v-if="leaderboard.pointsToEnterTopTen !== null" class="overtakeCard">
-          <text>我的本周学习力 {{ leaderboard.myLearningPower }} · 距离上榜还差 {{ leaderboard.pointsToEnterTopTen }} 学习力</text>
-        </view>
-
-        <view v-else-if="leaderboard.myRank && leaderboard.pointsToOvertakePrevious" class="overtakeCard">
-          <text>再获得 {{ leaderboard.pointsToOvertakePrevious }} 学习力，就能超过上一名</text>
         </view>
 
         <view v-if="leaderboard.ranking.length === 0" class="classmatesState isEmpty leaderboardEmpty">
-          <text class="classmatesStateTitle">本周榜单正在等你</text>
-          <text class="classmatesStateCopy">完成一次听写，就会获得本周学习力</text>
+          <text class="classmatesStateTitle">榜单正在等你</text>
+          <text class="classmatesStateCopy">{{ rankingEmptyCopy }}</text>
         </view>
 
         <!-- #ifdef MP-WEIXIN -->
@@ -221,9 +185,21 @@
           <text>邀请同学一起学</text>
         </view>
         <!-- #endif -->
+        </template>
       </template>
     </view>
 
+    <view v-if="activeTab === 'leaderboard' && !rankingLoading && !rankingError" class="myRankDock">
+      <view class="myRankCard">
+        <view class="myRankTopline">
+          <text v-if="leaderboard.myRank !== null" class="myRankNumber"><text class="myRankHash">#</text>{{ leaderboard.myRank }}</text>
+          <text v-else class="myRankUnranked">暂未排名</text>
+          <text class="myRankLabel">我的排名</text>
+          <view class="rankingScore"><text class="rankingPower">{{ formatLeaderboardValue(leaderboard.myValue, selectedMetric) }}</text><text class="rankingUnit">{{ rankingUnit }}</text></view>
+        </view>
+        <text class="myRankHint">{{ rankingHint }}</text>
+      </view>
+    </view>
     <TabBottomNav active="classmates" :weakbook-count="savedWeakWords.length" />
   </view>
 </template>
@@ -246,16 +222,20 @@ import {
   type ClassmateSummary,
   type FeedItem,
   type LeaderboardEntry,
+  type LeaderboardMetric,
+  type LeaderboardPeriod,
   type LeaderboardSnapshot,
   type ShareDescriptor
 } from '@/core/classmates'
 import { trackAnalyticsEvent } from '@/core/analytics'
+import { LEADERBOARD_METRICS, formatLeaderboardValue, leaderboardMeasure, leaderboardRankHint, leaderboardUnit } from '@/core/leaderboard'
+import { flushProgressUpload } from '@/core/progressSync'
+import { flushStudyEvents } from '@/core/studyStats'
 import type { UnitGroup, WordEntry } from '@/core/types'
 
 const EMPTY_LEADERBOARD: LeaderboardSnapshot = {
-  weekKey: '', weekStart: '', weekEnd: '', displayLimit: 10, topSpecialCount: 3,
-  myLearningPower: 0, myRank: null, pointsToOvertakePrevious: null, pointsToEnterTopTen: null,
-  ranking: [], myEntry: null
+  metric: 'power', period: 'week', asOf: '', weekKey: '', weekStart: '', weekEnd: '', displayLimit: 10,
+  myValue: 0, myRank: null, gapToPrevious: null, ranking: [], myEntry: null
 }
 
 type ClassmatesTab = 'feed' | 'leaderboard'
@@ -282,13 +262,19 @@ const activeTab = ref<ClassmatesTab>(readStoredActiveTab())
 const loading = ref(true)
 const loadError = ref(false)
 const showManager = ref(false)
-const learningPowerHelpEnabled = false
-const showLearningPowerHelp = ref(false)
+const selectedMetric = ref<LeaderboardMetric>('power')
+const selectedPeriod = ref<LeaderboardPeriod>('week')
+const rankingLoading = ref(true)
+const rankingError = ref(false)
+let rankingRequest = 0
 const feedItems = ref<FeedItem[]>([])
 const classmates = ref<ClassmateSummary[]>([])
 const leaderboard = ref<LeaderboardSnapshot>({ ...EMPTY_LEADERBOARD })
 const preparedShare = ref<ShareDescriptor | null>(null)
 const { activeVisualThemeStyle } = useVisualTheme()
+const classmatesScreenStyle = computed(() => activeTab.value === 'leaderboard'
+  ? `${activeVisualThemeStyle.value}; --page-bg: #fbfcfa; --surface: #ffffff; --ink: #203d35; --accent: #286447; --accent-soft: #eaf1e7; --muted: #7b887f; --line: #e5eae3;`
+  : activeVisualThemeStyle.value)
 const miniProgramCapsuleTop = ref(44)
 const miniProgramCapsuleHeight = ref(32)
 const classmatesChromeStyle = computed(() => {
@@ -341,6 +327,52 @@ const podiumEntries = computed<LeaderboardEntry[]>(() => (
     .filter((entry): entry is LeaderboardEntry => entry !== undefined)
 ))
 const regularRanking = computed(() => leaderboard.value.ranking.slice(3))
+const rankingUnit = computed(() => leaderboardUnit(selectedMetric.value))
+const rankingMeasure = computed(() => leaderboardMeasure(selectedMetric.value, selectedPeriod.value))
+const rankingHint = computed(() => leaderboardRankHint(leaderboard.value))
+const rankingDate = computed(() => {
+  const snapshot = leaderboard.value
+  if (selectedPeriod.value === 'week') {
+    return snapshot.weekStart ? `${snapshot.weekStart.slice(5, 10).replace('-', '.')} — ${snapshot.weekEnd.slice(5, 10).replace('-', '.')}` : ''
+  }
+  if (!snapshot.asOf) return ''
+  const date = new Date(Date.parse(snapshot.asOf) + 8 * 3600_000).toISOString().slice(5, 10).replace('-', '.')
+  return `截至 ${date}`
+})
+const rankingEmptyCopy = computed(() => selectedMetric.value === 'words'
+  ? (selectedPeriod.value === 'week' ? '本周还没有新增掌握记录，学会新词就能积累成绩' : '掌握词汇后，你的积累会出现在这里')
+  : selectedMetric.value === 'time' ? '开始学习，积累你的学习时长' : '完成一次听写，积累你的学习力')
+
+async function loadLeaderboard() {
+  const request = ++rankingRequest
+  const metric = selectedMetric.value
+  const period = selectedPeriod.value
+  rankingLoading.value = true
+  rankingError.value = false
+  try {
+    await Promise.all([flushProgressUpload(), flushStudyEvents()])
+    const snapshot = await fetchLeaderboard(metric, period)
+    if (request === rankingRequest) leaderboard.value = snapshot
+  } catch (error) {
+    if (request === rankingRequest) rankingError.value = true
+    console.warn('[classmates] leaderboard load failed', error)
+  } finally {
+    if (request === rankingRequest) rankingLoading.value = false
+  }
+}
+
+function selectMetric(metric: LeaderboardMetric) {
+  if (metric === selectedMetric.value) return
+  selectedMetric.value = metric
+  void loadLeaderboard()
+}
+
+function selectPeriod(period: LeaderboardPeriod) {
+  if (period === selectedPeriod.value) return
+  selectedPeriod.value = period
+  void loadLeaderboard()
+}
+
 
 async function prepareInviteShare() {
   const unit = selectedUnit.value
@@ -361,16 +393,15 @@ async function prepareInviteShare() {
 }
 
 async function loadPageData() {
+  void loadLeaderboard()
   loading.value = true
   loadError.value = false
   try {
-    const [feed, ranking, classmateRows] = await Promise.all([
+    const [feed, classmateRows] = await Promise.all([
       fetchClassmateFeed(),
-      fetchLeaderboard(),
       fetchClassmates()
     ])
     feedItems.value = feed.items
-    leaderboard.value = ranking
     classmates.value = classmateRows
   } catch (error) {
     console.warn('[classmates] load failed', error)
@@ -381,18 +412,9 @@ async function loadPageData() {
 }
 
 function setActiveTab(tab: ClassmatesTab) {
-  showLearningPowerHelp.value = false
   activeTab.value = tab
   storeActiveTab(tab)
   if (tab === 'leaderboard') trackAnalyticsEvent('leaderboard_view', { source: 'classmates_page' })
-}
-
-function toggleLearningPowerHelp() {
-  showLearningPowerHelp.value = !showLearningPowerHelp.value
-}
-
-function closeLearningPowerHelp() {
-  showLearningPowerHelp.value = false
 }
 
 function avatarInitial(nickname: string): string {
@@ -517,7 +539,7 @@ onShow(() => {
 
 .classmatesContent { box-sizing: border-box; padding: 18px 18px 34px; }
 
-.inviteCard, .classmateManager, .feedList, .rankingList, .myRankSection, .overtakeCard, .classmatesState, .podium {
+.inviteCard, .classmateManager, .feedList, .classmatesState, .podium {
   border: 1px solid var(--line);
   border-radius: 18px;
   background: var(--surface);
@@ -570,64 +592,63 @@ onShow(() => {
 .emptyPerson.isLeft { left: 7px; }
 .emptyPerson.isRight { right: 7px; background: var(--surface); }
 
-.leaderboardHeader { padding: 6px 2px 20px; }
-.leaderboardTitle { display: block; font-size: 24px; line-height: 1.3; font-weight: 650; letter-spacing: -0.5px; }
-.learningPowerHelpAnchor { position: relative; display: inline-flex; align-items: center; margin-top: 6px; gap: 5px; }
-.leaderboardMeta { color: var(--ink-soft); font-size: 11px; line-height: 1.5; font-weight: 400; }
-.learningPowerHelpButton { display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; border: 1px solid var(--muted); border-radius: 50%; color: var(--muted); font-size: 11px; line-height: 1; font-weight: 900; }
-.learningPowerHelpPopover { position: absolute; top: 26px; left: 0; z-index: 6; box-sizing: border-box; display: flex; flex-direction: column; width: 292px; max-width: calc(100vw - 40px); padding: 13px 14px; border: 1px solid #bdd5c9; border-radius: 13px; background: #fffdf8; box-shadow: 0 12px 30px rgba(23, 52, 44, 0.16); }
-.learningPowerHelpTitle { margin-bottom: 7px; color: var(--ink); font-size: 13px; line-height: 1.3; font-weight: 900; }
-.learningPowerHelpRule { color: var(--ink-soft); font-size: 11px; line-height: 1.65; font-weight: 650; }
-.podium { box-sizing: border-box; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: end; min-height: 228px; padding: 22px 12px 20px; border-radius: 20px; box-shadow: none; background: radial-gradient(ellipse at 50% 20%, rgba(238, 214, 152, 0.14), transparent 62%), var(--surface); }
-.podiumEntry { --medal-edge: #b5c3c2; --medal-fill: linear-gradient(145deg, #fbfdfd 5%, #d8e1e0 46%, #a1b2b1 100%); --medal-ink: #4c6564; --medal-ribbon: #a4b9b4; display: flex; flex-direction: column; align-items: center; grid-row: 1; min-width: 0; }
-.podiumEntry.rank1 { --medal-edge: #d4ad55; --medal-fill: linear-gradient(145deg, #fff6cc 5%, #efd284 46%, #c49736 100%); --medal-ink: #785715; --medal-ribbon: #83a794; grid-column: 2; padding-bottom: 18px; }
+
+.classmatesScreen.isLeaderboard { padding-bottom: calc(174px + env(safe-area-inset-bottom)); }
+.leaderboardHeader { padding: 6px 5px 18px; }
+.leaderboardTitle { display: block; font-size: 26px; line-height: 1.3; font-weight: 650; letter-spacing: -0.8px; }
+.leaderboardMetrics { display: flex; gap: 25px; margin: 0 5px; border-bottom: 1px solid var(--line); }
+.leaderboardMetric { position: relative; padding: 5px 0 15px; color: var(--muted); font-size: 16px; line-height: 22px; white-space: nowrap; }
+.leaderboardMetric.isActive { color: var(--accent); font-weight: 650; }
+.leaderboardMetric.isActive::after { position: absolute; right: 0; bottom: -1px; left: 0; height: 2px; background: var(--accent); content: ''; }
+.leaderboardPeriodRow { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 17px 5px 13px; }
+.leaderboardPeriods { display: flex; gap: 2px; padding: 3px; border-radius: 9px; background: #edf0eb; }
+.leaderboardPeriod { padding: 6px 16px; border-radius: 7px; color: var(--muted); font-size: 12px; line-height: 18px; }
+.leaderboardPeriod.isActive { background: #fff; color: var(--accent); box-shadow: 0 1px 4px rgba(37, 61, 51, 0.06); font-weight: 600; }
+.leaderboardDate { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.rankingListHeader { display: flex; justify-content: space-between; margin: 0 5px 9px; color: var(--muted); font-size: 11px; line-height: 16px; }
+.podium { box-sizing: border-box; display: grid; grid-template-columns: 1fr 1.12fr 1fr; align-items: end; min-height: 195px; padding: 20px 9px 19px; border: 1px solid #eae8dc; border-radius: 16px; box-shadow: none; background: radial-gradient(ellipse at 50% 24%, rgba(250, 240, 206, 0.44), transparent 61%), linear-gradient(145deg, #fcfbf6, #f5f6ee); }
+.podiumEntry { --medal-edge: #a9b8b9; --medal-fill: linear-gradient(135deg, #fbfcfc 12%, #b8c5c7 48%, #fbfcfc 84%); --medal-ink: #647b7f; --medal-ribbon: #9eafb0; display: flex; flex-direction: column; align-items: center; grid-row: 1; min-width: 0; }
+.podiumEntry.rank1 { --medal-edge: #c3a25a; --medal-fill: linear-gradient(135deg, #faf3d9 12%, #d4b66c 48%, #faf3d9 84%); --medal-ink: #987536; --medal-ribbon: #c5ae78; grid-column: 2; }
 .podiumEntry.rank2 { grid-column: 1; }
-.podiumEntry.rank3 { --medal-edge: #c89d7c; --medal-fill: linear-gradient(145deg, #fce9d8 5%, #e6bd99 46%, #ba8159 100%); --medal-ink: #7b4b2c; --medal-ribbon: #c8a58b; grid-column: 3; }
-.podiumPortrait { position: relative; display: flex; justify-content: center; width: 100%; height: 82px; }
-.rank1 .podiumPortrait { height: 102px; }
-.podiumAvatar { position: relative; z-index: 1; box-sizing: border-box; width: 60px; height: 60px; padding: 3px; border: 1.5px solid var(--medal-edge); background: var(--accent-soft); color: var(--ink-soft); font-size: 23px; font-weight: 500; box-shadow: inset 0 0 0 3px var(--surface); }
-.podiumAvatar .avatarImage { border-radius: 50%; }
-.rank1 .podiumAvatar { width: 78px; height: 78px; border-width: 2px; }
-.podiumMedal { position: absolute; top: 47px; left: 50%; z-index: 2; width: 26px; height: 33px; transform: translateX(-50%); }
-.rank1 .podiumMedal { top: 64px; width: 29px; height: 36px; }
-.podiumMedalRibbons { position: absolute; right: 5px; bottom: 0; left: 5px; display: flex; justify-content: space-between; height: 15px; }
-.podiumMedalRibbon { width: 8px; height: 15px; border-radius: 0 0 1px 1px; background: var(--medal-ribbon); }
-.podiumMedalRibbon.isLeft { transform: rotate(16deg); }
-.podiumMedalRibbon.isRight { transform: rotate(-16deg); }
-.podiumMedalDisc { position: relative; display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 26px; height: 26px; border: 1px solid var(--medal-edge); border-radius: 50%; background: var(--medal-fill); color: var(--medal-ink); box-shadow: 0 2px 4px rgba(45, 60, 50, 0.12); font-size: 14px; line-height: 1; font-weight: 600; }
-.podiumMedalDisc::after { position: absolute; inset: 2px; border: 1px solid rgba(255, 255, 255, 0.65); border-radius: 50%; content: ''; }
-.rank1 .podiumMedalDisc { width: 29px; height: 29px; font-size: 16px; }
-.championLaurel { position: absolute; top: 23px; left: 50%; width: 116px; height: 72px; transform: translateX(-50%); pointer-events: none; }
-.laurelBranch { position: absolute; top: 0; left: 0; width: 27px; height: 68px; }
-.laurelBranch.isRight { right: 0; left: auto; transform: scaleX(-1); }
-.laurelBranch::after { position: absolute; top: 9px; left: 8px; width: 24px; height: 56px; border-bottom: 1px solid #dcc78d; border-left: 1px solid #dcc78d; border-radius: 0 0 0 100%; transform: rotate(-10deg); content: ''; }
-.laurelLeaf { position: absolute; z-index: 1; width: 7px; height: 12px; border-radius: 90% 0 90% 0; background: linear-gradient(145deg, #f2e4ba, #dbbb70); }
-.laurelLeaf.leaf1 { top: 0; left: 7px; transform: rotate(8deg); }
-.laurelLeaf.leaf2 { top: 12px; left: 1px; transform: rotate(-38deg); }
-.laurelLeaf.leaf3 { top: 25px; left: 2px; transform: rotate(-54deg); }
-.laurelLeaf.leaf4 { top: 37px; left: 6px; transform: rotate(-70deg); }
-.laurelLeaf.leaf5 { top: 47px; left: 13px; transform: rotate(-86deg); }
-.laurelLeaf.leaf6 { top: 22px; left: 12px; transform: rotate(18deg); }
-.laurelLeaf.leaf7 { top: 37px; left: 17px; transform: rotate(5deg); }
-.podiumNameRow { display: flex; align-items: center; justify-content: center; gap: 5px; width: 100%; min-width: 0; min-height: 20px; }
+.podiumEntry.rank3 { --medal-edge: #c39874; --medal-fill: linear-gradient(135deg, #fbebde 12%, #d8ad89 48%, #fbebde 84%); --medal-ink: #9c6f4e; --medal-ribbon: #c4997c; grid-column: 3; }
+.podiumPortrait { position: relative; display: flex; justify-content: center; width: 100%; height: 81px; }
+.rank1 .podiumPortrait { height: 98px; }
+.podiumAvatar { position: relative; box-sizing: border-box; width: 62px; height: 62px; padding: 4px; border: 1px solid var(--medal-edge); background: var(--medal-fill); color: #526c54; font-size: 22px; font-weight: 500; box-shadow: 0 0 0 4px rgba(255, 250, 243, 0.5); }
+.podiumAvatar > text, .podiumAvatar .avatarImage { display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 100%; height: 100%; border: 3px solid #fcfcf6; border-radius: 50%; background: #e0e8dc; }
+.rank1 .podiumAvatar { width: 78px; height: 78px; font-size: 27px; box-shadow: 0 0 0 5px rgba(239, 230, 196, 0.17), 0 0 0 6px rgba(217, 191, 120, 0.2); }
+.podiumMedal { position: absolute; top: 48px; left: 50%; z-index: 2; width: 26px; height: 34px; transform: translateX(-50%); }
+.rank1 .podiumMedal { top: 63px; width: 30px; height: 39px; }
+.podiumMedalRibbons { position: absolute; right: 4px; bottom: 0; left: 4px; display: flex; justify-content: space-between; height: 15px; }
+.podiumMedalRibbon { width: 10px; height: 15px; background: var(--medal-ribbon); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 77%, 0 100%); }
+.podiumMedalRibbon.isLeft { transform: rotate(17deg); }
+.podiumMedalRibbon.isRight { transform: rotate(-17deg); }
+.podiumMedalDisc { position: relative; display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 26px; height: 26px; border: 1px solid var(--medal-edge); border-radius: 50%; background: var(--medal-fill); color: var(--medal-ink); box-shadow: inset 0 0 0 2px rgba(255, 253, 248, 0.5), inset 0 0 0 3px var(--medal-edge), 0 2px 4px rgba(111, 90, 48, 0.09); font-size: 13px; line-height: 1; font-weight: 650; }
+.rank1 .podiumMedalDisc { width: 30px; height: 30px; font-size: 15px; }
+.podiumNameRow { display: flex; align-items: center; justify-content: center; gap: 4px; width: 100%; min-width: 0; min-height: 20px; }
 .podiumName { overflow: hidden; min-width: 0; font-size: 12px; line-height: 20px; font-weight: 550; text-overflow: ellipsis; white-space: nowrap; }
-.rank1 .podiumName { font-size: 14px; font-weight: 650; }
-.meTag { flex: 0 0 auto; box-sizing: border-box; padding: 0 4px; border: 1px solid var(--accent); border-radius: 6px; color: var(--accent); font-size: 10px; line-height: 16px; font-weight: 500; }
-.podiumPower { max-width: 100%; margin-top: 8px; color: var(--accent); font-size: 26px; line-height: 1.15; font-weight: 550; font-variant-numeric: tabular-nums; }
-.rank1 .podiumPower { font-size: 30px; }
-.podiumUnit { margin-top: 4px; color: var(--muted); font-size: 10px; line-height: 1.4; font-weight: 400; }
-.rankingList { overflow: hidden; margin-top: 14px; border-radius: 20px; box-shadow: none; }
-.rankingListHeader { display: flex; align-items: center; justify-content: space-between; min-height: 36px; padding: 0 16px; color: var(--muted); font-size: 11px; line-height: 1.4; font-weight: 400; }
-.rankingRow { position: relative; display: flex; align-items: center; gap: 0; min-height: 52px; padding: 0 16px; }
-.rankingRow::before { position: absolute; top: 0; right: 16px; left: 16px; height: 1px; background: var(--line); opacity: 0.55; content: ''; }
-.rankingRow.isMe { background: var(--accent-soft); }
-.rankingIndex { flex: 0 0 auto; min-width: 30px; margin-right: 6px; color: var(--muted); font-size: 13px; font-weight: 450; font-variant-numeric: tabular-nums; }
+.meTag { flex: 0 0 auto; padding: 0 4px; border-radius: 4px; background: #e3eee5; color: #41725a; font-size: 9px; line-height: 16px; font-weight: 500; }
+.podiumScore { display: flex; align-items: baseline; justify-content: center; max-width: 100%; margin-top: 5px; white-space: nowrap; }
+.podiumPower { color: #436052; font-size: 21px; line-height: 1.2; font-weight: 550; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; }
+.rank1 .podiumPower { font-size: 26px; color: #3d5d40; }
+.podiumUnit { margin-left: 3px; color: var(--muted); font-size: 9px; line-height: 1.4; }
+.rankingList { overflow: hidden; margin-top: 9px; }
+.rankingRow { position: relative; display: flex; align-items: center; min-height: 56px; padding: 0 9px; }
+.rankingRow + .rankingRow::before { position: absolute; top: 0; right: 9px; left: 50px; height: 1px; background: var(--line); opacity: 0.55; content: ''; }
+.rankingRow.isMe { border-radius: 8px; background: #f3f6f0; }
+.rankingIndex { flex: 0 0 auto; min-width: 25px; margin-right: 10px; color: var(--muted); font-size: 14px; font-weight: 450; font-variant-numeric: tabular-nums; }
 .rankingNameWrap { display: flex; flex: 1 1 auto; align-items: center; gap: 6px; min-width: 0; margin: 0 10px; }
 .rankingName { overflow: hidden; min-width: 0; font-size: 14px; line-height: 1.4; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
-.rankingPower { flex: 0 0 auto; color: var(--accent); font-size: 20px; line-height: 1.2; font-weight: 550; font-variant-numeric: tabular-nums; }
-.myRankSection { overflow: hidden; margin-top: 14px; padding-top: 14px; box-shadow: none; }
-.myRankSection > .sectionHeading { padding: 0 16px 10px; font-size: 13px; font-weight: 550; }
-.overtakeCard { margin-top: 14px; padding: 14px 16px; background: var(--accent-soft); color: var(--accent); box-shadow: none; font-size: 12px; line-height: 1.5; font-weight: 500; text-align: center; }
+.rankingScore { display: flex; flex: 0 0 auto; align-items: baseline; white-space: nowrap; }
+.rankingPower { color: #345447; font-size: 20px; line-height: 1.2; font-weight: 550; font-variant-numeric: tabular-nums; letter-spacing: -0.6px; }
+.rankingUnit { margin-left: 4px; color: var(--muted); font-size: 10px; font-weight: 400; }
+.myRankDock { position: fixed; z-index: 19; right: 0; bottom: calc(73px + env(safe-area-inset-bottom)); left: 0; padding: 8px 15px 10px; background: var(--page-bg); }
+.myRankCard { box-sizing: border-box; max-width: 430px; margin: auto; padding: 13px 15px 12px; border: 1px solid #e2eadd; border-radius: 13px; background: #eaf1e7; }
+.myRankTopline { display: flex; align-items: center; gap: 11px; }
+.myRankNumber { color: var(--ink); font-size: 25px; line-height: 30px; letter-spacing: -1px; font-weight: 550; }
+.myRankHash { margin-right: 2px; font-size: 11px; letter-spacing: 0; font-weight: 400; }
+.myRankUnranked { color: var(--muted); font-size: 12px; }
+.myRankLabel { flex: 1; font-size: 13px; font-weight: 550; }
+.myRankHint { display: block; margin-top: 6px; color: #71816f; font-size: 10px; line-height: 15px; }
 .leaderboardEmpty { margin-top: 0; }
 .leaderboardInvite { gap: 10px; width: 100%; height: 50px; margin-top: 18px; border-radius: 16px; font-size: 15px; font-weight: 600; }
 .leaderboardInviteIcon { position: relative; flex: 0 0 24px; width: 24px; height: 26px; color: #fffdf8; }
@@ -639,8 +660,9 @@ onShow(() => {
 @media (max-width: 360px) {
   .podium { padding-right: 8px; padding-left: 8px; }
   .podiumAvatar { width: 54px; height: 54px; }
+  .podiumPower { font-size: 18px; }
+  .rank1 .podiumPower { font-size: 22px; }
   .rank1 .podiumAvatar { width: 70px; height: 70px; }
-  .championLaurel { top: 20px; transform: translateX(-50%) scale(0.9); }
   .podiumMedal { top: 43px; }
   .rank1 .podiumMedal { top: 57px; }
   .rankingRow, .rankingListHeader { padding-right: 12px; padding-left: 12px; }

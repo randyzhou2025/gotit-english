@@ -54,25 +54,29 @@ export interface FeedItem {
   cheeredByMe: boolean
 }
 
+export type LeaderboardMetric = 'time' | 'words' | 'power'
+export type LeaderboardPeriod = 'week' | 'total'
+
 export interface LeaderboardEntry {
   rank: number
   userId: string
   nickname: string
   avatarUrl: string
-  learningPower: number
+  value: number
   isMe: boolean
 }
 
 export interface LeaderboardSnapshot {
+  metric: LeaderboardMetric
+  period: LeaderboardPeriod
   weekKey: string
   weekStart: string
   weekEnd: string
   displayLimit: number
-  topSpecialCount: number
-  myLearningPower: number
+  asOf: string
+  myValue: number
   myRank: number | null
-  pointsToOvertakePrevious: number | null
-  pointsToEnterTopTen: number | null
+  gapToPrevious: number | null
   ranking: LeaderboardEntry[]
   myEntry: LeaderboardEntry | null
 }
@@ -176,23 +180,22 @@ export async function toggleClassmateCheer(feedId: string): Promise<{ cheered: b
   })
 }
 
-export async function fetchLeaderboard(): Promise<LeaderboardSnapshot> {
+export async function fetchLeaderboard(metric: LeaderboardMetric = 'power', period: LeaderboardPeriod = 'week'): Promise<LeaderboardSnapshot> {
   if (!(await ensureAuthenticatedApi())) {
     return {
+      metric, period, asOf: '',
       weekKey: '',
       weekStart: '',
       weekEnd: '',
       displayLimit: 10,
-      topSpecialCount: 3,
-      myLearningPower: 0,
+      myValue: 0,
       myRank: null,
-      pointsToOvertakePrevious: null,
-      pointsToEnterTopTen: null,
+      gapToPrevious: null,
       ranking: [],
       myEntry: null
     }
   }
-  return apiRequest('/api/classmates/leaderboard')
+  return apiRequest(`/api/classmates/leaderboard?metric=${metric}&period=${period}`)
 }
 
 export async function fetchClassmates(): Promise<ClassmateSummary[]> {

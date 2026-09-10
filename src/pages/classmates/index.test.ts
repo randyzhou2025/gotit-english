@@ -20,11 +20,11 @@ describe('classmates page MVP', () => {
 
   it('contains feed, cheer, leaderboard and every invite entry', () => {
     expect(source).toContain('同学动态')
-    expect(source).toContain('<text>全国排行榜</text>')
-    expect(source).not.toContain('<text>排行榜</text>')
+    expect(source).toContain('<text>排行榜</text>')
+    expect(source).not.toContain('全国排行榜')
     expect(source).toContain('👏 加油')
-    expect(source).toContain('本周 Top 10')
-    expect(source).toContain('按本周学习力排名 · 仅展示前10名')
+    expect(source).toContain('让坚持被看见')
+    expect(source).toContain('<text>前 10 名</text>')
     expect(source).not.toContain('周一重新开始')
     expect(source).toContain('邀请同学')
     expect(source).toContain('邀请同学一起学')
@@ -32,10 +32,8 @@ describe('classmates page MVP', () => {
     expect(source).toContain("showShareHint('classmates_header')")
     expect(source).toContain("showShareHint('classmates_empty')")
     expect(source).toContain("showShareHint('leaderboard')")
-    expect(source).toContain('再获得 {{ leaderboard.pointsToOvertakePrevious }} 学习力，就能超过上一名')
-    expect(source).toContain('v-if="leaderboard.pointsToEnterTopTen !== null"')
-    expect(source).toContain('我的本周学习力 {{ leaderboard.myLearningPower }} · 距离上榜还差 {{ leaderboard.pointsToEnterTopTen }} 学习力')
-    expect(source).not.toContain('leaderboard.myEntry && leaderboard.pointsToEnterTopTen')
+    expect(source).toContain('class="myRankDock"')
+    expect(source).toContain('{{ rankingHint }}')
     expect(source).toContain('class="podiumMedal"')
   })
 
@@ -128,20 +126,17 @@ describe('classmates page MVP', () => {
     expect(source).toContain('storeActiveTab(tab)')
   })
 
-  it('temporarily hides the learning-power help entry while preserving its content', () => {
-    expect(source).toContain('const learningPowerHelpEnabled = false')
-    expect(source).toContain('v-if="learningPowerHelpEnabled"')
-    expect(source).toContain('class="learningPowerHelpButton"')
-    expect(source).toContain('@tap.stop="toggleLearningPowerHelp"')
-    expect(source).toContain('@tap="closeLearningPowerHelp"')
-    expect(source).toContain('本周首次听写该词：每词 +1，每日最多 20')
-    expect(source).toContain('连续打开：从第 2 天起，每天 +5')
-    expect(source).toContain('错词听写或标记认识：每词 +1，每日最多 20')
+  it('removes ranking-rule and award-title copy', () => {
+    expect(source).not.toContain('learningPowerHelp')
+    expect(source).not.toContain('排名规则')
+    expect(source).not.toContain('冠军')
+    expect(source).not.toContain('亚军')
+    expect(source).not.toContain('季军')
   })
 
   it('integrates small medals with avatars and keeps the champion centered in partial lists', () => {
     expect(source).toContain('class="podiumPortrait"')
-    expect(source).toContain('v-if="entry.rank === 1" class="championLaurel"')
+    expect(source).not.toContain('championLaurel')
     expect(source).toContain('class="podiumNameRow"')
     expect(source).toContain('v-if="entry.isMe" class="meTag"')
     expect(source).toMatch(/\.podiumEntry\.rank1\s*\{[^}]*grid-column: 2;/)
@@ -152,7 +147,7 @@ describe('classmates page MVP', () => {
 
   it('uses a labeled compact list with readable names and stable score columns', () => {
     expect(source).toContain('class="rankingListHeader"')
-    expect(source).toContain('<text>排名</text>')
+    expect(source).toContain('<text>前 10 名</text>')
     expect(source).toContain('class="rankingNameWrap"')
     expect(source).toContain('font-variant-numeric: tabular-nums;')
     expect(source).toMatch(/\.rankingNameWrap\s*\{[^}]*min-width: 0;/)
@@ -175,4 +170,30 @@ describe('classmates page MVP', () => {
     expect(source).toMatch(/onShow\(\(\) => \{\s*uni\.hideTabBar\(\{ animation: false \}\)/)
     expect(tabNavSource).toMatch(/\.bottomNav\.isClassmates \.bottomNavLabel\s*\{[^}]*font-weight: 500;/)
   })
+})
+
+// Resolve an older request last: its data and loading flag must not replace the selected board.
+it('keeps the newest metric when leaderboard responses arrive out of order', async () => {
+  const start = source.indexOf('async function loadLeaderboard()')
+  const end = source.indexOf('function selectMetric', start)
+  const pending: Array<(value: unknown) => void> = []
+  const state = {
+    rankingRequest: 0,
+    selectedMetric: { value: 'power' }, selectedPeriod: { value: 'week' },
+    rankingLoading: { value: false }, rankingError: { value: false }, leaderboard: { value: null },
+    flushProgressUpload: async () => {}, flushStudyEvents: async () => {},
+    fetchLeaderboard: () => new Promise(resolve => pending.push(resolve)), console
+  }
+  const load = runInNewContext(`${source.slice(start, end)}; loadLeaderboard`, state)
+  const first = load()
+  await new Promise(resolve => setImmediate(resolve))
+  state.selectedMetric.value = 'words'
+  const second = load()
+  await new Promise(resolve => setImmediate(resolve))
+  pending[1]!({ metric: 'words', myValue: 12 })
+  await second
+  pending[0]!({ metric: 'power', myValue: 99 })
+  await first
+  expect(state.leaderboard.value).toEqual({ metric: 'words', myValue: 12 })
+  expect(state.rankingLoading.value).toBe(false)
 })

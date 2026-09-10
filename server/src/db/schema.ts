@@ -55,6 +55,20 @@ export const userDailyStats = pgTable(
   (t) => [primaryKey({ columns: [t.userId, t.statDate] })]
 );
 
+// NULL 时间代表历史存量，不能计入任何一周的新增掌握。
+export const userWordMastery = pgTable(
+  "user_word_mastery",
+  {
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    wordId: text("word_id").notNull(),
+    firstMasteredAt: timestamp("first_mastered_at", { withTimezone: true }),
+  },
+  (t) => [
+    primaryKey({ columns: [t.userId, t.wordId] }),
+    index("user_word_mastery_time_idx").on(t.firstMasteredAt, t.userId),
+  ]
+);
+
 export const learningReminders = pgTable("learning_reminders", {
   userId: uuid("user_id")
     .primaryKey()
