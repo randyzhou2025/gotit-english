@@ -1,9 +1,9 @@
 import type { LeaderboardMetric, LeaderboardPeriod, LeaderboardSnapshot } from '@/core/classmates'
 
 export const LEADERBOARD_METRICS: Array<{ id: LeaderboardMetric; label: string }> = [
+  { id: 'power', label: '学力榜' },
   { id: 'time', label: '学习时长' },
-  { id: 'words', label: '掌握词汇' },
-  { id: 'power', label: '学力榜' }
+  { id: 'words', label: '掌握词汇' }
 ]
 
 export function leaderboardUnit(metric: LeaderboardMetric) {

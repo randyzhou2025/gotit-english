@@ -103,7 +103,6 @@
       </template>
 
       <template v-else>
-        <view class="leaderboardHeader"><text class="leaderboardTitle">让坚持被看见</text></view>
         <view class="leaderboardMetrics" role="tablist" aria-label="榜单类型">
           <view v-for="metric in LEADERBOARD_METRICS" :key="metric.id"
             :class="['leaderboardMetric', selectedMetric === metric.id && 'isActive']"
@@ -554,7 +553,7 @@ onShow(() => {
 .inviteButton::after, .stateAction::after, .leaderboardInvite::after { border: 0; }
 .buttonPressed { transform: translateY(1px) scale(0.99); }
 
-.sectionHeadingRow, .leaderboardHeader { display: flex; align-items: center; justify-content: space-between; }
+.sectionHeadingRow { display: flex; align-items: center; justify-content: space-between; }
 .sectionHeading { display: block; color: var(--ink); font-size: 15px; font-weight: 900; }
 .sectionLink { color: var(--accent); font-size: 12px; font-weight: 800; }
 .classmateManager { margin-top: 14px; padding: 15px; }
@@ -593,12 +592,9 @@ onShow(() => {
 
 
 .classmatesScreen.isLeaderboard { padding-bottom: calc(174px + env(safe-area-inset-bottom)); }
-.leaderboardHeader { padding: 6px 5px 18px; }
-.leaderboardTitle { display: block; font-size: 26px; line-height: 1.3; font-weight: 650; letter-spacing: -0.8px; }
-.leaderboardMetrics { display: flex; gap: 25px; margin: 0 5px; border-bottom: 1px solid var(--line); }
-.leaderboardMetric { position: relative; padding: 5px 0 15px; color: var(--muted); font-size: 16px; line-height: 22px; white-space: nowrap; }
-.leaderboardMetric.isActive { color: var(--accent); font-weight: 650; }
-.leaderboardMetric.isActive::after { position: absolute; right: 0; bottom: -1px; left: 0; height: 2px; background: var(--accent); content: ''; }
+.leaderboardMetrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 15px; background: rgba(255, 255, 255, 0.28); }
+.leaderboardMetric { display: flex; align-items: center; justify-content: center; box-sizing: border-box; min-width: 0; min-height: 42px; padding: 10px 6px; border: 1px solid transparent; border-radius: 11px; color: var(--ink-soft); font-size: 14px; line-height: 20px; font-weight: 500; letter-spacing: 0.02em; white-space: nowrap; transition: background-color 160ms ease, color 160ms ease; }
+.leaderboardMetric.isActive { border-color: var(--accent-strong); background: var(--accent-strong); color: #fffdf8; font-weight: 600; box-shadow: 0 2px 5px var(--accent-shadow); }
 .leaderboardPeriodRow { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 17px 5px 13px; }
 .leaderboardPeriods { display: flex; gap: 2px; padding: 3px; border-radius: 9px; background: #edf0eb; }
 .leaderboardPeriod { padding: 6px 16px; border-radius: 7px; color: var(--muted); font-size: 12px; line-height: 18px; }

@@ -23,7 +23,7 @@ describe('classmates page MVP', () => {
     expect(source).toContain('<text>排行榜</text>')
     expect(source).not.toContain('全国排行榜')
     expect(source).toContain('👏 加油')
-    expect(source).toContain('让坚持被看见')
+    expect(source).not.toContain('让坚持被看见')
     expect(source).toContain('<text>前 {{ leaderboard.displayLimit }} 名</text>')
     expect(source).not.toContain('周一重新开始')
     expect(source).toContain('邀请同学')
