@@ -1101,7 +1101,7 @@ export async function toggleFeedCheer(userId: string, feedId: string) {
   return { cheered: !existing, cheerCount: Number(total?.count ?? 0) };
 }
 
-async function leaderboardConfig(): Promise<LeaderboardConfig> {
+export async function leaderboardConfig(): Promise<LeaderboardConfig> {
   const [row] = await db.select({ value: appConfig.value }).from(appConfig).where(eq(appConfig.key, "leaderboard_config")).limit(1);
   if (!row) return DEFAULT_LEADERBOARD_CONFIG;
   try {
@@ -1109,7 +1109,7 @@ async function leaderboardConfig(): Promise<LeaderboardConfig> {
     return {
       ...DEFAULT_LEADERBOARD_CONFIG,
       ...parsed,
-      displayLimit: Math.min(Math.max(1, Number(parsed.displayLimit) || 10), 100),
+      displayLimit: [10, 20, 50, 100].includes(Number(parsed.displayLimit)) ? Number(parsed.displayLimit) : 10,
       maxLimit: Math.min(Math.max(1, Number(parsed.maxLimit) || 100), 100),
       topSpecialCount: 3,
       timezone: "Asia/Shanghai",
@@ -1123,7 +1123,7 @@ async function leaderboardConfig(): Promise<LeaderboardConfig> {
 export async function getLeaderboard(userId: string) {
   const context = shanghaiWeekContext();
   const config = await leaderboardConfig();
-  const limit = 10;
+  const limit = config.displayLimit;
   const rows = await orderedWeeklyRows(db, context.weekKey);
   const serialized = rows.map((row, index) => ({
     rank: index + 1,
@@ -1136,7 +1136,7 @@ export async function getLeaderboard(userId: string) {
   const myIndex = serialized.findIndex((row) => row.isMe);
   const me = myIndex >= 0 ? serialized[myIndex]! : null;
   const previous = myIndex > 0 ? serialized[myIndex - 1]! : null;
-  const tenth = serialized[9] ?? null;
+  const tenth = serialized[limit - 1] ?? null;
   const outsideTopTen = !me || me.rank > limit;
   const pointsToEnter = outsideTopTen && serialized.length > 0
     ? serialized.length < limit

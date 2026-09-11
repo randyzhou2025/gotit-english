@@ -35,12 +35,14 @@
     />
 
     <view v-if="activeScreen === 'courseSetup'" class="courseSetupScreen">
-      <view class="dictationNav">
-        <view v-if="courseSetupCompleted" class="navBack" @tap="goBack">
-          <view class="chevronLeft" />
+      <FixedPageHeader>
+        <view class="dictationNav">
+          <view v-if="courseSetupCompleted" class="navBack" @tap="goBack">
+            <view class="chevronLeft" />
+          </view>
+          <text class="navTitle">教材选择</text>
         </view>
-        <text class="navTitle">教材选择</text>
-      </view>
+      </FixedPageHeader>
 
       <view class="coursePanel">
         <view class="courseV2Section">
@@ -215,36 +217,38 @@
       />
 
       <view v-else class="sectionStack homeScreen">
-      <view class="homeHero">
-        <view class="homeHeroMain">
-          <view class="homeHeroTitleRow">
-            <view class="homeHeroTitle">课本单词通</view>
-            <view
-              class="homeFeedbackButton"
-              hover-class="homeFeedbackButtonPressed"
-              hover-stay-time="80"
-              role="button"
-              aria-label="Feedback"
-              @tap.stop="openFeedbackPage"
-            >
-              <view class="homeFeedbackMark">
-                <view class="homeFeedbackBubble">
-                  <view class="homeFeedbackDot" />
-                  <view class="homeFeedbackDot" />
-                  <view class="homeFeedbackDot" />
+      <FixedPageHeader>
+        <view class="homeHero">
+          <view class="homeHeroMain">
+            <view class="homeHeroTitleRow">
+              <view class="homeHeroTitle">课本单词通</view>
+              <view
+                class="homeFeedbackButton"
+                hover-class="homeFeedbackButtonPressed"
+                hover-stay-time="80"
+                role="button"
+                aria-label="Feedback"
+                @tap.stop="openFeedbackPage"
+              >
+                <view class="homeFeedbackMark">
+                  <view class="homeFeedbackBubble">
+                    <view class="homeFeedbackDot" />
+                    <view class="homeFeedbackDot" />
+                    <view class="homeFeedbackDot" />
+                  </view>
+                  <view class="homeFeedbackTail" />
                 </view>
-                <view class="homeFeedbackTail" />
               </view>
             </view>
-          </view>
-          <view class="homeHeroSubtitle">别急着背更多，先把课本里的单词真正掌握</view>
-          <view class="homeHeroTags" aria-label="产品特点">
-            <text class="homeHeroTag">教材同步</text>
-            <text class="homeHeroTag">自动听写</text>
-            <text class="homeHeroTag">生词复习</text>
+            <view class="homeHeroSubtitle">别急着背更多，先把课本里的单词真正掌握</view>
+            <view class="homeHeroTags" aria-label="产品特点">
+              <text class="homeHeroTag">教材同步</text>
+              <text class="homeHeroTag">自动听写</text>
+              <text class="homeHeroTag">生词复习</text>
+            </view>
           </view>
         </view>
-      </view>
+      </FixedPageHeader>
 
       <view class="homeUnitCard">
         <view class="homeCourseMain" @tap="openCourseSetupPage">
@@ -345,12 +349,14 @@
     </template>
 
     <view v-else-if="activeScreen === 'checkupSetup'" class="checkupSetupScreen">
-      <view class="dictationNav">
-        <view class="navBack" @tap="goBack">
-          <view class="chevronLeft" />
+      <FixedPageHeader>
+        <view class="dictationNav">
+          <view class="navBack" @tap="goBack">
+            <view class="chevronLeft" />
+          </view>
+          <text class="navTitle">词汇体检</text>
         </view>
-        <text class="navTitle">词汇体检</text>
-      </view>
+      </FixedPageHeader>
 
       <view class="checkupIntro">
         <text class="wordPickerTitle">{{ selectedUnit?.unitName }}</text>
@@ -426,14 +432,16 @@
     </view>
 
     <view v-else-if="activeScreen === 'weakbook'" class="sectionStack weakbookScreen isSplitLayout">
-      <view class="pageChrome">
-        <view class="dictationNav">
-          <view v-if="isRoutePage" class="navBack" @tap="goBack">
-            <view class="chevronLeft" />
+      <FixedPageHeader>
+        <view class="pageChrome">
+          <view class="dictationNav">
+            <view v-if="isRoutePage" class="navBack" @tap="goBack">
+              <view class="chevronLeft" />
+            </view>
+            <text class="navTitle">生词本</text>
           </view>
-          <text class="navTitle">生词本</text>
         </view>
-      </view>
+      </FixedPageHeader>
 
       <scroll-view scroll-y class="pageBodyScroll weakbookScroll" :show-scrollbar="false">
         <view v-if="savedWeakWords.length === 0" class="weakbookEmpty">
@@ -504,14 +512,16 @@
     </view>
 
     <view v-else-if="activeScreen === 'unitWords'" class="unitWordScreen isSplitLayout">
-      <view class="pageChrome">
-        <view class="dictationNav">
-          <view class="navBack" @tap="goBack">
-            <view class="chevronLeft" />
+      <FixedPageHeader>
+        <view class="pageChrome">
+          <view class="dictationNav">
+            <view class="navBack" @tap="goBack">
+              <view class="chevronLeft" />
+            </view>
+            <text class="navTitle">全部单词</text>
           </view>
-          <text class="navTitle">全部单词</text>
         </view>
-      </view>
+      </FixedPageHeader>
 
       <view class="unitWordFixedTools">
         <view class="unitWordFilterTabs">
@@ -589,14 +599,16 @@
     </view>
 
     <view v-else-if="activeScreen === 'wordDetail' && wordDetailEntry" class="wordDetailScreen isSplitLayout">
-      <view class="pageChrome">
-        <view class="wordDetailNav">
-          <view class="navBack" @tap="goBack">
-            <view class="chevronLeft" />
+      <FixedPageHeader>
+        <view class="pageChrome">
+          <view class="wordDetailNav">
+            <view class="navBack" @tap="goBack">
+              <view class="chevronLeft" />
+            </view>
+            <text class="wordDetailProgress">{{ wordDetailProgressLabel }}</text>
           </view>
-          <text class="wordDetailProgress">{{ wordDetailProgressLabel }}</text>
         </view>
-      </view>
+      </FixedPageHeader>
 
       <scroll-view scroll-y class="pageBodyScroll wordDetailScroll" :show-scrollbar="false">
         <view class="wordDetailHeroCard">
@@ -748,20 +760,22 @@
     </view>
 
     <view v-else-if="activeScreen === 'checkup' && currentCheckupQuestion" class="flowScreen isSplitLayout">
-      <view class="pageChrome">
-        <view class="playerHeader">
-          <view class="playerHeaderTop">
-            <view class="navBack" @tap="goBack">
-              <view class="chevronLeft" />
+      <FixedPageHeader>
+        <view class="pageChrome">
+          <view class="playerHeader">
+            <view class="playerHeaderTop">
+              <view class="navBack" @tap="goBack">
+                <view class="chevronLeft" />
+              </view>
+              <text class="playerTitle">词汇体检</text>
             </view>
-            <text class="playerTitle">词汇体检</text>
-          </view>
-          <text class="playerProgressMeta">{{ checkupProgressLabel }}</text>
-          <view class="playerProgressTrack">
-            <view class="playerProgressFill" :style="{ width: checkupProgressPercent + '%' }" />
+            <text class="playerProgressMeta">{{ checkupProgressLabel }}</text>
+            <view class="playerProgressTrack">
+              <view class="playerProgressFill" :style="{ width: checkupProgressPercent + '%' }" />
+            </view>
           </view>
         </view>
-      </view>
+      </FixedPageHeader>
 
       <view v-if="recognitionState === 'correct'" class="celebrationLayer">
         <view
@@ -810,20 +824,22 @@
     </view>
 
     <view v-else-if="activeScreen === 'spelling' && currentCheckupQuestion" class="flowScreen isSplitLayout">
-      <view class="pageChrome">
-        <view class="playerHeader">
-          <view class="playerHeaderTop">
-            <view class="navBack" @tap="goBack">
-              <view class="chevronLeft" />
+      <FixedPageHeader>
+        <view class="pageChrome">
+          <view class="playerHeader">
+            <view class="playerHeaderTop">
+              <view class="navBack" @tap="goBack">
+                <view class="chevronLeft" />
+              </view>
+              <text class="playerTitle">拼出单词</text>
             </view>
-            <text class="playerTitle">拼出单词</text>
-          </view>
-          <text class="playerProgressMeta">{{ checkupProgressLabel }}</text>
-          <view class="playerProgressTrack">
-            <view class="playerProgressFill" :style="{ width: checkupProgressPercent + '%' }" />
+            <text class="playerProgressMeta">{{ checkupProgressLabel }}</text>
+            <view class="playerProgressTrack">
+              <view class="playerProgressFill" :style="{ width: checkupProgressPercent + '%' }" />
+            </view>
           </view>
         </view>
-      </view>
+      </FixedPageHeader>
 
       <view class="spellPanel">
         <text class="labelText">根据释义拼写</text>
@@ -852,12 +868,14 @@
     </view>
 
     <view v-else-if="activeScreen === 'report'" class="sectionStack reportScreen">
-      <view class="dictationNav">
-        <view class="navBack" @tap="goBack">
-          <view class="chevronLeft" />
+      <FixedPageHeader>
+        <view class="dictationNav">
+          <view class="navBack" @tap="goBack">
+            <view class="chevronLeft" />
+          </view>
+          <text class="navTitle">体检报告</text>
         </view>
-        <text class="navTitle">体检报告</text>
-      </view>
+      </FixedPageHeader>
 
       <view class="reportHero">
         <view class="reportTopline">
@@ -923,12 +941,14 @@
     </view>
 
     <view v-else-if="activeScreen === 'dictationSetup'" class="dictationSetupScreen">
-      <view class="dictationNav">
-        <view v-if="isRoutePage" class="navBack" @tap="goBack">
-          <view class="chevronLeft" />
+      <FixedPageHeader>
+        <view class="dictationNav">
+          <view v-if="isRoutePage" class="navBack" @tap="goBack">
+            <view class="chevronLeft" />
+          </view>
+          <text class="navTitle">自动听写</text>
         </view>
-        <text class="navTitle">自动听写</text>
-      </view>
+      </FixedPageHeader>
 
       <view class="dictationIntro">
         <view class="dictationIntroMark" />
@@ -1042,14 +1062,16 @@
     </view>
 
     <view v-else-if="activeScreen === 'dictationWords'" class="dictationWordScreen isSplitLayout">
-      <view class="pageChrome">
-        <view class="dictationNav">
-          <view class="navBack" @tap="backFromDictationWordPickerPage">
-            <view class="chevronLeft" />
+      <FixedPageHeader>
+        <view class="pageChrome">
+          <view class="dictationNav">
+            <view class="navBack" @tap="backFromDictationWordPickerPage">
+              <view class="chevronLeft" />
+            </view>
+            <text class="navTitle">选择单词</text>
           </view>
-          <text class="navTitle">选择单词</text>
         </view>
-      </view>
+      </FixedPageHeader>
 
       <view class="wordPickerFixedArea">
         <view class="wordPickerHeader">
@@ -1135,20 +1157,22 @@
       v-else-if="activeScreen === 'dictation' && currentDictationEntry"
       :class="['dictationPlayerScreen', 'isSplitLayout', isDictationRecognitionMode && 'isRecognitionMode']"
     >
-      <view class="pageChrome">
-        <view class="playerHeader">
-          <view class="playerHeaderTop">
-            <view class="navBack" @tap="leaveDictationToSetupPage">
-              <view class="chevronLeft" />
+      <FixedPageHeader>
+        <view class="pageChrome">
+          <view class="playerHeader">
+            <view class="playerHeaderTop">
+              <view class="navBack" @tap="leaveDictationToSetupPage">
+                <view class="chevronLeft" />
+              </view>
+              <text class="playerTitle">{{ dictationTitle }}</text>
             </view>
-            <text class="playerTitle">{{ dictationTitle }}</text>
-          </view>
-          <text class="playerProgressMeta">{{ dictationProgressLabel }}</text>
-          <view class="playerProgressTrack">
-            <view class="playerProgressFill" :style="{ width: dictationProgressPercent + '%' }" />
+            <text class="playerProgressMeta">{{ dictationProgressLabel }}</text>
+            <view class="playerProgressTrack">
+              <view class="playerProgressFill" :style="{ width: dictationProgressPercent + '%' }" />
+            </view>
           </view>
         </view>
-      </view>
+      </FixedPageHeader>
 
       <view class="playerStage">
         <text class="playerInstruction">{{ dictationPlayerInstruction }}</text>
@@ -1330,14 +1354,16 @@
     </view>
 
     <view v-else-if="activeScreen === 'dictationReport'" class="sectionStack reportScreen isSplitLayout">
-      <view class="pageChrome">
-        <view class="dictationNav">
-          <view class="navBack" @tap="goBack">
-            <view class="chevronLeft" />
+      <FixedPageHeader>
+        <view class="pageChrome">
+          <view class="dictationNav">
+            <view class="navBack" @tap="goBack">
+              <view class="chevronLeft" />
+            </view>
+            <text class="navTitle">听写报告</text>
           </view>
-          <text class="navTitle">听写报告</text>
         </view>
-      </view>
+      </FixedPageHeader>
 
       <view class="dictationReportTop">
         <view class="dictationSummaryCard">
@@ -1550,6 +1576,7 @@
 </template>
 
 <script setup lang="ts">
+import FixedPageHeader from '@/components/FixedPageHeader.vue'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { onHide, onShow } from '@dcloudio/uni-app'
 import { confirmCourseSetupAndEnter, usePracticeSession, type AppScreen } from '@/app/usePracticeSession'

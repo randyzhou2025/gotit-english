@@ -1,4 +1,5 @@
 import { computed, ref } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
 import {
   DEFAULT_VISUAL_THEME_ID,
   getNextVisualThemeId,
@@ -11,6 +12,18 @@ const VISUAL_THEME_STORAGE_KEY = 'gotit:visualTheme:last'
 
 const activeVisualThemeId = ref(DEFAULT_VISUAL_THEME_ID)
 let initialized = false
+
+function syncWindowBackground() {
+  // 原生回弹区域不继承页面内的 CSS 变量，需要单独同步当前主题。
+  // #ifdef MP-WEIXIN
+  const backgroundColor = getVisualTheme(activeVisualThemeId.value).tokens['--page-bg']
+  uni.setBackgroundColor({
+    backgroundColor,
+    backgroundColorTop: backgroundColor,
+    backgroundColorBottom: backgroundColor
+  })
+  // #endif
+}
 
 function saveActiveVisualThemeId() {
   try {
@@ -41,12 +54,14 @@ export function initializeVisualTheme() {
 function switchToNextVisualTheme() {
   activeVisualThemeId.value = getNextVisualThemeId(activeVisualThemeId.value)
   saveActiveVisualThemeId()
+  syncWindowBackground()
   const theme = getVisualTheme(activeVisualThemeId.value)
   trackAnalyticsEvent('theme_selected', { themeId: theme.id, themeName: theme.name })
 }
 
 export function useVisualTheme() {
   initializeVisualTheme()
+  onShow(syncWindowBackground)
 
   const activeVisualTheme = computed(() => getVisualTheme(activeVisualThemeId.value))
   const activeVisualThemeStyle = computed(() => serializeVisualThemeTokens(activeVisualTheme.value))

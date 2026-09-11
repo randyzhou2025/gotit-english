@@ -1,17 +1,19 @@
 <template>
   <page-meta page-style="overflow: visible;" />
-  <view class="classmatesScreen hasBottomNav" :class="{ isLeaderboard: activeTab === 'leaderboard' }" :style="classmatesScreenStyle">
-    <view class="classmatesChrome" :style="classmatesChromeStyle">
-      <view class="classmatesNav"><text class="classmatesTitle">同学</text></view>
-      <view class="classmatesTabs">
-        <view :class="['classmatesTab', activeTab === 'feed' && 'isActive']" @tap="setActiveTab('feed')">
-          <text>同学动态</text>
-        </view>
-        <view :class="['classmatesTab', activeTab === 'leaderboard' && 'isActive']" @tap="setActiveTab('leaderboard')">
-          <text>排行榜</text>
+  <view class="classmatesScreen hasBottomNav" :class="{ isLeaderboard: activeTab === 'leaderboard' }" :style="activeVisualThemeStyle">
+    <FixedPageHeader>
+      <view class="classmatesChrome" :style="classmatesChromeStyle">
+        <view class="classmatesNav"><text class="classmatesTitle">同学</text></view>
+        <view class="classmatesTabs">
+          <view :class="['classmatesTab', activeTab === 'feed' && 'isActive']" @tap="setActiveTab('feed')">
+            <text>同学动态</text>
+          </view>
+          <view :class="['classmatesTab', activeTab === 'leaderboard' && 'isActive']" @tap="setActiveTab('leaderboard')">
+            <text>排行榜</text>
+          </view>
         </view>
       </view>
-    </view>
+    </FixedPageHeader>
 
     <view class="classmatesContent">
       <view v-if="loading && activeTab === 'feed'" class="classmatesLoading">
@@ -125,7 +127,7 @@
           <view class="stateAction" @tap="loadLeaderboard"><text>重新加载</text></view>
         </view>
         <template v-else>
-        <view class="rankingListHeader"><text>前 10 名</text><text>{{ rankingMeasure }}</text></view>
+        <view class="rankingListHeader"><text>前 {{ leaderboard.displayLimit }} 名</text><text>{{ rankingMeasure }}</text></view>
         <view v-if="topThree.length > 0" class="podium">
           <view
             v-for="entry in podiumEntries"
@@ -205,6 +207,7 @@
 </template>
 
 <script setup lang="ts">
+import FixedPageHeader from '@/components/FixedPageHeader.vue'
 import { computed, onMounted, ref, shallowRef } from 'vue'
 import { onShareAppMessage, onShareTimeline, onShow } from '@dcloudio/uni-app'
 import { buildWeappShareAppMessage, buildWeappShareTimeline, showWeappShareMenu } from '@/app/useWeappShare'
@@ -272,9 +275,6 @@ const classmates = ref<ClassmateSummary[]>([])
 const leaderboard = ref<LeaderboardSnapshot>({ ...EMPTY_LEADERBOARD })
 const preparedShare = ref<ShareDescriptor | null>(null)
 const { activeVisualThemeStyle } = useVisualTheme()
-const classmatesScreenStyle = computed(() => activeTab.value === 'leaderboard'
-  ? `${activeVisualThemeStyle.value}; --page-bg: #fbfcfa; --surface: #ffffff; --ink: #203d35; --accent: #286447; --accent-soft: #eaf1e7; --muted: #7b887f; --line: #e5eae3;`
-  : activeVisualThemeStyle.value)
 const miniProgramCapsuleTop = ref(44)
 const miniProgramCapsuleHeight = ref(32)
 const classmatesChromeStyle = computed(() => {
@@ -522,8 +522,7 @@ onShow(() => {
 .classmatesScreen.hasBottomNav { padding-bottom: calc(82px + env(safe-area-inset-bottom)); }
 
 .classmatesChrome {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 10;
   padding: calc(8px + env(safe-area-inset-top)) 20px 0;
   border-bottom: 1px solid var(--line);

@@ -1,11 +1,13 @@
 <template>
   <view class="screen" :style="screenStyle">
-    <view class="feedbackNav">
-      <view class="navBack" @tap="goBack">
-        <view class="chevronLeft" />
+    <FixedPageHeader>
+      <view class="feedbackNav">
+        <view class="navBack" @tap="goBack">
+          <view class="chevronLeft" />
+        </view>
+        <text class="navTitle">意见反馈</text>
       </view>
-      <text class="navTitle">意见反馈</text>
-    </view>
+    </FixedPageHeader>
 
     <view class="feedbackBody">
       <text class="sectionLabel">问题类型</text>
@@ -38,6 +40,7 @@
 </template>
 
 <script setup lang="ts">
+import FixedPageHeader from '@/components/FixedPageHeader.vue'
 import { computed, ref } from 'vue'
 import { useVisualTheme } from '@/app/useVisualTheme'
 import { useWeappShare } from '@/app/useWeappShare'

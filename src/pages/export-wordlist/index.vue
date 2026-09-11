@@ -1,14 +1,16 @@
 <template>
   <view class="exportScreen" :style="screenStyle">
-    <view class="exportNav">
-      <view class="navBack" @tap="goBack">
-        <view class="chevronLeft" />
+    <FixedPageHeader>
+      <view class="exportNav">
+        <view class="navBack" @tap="goBack">
+          <view class="chevronLeft" />
+        </view>
+        <view class="navCopy">
+          <text class="navTitle">导出词表</text>
+          <text class="navMeta">{{ unitTitle }} · 共 {{ sourceWords.length }} 词 {{ exportPages.length }} 页</text>
+        </view>
       </view>
-      <view class="navCopy">
-        <text class="navTitle">导出词表</text>
-        <text class="navMeta">{{ unitTitle }} · 共 {{ sourceWords.length }} 词 {{ exportPages.length }} 页</text>
-      </view>
-    </view>
+    </FixedPageHeader>
 
     <scroll-view scroll-y class="exportScroll" :show-scrollbar="false">
       <view class="previewStage">
@@ -94,6 +96,7 @@
 </template>
 
 <script setup lang="ts">
+import FixedPageHeader from '@/components/FixedPageHeader.vue'
 import { computed, getCurrentInstance, onBeforeMount, onMounted, ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import {

@@ -1,11 +1,13 @@
 <template>
   <view class="screen hasBottomNav profileScreen" :style="screenStyle">
     <view class="profileLayout isSplitLayout">
-      <view class="pageChrome">
-        <view class="profileNav">
-          <text class="navTitle">个人中心</text>
+      <FixedPageHeader>
+        <view class="pageChrome">
+          <view class="profileNav">
+            <text class="navTitle">个人中心</text>
+          </view>
         </view>
-      </view>
+      </FixedPageHeader>
 
       <scroll-view scroll-y class="profileScroll" :show-scrollbar="false">
       <view class="userRow">
@@ -298,6 +300,7 @@
 </template>
 
 <script setup lang="ts">
+import FixedPageHeader from '@/components/FixedPageHeader.vue'
 import { computed, getCurrentInstance, nextTick, onMounted, ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { flushPracticeCloudSync, usePracticeSession } from '@/app/usePracticeSession'

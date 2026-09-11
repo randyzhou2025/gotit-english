@@ -11,24 +11,26 @@
       <view v-for="index in 7" :key="index" class="wordMatchFirefly" />
     </view>
 
-    <view class="wordMatchNav">
-      <view class="wordMatchBack" role="button" aria-label="返回" @tap="goBack"><text>‹</text></view>
-      <text class="wordMatchTitle">单词消消乐</text>
-      <view
-        :class="['wordMatchSoundToggle', !soundEnabled && 'isMuted']"
-        role="button"
-        :aria-label="soundEnabled ? '关闭声音' : '打开声音'"
-        @tap="toggleSound"
-      >
-        <view class="wordMatchSpeaker" aria-hidden="true">
-          <view class="wordMatchSpeakerBody" />
-          <view class="wordMatchSpeakerCone" />
-          <view v-if="soundEnabled" class="wordMatchSpeakerWave" />
-          <view v-if="soundEnabled" class="wordMatchSpeakerWave isOuter" />
-          <view v-else class="wordMatchSpeakerSlash" />
+    <FixedPageHeader background="#173f30">
+      <view class="wordMatchNav">
+        <view class="wordMatchBack" role="button" aria-label="返回" @tap="goBack"><text>‹</text></view>
+        <text class="wordMatchTitle">单词消消乐</text>
+        <view
+          :class="['wordMatchSoundToggle', !soundEnabled && 'isMuted']"
+          role="button"
+          :aria-label="soundEnabled ? '关闭声音' : '打开声音'"
+          @tap="toggleSound"
+        >
+          <view class="wordMatchSpeaker" aria-hidden="true">
+            <view class="wordMatchSpeakerBody" />
+            <view class="wordMatchSpeakerCone" />
+            <view v-if="soundEnabled" class="wordMatchSpeakerWave" />
+            <view v-if="soundEnabled" class="wordMatchSpeakerWave isOuter" />
+            <view v-else class="wordMatchSpeakerSlash" />
+          </view>
         </view>
       </view>
-    </view>
+    </FixedPageHeader>
 
     <view v-if="!unit || rounds.length === 0" class="wordMatchEmpty">
       <text class="wordMatchEmptyTitle">这个 Unit 暂时无法生成配对</text>
@@ -188,6 +190,7 @@
 </template>
 
 <script setup lang="ts">
+import FixedPageHeader from '@/components/FixedPageHeader.vue'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { usePracticeSession } from '@/app/usePracticeSession'
 import { useVisualTheme } from '@/app/useVisualTheme'

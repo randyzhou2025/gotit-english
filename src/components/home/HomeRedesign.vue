@@ -1,38 +1,40 @@
 <template>
   <view class="homeV2">
-    <view class="homeV2Header">
-      <view class="homeV2TitleGroup">
-        <text class="homeV2Title">课本单词通</text>
-        <view
-          class="homeV2ThemeSwitch"
-          hover-class="homeV2ThemeSwitchPressed"
-          hover-stay-time="80"
-          role="button"
-          :aria-label="`切换主题，当前${visualThemeName}`"
-          @tap.stop="emit('switch-theme')"
-        >
-          <view class="homeV2ThemeSwatch" aria-hidden="true" />
-          <text>{{ visualThemeName }}</text>
-        </view>
-      </view>
-      <view class="homeV2HeaderActions">
-        <view
-          class="homeV2Feedback"
-          hover-class="homeV2FeedbackPressed"
-          hover-stay-time="80"
-          role="button"
-          aria-label="意见反馈"
-          @tap="emit('feedback')"
-        >
-          <view class="homeV2FeedbackBubble">
-            <view class="homeV2FeedbackDot" />
-            <view class="homeV2FeedbackDot" />
-            <view class="homeV2FeedbackDot" />
+    <FixedPageHeader>
+      <view class="homeV2Header">
+        <view class="homeV2TitleGroup">
+          <text class="homeV2Title">课本单词通</text>
+          <view
+            class="homeV2ThemeSwitch"
+            hover-class="homeV2ThemeSwitchPressed"
+            hover-stay-time="80"
+            role="button"
+            :aria-label="`切换主题，当前${visualThemeName}`"
+            @tap.stop="emit('switch-theme')"
+          >
+            <view class="homeV2ThemeSwatch" aria-hidden="true" />
+            <text>{{ visualThemeName }}</text>
           </view>
-          <view class="homeV2FeedbackTail" />
+        </view>
+        <view class="homeV2HeaderActions">
+          <view
+            class="homeV2Feedback"
+            hover-class="homeV2FeedbackPressed"
+            hover-stay-time="80"
+            role="button"
+            aria-label="意见反馈"
+            @tap="emit('feedback')"
+          >
+            <view class="homeV2FeedbackBubble">
+              <view class="homeV2FeedbackDot" />
+              <view class="homeV2FeedbackDot" />
+              <view class="homeV2FeedbackDot" />
+            </view>
+            <view class="homeV2FeedbackTail" />
+          </view>
         </view>
       </view>
-    </view>
+    </FixedPageHeader>
 
     <view class="homeV2CourseCard">
       <view class="homeV2CourseMain" @tap="emit('change-course')">
@@ -140,6 +142,7 @@
 </template>
 
 <script setup lang="ts">
+import FixedPageHeader from '@/components/FixedPageHeader.vue'
 import { computed, ref, watch } from 'vue'
 import { estimateDictationSeconds, formatEstimatedMinutes } from '@/core/dictation'
 import type { DictationMode, DictationRepeatCount, UnitGroup } from '@/core/types'

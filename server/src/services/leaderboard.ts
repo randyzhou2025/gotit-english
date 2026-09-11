@@ -1,17 +1,19 @@
 import { sql } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { shanghaiWeekContext } from "../lib/learning-power.js";
+import { leaderboardConfig } from "./social.js";
 
 export type LeaderboardMetric = "time" | "words" | "power";
 export type LeaderboardPeriod = "week" | "total";
 
-/** 只把 Top 10、本人及所需差值取回应用层，避免全量拉取用户排名。 */
+/** 只把配置人数内的排名、本人及所需差值取回应用层，避免全量拉取用户排名。 */
 export async function getMetricLeaderboard(
   userId: string,
   metric: LeaderboardMetric,
   period: LeaderboardPeriod,
   now = new Date()
 ) {
+  const { displayLimit } = await leaderboardConfig();
   const context = shanghaiWeekContext(now);
   const start = context.weekStart;
   const end = context.weekEnd;
@@ -43,7 +45,7 @@ export async function getMetricLeaderboard(
         row_number() over (order by value desc, tie_at desc nulls last, user_id asc) as rank,
         lag(value) over (order by value desc, tie_at desc nulls last, user_id asc) as previous_value
       from totals inner join users on users.id = totals.user_id where value > 0
-    ) select * from ranked where rank <= 10 or user_id = ${userId}::uuid order by rank`);
+    ) select * from ranked where rank <= ${displayLimit} or user_id = ${userId}::uuid order by rank`);
   const me = rows.find(row => row.user_id === userId);
   const serialize = (row: typeof rows[number]) => ({
     rank: Number(row.rank), userId: row.user_id, nickname: row.nickname || "同学",
@@ -51,11 +53,11 @@ export async function getMetricLeaderboard(
   });
   return {
     metric, period, weekKey: context.weekKey, weekStart: start, weekEnd: end,
-    asOf: now.toISOString(), displayLimit: 10,
+    asOf: now.toISOString(), displayLimit,
     myRank: me ? Number(me.rank) : null,
     myValue: me ? Number(me.value) : 0,
     gapToPrevious: me?.previous_value != null ? Number(me.previous_value) - Number(me.value) : null,
-    ranking: rows.filter(row => Number(row.rank) <= 10).map(serialize),
+    ranking: rows.filter(row => Number(row.rank) <= displayLimit).map(serialize),
     myEntry: me ? serialize(me) : null,
   };
 }

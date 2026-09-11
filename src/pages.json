@@ -181,7 +181,9 @@
     ]
   },
   "globalStyle": {
-    "backgroundColor": "#f4f1e8",
+    "backgroundColor": "#dfece6",
+    "backgroundColorTop": "#dfece6",
+    "backgroundColorBottom": "#dfece6",
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "课本单词通",
     "navigationBarBackgroundColor": "#f4f1e8",
