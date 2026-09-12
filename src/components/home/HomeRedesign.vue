@@ -1,6 +1,6 @@
 <template>
   <view class="homeV2">
-    <FixedPageHeader>
+    <FixedPageHeader blend-with-page>
       <view class="homeV2Header">
         <view class="homeV2TitleGroup">
           <text class="homeV2Title">课本单词通</text>

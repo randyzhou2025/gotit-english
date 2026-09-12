@@ -11,6 +11,8 @@ useWeappShare()
 
 <script lang="ts">
 export default {
+  // 原生页需显式注册滚动事件，首页标题栏才能按滚动位置渐显遮罩。
+  onPageScroll() {},
   onShareAppMessage() {},
   onShareTimeline() {}
 }

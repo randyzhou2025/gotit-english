@@ -5,12 +5,12 @@ import { describe, expect, it } from 'vitest'
 
 const source = fs.readFileSync(new URL('./FixedPageHeader.vue', import.meta.url), 'utf8')
 const script = source.match(/<script setup lang="ts">([\s\S]*?)<\/script>/)![1]!
-const compiled = ts.transpileModule(script + '\nexports.styles = { spaceStyle, barStyle };', {
+const compiled = ts.transpileModule(script + '\nexports.styles = { spaceStyle, barStyle, surfaceStyle };', {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 }
 }).outputText
 
-function fixture() {
-  const hooks: Record<string, () => void> = {}
+function fixture(props = {}) {
+  const hooks: Record<string, (event?: { scrollTop: number }) => void> = {}
   let measurements = [{ top: -156, left: 18, width: 357 }, { height: 60 }, { scrollTop: 200 }]
   let queries = 0
   const query = {
@@ -25,11 +25,13 @@ function fixture() {
     onMounted: (callback: () => void) => { hooks.mount = callback },
     onUpdated: (callback: () => void) => { hooks.update = callback },
     onBeforeUnmount: (callback: () => void) => { hooks.unmount = callback },
-    onShow: (callback: () => void) => { hooks.show = callback }
+    onShow: (callback: () => void) => { hooks.show = callback },
+    onPageScroll: (callback: (event?: { scrollTop: number }) => void) => { hooks.scroll = callback }
   }
   const context = {
-    exports: {} as { styles: { spaceStyle: { value: string }; barStyle: { value: string } } },
-    require: () => lifecycle, defineProps: () => ({}),
+    exports: {} as { styles: { spaceStyle: { value: string }; barStyle: { value: string }; surfaceStyle: { value: string } } },
+    require: () => lifecycle, defineProps: () => props,
+    document: { addEventListener: () => {}, removeEventListener: () => {} },
     uni: {
       createSelectorQuery: () => query, getWindowInfo: () => ({ windowWidth: 393 }),
       onWindowResize: (callback: () => void) => { hooks.resize = callback }, offWindowResize: () => {}
@@ -40,6 +42,19 @@ function fixture() {
 }
 
 describe('fixed page header layout', () => {
+  it('blends the home header into the image at the top and protects text after scrolling', async () => {
+    const state = fixture({ blendWithPage: true })
+    expect(state.styles.surfaceStyle.value).toContain('opacity: 0;')
+    state.hooks.mount!()
+    await Promise.resolve()
+    expect(state.styles.surfaceStyle.value).toContain('opacity: 1;')
+    state.hooks.scroll!({ scrollTop: 20 })
+    expect(state.styles.surfaceStyle.value).toContain('opacity: 0.5;')
+    state.hooks.scroll!({ scrollTop: -120 })
+    expect(state.styles.surfaceStyle.value).toContain('opacity: 0;')
+    expect(state.styles.barStyle.value).toContain('top: 44px')
+    expect(fixture().styles.surfaceStyle.value).not.toContain('opacity:')
+  })
   it('waits for mounted layout and compensates for a restored page scroll position', async () => {
     const state = fixture()
     state.hooks.show!()
