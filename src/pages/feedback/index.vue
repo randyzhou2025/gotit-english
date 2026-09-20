@@ -49,23 +49,6 @@
     </view>
 
     <view v-else class="feedbackBody">
-      <view v-if="threads.length > 0" class="threadSection">
-        <text class="sectionLabel">我的反馈</text>
-        <view
-          v-for="thread in threads"
-          :key="thread.id"
-          class="threadCard"
-          @tap="openThread(thread.id)"
-        >
-          <view class="threadCardTop">
-            <text class="threadCardCategory">{{ categoryLabel(thread.category) }}</text>
-            <text v-if="thread.unread" class="unreadBadge">新回复</text>
-          </view>
-          <text class="threadCardPreview">{{ threadPreview(thread) }}</text>
-          <text class="threadCardTime">{{ formatTime(thread.updatedAt) }}</text>
-        </view>
-      </view>
-
       <text class="sectionLabel">新的反馈</text>
       <view class="categoryGrid">
         <view
@@ -90,6 +73,23 @@
 
       <view :class="['submitButton', submitting && 'isDisabled']" @tap="submit">
         <text>{{ submitting ? '提交中…' : '提交反馈' }}</text>
+      </view>
+
+      <view v-if="threads.length > 0" class="threadSection">
+        <text class="sectionLabel">我的反馈</text>
+        <view
+          v-for="thread in threads"
+          :key="thread.id"
+          class="threadCard"
+          @tap="openThread(thread.id)"
+        >
+          <view class="threadCardTop">
+            <text class="threadCardCategory">{{ categoryLabel(thread.category) }}</text>
+            <text v-if="thread.unread" class="unreadBadge">新回复</text>
+          </view>
+          <text class="threadCardPreview">{{ threadPreview(thread) }}</text>
+          <text class="threadCardTime">{{ formatTime(thread.updatedAt) }}</text>
+        </view>
       </view>
     </view>
   </view>
@@ -338,7 +338,7 @@ onShow(() => {
 }
 
 .threadSection {
-  margin-bottom: 22px;
+  margin-top: 22px;
 }
 
 .threadCard {

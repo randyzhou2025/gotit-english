@@ -178,9 +178,15 @@
             </view>
             <text class="toolLabel">开始练习</text>
           </view>
-          <view class="toolItem" @tap="openFeedback">
+          <view
+            :class="['toolItem', hasUnreadFeedback && 'hasUnread']"
+            role="button"
+            :aria-label="hasUnreadFeedback ? '意见反馈，有新回复' : '意见反馈'"
+            @tap="openFeedback"
+          >
             <view class="toolIcon">
               <view class="toolGlyph toolGlyphFeedback" />
+              <view v-if="hasUnreadFeedback" class="toolFeedbackBadge" />
             </view>
             <text class="toolLabel">意见反馈</text>
           </view>
@@ -316,6 +322,7 @@ import {
   type LearningReminderSettings
 } from '@/core/learningReminder'
 import TabBottomNav from '@/components/TabBottomNav.vue'
+import { fetchFeedbackUnreadCount } from '@/core/feedback'
 import { flushStudyEvents, getCachedDashboard, refreshDashboard, setCachedDashboard } from '@/core/studyStats'
 import {
   ensureUserSession,
@@ -360,6 +367,7 @@ const scoreShareExportWidth = 750
 const scoreShareExportHeight = 600
 const apiEnabled = isApiEnabled()
 const customerServiceEnabled = false
+const hasUnreadFeedback = ref(false)
 
 const { savedWeakWords } = usePracticeSession()
 const { activeVisualTheme, activeVisualThemeStyle, switchToNextVisualTheme } = useVisualTheme()
@@ -603,6 +611,7 @@ async function refreshProfileDataInBackground() {
     } catch (error) {
       console.warn('[ProfileScreen] reminder refresh failed', error)
     }
+    hasUnreadFeedback.value = (await fetchFeedbackUnreadCount()) > 0
   }
 }
 
@@ -1687,6 +1696,7 @@ onShow(() => {
 }
 
 .toolIcon {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1694,6 +1704,21 @@ onShow(() => {
   height: 46px;
   border-radius: 999px;
   background: #f3f5f7;
+}
+
+.toolItem.hasUnread .toolIcon {
+  box-shadow: 0 0 0 3px rgba(255, 77, 79, 0.22);
+}
+
+.toolFeedbackBadge {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid #fff;
+  border-radius: 999px;
+  background: #ff4d4f;
 }
 
 .toolThemeIcon {

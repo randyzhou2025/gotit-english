@@ -92,6 +92,12 @@ describe('profile screen layout', () => {
     expect(source).toContain('点击头像或昵称可修改')
   })
 
+  it('shows a new-message badge on the profile feedback tool', () => {
+    expect(source).toContain('fetchFeedbackUnreadCount')
+    expect(source).toContain("hasUnreadFeedback ? '意见反馈，有新回复' : '意见反馈'")
+    expect(source).toContain('class="toolFeedbackBadge"')
+  })
+
   it('reuses the home theme switch from tools and services', () => {
     expect(source).toContain('@tap="switchToNextVisualTheme"')
     expect(source).toContain(':aria-label="`切换主题，当前${activeVisualTheme.name}`"')

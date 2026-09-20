@@ -12,5 +12,6 @@ describe('feedback conversation client', () => {
     expect(page).toContain('submitFeedbackReply')
     expect(page).toContain('管理员')
     expect(page).toContain('新回复')
+    expect(page.indexOf('新的反馈')).toBeLessThan(page.indexOf('我的反馈'))
   })
 })
