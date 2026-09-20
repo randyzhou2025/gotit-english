@@ -180,4 +180,13 @@ describe('redesigned home', () => {
     expect(eggSource).toContain('.unitEggContrastNote.isRight')
     expect(eggSource).toContain('text-align: right;')
   })
+
+  it('shows a new-message badge on the home feedback icon', () => {
+    expect(homeSource).toContain('hasUnreadFeedback && \'hasUnread\'')
+    expect(homeSource).toContain('class="homeV2FeedbackBadge"')
+    expect(shellSource).toContain(':has-unread-feedback="hasUnreadFeedback"')
+    expect(shellSource).toContain('fetchFeedbackUnreadCount')
+    expect(feedbackSource).toContain('继续回复管理员')
+    expect(feedbackSource).toContain('我的反馈')
+  })
 })

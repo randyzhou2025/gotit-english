@@ -205,6 +205,7 @@
         :today-dictation-word-count="todayDictationWordCount"
         :unit-egg-audio-playing="isAudioPlaying"
         :visual-theme-name="activeVisualTheme.name"
+        :has-unread-feedback="hasUnreadFeedback"
         @feedback="openFeedbackPage"
         @change-course="openCourseSetupPage"
         @open-unit-words="openUnitWordsPage()"
@@ -223,11 +224,11 @@
             <view class="homeHeroTitleRow">
               <view class="homeHeroTitle">课本单词通</view>
               <view
-                class="homeFeedbackButton"
+                :class="['homeFeedbackButton', hasUnreadFeedback && 'hasUnread']"
                 hover-class="homeFeedbackButtonPressed"
                 hover-stay-time="80"
                 role="button"
-                aria-label="Feedback"
+                :aria-label="hasUnreadFeedback ? '意见反馈，有新回复' : '意见反馈'"
                 @tap.stop="openFeedbackPage"
               >
                 <view class="homeFeedbackMark">
@@ -238,6 +239,7 @@
                   </view>
                   <view class="homeFeedbackTail" />
                 </view>
+                <view v-if="hasUnreadFeedback" class="homeFeedbackBadge" />
               </view>
             </view>
             <view class="homeHeroSubtitle">别急着背更多，先把课本里的单词真正掌握</view>
@@ -1593,6 +1595,7 @@ import type {
 } from '@/features/feature-announcements/types'
 import { useFeatureAnnouncements } from '@/features/feature-announcements/useFeatureAnnouncements'
 import { formatCourseSetupBookName } from '@/core/courseSetupCatalog'
+import { fetchFeedbackUnreadCount } from '@/core/feedback'
 import { trackAnalyticsEvent } from '@/core/analytics'
 import { getAudioUrl, getDictationAudioUrls, hasPlayableAudio } from '@/core/audio'
 import { estimateDictationSeconds, formatEstimatedMinutes } from '@/core/dictation'
@@ -1632,6 +1635,7 @@ const {
 
 const choiceKeys = ['A', 'B', 'C', 'D']
 const reminderRenewalHandled = ref(false)
+const hasUnreadFeedback = ref(false)
 const rewardParticles = [
   { id: 'p1', className: 'rewardParticle toneGold bar leftFar' },
   { id: 'p2', className: 'rewardParticle toneTeal dot leftMid' },
@@ -2541,6 +2545,7 @@ function handlePageShow() {
   updateMiniProgramNavInset()
   configureMiniProgramAudioPlayback()
   refreshTodayDictationWordCount()
+  void refreshFeedbackUnread()
   shellVisible.value = true
   if (props.routeScreen) {
     activateRouteScreen(props.routeScreen)
@@ -2991,6 +2996,10 @@ function openFeedbackPage() {
   uni.navigateTo({
     url: '/pages/feedback/index'
   })
+}
+
+async function refreshFeedbackUnread() {
+  hasUnreadFeedback.value = (await fetchFeedbackUnreadCount()) > 0
 }
 
 async function confirmCourseSetupPage() {
@@ -7886,6 +7895,7 @@ onBeforeUnmount(() => {
 }
 
 .homeFeedbackButton {
+  position: relative;
   display: flex;
   flex: 0 0 44px;
   align-items: center;
@@ -7902,6 +7912,21 @@ onBeforeUnmount(() => {
 .homeFeedbackButtonPressed {
   background: var(--accent-strong);
   transform: scale(0.96);
+}
+
+.homeFeedbackButton.hasUnread {
+  box-shadow: 0 6px 14px rgba(23, 107, 80, 0.22), 0 0 0 3px rgba(255, 77, 79, 0.22);
+}
+
+.homeFeedbackBadge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid #fffdf8;
+  border-radius: 999px;
+  background: #ff4d4f;
 }
 
 .homeFeedbackMark {

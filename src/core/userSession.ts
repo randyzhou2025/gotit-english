@@ -304,19 +304,6 @@ export async function fetchPublicConfig(): Promise<PublicAppConfig> {
   }
 }
 
-export async function submitFeedback(input: {
-  category: FeedbackCategory
-  content: string
-}): Promise<boolean> {
-  if (!isApiEnabled() || !getAuthToken()) return false
-
-  await apiRequest('/api/feedback', {
-    method: 'POST',
-    body: input
-  })
-  return true
-}
-
 export function markProgressUpdatedAt(updatedAt: string) {
   writeStorage(PROGRESS_UPDATED_AT_KEY, updatedAt)
 }

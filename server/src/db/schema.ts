@@ -91,8 +91,27 @@ export const feedbacks = pgTable("feedbacks", {
   category: varchar("category", { length: 32 }).notNull(),
   content: text("content").notNull(),
   imageUrls: jsonb("image_urls").$type<string[]>().notNull().default([]),
+  userLastReadAt: timestamp("user_last_read_at", { withTimezone: true }),
+  adminLastReadAt: timestamp("admin_last_read_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+export const feedbackReplies = pgTable(
+  "feedback_replies",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    feedbackId: uuid("feedback_id")
+      .notNull()
+      .references(() => feedbacks.id, { onDelete: "cascade" }),
+    sender: varchar("sender", { length: 16 }).notNull(),
+    content: text("content").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    feedbackCreatedAtIdx: index("feedback_replies_feedback_id_idx").on(table.feedbackId, table.createdAt),
+  })
+);
 
 export const appConfig = pgTable("app_config", {
   key: varchar("key", { length: 64 }).primaryKey(),

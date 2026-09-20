@@ -1,15 +1,27 @@
 import type { FastifyInstance, FastifyRequest, preHandlerHookHandler } from "fastify";
 import { z } from "zod";
 import { db } from "../db/index.js";
-import { appConfig, feedbacks } from "../db/schema.js";
+import { appConfig } from "../db/schema.js";
 import { readStudyReminderConfig } from "../services/learning-reminder.js";
-
-const feedbackCategories = ["bug", "malfunction", "experience", "feature", "other"] as const;
+import {
+  addUserReply,
+  countUnreadFeedback,
+  createFeedback,
+  FEEDBACK_CATEGORIES,
+  getFeedbackThread,
+  listFeedbackThreads,
+} from "../services/feedback.js";
 
 const feedbackSchema = z.object({
-  category: z.enum(feedbackCategories),
+  category: z.enum(FEEDBACK_CATEGORIES),
   content: z.string().trim().min(1).max(500),
 });
+
+const replySchema = z.object({
+  content: z.string().trim().min(1).max(500),
+});
+
+const feedbackIdSchema = z.string().uuid();
 
 export async function registerFeedbackRoutes(
   app: FastifyInstance,
@@ -22,16 +34,41 @@ export async function registerFeedbackRoutes(
       throw app.httpErrors.badRequest("Invalid feedback payload");
     }
 
-    const [row] = await db
-      .insert(feedbacks)
-      .values({
-        userId: jwtUser.sub,
-        category: parsed.data.category,
-        content: parsed.data.content,
-      })
-      .returning();
+    const feedback = await createFeedback(jwtUser.sub, parsed.data.category, parsed.data.content);
+    return { feedback };
+  });
 
-    return { feedback: { id: row!.id, createdAt: row!.createdAt.toISOString() } };
+  app.get("/api/feedback", { preHandler: [authenticate] }, async (request: FastifyRequest) => {
+    const jwtUser = request.user as { sub: string };
+    return { threads: await listFeedbackThreads(jwtUser.sub) };
+  });
+
+  app.get("/api/feedback/unread", { preHandler: [authenticate] }, async (request: FastifyRequest) => {
+    const jwtUser = request.user as { sub: string };
+    return { unreadCount: await countUnreadFeedback(jwtUser.sub) };
+  });
+
+  app.get("/api/feedback/:id", { preHandler: [authenticate] }, async (request: FastifyRequest) => {
+    const jwtUser = request.user as { sub: string };
+    const parsed = feedbackIdSchema.safeParse((request.params as { id?: string }).id);
+    if (!parsed.success) throw app.httpErrors.badRequest("Invalid feedback id");
+
+    const thread = await getFeedbackThread(jwtUser.sub, parsed.data);
+    if (!thread) throw app.httpErrors.notFound("Feedback not found");
+    return { thread };
+  });
+
+  app.post("/api/feedback/:id/replies", { preHandler: [authenticate] }, async (request: FastifyRequest) => {
+    const jwtUser = request.user as { sub: string };
+    const idParsed = feedbackIdSchema.safeParse((request.params as { id?: string }).id);
+    const bodyParsed = replySchema.safeParse(request.body ?? {});
+    if (!idParsed.success || !bodyParsed.success) {
+      throw app.httpErrors.badRequest("Invalid reply payload");
+    }
+
+    const reply = await addUserReply(jwtUser.sub, idParsed.data, bodyParsed.data.content);
+    if (!reply) throw app.httpErrors.notFound("Feedback not found");
+    return { reply };
   });
 
   app.get("/api/config/public", async () => {

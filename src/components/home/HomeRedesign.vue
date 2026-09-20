@@ -18,11 +18,11 @@
         </view>
         <view class="homeV2HeaderActions">
           <view
-            class="homeV2Feedback"
+            :class="['homeV2Feedback', hasUnreadFeedback && 'hasUnread']"
             hover-class="homeV2FeedbackPressed"
             hover-stay-time="80"
             role="button"
-            aria-label="意见反馈"
+            :aria-label="hasUnreadFeedback ? '意见反馈，有新回复' : '意见反馈'"
             @tap="emit('feedback')"
           >
             <view class="homeV2FeedbackBubble">
@@ -31,6 +31,7 @@
               <view class="homeV2FeedbackDot" />
             </view>
             <view class="homeV2FeedbackTail" />
+            <view v-if="hasUnreadFeedback" class="homeV2FeedbackBadge" />
           </view>
         </view>
       </view>
@@ -163,7 +164,10 @@ const props = defineProps<{
   todayDictationWordCount: number
   unitEggAudioPlaying: boolean
   visualThemeName: string
+  hasUnreadFeedback?: boolean
 }>()
+
+const hasUnreadFeedback = computed(() => Boolean(props.hasUnreadFeedback))
 
 const emit = defineEmits<{
   feedback: []
@@ -353,6 +357,21 @@ const remainingDictationMeta = computed(() => {
   border-radius: 1px;
   background: #fffdf8;
   transform: rotate(45deg);
+}
+
+.homeV2Feedback.hasUnread {
+  box-shadow: 0 6px 14px var(--accent-shadow), 0 0 0 3px rgba(255, 77, 79, 0.22);
+}
+
+.homeV2FeedbackBadge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid #fffdf8;
+  border-radius: 999px;
+  background: #ff4d4f;
 }
 
 .homeV2CourseCard {
