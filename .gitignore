@@ -29,6 +29,7 @@ backup/
 tmp/
 .codex-tmp/
 design-preview/
+design/
 assets/
 
 # Local doc assets (wordbank xlsx, product docs, QA screenshots)
