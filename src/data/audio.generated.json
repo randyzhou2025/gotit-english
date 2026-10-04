@@ -9,7 +9,7 @@
     "us": "en-US-JennyNeural",
     "zh": "zh-CN-XiaoxiaoNeural"
   },
-  "generatedAt": "2026-09-09T12:13:40.071Z",
+  "generatedAt": "2026-09-28T12:06:42.048Z",
   "items": {
     "ylj/required-1/unit-1/path": {
       "ukUrl": "/generated/audio/ylj/required-1/unit-1/path/uk.mp3",
@@ -28365,6 +28365,54 @@
       "ukUrl": "/generated/audio/wyx/grade-8-1/unit-6/pain/uk.mp3",
       "usUrl": "",
       "zhUrl": "/generated/audio/wyx/grade-8-1/unit-6/pain/zh.mp3",
+      "status": "ready"
+    },
+    "wy/required-1/unit-2/seasick": {
+      "ukUrl": "/generated/audio/wy/required-1/unit-2/seasick/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/wy/required-1/unit-2/seasick/zh.mp3",
+      "status": "ready"
+    },
+    "wy/required-1/unit-2/addition": {
+      "ukUrl": "/generated/audio/wy/required-1/unit-2/addition/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/wy/required-1/unit-2/addition/zh.mp3",
+      "status": "ready"
+    },
+    "wy/required-1/unit-3/approach": {
+      "ukUrl": "/generated/audio/wy/required-1/unit-3/approach/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/wy/required-1/unit-3/approach/zh.mp3",
+      "status": "ready"
+    },
+    "wy/required-1/unit-3/enormously": {
+      "ukUrl": "/generated/audio/wy/required-1/unit-3/enormously/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/wy/required-1/unit-3/enormously/zh.mp3",
+      "status": "ready"
+    },
+    "wy/required-1/unit-4/ought-to": {
+      "ukUrl": "/generated/audio/wy/required-1/unit-4/ought-to/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/wy/required-1/unit-4/ought-to/zh.mp3",
+      "status": "ready"
+    },
+    "wy/required-1/unit-5/position": {
+      "ukUrl": "/generated/audio/wy/required-1/unit-5/position/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/wy/required-1/unit-5/position/zh.mp3",
+      "status": "ready"
+    },
+    "wy/required-1/unit-5/encounter": {
+      "ukUrl": "/generated/audio/wy/required-1/unit-5/encounter/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/wy/required-1/unit-5/encounter/zh.mp3",
+      "status": "ready"
+    },
+    "wy/required-1/unit-6/replace": {
+      "ukUrl": "/generated/audio/wy/required-1/unit-6/replace/uk.mp3",
+      "usUrl": "",
+      "zhUrl": "/generated/audio/wy/required-1/unit-6/replace/zh.mp3",
       "status": "ready"
     }
   }

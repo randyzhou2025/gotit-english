@@ -144,14 +144,15 @@
 
 <script setup lang="ts">
 import FixedPageHeader from '@/components/FixedPageHeader.vue'
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { estimateDictationSeconds, formatEstimatedMinutes } from '@/core/dictation'
 import type { DictationMode, DictationRepeatCount, UnitGroup } from '@/core/types'
 import { getUnitEggForDate } from '@/core/unitEggs'
 import UnitEggCard from '@/components/home/UnitEggCard.vue'
 
 const props = defineProps<{
-  selectedUnit?: UnitGroup
+  selectedUnit?: Pick<UnitGroup, 'unitId' | 'bookName' | 'unitName' | 'publisherName'>
+  contentReady: boolean
   bookCoverSource: string
   bookCoverVisible: boolean
   unitWordCount: number
@@ -183,21 +184,30 @@ const emit = defineEmits<{
 
 const unitEgg = ref<Awaited<ReturnType<typeof getUnitEggForDate>>>(null)
 let unitEggLoadRevision = 0
+let unitEggTimer: ReturnType<typeof setTimeout> | null = null
 
 watch(
-  () => props.selectedUnit?.unitId,
-  async (unitId) => {
+  () => [props.selectedUnit?.unitId, props.contentReady] as const,
+  ([unitId, ready], previous) => {
     const revision = ++unitEggLoadRevision
-    unitEgg.value = null
-    if (!unitId) return
+    if (unitEggTimer !== null) clearTimeout(unitEggTimer)
+    unitEggTimer = null
+    if (unitId !== previous?.[0]) unitEgg.value = null
+    if (!unitId || !ready || unitEgg.value) return
 
-    const nextUnitEgg = await getUnitEggForDate(unitId)
-    if (revision === unitEggLoadRevision) {
-      unitEgg.value = nextUnitEgg
-    }
+    unitEggTimer = setTimeout(async () => {
+      unitEggTimer = null
+      const nextUnitEgg = await getUnitEggForDate(unitId)
+      if (revision === unitEggLoadRevision) unitEgg.value = nextUnitEgg
+    }, 300)
   },
   { immediate: true }
 )
+
+onBeforeUnmount(() => {
+  unitEggLoadRevision += 1
+  if (unitEggTimer !== null) clearTimeout(unitEggTimer)
+})
 
 const unitName = computed(() => props.selectedUnit?.unitName || '当前单元')
 const courseUnitName = computed(() => (props.selectedUnit?.unitName || '').replace(/\s+/g, '\u00a0'))

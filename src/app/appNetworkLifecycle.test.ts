@@ -71,6 +71,57 @@ describe('deferred app network lifecycle', () => {
     expect(mocks.refreshPracticeSessionIfWordbankUpdated).not.toHaveBeenCalled()
   })
 
+  it('does not treat the boot skeleton as ready content', async () => {
+    const lifecycle = await import('./appNetworkLifecycle')
+
+    lifecycle.deferAppPageReady()
+    lifecycle.beginAppForegroundCycle()
+    lifecycle.markAppPageReady()
+    await vi.advanceTimersByTimeAsync(10_000)
+
+    expect(mocks.fetchPublicConfig).not.toHaveBeenCalled()
+    expect(mocks.ensureUserSession).not.toHaveBeenCalled()
+    expect(mocks.refreshPracticeSessionIfWordbankUpdated).not.toHaveBeenCalled()
+
+    lifecycle.markAppPageContentReady()
+    lifecycle.markAppPageContentReady()
+    await vi.advanceTimersByTimeAsync(100)
+    expect(mocks.fetchPublicConfig).toHaveBeenCalledTimes(1)
+    await vi.advanceTimersByTimeAsync(3_900)
+    expect(mocks.refreshPracticeSessionIfWordbankUpdated).toHaveBeenCalledTimes(1)
+  })
+
+  it('still waits for onReady when content mounts first', async () => {
+    const lifecycle = await import('./appNetworkLifecycle')
+
+    lifecycle.deferAppPageReady()
+    lifecycle.beginAppForegroundCycle()
+    lifecycle.markAppPageContentReady()
+    await vi.advanceTimersByTimeAsync(1_000)
+    expect(mocks.fetchPublicConfig).not.toHaveBeenCalled()
+
+    lifecycle.markAppPageReady()
+    await vi.advanceTimersByTimeAsync(100)
+    expect(mocks.fetchPublicConfig).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps the content gate across hide/show without re-blocking later pages', async () => {
+    const lifecycle = await import('./appNetworkLifecycle')
+
+    lifecycle.deferAppPageReady()
+    lifecycle.beginAppForegroundCycle()
+    lifecycle.markAppPageReady()
+    expect(lifecycle.endAppForegroundCycle()).toBe(false)
+    lifecycle.markAppPageContentReady()
+    await vi.advanceTimersByTimeAsync(1_000)
+    expect(mocks.fetchPublicConfig).not.toHaveBeenCalled()
+
+    lifecycle.deferAppPageReady()
+    lifecycle.beginAppForegroundCycle()
+    await vi.advanceTimersByTimeAsync(100)
+    expect(mocks.fetchPublicConfig).toHaveBeenCalledTimes(1)
+  })
+
   it('runs each startup task once after ready and keeps the wordbank check delayed', async () => {
     const lifecycle = await import('./appNetworkLifecycle')
 

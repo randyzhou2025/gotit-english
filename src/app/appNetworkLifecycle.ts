@@ -13,6 +13,7 @@ const FOREGROUND_SYNC_DELAY_MS = 1_500
 const WORDBANK_REFRESH_DELAY_MS = 4_000
 
 let firstPageReady = false
+let firstPageContentPending = false
 let foregroundActive = false
 let foregroundCycleId = 0
 let scheduledCycleId = 0
@@ -55,7 +56,7 @@ function runPostReadyNetworkTasks(cycleId: number) {
 }
 
 function scheduleForegroundCycleIfReady() {
-  if (!foregroundActive || !firstPageReady) return
+  if (!foregroundActive || !firstPageReady || firstPageContentPending) return
   if (scheduledCycleId === foregroundCycleId) return
 
   const cycleId = foregroundCycleId
@@ -86,19 +87,30 @@ export function markAppPageReady() {
   scheduleForegroundCycleIfReady()
 }
 
+export function deferAppPageReady() {
+  // PracticeShell can finish onReady while only its boot skeleton is visible.
+  if (!firstPageReady) firstPageContentPending = true
+}
+
+export function markAppPageContentReady() {
+  firstPageContentPending = false
+  scheduleForegroundCycleIfReady()
+}
+
 export function endAppForegroundCycle(): boolean {
   if (!foregroundActive) return false
 
   foregroundActive = false
   for (const timer of cycleTimers) clearTimeout(timer)
   cycleTimers.clear()
-  return firstPageReady
+  return firstPageReady && !firstPageContentPending
 }
 
 export function resetAppNetworkLifecycleForTests() {
   for (const timer of cycleTimers) clearTimeout(timer)
   cycleTimers.clear()
   firstPageReady = false
+  firstPageContentPending = false
   foregroundActive = false
   foregroundCycleId = 0
   scheduledCycleId = 0

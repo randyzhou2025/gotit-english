@@ -149,7 +149,7 @@ export function expandPublisherBlock(block: CompactPublisherBlock): WordEntry[] 
         antonyms,
         audioCdnKey
       ] = record
-        if (isPhraseEntry(word)) continue
+        if (isPhraseEntry(word) && !(block.publisher.id === 'wy' && book.id === 'required-1' && word === 'ought to')) continue
 
         const cdnKey = audioCdnKey || (
           block.publisher.id.startsWith('bb-')

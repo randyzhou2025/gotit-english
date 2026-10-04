@@ -3,6 +3,7 @@
     v-if="ready"
     v-bind="$attrs"
     class="practiceShellInner"
+    @content-ready="markAppPageContentReady"
   />
   <view
     v-else
@@ -65,19 +66,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeMount, onMounted, ref, useAttrs } from 'vue'
+import { computed, nextTick, onBeforeMount, onMounted, ref, useAttrs } from 'vue'
 import {
   ensurePracticeSessionReady,
   isPracticeSessionReady
 } from '@/app/usePracticeSession'
 import { HOME_REDESIGN_V2_ENABLED, VISUAL_THEME_ENABLED } from '@/app/featureFlags'
 import { useVisualTheme } from '@/app/useVisualTheme'
+import { deferAppPageReady, markAppPageContentReady } from '@/app/appNetworkLifecycle'
 import PracticeShellInner from '@/components/PracticeShellInner.vue'
 
 defineOptions({
   inheritAttrs: false
 })
 
+deferAppPageReady()
 const attrs = useAttrs()
 const { activeVisualThemeStyle } = useVisualTheme()
 const ready = ref(isPracticeSessionReady())
@@ -125,6 +128,7 @@ onBeforeMount(async () => {
       return
     }
     uni.showToast({ title: '词库加载失败，请检查网络', icon: 'none' })
+    void nextTick(markAppPageContentReady)
   }
 })
 </script>

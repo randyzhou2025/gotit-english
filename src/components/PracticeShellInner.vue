@@ -192,7 +192,8 @@
     <template v-else-if="activeScreen === 'home'">
       <HomeRedesign
         v-if="HOME_REDESIGN_V2_ENABLED"
-        :selected-unit="selectedUnit"
+        :selected-unit="homeUnitSummary"
+        :content-ready="pageContentReady"
         :book-cover-source="homeBookCoverSource"
         :book-cover-visible="homeBookCoverVisible"
         :unit-word-count="unitWordCount"
@@ -1579,7 +1580,7 @@
 
 <script setup lang="ts">
 import FixedPageHeader from '@/components/FixedPageHeader.vue'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { onHide, onShow } from '@dcloudio/uni-app'
 import { confirmCourseSetupAndEnter, usePracticeSession, type AppScreen } from '@/app/usePracticeSession'
 import { HOME_REDESIGN_V2_ENABLED, VISUAL_THEME_ENABLED } from '@/app/featureFlags'
@@ -1623,6 +1624,9 @@ const props = defineProps<{
   tabScreen?: 'home' | 'weakbook'
   routeScreen?: AppScreen
 }>()
+
+const emit = defineEmits<{ 'content-ready': [] }>()
+const instance = getCurrentInstance()
 
 const { activeVisualTheme, activeVisualThemeStyle, switchToNextVisualTheme } = useVisualTheme()
 const { featureAnnouncementsEnabled } = useFeatureAnnouncementRemoteConfig()
@@ -1835,6 +1839,9 @@ const remainingSeconds = ref(0)
 const checkupLimitDraft = ref('')
 const checkupLimitInputFocused = ref(false)
 const shellVisible = ref(false)
+const pageContentReady = ref(false)
+let pageShowRevision = 0
+let feedbackRefreshTimer: ReturnType<typeof setTimeout> | null = null
 const miniProgramNavTop = ref(16)
 const miniProgramCapsuleTop = ref(44)
 const miniProgramCapsuleHeight = ref(32)
@@ -2217,6 +2224,17 @@ const filteredUnitWords = computed(() => {
 
 const HIGH_DIFFICULTY_THRESHOLD = 2
 
+const homeUnitSummary = computed(() => {
+  const unit = selectedUnit.value
+  if (!unit) return undefined
+  return {
+    unitId: unit.unitId,
+    bookName: unit.bookName,
+    unitName: unit.unitName,
+    publisherName: unit.publisherName
+  }
+})
+
 const homeBookCoverSource = computed(() => {
   void coverManifestRevision.value
   const unit = selectedUnit.value
@@ -2318,22 +2336,39 @@ watch(
 )
 
 watch(
-  () => [selectedUnit.value?.publisherId, selectedUnit.value?.bookId] as const,
-  ([publisherId, bookId]) => {
-    if (!publisherId || !bookId) return
+  () => [pageContentReady.value, shellVisible.value, activeScreen.value, selectedUnit.value?.publisherId, selectedUnit.value?.bookId] as const,
+  ([ready, visible, screen, publisherId, bookId]) => {
+    if (!ready || !visible || screen !== 'home' || !publisherId || !bookId) return
     void ensureTextbookCoverVersion(publisherId, bookId)
   },
   { immediate: true },
 )
 
 watch(
-  () => `${courseSetupPublisherId.value}|${courseSetupBookOptions.value.map(book => book.id).join('|')}`,
-  () => {
+  () => pageContentReady.value && shellVisible.value && activeScreen.value === 'courseSetup'
+    ? `${courseSetupPublisherId.value}|${courseSetupBookOptions.value.map(book => book.id).join('|')}`
+    : '',
+  key => {
+    if (!key) return
     const publisherId = courseSetupPublisherId.value
     if (!publisherId) return
     for (const book of courseSetupBookOptions.value) {
       void ensureTextbookCoverVersion(publisherId, book.id)
     }
+  },
+  { immediate: true },
+)
+
+watch(
+  () => pageContentReady.value && shellVisible.value && activeScreen.value === 'home',
+  eligible => {
+    if (feedbackRefreshTimer !== null) clearTimeout(feedbackRefreshTimer)
+    feedbackRefreshTimer = null
+    if (!eligible) return
+    feedbackRefreshTimer = setTimeout(() => {
+      feedbackRefreshTimer = null
+      if (pageContentReady.value && isHostingPageActive()) void refreshFeedbackUnread()
+    }, 300)
   },
   { immediate: true },
 )
@@ -2542,10 +2577,10 @@ function isHostingPageActive(): boolean {
 }
 
 function handlePageShow() {
+  const revision = ++pageShowRevision
   updateMiniProgramNavInset()
   configureMiniProgramAudioPlayback()
   refreshTodayDictationWordCount()
-  void refreshFeedbackUnread()
   shellVisible.value = true
   if (props.routeScreen) {
     activateRouteScreen(props.routeScreen)
@@ -2554,6 +2589,13 @@ function handlePageShow() {
   }
   syncNativeTabBar()
   syncNativeWeakbookBadge()
+  void nextTick(async () => {
+    // uni-app's instance tick also waits for the native setData callback.
+    await instance?.proxy?.$nextTick()
+    if (revision !== pageShowRevision || !shellVisible.value || !isHostingPageActive()) return
+    pageContentReady.value = true
+    emit('content-ready')
+  })
 }
 
 function activateTabRoot() {
@@ -2999,7 +3041,8 @@ function openFeedbackPage() {
 }
 
 async function refreshFeedbackUnread() {
-  hasUnreadFeedback.value = (await fetchFeedbackUnreadCount()) > 0
+  const unreadCount = await fetchFeedbackUnreadCount()
+  if (pageContentReady.value && isHostingPageActive()) hasUnreadFeedback.value = unreadCount > 0
 }
 
 async function confirmCourseSetupPage() {
@@ -3754,6 +3797,8 @@ onShow(() => {
 })
 
 onHide(() => {
+  pageShowRevision += 1
+  pageContentReady.value = false
   cancelFeatureAnnouncementShow()
   hideActiveFeatureAnnouncement()
   clearDictationTimers()
@@ -3770,6 +3815,9 @@ onHide(() => {
 })
 
 onBeforeUnmount(() => {
+  pageShowRevision += 1
+  pageContentReady.value = false
+  if (feedbackRefreshTimer !== null) clearTimeout(feedbackRefreshTimer)
   cancelFeatureAnnouncementShow()
   unsubscribeCoverManifest?.()
   unsubscribeCoverManifest = null

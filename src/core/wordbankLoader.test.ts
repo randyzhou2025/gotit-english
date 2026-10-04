@@ -8,6 +8,27 @@ import {
 } from './wordbankLoader'
 
 describe('expandPublisherBlock word ids', () => {
+  it('keeps textbook ought to while excluding other phrases', () => {
+    const entries = expandPublisherBlock({
+      publisher: { id: 'wy', name: '外研社版' },
+      sourceWorkbook: 'test.xlsx',
+      books: [{
+        id: 'required-1',
+        name: '必修第一册',
+        order: 1,
+        units: [{
+          number: 4,
+          words: [
+            ['ought to', '', '', '应该；应当', 3, 'ought-to', 276],
+            ['look forward to', '', '', '期待', 3, 'look-forward-to', 277]
+          ]
+        }]
+      }]
+    })
+
+    expect(entries.map(entry => entry.word)).toEqual(['ought to'])
+  })
+
   it('keeps the first slug and disambiguates duplicates within a unit', () => {
     const entries = expandPublisherBlock({
       publisher: { id: 'ylj', name: '译林版' },

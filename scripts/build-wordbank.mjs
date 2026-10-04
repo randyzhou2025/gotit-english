@@ -88,7 +88,7 @@ const bsdSourceFile = path.join('高中课本', '北师大版高中英语全7册
 const bsdExtensionFile = path.join('高中课本', '北师大版高中英语全7册_增加学习扩展字段.xlsx')
 const yljSourceFile = path.join('高中课本', '译林版高中英语全7册_词汇表.xlsx')
 const yljExtensionFile = path.join('高中课本', '译林版高中英语全7册_增加学习扩展字段.xlsx')
-const wySourceFile = path.join('高中课本', '外研社版高中英语全7册_词汇表.xlsx')
+const wySourceFile = path.join('高中课本', '外研社版高中英语全7册_词汇表_必修一补全.xlsx')
 const wyExtensionFile = path.join('高中课本', '外研社版高中英语全7册_增加学习扩展字段.xlsx')
 const rjJuniorExtensionFile = path.join('初中课本', '人教版初中英语全5册_增加学习扩展字段.xlsx')
 const kpJuniorExtensionFile = path.join('初中课本', '科普版初中英语全6册_增加学习扩展字段.xlsx')
@@ -671,7 +671,7 @@ function buildHighSchoolBooks(sourceFile, extensionLookup = null) {
       if (!word || !meaning) {
         throw new Error(`${sheetName} row ${headerRowIndex + rowIndex + 2} has incomplete word data`)
       }
-      if (isPhraseEntry(word)) continue
+      if (isPhraseEntry(word) && !(sourceFile === wySourceFile && bookId === 'required-1' && word === 'ought to')) continue
 
       const unitMeta = parseNumericUnit(row[columns['单元'] ?? 0])
       const targetUnit = upsertUnit(units, unitMeta)
