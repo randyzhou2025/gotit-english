@@ -7,6 +7,7 @@ export type AnalyticsEventName =
   | 'feature_announcement_action'
   | 'home_export_click'
   | 'home_word_match_click'
+  | 'home_grammar_click'
   | 'wordlist_export_click'
   | 'weakbook_click'
   | 'dictation_start'

@@ -114,22 +114,32 @@
           <view class="homeV2ExportArrow" />
         </view>
         <view class="homeV2QuickCopy">
-          <text class="homeV2QuickTitle">导出｜打印词表</text>
-          <text class="homeV2QuickMeta">
-            <text class="homeV2QuickMetaPart">词汇表 · 默写表 </text>
-            <text class="homeV2QuickMetaPart">一键生成</text>
-          </text>
+          <text class="homeV2QuickTitle">导出词表</text>
+          <text class="homeV2QuickMeta">打印｜默写</text>
         </view>
-        <text class="homeV2QuickChevron">›</text>
       </view>
 
       <view class="homeV2QuickCard isWordMatch" @tap="emit('open-word-match')">
         <view class="homeV2MatchIcon" aria-hidden="true"><text>消</text></view>
         <view class="homeV2QuickCopy">
           <text class="homeV2QuickTitle">单词消消乐</text>
-          <text class="homeV2QuickMeta">中英配对 · 越玩越熟本 Unit 单词</text>
+          <text class="homeV2QuickMeta">中英配对</text>
         </view>
-        <text class="homeV2QuickChevron">›</text>
+      </view>
+
+      <view
+        class="homeV2QuickCard isGrammar"
+        hover-class="homeV2ThemeSwitchPressed"
+        hover-stay-time="80"
+        role="button"
+        aria-label="语法课堂，16种时态"
+        @tap="emit('open-grammar')"
+      >
+        <view class="homeV2MatchIcon" aria-hidden="true"><text>语</text></view>
+        <view class="homeV2QuickCopy">
+          <text class="homeV2QuickTitle">语法课堂</text>
+          <text class="homeV2QuickMeta">16种时态</text>
+        </view>
       </view>
     </view>
 
@@ -177,6 +187,7 @@ const emit = defineEmits<{
   'start-dictation': []
   'export-wordlist': []
   'open-word-match': []
+  'open-grammar': []
   'switch-theme': []
   'play-unit-egg-audio': [keyword: string]
   'book-cover-error': []
@@ -239,15 +250,16 @@ const remainingDictationMeta = computed(() => {
   z-index: 1;
   display: grid;
   flex: 1 1 auto;
-  grid-template-rows: 44px 230px 145px 90px 140px;
+  grid-template-rows: 44px 230px 145px 96px 140px;
   align-content: space-between;
+  row-gap: 12px;
   min-width: 0;
   min-height: 0;
 }
 
 /* #ifdef MP-WEIXIN */
 .homeV2 {
-  height: calc(100vh - var(--capsule-top, 44px) - 92px - env(safe-area-inset-bottom));
+  min-height: calc(100vh - var(--capsule-top, 44px) - 92px - env(safe-area-inset-bottom));
 }
 /* #endif */
 
@@ -548,8 +560,7 @@ const remainingDictationMeta = computed(() => {
   font-weight: 700;
 }
 
-.homeV2Chevron,
-.homeV2QuickChevron {
+.homeV2Chevron {
   color: var(--muted);
   font-size: 28px;
   line-height: 1;
@@ -700,22 +711,23 @@ const remainingDictationMeta = computed(() => {
 
 .homeV2QuickGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
   height: 100%;
 }
 
 .homeV2QuickCard {
   position: relative;
   box-sizing: border-box;
-  display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  column-gap: 8px;
+  gap: 8px;
   min-width: 0;
   height: 100%;
   min-height: 0;
-  padding: 9px 10px;
+  padding: 10px 6px;
   border: 1px solid var(--line);
   border-radius: 16px;
   background: var(--surface);
@@ -723,7 +735,8 @@ const remainingDictationMeta = computed(() => {
 }
 
 .homeV2QuickCard.isExport,
-.homeV2QuickCard.isWordMatch {
+.homeV2QuickCard.isWordMatch,
+.homeV2QuickCard.isGrammar {
   background: var(--accent-soft);
 }
 
@@ -735,33 +748,29 @@ const remainingDictationMeta = computed(() => {
   display: flex;
   flex-direction: column;
   min-width: 0;
-}
-
-.homeV2QuickChevron {
-  color: var(--accent);
-  font-size: 22px;
+  max-width: 100%;
+  text-align: center;
 }
 
 .homeV2QuickTitle {
   overflow: hidden;
   color: var(--accent);
   font-size: 13px;
-  line-height: 1.15;
+  line-height: 1.3;
   font-weight: 900;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .homeV2QuickMeta {
-  display: -webkit-box;
+  display: block;
   margin-top: 4px;
   overflow: hidden;
   color: var(--muted);
-  font-size: 9px;
-  line-height: 1.25;
+  font-size: 10px;
+  line-height: 1.3;
   font-weight: 650;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  white-space: nowrap;
 }
 
 .homeV2ExportIcon {
@@ -901,8 +910,8 @@ const remainingDictationMeta = computed(() => {
 
   .homeV2QuickCard {
     min-height: 0;
-    padding-right: 8px;
-    padding-left: 8px;
+    padding-right: 6px;
+    padding-left: 6px;
   }
 
   .homeV2QuickTitle {
@@ -910,17 +919,13 @@ const remainingDictationMeta = computed(() => {
   }
 
   .homeV2QuickMeta {
-    font-size: 9px;
-  }
-
-  .homeV2QuickCard.isExport .homeV2QuickMetaPart {
-    display: block;
+    font-size: 10px;
   }
 }
 
 @media (max-height: 820px) {
   .homeV2 {
-    grid-template-rows: 42px 190px 132px 72px 120px;
+    grid-template-rows: 42px 190px 132px 96px 120px;
   }
 
   .homeV2Header {
@@ -966,7 +971,7 @@ const remainingDictationMeta = computed(() => {
 
 @media (max-height: 720px) {
   .homeV2 {
-    grid-template-rows: 40px 170px 122px 68px 100px;
+    grid-template-rows: 40px 170px 122px 96px 100px;
   }
 
   .homeV2CourseMain { min-height: 78px; }

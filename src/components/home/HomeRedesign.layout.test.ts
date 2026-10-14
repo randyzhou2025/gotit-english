@@ -74,15 +74,14 @@ describe('redesigned home', () => {
     expect(homeSource).toContain('剩余${remainingWordCount.value}词 · 全部听写约${estimatedMinutes} · 自动播报')
     expect(homeSource).not.toContain('Math.min(20')
     expect(shellSource).toContain('estimateDictationSeconds(')
-    expect(homeSource).toContain('导出｜打印词表')
-    expect(homeSource).toContain('词汇表 · 默写表 ')
-    expect(homeSource).toContain('一键生成')
-    expect(homeSource).toContain('中英配对 · 越玩越熟本 Unit 单词')
+    expect(homeSource).toContain('导出词表')
+    expect(homeSource).toContain('打印｜默写')
+    expect(homeSource).toContain('中英配对')
     expect(homeSource).not.toContain('玩一轮得2学习力')
   })
 
-  it('uses the same color treatment for both quick actions', () => {
-    expect(homeSource).toContain('.homeV2QuickCard.isExport,\n.homeV2QuickCard.isWordMatch {')
+  it('uses the same color treatment for the three quick actions', () => {
+    expect(homeSource).toContain('.homeV2QuickCard.isExport,\n.homeV2QuickCard.isWordMatch,\n.homeV2QuickCard.isGrammar {')
     expect(homeSource).not.toContain('.homeV2QuickCard.isExport {\n  border-color: var(--accent);')
   })
 
@@ -100,10 +99,9 @@ describe('redesigned home', () => {
   it('uses the full 15 Pro Max viewport without leaking into the native tab bar', () => {
     expect(shellSource).toContain("HOME_REDESIGN_V2_ENABLED && 'isHomeV2Screen'")
     expect(shellSource).toContain('.screen.isHomeV2Screen')
-    expect(shellSource).toContain('height: 100dvh;')
-    expect(shellSource).toContain('overflow: hidden;')
-    expect(homeSource).toContain('height: calc(100vh - var(--capsule-top, 44px) - 92px - env(safe-area-inset-bottom));')
-    expect(homeSource).toContain('grid-template-rows: 44px 230px 145px 90px 140px;')
+    expect(shellSource).toMatch(/\.screen\.isHomeV2Screen\s*\{[^}]*height: auto;[^}]*min-height: 100dvh;[^}]*overflow-y: visible;/s)
+    expect(homeSource).toContain('min-height: calc(100vh - var(--capsule-top, 44px) - 92px - env(safe-area-inset-bottom));')
+    expect(homeSource).toContain('grid-template-rows: 44px 230px 145px 96px 140px;')
     expect(homeSource).toContain('align-content: space-between;')
     expect(homeSource).toContain('box-sizing: border-box;')
     expect(bootSource.indexOf('homeV2BootEgg')).toBeGreaterThan(bootSource.indexOf('homeV2BootQuickGrid'))

@@ -90,6 +90,25 @@ describe('analytics queue', () => {
     expect(queued[queued.length - 1]?.name).toBe('home_word_match_click')
   })
 
+  it('uploads a grammar entry click through the existing analytics queue', async () => {
+    storage.set('gotit:auth:token', 'token')
+    request.mockResolvedValue({ statusCode: 202, data: { accepted: 1 } })
+    const analytics = await import('./analytics')
+    analytics.trackAnalyticsEvent('home_grammar_click', { source: 'home' })
+    await vi.advanceTimersByTimeAsync(0)
+    analytics.enableAnalyticsNetworkFlush()
+    await analytics.flushAnalyticsEvents()
+
+    expect(request).toHaveBeenCalledWith(expect.objectContaining({
+      method: 'POST',
+      data: { events: [expect.objectContaining({
+        name: 'home_grammar_click',
+        properties: { source: 'home' }
+      })] }
+    }))
+    expect(storage.get('gotit:analytics:queue:v1')).toEqual([])
+  })
+
   it('clears pending events and stops uploads when disabled', async () => {
     storage.set('gotit:auth:token', 'token')
     const analytics = await import('./analytics')

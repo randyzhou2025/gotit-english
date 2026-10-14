@@ -213,6 +213,7 @@
         @start-dictation="openDictationSetupPage"
         @export-wordlist="openWordlistExportPage"
         @open-word-match="openWordMatchPage"
+        @open-grammar="openGrammarPage"
         @switch-theme="switchToNextVisualTheme"
         @play-unit-egg-audio="playUnitEggAudio"
         @book-cover-error="homeBookCoverFailed = true"
@@ -3019,6 +3020,11 @@ function openWordlistExportPage() {
   uni.navigateTo({
     url: '/pages/export-wordlist/index'
   })
+}
+
+function openGrammarPage() {
+  trackAnalyticsEvent('home_grammar_click', { source: 'home' })
+  uni.navigateTo({ url: '/pages/grammar/index' })
 }
 
 function openWordMatchPage() {
@@ -8316,10 +8322,10 @@ onBeforeUnmount(() => {
 .screen.isHomeV2Screen {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  height: 100dvh;
-  min-height: 0;
-  overflow: hidden;
+  height: auto;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: visible;
 }
 
 .screen.isHomeScreen .homeScreen {

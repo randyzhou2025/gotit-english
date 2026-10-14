@@ -29,6 +29,7 @@
       <view class="homeV2BootQuickGrid">
         <view class="bootSkeletonBlock homeV2BootQuick" />
         <view class="bootSkeletonBlock homeV2BootQuick" />
+        <view class="bootSkeletonBlock homeV2BootQuick" />
       </view>
       <view class="bootSkeletonBlock homeV2BootEgg" />
     </view>
@@ -188,8 +189,9 @@ onBeforeMount(async () => {
 .homeV2Boot {
   display: grid;
   flex: 1 1 auto;
-  grid-template-rows: 44px 230px 145px 90px 140px;
+  grid-template-rows: 44px 230px 145px 96px 140px;
   align-content: space-between;
+  row-gap: 12px;
   min-height: 0;
 }
 
@@ -243,8 +245,8 @@ onBeforeMount(async () => {
 
 .homeV2BootQuickGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .homeV2BootQuick {
@@ -264,13 +266,13 @@ onBeforeMount(async () => {
 
 @media (max-height: 820px) {
   .homeV2Boot {
-    grid-template-rows: 42px 190px 132px 72px 120px;
+    grid-template-rows: 42px 190px 132px 96px 120px;
   }
 }
 
 @media (max-height: 720px) {
   .homeV2Boot {
-    grid-template-rows: 40px 170px 122px 68px 100px;
+    grid-template-rows: 40px 170px 122px 96px 100px;
   }
 }
 

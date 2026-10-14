@@ -1,0 +1,33 @@
+.grammarPage { box-sizing: border-box; min-height: 100vh; background: var(--page-bg); color: var(--ink); padding: 20px 20px calc(32px + env(safe-area-inset-bottom)); }
+.grammarPage.withAction { padding-bottom: calc(118px + env(safe-area-inset-bottom)); }
+.grammarContent { max-width: 480px; margin: 0 auto; }
+.gEyebrow { display: block; color: var(--accent); font-size: 12px; font-weight: 750; letter-spacing: 1px; margin-bottom: 9px; }
+.gTitle { display: block; font-size: 27px; line-height: 1.35; font-weight: 800; letter-spacing: -.6px; }
+.gSubtitle { display: block; color: var(--muted); font-size: 13px; line-height: 1.7; margin-top: 7px; }
+.gSection { display: block; margin: 28px 0 12px; font-size: 17px; font-weight: 750; }
+.gCard { padding: 20px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); margin-top: 12px; }
+.gRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.gBody { display: block; font-size: 15px; line-height: 1.85; white-space: pre-wrap; overflow-wrap: anywhere; }
+.gMuted { color: var(--muted); }
+.gSmall { font-size: 12px; line-height: 1.6; }
+.gEnglish { display: block; font-size: 19px; line-height: 1.6; font-family: Georgia, 'Times New Roman', serif; white-space: pre-wrap; overflow-wrap: anywhere; }
+.gButton { display: flex; justify-content: center; align-items: center; margin: 0; width: 100%; min-height: 50px; padding: 12px 16px; border-radius: 14px; border: 0; background: var(--accent); color: var(--surface); font-size: 16px; line-height: 1.4; font-weight: 750; }
+.gButton::after { border: 0; }
+.gButton[disabled] { opacity: .4; color: var(--surface); background: var(--accent); }
+.gButton.secondary { color: var(--accent); background: var(--accent-soft); }
+.gButton.quiet { color: var(--muted); background: transparent; font-size: 14px; }
+.gPressed { opacity: .75; }
+.gLink { color: var(--accent); font-size: 14px; font-weight: 650; padding: 10px 0; }
+.gBadge { display: inline-block; border-radius: 7px; color: var(--accent); background: var(--accent-soft); font-size: 11px; padding: 4px 7px; }
+.gNotice { display: block; margin-top: 12px; padding: 12px; background: var(--danger-soft); color: var(--danger); font-size: 13px; line-height: 1.6; border-radius: 12px; }
+.gFooter { position: fixed; bottom: 0; left: 0; right: 0; z-index: 15; padding: 12px 20px calc(12px + env(safe-area-inset-bottom)); background: var(--theme-chrome); border-top: 1px solid var(--line); }
+.gFooterInner { max-width: 480px; margin: 0 auto; }
+.gEmpty { padding: 44px 0; text-align: center; }
+.gDivider { height: 1px; background: var(--line); margin: 18px 0; }
+.gActions { display: flex; gap: 10px; }.gActions .gButton { flex: 1; min-width: 0; }
+.gStats { display: flex; justify-content: space-between; text-align: center; gap: 8px; }.gStats > view { flex: 1; font-size: 11px; line-height: 1.7; }.gStatNumber { display: block; font-size: 24px; font-weight: 750; color: var(--accent); }.gStatTotal { font-size: 13px; font-weight: 400; }
+.gTextButton { display: inline-flex; margin: 0; padding: 10px 0; background: transparent; color: var(--accent); font-size: 12px; line-height: 1.5; border: 0; }.gTextButton::after { border: 0; }.gTextButton[disabled] { background: transparent; color: var(--muted); }
+.gRestart { position: absolute; top: 12px; right: 12px; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: var(--surface-soft); color: var(--accent); font-size: 26px; line-height: 1; }.gRestart::after { border: 0; }
+.restartHeading { padding-right: 48px; }
+.gCompletion { display: block; margin-top: 9px; color: var(--accent); font-size: 13px; line-height: 1.7; font-weight: 650; }
+@media (max-width: 350px) { .grammarPage { padding-left: 16px; padding-right: 16px; } .gCard { padding: 16px; } .gTitle { font-size: 24px; } }

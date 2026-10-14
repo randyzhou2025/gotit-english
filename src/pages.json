@@ -15,6 +15,38 @@
       }
     },
     {
+      "path": "pages/grammar/index",
+      "style": {
+        "navigationBarTitleText": "语法",
+        "navigationBarBackgroundColor": "#dfece6",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/grammar/lesson",
+      "style": {
+        "navigationBarTitleText": "时态学习",
+        "navigationBarBackgroundColor": "#dfece6",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/grammar/practice",
+      "style": {
+        "navigationBarTitleText": "时态练习",
+        "navigationBarBackgroundColor": "#dfece6",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/grammar/result",
+      "style": {
+        "navigationBarTitleText": "练习结果",
+        "navigationBarBackgroundColor": "#dfece6",
+        "navigationStyle": "default"
+      }
+    },
+    {
       "path": "pages/weakbook/index",
       "style": {
         "navigationBarTitleText": "生词本",
