@@ -1317,10 +1317,12 @@
       <view v-if="dictationMode === 'online'" class="onlineAnswerPanel">
         <input
           v-model="dictationInput"
-          class="textInput"
+          :class="['textInput', dictationInputFocused && 'isFocused']"
           placeholder="输入英文单词"
-          placeholder-class="inputPlaceholder"
+          placeholder-class="onlineAnswerPlaceholder"
           confirm-type="done"
+          @focus="dictationInputFocused = true"
+          @blur="dictationInputFocused = false"
           @confirm="submitDictationInput"
         />
         <view v-if="showDictationAnswer" :class="['answerBox', lastDictationCorrect ? 'success' : 'danger']">
@@ -1350,7 +1352,7 @@
         </view>
       </view>
 
-      <view class="playerBottomInfo">
+      <view v-if="dictationMode !== 'online'" class="playerBottomInfo">
         <view class="exitDictationButton" @tap="leaveDictationToSetupPage">
           <text>退出听写</text>
         </view>
@@ -1812,6 +1814,7 @@ const unitWordFilter = ref<UnitWordFilter>('all')
 const unitWordAlphabetical = ref(false)
 const unitWordMeaningVisible = ref(false)
 const homeRecommendedWordId = ref('')
+const dictationInputFocused = ref(false)
 const homeBookCoverFailed = ref(false)
 const courseBookCoverFailedKeys = ref<string[]>([])
 const coverManifestRevision = ref(getTextbookCoverRevision())
@@ -4912,6 +4915,7 @@ onBeforeUnmount(() => {
 }
 
 .textInput {
+  box-sizing: border-box;
   width: 100%;
   height: 58px;
   padding: 0 14px;
@@ -6220,8 +6224,8 @@ onBeforeUnmount(() => {
 }
 
 .onlineAnswerPanel {
-  display: grid;
-  gap: 14px;
+  display: flex;
+  flex-direction: column;
   margin-top: 38px;
 }
 
@@ -7670,14 +7674,91 @@ onBeforeUnmount(() => {
 
 .onlineAnswerPanel {
   position: fixed;
-  right: 24px;
+  right: 18px;
   bottom: calc(14px + env(safe-area-inset-bottom));
-  left: 24px;
+  left: 18px;
   z-index: 35;
+  box-sizing: border-box;
   max-width: 382px;
   margin: 0 auto;
-  padding-top: 14px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0), #fff 28%);
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--surface);
+  box-shadow: 0 8px 28px var(--ink-shadow);
+}
+
+.onlineAnswerPanel .textInput {
+  flex: 0 0 auto;
+  min-width: 0;
+  height: 56px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-soft);
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.onlineAnswerPanel .textInput.isFocused {
+  border-color: var(--accent);
+  background: var(--surface);
+}
+
+.onlineAnswerPlaceholder {
+  color: var(--muted);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.onlineAnswerPanel .dictationStartButton {
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  height: 50px;
+  min-height: 50px;
+  margin-top: 12px;
+  border-radius: 14px;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: none;
+  font-size: 17px;
+  font-weight: 750;
+}
+
+.onlineAnswerPanel .dictationStartButton:active {
+  background: var(--accent-strong);
+}
+
+.onlineAnswerPanel .dictationStartButton.isDisabled {
+  background: var(--accent-soft);
+  color: var(--muted);
+}
+
+.onlineAnswerPanel .onlineForgotButton {
+  align-self: center;
+  min-height: 36px;
+  margin-top: 12px;
+  padding: 0 16px;
+}
+
+.onlineAnswerPanel .answerBox {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 14px;
+}
+
+.onlineAnswerPanel .feedbackTitle {
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.onlineAnswerPanel .answerBox .correctionLine {
+  margin-top: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 
 .reportScreen {

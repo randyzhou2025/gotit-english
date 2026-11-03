@@ -41,6 +41,16 @@ describe('practice shell full-page layout', () => {
     expect(source).toContain('text-align: center;')
   })
 
+  it('keeps the online dictation input inside the bottom answer panel', () => {
+    const textInputStart = source.indexOf('.textInput {')
+    const textInputRule = source.slice(textInputStart, source.indexOf('}', textInputStart))
+
+    expect(textInputRule).toContain('width: 100%;')
+    expect(textInputRule).toContain('box-sizing: border-box;')
+    expect(source).toContain('.onlineAnswerPanel {')
+    expect(source).toContain('max-width: 382px;')
+  })
+
   it('uses the approved weakbook hierarchy', () => {
     expect(source).toContain('class="weakbookGuideBanner"')
     expect(source).toContain('class="weakbookGuideTop"')
