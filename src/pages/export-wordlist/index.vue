@@ -7,12 +7,17 @@
         </view>
         <view class="navCopy">
           <text class="navTitle">导出词表</text>
-          <text class="navMeta">{{ unitTitle }} · 共 {{ sourceWords.length }} 词 {{ exportPages.length }} 页</text>
         </view>
       </view>
+      <text class="navMeta">{{ unitTitle }} · 共 {{ sourceWords.length }} 词 {{ exportPages.length }} 页</text>
     </FixedPageHeader>
 
     <scroll-view scroll-y class="exportScroll" :show-scrollbar="false">
+      <view class="worksheetEntry" hover-class="worksheetEntryPressed" role="button" aria-label="跨单元默写卷，自选范围，配套答案" @tap="openWorksheet">
+        <view class="worksheetEntryIcon"><text>▤</text></view>
+        <view class="worksheetEntryCopy"><text class="worksheetEntryTitle">跨单元默写卷</text><text class="worksheetEntryMeta">自选范围 · 配套答案</text></view>
+        <text class="worksheetEntryArrow">›</text>
+      </view>
       <view class="previewStage">
         <view class="previewPaper">
           <view class="paperHeader">
@@ -167,7 +172,6 @@ const exportProgress = ref('正在生成…')
 const exportMode = ref<WordlistExportMode>('wordlist')
 const shuffled = ref(false)
 const shuffledWords = ref<WordEntry[]>([])
-const miniProgramNavTop = ref(16)
 const miniProgramCapsuleTop = ref(44)
 const miniProgramCapsuleHeight = ref(32)
 
@@ -203,7 +207,6 @@ const screenStyle = computed(() => (
   `${activeVisualThemeStyle.value} padding-top: ${miniProgramCapsuleTop.value}px;`
   + ` --capsule-top: ${miniProgramCapsuleTop.value}px;`
   + ` --capsule-h: ${miniProgramCapsuleHeight.value}px;`
-  + ` --nav-top: ${miniProgramNavTop.value}px;`
 ))
 
 function updateMiniProgramNavInset() {
@@ -212,15 +215,21 @@ function updateMiniProgramNavInset() {
     if (menuButton && menuButton.top > 0) {
       miniProgramCapsuleTop.value = menuButton.top
       miniProgramCapsuleHeight.value = menuButton.height
-      miniProgramNavTop.value = Math.max(8, menuButton.top - 8)
     }
   } catch {
     // Preview runtimes may not expose the WeChat capsule geometry.
   }
 }
 
+updateMiniProgramNavInset()
+
 function goBack() {
   uni.navigateBack()
+}
+
+function openWorksheet() {
+  if (exporting.value) return
+  uni.navigateTo({ url: '/pages/worksheet/index' })
 }
 
 function initializeRewardedVideoAd() {
@@ -505,8 +514,8 @@ onMounted(() => {
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  min-height: var(--capsule-h, 32px);
-  padding: 0 54px;
+  height: var(--capsule-h, 32px);
+  padding: 0 88px;
 }
 
 .navBack {
@@ -545,8 +554,11 @@ onMounted(() => {
 }
 
 .navMeta {
+  display: block;
+  align-self: center;
   max-width: 270px;
-  margin-top: 4px;
+  margin: 10px 0 14px;
+  text-align: center;
   overflow: hidden;
   color: var(--muted);
   font-size: 10px;
@@ -567,6 +579,24 @@ onMounted(() => {
   padding: 16px 14px 20px;
   background: #e9e7e1;
 }
+
+.worksheetEntry {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 8px 20px 16px;
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--accent-soft);
+}
+
+.worksheetEntryPressed { opacity: .7; }
+.worksheetEntryIcon { display: flex; align-items: center; justify-content: center; flex: 0 0 41px; height: 43px; border-radius: 11px; background: var(--surface); color: var(--accent); font-size: 24px; }
+.worksheetEntryCopy { flex: 1; min-width: 0; }
+.worksheetEntryTitle { display: block; color: var(--accent); font-size: 17px; line-height: 1.4; font-weight: 650; }
+.worksheetEntryMeta { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; }
+.worksheetEntryArrow { color: var(--accent); font-size: 25px; }
 
 .previewPaper {
   box-sizing: border-box;

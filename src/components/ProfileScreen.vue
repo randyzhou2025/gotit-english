@@ -562,6 +562,8 @@ function updateMiniProgramNavInset() {
   }
 }
 
+updateMiniProgramNavInset()
+
 async function loadProfileData() {
   user.value = getCachedUser() ?? user.value
   dashboard.value = getCachedDashboard() ?? dashboard.value

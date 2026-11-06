@@ -2469,6 +2469,8 @@ function updateMiniProgramNavInset() {
   // #endif
 }
 
+updateMiniProgramNavInset()
+
 function setDictationPrompt(value: 'chinese' | 'english' | 'bilingual') {
   dictationPrompt.value = value
   if (value === 'bilingual' || (value === 'chinese' && dictationMode.value === 'recognition')) {

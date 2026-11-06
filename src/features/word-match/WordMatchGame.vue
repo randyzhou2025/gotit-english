@@ -245,6 +245,7 @@ const meaningPopover = ref<string | null>(null)
 const feedbackKind = ref<'wrong' | ''>('')
 const feedbackSerial = ref(0)
 const capsuleTop = ref(44)
+const capsuleHeight = ref(32)
 const soundEnabled = ref(isWordMatchSoundEnabled())
 const timers = new Set<ReturnType<typeof setTimeout>>()
 
@@ -300,7 +301,7 @@ const rewardMeta = computed(() => {
   return `今日消消乐 +${award.value.dailyEarned}/${award.value.dailyLimit}`
 })
 const screenStyle = computed(() => (
-  `${activeVisualThemeStyle.value} --word-match-capsule-top:${capsuleTop.value}px;`
+  `${activeVisualThemeStyle.value} --word-match-capsule-top:${capsuleTop.value}px; --word-match-nav-height:${capsuleHeight.value}px;`
 ))
 
 function later(callback: () => void, delay: number) {
@@ -332,11 +333,16 @@ function toggleSound() {
 function updateCapsuleTop() {
   try {
     const capsule = uni.getMenuButtonBoundingClientRect?.()
-    if (capsule && capsule.top > 0) capsuleTop.value = capsule.top
+    if (capsule && capsule.top > 0) {
+      capsuleTop.value = capsule.top
+      capsuleHeight.value = capsule.height || 32
+    }
   } catch {
     // Use the stable fallback in H5 and restricted preview contexts.
   }
 }
+
+updateCapsuleTop()
 
 function loadRoundCards() {
   cards.value = currentRound.value ? createRoundCards(currentRound.value) : []
@@ -591,7 +597,7 @@ onBeforeUnmount(() => {
 .wordMatchNav {
   position: relative;
   display: flex;
-  flex: 0 0 46px;
+  flex: 0 0 var(--word-match-nav-height, 32px);
   align-items: center;
   justify-content: center;
 }
@@ -1220,7 +1226,7 @@ onBeforeUnmount(() => {
 
 @media (max-height: 700px) {
   .wordMatchScreen { padding-bottom: calc(8px + env(safe-area-inset-bottom)); }
-  .wordMatchNav { flex-basis: 42px; }
+  .wordMatchNav { flex-basis: var(--word-match-nav-height, 32px); }
   .wordMatchTitle { font-size: 18px; }
   .wordMatchStatus { min-height: 36px; margin-top: 4px; }
   .wordMatchPrompt { min-height: 52px; }
