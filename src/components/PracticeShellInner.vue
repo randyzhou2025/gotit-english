@@ -1060,6 +1060,22 @@
         <text class="contentArrow">›</text>
       </view>
 
+      <!-- #ifdef MP-WEIXIN -->
+      <!-- 听写配置页横幅广告暂时停用，保留代码便于恢复。
+      <view
+        v-if="pageContentReady && !dictationSetupAdHidden"
+        :class="['dictationSetupAd', !dictationSetupAdLoaded && 'isLoading']"
+      >
+        <ad-custom
+          unit-id="adunit-e1a244534203a89c"
+          @load="handleDictationSetupAdLoad"
+          @error="handleDictationSetupAdError"
+          @close="handleDictationSetupAdClose"
+        />
+      </view>
+      -->
+      <!-- #endif -->
+
       <view :class="['dictationStartButton', selectedDictationWordCount === 0 && 'isDisabled']" @tap="beginDictation">
         <text>开始听写</text>
       </view>
@@ -1844,6 +1860,24 @@ const checkupLimitDraft = ref('')
 const checkupLimitInputFocused = ref(false)
 const shellVisible = ref(false)
 const pageContentReady = ref(false)
+/* 听写配置页横幅广告暂时停用。
+const dictationSetupAdLoaded = ref(false)
+const dictationSetupAdHidden = ref(false)
+
+function handleDictationSetupAdLoad() {
+  dictationSetupAdLoaded.value = true
+}
+
+function handleDictationSetupAdError(event: { detail?: { errCode?: number; errMsg?: string } }) {
+  dictationSetupAdHidden.value = true
+  console.warn('[dictation-setup] native template ad failed', event.detail)
+}
+
+function handleDictationSetupAdClose() {
+  dictationSetupAdHidden.value = true
+}
+*/
+
 let pageShowRevision = 0
 let feedbackRefreshTimer: ReturnType<typeof setTimeout> | null = null
 const miniProgramNavTop = ref(16)
@@ -3808,6 +3842,7 @@ onShow(() => {
 onHide(() => {
   pageShowRevision += 1
   pageContentReady.value = false
+  // dictationSetupAdLoaded.value = false
   cancelFeatureAnnouncementShow()
   hideActiveFeatureAnnouncement()
   clearDictationTimers()
@@ -14417,6 +14452,21 @@ onBeforeUnmount(() => {
   padding: 14px 16px;
   border-radius: 17px;
 }
+
+/* 听写配置页横幅广告暂时停用。
+.screen.isDictationSetupScreen .dictationSetupAd {
+  flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
+  padding-top: 24px;
+  padding-bottom: 6px;
+  box-sizing: border-box;
+}
+
+.screen.isDictationSetupScreen .dictationSetupAd.isLoading {
+  padding-bottom: 0;
+}
+*/
 
 .screen.isDictationSetupScreen .dictationSetupScreen > .dictationStartButton,
 .screen.isDictationWordScreen .wordPickerConfirm {
