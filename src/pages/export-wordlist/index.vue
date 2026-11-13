@@ -7,9 +7,9 @@
         </view>
         <view class="navCopy">
           <text class="navTitle">导出词表</text>
-          <text class="navMeta">{{ unitTitle }} · 共 {{ sourceWords.length }} 词 {{ exportPages.length }} 页</text>
         </view>
       </view>
+      <text class="navMeta">{{ unitTitle }} · 共 {{ sourceWords.length }} 词 {{ exportPages.length }} 页</text>
     </FixedPageHeader>
 
     <scroll-view scroll-y class="exportScroll" :show-scrollbar="false">
@@ -167,7 +167,6 @@ const exportProgress = ref('正在生成…')
 const exportMode = ref<WordlistExportMode>('wordlist')
 const shuffled = ref(false)
 const shuffledWords = ref<WordEntry[]>([])
-const miniProgramNavTop = ref(16)
 const miniProgramCapsuleTop = ref(44)
 const miniProgramCapsuleHeight = ref(32)
 
@@ -203,7 +202,6 @@ const screenStyle = computed(() => (
   `${activeVisualThemeStyle.value} padding-top: ${miniProgramCapsuleTop.value}px;`
   + ` --capsule-top: ${miniProgramCapsuleTop.value}px;`
   + ` --capsule-h: ${miniProgramCapsuleHeight.value}px;`
-  + ` --nav-top: ${miniProgramNavTop.value}px;`
 ))
 
 function updateMiniProgramNavInset() {
@@ -212,12 +210,13 @@ function updateMiniProgramNavInset() {
     if (menuButton && menuButton.top > 0) {
       miniProgramCapsuleTop.value = menuButton.top
       miniProgramCapsuleHeight.value = menuButton.height
-      miniProgramNavTop.value = Math.max(8, menuButton.top - 8)
     }
   } catch {
     // Preview runtimes may not expose the WeChat capsule geometry.
   }
 }
+
+updateMiniProgramNavInset()
 
 function goBack() {
   uni.navigateBack()
@@ -505,8 +504,8 @@ onMounted(() => {
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  min-height: var(--capsule-h, 32px);
-  padding: 0 54px;
+  height: var(--capsule-h, 32px);
+  padding: 0 88px;
 }
 
 .navBack {
@@ -545,8 +544,11 @@ onMounted(() => {
 }
 
 .navMeta {
+  display: block;
+  align-self: center;
   max-width: 270px;
-  margin-top: 4px;
+  margin: 10px 0 14px;
+  text-align: center;
   overflow: hidden;
   color: var(--muted);
   font-size: 10px;
