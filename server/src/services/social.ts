@@ -1,7 +1,6 @@
 import { randomBytes } from "node:crypto";
 import {
   and,
-  asc,
   count,
   desc,
   eq,
@@ -95,31 +94,10 @@ function totalBreakdown(breakdown: LearningPowerBreakdown): number {
   return Object.values(breakdown).reduce((sum, score) => sum + score, 0);
 }
 
-function orderedWeeklyRows<T extends typeof db>(database: T, weekKey: string) {
-  return database
-    .select({
-      userId: weeklyLearningPower.userId,
-      nickname: users.nickname,
-      avatarUrl: users.avatarUrl,
-      learningPower: weeklyLearningPower.learningPower,
-      validDictationCount: weeklyLearningPower.validDictationCount,
-      activeStudyDays: weeklyLearningPower.activeStudyDays,
-      lastScoreAt: weeklyLearningPower.lastScoreAt,
-    })
-    .from(weeklyLearningPower)
-    .innerJoin(users, eq(users.id, weeklyLearningPower.userId))
-    .where(eq(weeklyLearningPower.weekKey, weekKey))
-    .orderBy(
-      desc(weeklyLearningPower.learningPower),
-      desc(weeklyLearningPower.lastScoreAt),
-      asc(weeklyLearningPower.userId)
-    );
-}
-
-async function getRank(userId: string, weekKey: string): Promise<number | null> {
-  const rows = await orderedWeeklyRows(db, weekKey);
-  const index = rows.findIndex((row) => row.userId === userId);
-  return index < 0 ? null : index + 1;
+async function getRank(userId: string, occurredAt: Date): Promise<number | null> {
+  // 配置由本模块导出，按需加载以避免静态循环依赖。
+  const { getMetricLeaderboard } = await import("./leaderboard.js");
+  return (await getMetricLeaderboard(userId, "power", "week", occurredAt)).myRank;
 }
 
 async function currentLearningSnapshot(userId: string, weekKey: string) {
@@ -600,7 +578,7 @@ export async function recordDictationCompletion(userId: string, input: Dictation
     unitWordCount: input.unitWordCount,
   });
 
-  const oldRank = await getRank(userId, context.weekKey);
+  const oldRank = await getRank(userId, occurredAt);
   const result = await db.transaction(async (tx) => {
     const [submission] = await tx
       .insert(dictationSubmissions)
@@ -805,7 +783,7 @@ export async function recordDictationCompletion(userId: string, input: Dictation
 
   const [weeklySnapshot, myRank, sessionBreakdown] = await Promise.all([
     currentLearningSnapshot(userId, context.weekKey),
-    getRank(userId, context.weekKey),
+    getRank(userId, occurredAt),
     learningBreakdownForSession(userId, input.sessionId),
   ]);
   if (!result.duplicate && oldRank !== null && myRank !== null && myRank < oldRank) {
@@ -1120,41 +1098,39 @@ export async function leaderboardConfig(): Promise<LeaderboardConfig> {
   }
 }
 
-export async function getLeaderboard(userId: string) {
-  const context = shanghaiWeekContext();
-  const config = await leaderboardConfig();
-  const limit = config.displayLimit;
-  const rows = await orderedWeeklyRows(db, context.weekKey);
-  const serialized = rows.map((row, index) => ({
-    rank: index + 1,
-    userId: row.userId,
-    nickname: row.nickname ?? "同学",
-    avatarUrl: row.avatarUrl ?? "",
-    learningPower: row.learningPower,
-    isMe: row.userId === userId,
-  }));
-  const myIndex = serialized.findIndex((row) => row.isMe);
-  const me = myIndex >= 0 ? serialized[myIndex]! : null;
-  const previous = myIndex > 0 ? serialized[myIndex - 1]! : null;
-  const tenth = serialized[limit - 1] ?? null;
+export async function getLeaderboard(userId: string, now = new Date()) {
+  const { getMetricLeaderboard } = await import("./leaderboard.js");
+  const board = await getMetricLeaderboard(userId, "power", "week", now);
+  const serialize = (row: NonNullable<typeof board.myEntry>) => {
+    const { value, ...entry } = row;
+    return { ...entry, learningPower: value };
+  };
+  const limit = board.displayLimit;
+  const me = board.myEntry ? serialize(board.myEntry) : null;
+  const tenth = board.ranking[limit - 1] ?? null;
   const outsideTopTen = !me || me.rank > limit;
-  const pointsToEnter = outsideTopTen && serialized.length > 0
-    ? serialized.length < limit
+  const pointsToEnter = outsideTopTen && board.ranking.length > 0
+    ? board.ranking.length < limit
       ? 1
-      : pointsToEnterTopTen(tenth?.learningPower ?? null, me?.learningPower ?? 0)
+      : pointsToEnterTopTen(tenth?.value ?? null, me?.learningPower ?? 0)
     : null;
 
   return {
-    weekKey: context.weekKey,
-    weekStart: context.weekStart,
-    weekEnd: context.weekEnd,
+    weekKey: board.weekKey,
+    weekStart: board.weekStart,
+    weekEnd: board.weekEnd,
     displayLimit: limit,
-    topSpecialCount: config.topSpecialCount,
+    topSpecialCount: 3,
+    participantCount: board.participantCount,
+    simulatedParticipantCount: board.simulatedParticipantCount,
     myLearningPower: me?.learningPower ?? 0,
     myRank: me?.rank ?? null,
-    pointsToOvertakePrevious: pointsToOvertake(previous?.learningPower ?? null, me?.learningPower ?? 0),
+    pointsToOvertakePrevious: pointsToOvertake(
+      board.gapToPrevious === null ? null : board.myValue + board.gapToPrevious,
+      board.myValue
+    ),
     pointsToEnterTopTen: pointsToEnter,
-    ranking: serialized.slice(0, limit),
+    ranking: board.ranking.map(serialize),
     myEntry: me && me.rank > limit ? me : null,
   };
 }
